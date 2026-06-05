@@ -51,7 +51,7 @@ const traducoes = {
 
 export default function PortalAluno() {
   const [idioma, setIdioma] = useState<'PT' | 'ES' | 'EN'>('PT');
-  const t = traducoes[idioma];
+  const t = traducoes[idioma] || traducoes.PT;
   const blocosXP = Array.from({ length: 10 }, (_, i) => i < 8);
   const [dadosRadar] = useState([
     { competenca: 'Fala', nota: 95 }, { competenca: 'Escuta', nota: 88 }, { competenca: 'Gramática', nota: 90 }, { competenca: 'Escrita', nota: 62 }, { competenca: 'Leitura', nota: 78 },
@@ -68,7 +68,7 @@ export default function PortalAluno() {
 
   const mudarIdioma = (lang: 'PT' | 'ES' | 'EN') => {
     setIdioma(lang);
-    localStorage.setItem('haas_idioma_auxiliar', lang);
+    localStorage.setItem('haas_idioma_auxiliar', lang);window.location.reload(); window.location.reload();
   };
 
   const formatarCOP = (valor: number) => {

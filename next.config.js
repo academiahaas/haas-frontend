@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['qeiinzggtrzckvcqpygs.supabase.co'],
-  },
+  allowedDevOrigins: ['109.123.246.96'],
 };
 
 module.exports = nextConfig;
