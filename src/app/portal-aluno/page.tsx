@@ -15,7 +15,7 @@ const traducoes = {
     inicio: 'Início', trilha: 'Trilha', recompensas: 'Recompensas', recursos: 'Recursos', desafios: 'Desafios', ligas: 'Ligas', bau: 'Baú',
     objetivo: 'OBJETIVO', proximaConquista: 'PRÓXIMA CONQUISTA', recorde: 'Recorde', nivel: 'Nível', intermediario: 'Nível B1 Intermediário',
     restante: 'Restante', para: 'para', trilhaCompetencias: 'TRILHA DE COMPETÊNCIAS', completo: 'Completo', modulo: 'Módulo',
-    treinarReativar: 'TREINAR / REATIVAR AGORA', dominioAtual: 'Domínio atual', ultimoTreino: 'Último treino: há 3 dias. Vértice recuou 12%.',
+    treinarReativar: 'TREINAR / REATIVAR AGORA', dominioAtual: 'Domínio atual', ultimoTreino: 'Último treino: --. Vértice: --%',
     painelEvolucao: 'GAMIFICATION CENTER', graficoProficiencia: 'RADAR PROFICIENCY CHART', ligasPopulares: 'LIGAS POPULARES B2C',
     metasDiarias: 'DAILY GOAL / STREAK TRACKER', atividadesConcluidas: 'Atividades Concluídas', mediaFluencia: 'Média de Fluência',
     faturamentoCenter: 'Faturamento Center', historicoDia: 'Histórico em dia', sequenciaAtual: 'Sequência Atual',
@@ -114,8 +114,8 @@ export default function PortalAluno() {
             <p className="text-xs text-slate-400 leading-none mt-1">{t.intermediario}</p>
             <div className="w-full mt-3 space-y-1">
               <div className="flex justify-between text-[9px] font-mono text-slate-400 font-bold">
-                <span>XP: 2.450 / 3.000</span>
-                <span className="text-orange-400 font-black">(81% {t.para} B2)</span>
+                <span>XP: -- / --</span>
+                <span className="text-orange-400 font-black">(--% {t.para} B2)</span>
               </div>
               <div className="flex gap-0.5 h-1.5 w-full">
                 {blocosXP.map((ativo, index) => (
@@ -228,7 +228,7 @@ export default function PortalAluno() {
                 </div>
                 <span className="text-[8px] bg-orange-500 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-lg">MISSION</span>
               </div>
-              <p className="text-[11px] text-cyan-300/90 font-bold leading-tight">⚠️ Domínio atual: 68% • Último treino: há 3 dias. Vértice recuou 12%.</p>
+              <p className="text-[11px] text-cyan-300/90 font-bold leading-tight">⚠️ Domínio atual: --% • Último treino: --. Vértice: --%</p>
               <button className="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-black text-xs py-2 rounded-lg uppercase tracking-widest transition-colors shadow-lg shadow-orange-500/20">
                 TREINAR / REATIVAR AGORA
               </button>
@@ -300,13 +300,13 @@ export default function PortalAluno() {
         {/* METRICAS INFERIORES */}
         <div className="grid grid-cols-3 gap-2 shrink-0">
           <div className="bg-[#0A131C] border border-[#1C2C39] rounded-2xl p-3 flex flex-col justify-between shadow-2xl">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider font-mono">MÓDULO FINANCIAL HAAS</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider font-mono">{t.metasDiarias}</span>
             <div className="flex flex-col gap-0.5 mt-1">
-              <span className="text-xl font-black text-cyan-400 font-mono leading-none">4 / 5</span>
-              <span className="text-[9px] text-slate-400 font-bold">{t.atividadesConcluidas}</span>
+              <span className="text-xl font-black text-cyan-400 font-mono leading-none">-- / --</span>
+              <span className="text-[9px] text-slate-400 font-bold">{t.metasDiarias}</span>
             </div>
             <div className="w-full bg-[#12202C] h-1.5 rounded-full overflow-hidden mt-2">
-              <div className="bg-cyan-400 h-full w-[80%]" />
+              <div className="bg-cyan-400 h-full w-[0%]" />
             </div>
           </div>
 
