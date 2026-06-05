@@ -179,7 +179,7 @@ export default function PortalAluno() {
             <div className="flex items-center bg-[#101D28] border border-[#1C2C39] px-2.5 py-1 rounded-xl shadow-md font-mono text-[9px] font-black text-white">
               <span className="text-[#3CD070] mr-1">🎯</span>
               <span className="text-slate-400 mr-1">{t.objetivo}:</span>
-              <span>550 XP PARA B2</span>
+              <span>--- XP</span>
             </div>
             
             <div className="flex items-center gap-2 bg-[#101D28] border border-cyan-500/40 rounded-xl px-3 py-1 shadow-xl font-mono">
@@ -289,7 +289,7 @@ export default function PortalAluno() {
               <div className="flex items-center gap-3 bg-[#101D28] p-2 rounded-xl border border-[#1C2C39] shadow-inner">
                 <span className="text-orange-500 text-lg">🔥</span>
                 <div className="flex flex-col font-mono text-xs">
-                  <span className="font-black text-white">Sequência Atual: 12 dias</span>
+                  <span className="font-black text-white">Sequência Atual: -- dias</span>
                   <span className="text-[9px] text-slate-500 font-bold">Melhor sequência: 27 dias</span>
                 </div>
               </div>
@@ -313,7 +313,7 @@ export default function PortalAluno() {
           <div className="bg-[#0A131C] border border-[#1C2C39] rounded-2xl p-4 flex flex-col justify-between shadow-2xl">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider font-mono">CLASSROOM CORE</span>
             <div className="flex flex-col gap-0.5 mt-1">
-              <span className="text-xl font-black text-purple-400 font-mono leading-none">9.8</span>
+              <span className="text-xl font-black text-purple-400 font-mono leading-none">--</span>
               <span className="text-[9px] text-slate-400 font-bold">{t.mediaFluencia}</span>
             </div>
             <div className="w-full bg-[#12202C] h-1.5 rounded-full overflow-hidden mt-2">
@@ -327,7 +327,7 @@ export default function PortalAluno() {
               <span className="text-[8px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black px-1.5 py-0.5 rounded shadow-sm">Ok</span>
             </div>
             <div className="flex flex-col mt-1 font-mono">
-              <span className="text-xs font-black text-white">{formatarCOP(650000)}</span>
+              <span className="text-xs font-black text-white">{formatarCOP(0)}</span>
               <span className="text-[8px] text-slate-400 font-semibold">Faturamento Center</span>
               <span className="text-[7px] text-slate-500">Histórico em dia</span>
             </div>
