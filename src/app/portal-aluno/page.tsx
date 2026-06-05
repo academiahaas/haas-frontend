@@ -186,7 +186,7 @@ export default function PortalAluno() {
               <div className="text-right">
                 <div className="text-[7px] text-slate-400 font-bold uppercase leading-none">PRÓXIMA CONQUISTA</div>
                 <div className="text-xs font-black text-[#00E5FF] tracking-wide mt-0.5 filter drop-shadow-[0_0_4px_rgba(0,229,255,0.6)]">
-                  Recorde: 50 dias
+                  Recorde: -- dias
                 </div>
               </div>
               <Trophy size={14} className="text-[#00E5FF] filter drop-shadow-[0_0_6px_rgba(6,182,212,0.6)]" />
@@ -252,7 +252,7 @@ export default function PortalAluno() {
                 <div className="text-xs font-mono font-bold text-slate-300 space-y-1 flex-1">
                   <p><span className="text-slate-500 uppercase font-sans text-[8px] font-bold w-[65px] inline-block">Nível</span>: B1</p>
                   <p><span className="text-slate-500 uppercase font-sans text-[8px] font-bold w-[65px] inline-block">Próximo</span>: B2</p>
-                  <p><span className="text-slate-500 uppercase font-sans text-[8px] font-bold w-[65px] inline-block">Restante</span>: 550 XP</p>
+                  <p><span className="text-slate-500 uppercase font-sans text-[8px] font-bold w-[65px] inline-block">Restante</span>: --- XP</p>
                   <p><span className="text-orange-400 uppercase font-sans text-[8px] font-bold w-[65px] inline-block">Bônus</span>: +50 XP</p>
                 </div>
                 <div className="p-2 bg-gradient-to-br from-[#1F3347] to-[#101D28] border border-[#2C3E50]/40 rounded-xl flex items-center justify-center shadow-inner shrink-0">
@@ -290,7 +290,7 @@ export default function PortalAluno() {
                 <span className="text-orange-500 text-lg">🔥</span>
                 <div className="flex flex-col font-mono text-xs">
                   <span className="font-black text-white">Sequência Atual: -- dias</span>
-                  <span className="text-[9px] text-slate-500 font-bold">Melhor sequência: 27 dias</span>
+                  <span className="text-[9px] text-slate-500 font-bold">Melhor sequência: -- dias</span>
                 </div>
               </div>
             </div>

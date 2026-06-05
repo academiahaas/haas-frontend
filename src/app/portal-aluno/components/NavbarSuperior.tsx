@@ -42,14 +42,14 @@ export function NavbarSuperior({ t }) {
         <div className="flex items-center bg-[#101D28] border border-[#1C2C39] px-3 py-1.5 rounded-xl shadow-md font-mono text-[10px] font-black text-white">
           <span className="text-[#3CD070] mr-1">🎯</span>
           <span className="text-slate-400 mr-1">{t.objetivo}:</span>
-          <span>550 XP PARA B2</span>
+          <span>--- XP</span>
         </div>
         
         <div className="flex items-center gap-2.5 bg-[#101D28] border border-cyan-500/40 rounded-xl px-4 py-1.5 shadow-xl font-mono">
           <div className="text-right">
             <div className="text-[8px] text-slate-400 font-bold uppercase leading-none">{t.proximaConquista}</div>
             <div className="text-sm font-black text-[#00E5FF] tracking-wide mt-0.5 filter drop-shadow-[0_0_6px_rgba(0,229,255,0.6)]">
-              Recorde: 50 dias
+              Recorde: -- dias
             </div>
           </div>
           <Trophy size={16} className="text-[#00E5FF] filter drop-shadow-[0_0_8px_rgba(6,182,212,0.6)] animate-pulse" />
