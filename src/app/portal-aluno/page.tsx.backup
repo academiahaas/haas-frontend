@@ -1,0 +1,316 @@
+// @ts-nocheck
+'use client';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { Settings, Home, MapPin, Gift, BookOpen, Trophy, Shield, Box, Flame, Sparkles, Target, Languages } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+
+const traducoes = {
+  PT: {
+    inicio: 'Início', trilha: 'Trilha', recompensas: 'Recompensas', recursos: 'Recursos', desafios: 'Desafios', ligas: 'Ligas', bau: 'Baú',
+    objetivo: 'Objetivo', proximaConquista: 'Próxima Conquista', recorde: 'Recorde', nivel: 'Nível', intermediario: 'Nível B1 Intermediário',
+    restante: 'Restante', para: 'para', trilhaCompetencias: 'Trilha de Competências', completo: 'Completo', modulo: 'Módulo',
+    treinarReativar: 'TREINAR / REATIVE AGORA', dominioAtual: 'Domínio atual', ultimoTreino: 'Último treino: há 3 dias. Vértice recuou 12%.',
+    painelEvolucao: 'Painel de Evolução', graficoProficiencia: 'Gráfico de Proficiência', ligasPopulares: 'Ligas Populares B2C',
+    metasDiarias: 'Metas Diárias', atividadesConcluidas: 'Atividades Concluídas', mediaFluencia: 'Média de Fluência',
+    faturamentoCenter: 'Faturamento Center', historicoDia: 'Histórico em dia', sequenciaAtual: 'Sequência Atual',
+    melhorSequencia: 'Melhor sequência', bauErros: 'Baú de Erros Recorrentes', oficinaReuniao: 'Oficina / Escritório', emReuniao: 'em reunião',
+    limparBau: 'LIMPAR BAÚ', fala: 'Fala', escuta: 'Escuta', gramatica: 'Gramática', escrita: 'Escrita', leitura: 'Leitura', proximoNivel: 'Próximo nível',
+    msgMascote: "Você está a apenas 1 atividade de completar sua meta diária! 👀"
+  },
+  ES: {
+    inicio: 'Inicio', trilha: 'Ruta', recompensas: 'Premios', recursos: 'Recursos', desafios: 'Desafios', ligas: 'Ligas', bau: 'Cofre',
+    objetivo: 'Objetivo', proximaConquista: 'Próximo Logro', recorde: 'Récord', nivel: 'Nivel', intermediario: 'Nivel B1 Intermedio',
+    restante: 'Restante', para: 'para', trilhaCompetencias: 'Ruta de Competencias', completo: 'Completado', modulo: 'Módulo',
+    treinarReativar: 'ENTRENAR / REACTIVE AHORA', dominioAtual: 'Dominio actual', ultimoTreino: 'Último entreno: hace 3 días. El vértice disminuyó 12%.',
+    painelEvolucao: 'Panel de Evolución', graficoProficiencia: 'Gráfico de Proficiencia', ligasPopulares: 'Ligas Populares B2C',
+    metasDiarias: 'Metas Diarias', atividadesConcluidas: 'Actividades Completadas', mediaFluencia: 'Promedio de Fluidez',
+    faturamentoCenter: 'Centro de Facturación', historicoDia: 'Historial al día', sequenciaAtual: 'Racha Actual',
+    melhorSequencia: 'Mejor racha', bauErros: 'Cofre de Errores Frecuentes', oficinaReuniao: 'Taller / Oficina', emReuniao: 'en reunión',
+    limparBau: 'LIMPIAR COFRE', fala: 'Habla', escuta: 'Escucha', gramatica: 'Gramática', escrita: 'Escritura', leitura: 'Lectura', proximoNivel: 'Próximo nivel',
+    msgMascote: "¡Estás a solo 1 actividad de completar tu meta diaria! 👀"
+  },
+  EN: {
+    inicio: 'Home', trilha: 'Path', recompensas: 'Rewards', recursos: 'Resources', desafios: 'Quests', ligas: 'Leagues', bau: 'Chest',
+    objetivo: 'Objective', proximaConquista: 'Next Achievement', recorde: 'Record', nivel: 'Level', intermediario: 'Level B1 Intermediate',
+    restante: 'Remaining', para: 'to', trilhaCompetencias: 'Skills Path', completo: 'Completed', modulo: 'Module',
+    treinarReativar: 'TRAIN / REACTIVE NOW', dominioAtual: 'Current mastery', ultimoTreino: 'Last practice: 3 days ago. Vertex dropped 12%.',
+    painelEvolucao: 'Evolution Panel', graficoProficiencia: 'Proficiency Chart', ligasPopulares: 'Popular B2C Leagues',
+    metasDiarias: 'Daily Goals', atividadesConcluidas: 'Activities Completed', mediaFluencia: 'Fluency Average',
+    faturamentoCenter: 'Billing Center', historicoDia: 'History updated', sequenciaAtual: 'Current Streak',
+    melhorSequencia: 'Best streak', bauErros: 'Recurring Errors Chest', oficinaReuniao: 'Workshop / Office', emReuniao: 'in meeting',
+    limparBau: 'CLEAR CHEST', fala: 'Speaking', escuta: 'Listening', gramatica: 'Grammar', escrita: 'Writing', leitura: 'Reading', proximoNivel: 'Next level',
+    msgMascote: "You are just 1 activity away from completing your daily goal! 👀"
+  }
+};
+
+export default function PortalAluno() {
+  const router = useRouter();
+  const [idioma, setIdioma] = useState<'PT' | 'ES' | 'EN'>('PT');
+  const t = traducoes[idioma];
+  const blocosXP = Array.from({ length: 10 }, (_, i) => i < 8);
+  const [dadosRadar] = useState([
+    { competenca: 'Fala', nota: 95 }, { competenca: 'Escuta', nota: 88 }, { competenca: 'Gramática', nota: 90 }, { competenca: 'Escrita', nota: 62 }, { competenca: 'Leitura', nota: 78 },
+  ]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const salvo = localStorage.getItem('haas_idioma_auxiliar');
+    if (salvo && (salvo === 'PT' || salvo === 'ES' || salvo === 'EN')) {
+      setIdioma(salvo);
+    }
+  }, []);
+
+  const mudarIdioma = (lang: 'PT' | 'ES' | 'EN') => {
+    setIdioma(lang);
+    localStorage.setItem('haas_idioma_auxiliar', lang);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+
+  return (
+    <div className="min-h-screen bg-[#111e2d] text-slate-200 font-sans antialiased p-4 flex flex-col lg:flex-row gap-4">
+      
+      {/* COLUMN 1: SIDEBAR ESQUERDA (AVATAR PREMIUM + COELHO ROBÓTICO) */}
+      <aside 
+        className="w-full lg:w-64 bg-[#16273c] border border-[#233854] rounded-2xl p-4 flex flex-col gap-4 shadow-2xl shrink-0"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { setMousePos({ x: 0, y: 0 }); setShowTooltip(false); }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xs">🎧</div>
+          <h1 className="text-sm font-black tracking-wider text-slate-200 font-mono uppercase">HAAS IDIOMAS</h1>
+        </div>
+
+        {/* SELECTOR DE IDIOMA */}
+        <div className="bg-[#0b1420] p-0.5 rounded-xl border border-[#233854] flex gap-0.5">
+          {['PT', 'ES', 'EN'].map((l) => (
+            <button key={l} onClick={() => mudarIdioma(l)} className={`flex-1 text-[9px] font-black py-1.5 rounded-lg transition-all cursor-pointer ${idioma === l ? 'bg-[#10b981] text-slate-950 font-black shadow-md' : 'text-slate-400 hover:text-white'}`}>{l}</button>
+          ))}
+        </div>
+
+        {/* CARD AVATAR ALUNO */}
+        <div className="bg-[#0b1420] border border-[#233854] rounded-xl p-4 text-center relative">
+          <div className="w-16 h-16 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full mx-auto flex items-center justify-center text-xl relative border-2 border-[#16273c] shadow-lg">
+            👨‍🚀
+            <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-[8px] font-black text-white h-4 w-4 rounded-full flex items-center justify-center border border-[#0b1420]">B2</div>
+          </div>
+          <h3 className="mt-2.5 text-xs font-black text-white uppercase tracking-wide">Aluno Teste</h3>
+          <p className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Nível B1 Intermediário</p>
+          
+          <div className="mt-3 text-left bg-[#16273c]/60 p-2 rounded-lg border border-[#233854]/30">
+            <div className="flex justify-between text-[8px] font-mono font-black text-slate-400">
+              <span>XP: 2.450 / 3.000</span>
+              <span className="text-amber-500 font-black">(81% para B2)</span>
+            </div>
+            <div className="flex gap-0.5 h-1.5 mt-1">
+              {blocosXP.map((ativo, idx) => (
+                <div key={idx} className={`flex-1 rounded-full ${ativo ? 'bg-amber-500 shadow-sm shadow-amber-500/50' : 'bg-slate-800'}`} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* MEDALHAS FLOTANTES INTERATIVAS */}
+        <div className="flex justify-center gap-1.5 py-1 text-sm bg-[#0b1420]/30 rounded-xl border border-[#233854]/20 animate-pulse">
+          <span>🔥</span><span>🔮</span><span>🌟</span><span>🏆</span><span>🛡️</span>
+        </div>
+
+        {/* COELHO GAMER INTERATIVO */}
+        <div className="flex-1 flex flex-col justify-end items-center relative min-h-[160px] bg-[#0b1420]/40 rounded-xl p-3 border border-[#233854]/20 cursor-pointer" onMouseEnter={() => setShowTooltip(true)}>
+          <div className="text-5xl text-center select-none animate-bounce [animation-duration:3.5s]">🐰</div>
+          <div className="w-full bg-[#0b1420] border border-[#233854] rounded-xl py-1 text-center mt-2 shadow">
+            <span className="text-[8px] font-mono font-black tracking-widest text-[#10b981] uppercase">HAAS BOT</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* BALÃO DO COELHO MASCOTE */}
+      {showTooltip && (
+        <div className="fixed bottom-24 left-6 z-50 max-w-xs bg-slate-950 border border-emerald-500/30 p-3 rounded-xl shadow-2xl text-[9px] font-bold uppercase text-slate-200 tracking-wide">
+          {t.msgMascote}
+        </div>
+      )}
+
+      {/* COLUMN 2: CENTRAL TRACK LAYOUT (NAVBAR + COMPETÊNCIAS + FINANCEIRO) */}
+      <div className="flex-1 flex flex-col gap-4">
+        
+        {/* TOP INTERACTIVE NAVBAR CON ICONOS */}
+        <header className="bg-[#16273c] border border-[#233854] rounded-2xl p-2 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+          <div className="flex flex-wrap gap-0.5">
+            {[
+              { name: 'Início', ico: '🏠' }, { name: 'Trilha', ico: '🗺️' }, { name: 'Recompensas', ico: '🎁' }, 
+              { name: 'Recursos', ico: '📘' }, { name: 'Desafios', ico: '⚔️' }, { name: 'Ligas', ico: '🛡️' }, 
+              { name: 'Baú', ico: '📦' }, { name: 'Online', ico: '🌐' }, { name: 'Classroom', ico: '🏫' }, { name: 'Praticar', ico: '🎯' }
+            ].map((aba, idx) => (
+              <button key={idx} className={`px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1 ${idx === 1 ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                <span>{aba.ico}</span><span>{aba.name}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3 bg-[#0b1420] border border-[#233854] px-3 py-1 rounded-xl text-[9px] font-mono text-slate-300 font-black uppercase">
+            <div className="flex items-center gap-1 text-orange-500">
+              <span>🔥</span><span>Sequência Atual: 12 dias</span>
+            </div>
+            <span className="text-slate-600">|</span>
+            <span className="text-amber-400">Melhor: 27 dias</span>
+          </div>
+        </header>
+
+        {/* TRILHA DE COMPETÊNCIAS GAMIFICADA */}
+        <section className="bg-[#16273c] border border-[#233854] rounded-2xl p-4 flex flex-col gap-3 shadow-xl">
+          <h2 className="text-xs font-black uppercase tracking-widest text-white font-mono">Trilha de Competências</h2>
+          
+          <div className="bg-[#0b1420]/60 border border-[#233956]/30 p-3.5 rounded-xl flex items-center justify-between opacity-60">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-[10px] font-black">✓</div>
+              <div>
+                <h4 className="text-[9px] font-black uppercase text-slate-500">Módulo 1</h4>
+                <p className="text-[11px] text-white font-black tracking-wide">Verb Tenses (CEFR B1)</p>
+              </div>
+            </div>
+            <span className="text-[8px] font-mono font-bold text-slate-400 uppercase bg-slate-800 px-2 py-0.5 rounded">Completo</span>
+          </div>
+
+          <div className="bg-[#0b1422]/60 border border-[#233956]/30 p-3.5 rounded-xl flex items-center justify-between opacity-60">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-[10px] font-black">✓</div>
+              <div>
+                <h4 className="text-[9px] font-black uppercase text-slate-500">Módulo 2</h4>
+                <p className="text-[11px] text-white font-black tracking-wide">Prepositions (CEFR B2)</p>
+              </div>
+            </div>
+            <span className="text-[8px] font-mono font-bold text-slate-400 uppercase bg-slate-800 px-2 py-0.5 rounded">Completo</span>
+          </div>
+
+          {/* CARD ACTIVO MÓDULO 3 RECONSTRUIDO EXACTO */}
+          <div className="bg-[#1e2d42] border-2 border-orange-500/90 p-5 rounded-xl shadow-xl shadow-orange-500/5 relative overflow-hidden">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="bg-orange-500 text-slate-950 font-black text-[8px] px-2 py-0.5 rounded uppercase tracking-wider font-mono">Módulo 3</span>
+                <h3 className="text-xs font-black text-white uppercase tracking-wide mt-1.5">If Clauses (CEFR B2)</h3>
+                <p className="text-[10px] text-orange-400 font-black mt-1.5 uppercase leading-normal tracking-wide">
+                  ⚠️ ATENÇÃO: Perda de tração detectada em estruturas hipotéticas.<br/>Vértice encolheu 12%.
+                </p>
+              </div>
+              <button className="bg-orange-500/10 border border-orange-500/30 text-orange-400 font-mono text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest">RETRAIN</button>
+            </div>
+            <button onClick={() => router.push('/quiz/fala')} className="w-full bg-orange-500 text-slate-950 font-black text-[11px] py-3.5 rounded-xl uppercase tracking-widest hover:bg-orange-400 active:scale-[0.99] transition-all mt-4 border-b-4 border-orange-700 shadow-lg shadow-orange-500/10 cursor-pointer">
+              TREINAR / REACTIVE AGORA
+            </button>
+          </div>
+
+          <div className="bg-[#0b1420]/40 border border-[#233956]/20 p-3.5 rounded-xl flex items-center justify-between opacity-40">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 text-[9px] font-black">4</div>
+              <div>
+                <h4 className="text-[9px] font-black uppercase text-slate-500">Módulo 4</h4>
+                <p className="text-[11px] text-slate-400 font-medium">Intermediate Prepositions (CEFR B2)</p>
+              </div>
+            </div>
+            <span className="text-[8px] font-mono font-bold text-slate-600 uppercase">Concluído</span>
+          </div>
+        </section>
+
+        {/* FINANCIAL MODULE ACCORDING TO IMAGE 2 */}
+        <section className="bg-[#16273c] border border-[#233854] rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-300 font-mono">Módulo Financial Haas</h4>
+            <p className="text-[9px] text-slate-500 font-black uppercase font-mono leading-tight">Faturamento history<br/>mock pack evententa (connected to log log)</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
+            <div className="bg-[#0b1420] border border-[#233854] px-3 py-1.5 rounded-xl text-center w-full sm:w-auto">
+              <p className="text-[7px] text-slate-500 uppercase font-black tracking-wide">Próxima recompensa</p>
+              <p className="text-[10px] font-mono font-black text-emerald-400 mt-0.5">500 XP + 50 (75% concluído)</p>
+            </div>
+            <button className="w-full sm:w-auto px-4 py-3 bg-slate-800 border border-slate-700 text-slate-200 font-black text-[9px] uppercase tracking-wider rounded-xl hover:bg-slate-700 transition-colors cursor-pointer">BAIXAR RECIBOS</button>
+          </div>
+        </section>
+      </div>
+
+      {/* COLUMN 3: RIGHT PANEL (GAMIFICATION CENTER, RADAR CHART, LIGAS, BAÚ DE ERROS) */}
+      <aside className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
+        
+        {/* GAMIFICATION CENTER & REAL RADAR */}
+        <div className="bg-[#16273c] border border-[#233854] rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+          <div>
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-200 font-mono">Gamification Center</h3>
+            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 font-mono leading-tight">Nível: B1 - Intermediário | Próximo nível: B2<br/>Restante: 550 XP para o próximo nível | Bônus: +50 XP</p>
+          </div>
+
+          <div className="border-t border-[#233854]/40 pt-2">
+            <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono mb-2">Radar Proficiency Chart</h4>
+            <div className="h-40 w-full flex items-center justify-center relative bg-[#0b1420]/50 rounded-xl p-1 border border-[#233854]/20">
+              {mounted ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" radius="70%" data={dadosRadar}>
+                    <PolarGrid stroke="#233854" />
+                    <PolarAngleAxis dataKey="competenca" tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 900 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar name="Aluno" dataKey="nota" stroke="#10b981" fill="#10b981" fillOpacity={0.12} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              ) : (
+                <span className="text-xs font-mono text-slate-600 animate-pulse">Sincronizando...</span>
+              )}
+            </div>
+            <p className="text-[8px] text-slate-500 text-center font-mono mt-2 uppercase leading-tight">Velocidade máxima mantida. Perfil de comunicação está pronto para negociação.</p>
+          </div>
+
+          {/* DAILY TRACKER */}
+          <div className="border-t border-[#233854]/40 pt-2">
+            <h4 className="text-[9px] font-black uppercase tracking-wider text-slate-400 font-mono">Daily Goal / Streak Tracker</h4>
+            <div className="flex items-center gap-2.5 mt-1 bg-[#0b1420]/40 p-2 rounded-xl border border-[#233854]/30">
+              <div className="text-xl">🔥</div>
+              <div>
+                <p className="text-[7px] text-slate-500 uppercase font-black">Sequência Atual</p>
+                <p className="text-[10px] font-black text-white font-mono uppercase">12 dias <span className="text-slate-500 text-[8px] font-normal normal-case ml-1">(Melhor sequência: 27 dias)</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* LIGAS POPULARES B2C */}
+        <div className="bg-[#16273c] border border-[#233854] rounded-2xl p-4 shadow-md">
+          <div className="flex justify-between items-center border-b border-[#233854]/40 pb-1.5 mb-2">
+            <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Ligas Populares B2C</h4>
+            <span className="text-[7px] bg-rose-600 text-white font-sans font-black px-1 rounded uppercase">Demotion</span>
+          </div>
+          <div className="space-y-1.5 font-mono text-[10px] font-bold">
+            <div className="flex justify-between text-amber-400 bg-amber-500/5 border border-amber-500/10 p-1.5 rounded-lg"><span>1 🥇 Aluno Teste</span><span>2.890 XP</span></div>
+            <div className="flex justify-between text-slate-300 p-1.5"><span>2 💼 Aluno Teste</span><span>2.450 XP</span></div>
+            <div className="flex justify-between text-slate-500 p-1.5"><span>3 👤 Aluno Teste (20+)</span><span>1.100 XP</span></div>
+          </div>
+
+          <div className="mt-3 pt-2 border-t border-[#233854]/40 space-y-1.5 text-[9px] font-black text-indigo-400 uppercase font-mono tracking-wide">
+            <a href="https://docs.google.com/forms/..." target="_blank" rel="noreferrer" className="block hover:underline">Avaliação de Classe ↗</a>
+            <a href="https://calendar.app.google/..." target="_blank" rel="noreferrer" className="block hover:underline">Reprogramação de Classes ↗</a>
+          </div>
+        </div>
+
+        {/* BAÚ DE ERROS RECORRENTES */}
+        <div className="bg-[#16273c] border border-[#233854] rounded-2xl p-4 shadow-md flex flex-col justify-between min-h-[140px]">
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-[#233854]/40 pb-1.5 mb-2 font-mono">Baú de Erros Recorrentes</h4>
+            <div className="space-y-1 font-mono text-[10px] font-bold text-slate-300">
+              <div className="flex justify-between"><span>Oficina / Escritório</span><span className="text-orange-400">0.8</span></div>
+              <div className="flex justify-between"><span>em reunião</span><span className="text-orange-400">1.0</span></div>
+              <div className="flex justify-between text-slate-500"><span>fizera</span><span>1.5</span></div>
+            </div>
+          </div>
+          <button className="w-full bg-[#0b1420] border border-[#233854] text-slate-300 font-black text-[9px] py-2 rounded-lg uppercase tracking-wider hover:bg-slate-800 cursor-pointer transition-all mt-3">LIMPAR BAÚ</button>
+        </div>
+      </aside>
+
+    </div>
+  );
+}

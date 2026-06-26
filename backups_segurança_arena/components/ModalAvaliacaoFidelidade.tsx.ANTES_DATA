@@ -1,0 +1,99 @@
+"use client";
+
+import React, { useState } from "react";
+import { ShieldCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  idioma: "PT" | "EN" | "ES";
+}
+
+export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Props) {
+  const [teacherScore, setTeacherScore] = useState(5);
+  const [materialScore, setMaterialScore] = useState(5);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+
+  if (!isOpen) return null;
+
+  const t = {
+    PT: { title: "AVALIAÇÃO DO PROFESSOR", desc: "Este formulário é 100% anônimo para proteger sua privacidade.", q1: "1. Desempenho do Professor", q2: "2. Alinhamento do Material", comment: "Comentários ou Sugestões", btn: "Submeter Avaliação", success: "✓ Obrigado pelo Feedback!", close: "FECHAR" },
+    EN: { title: "TEACHER EVALUATION", desc: "This form is 100% anonymous to protect your privacy.", q1: "1. Teacher Performance", q2: "2. Material Alignment", comment: "Comments or Suggestions", btn: "Submit Evaluation", success: "✓ Thank you for your feedback!", close: "CLOSE" },
+    ES: { title: "EVALUACIÓN DEL PROFESOR", desc: "Este formulario es 100% anónimo para proteger su privacidad.", q1: "1. Desempeño del Profesor", q2: "2. Alineación del Material", comment: "Comentarios o Sugerencias", btn: "Enviar Evaluación", success: "✓ ¡Recibido con éxito!", close: "CERRAR" }
+  }[idioma] || { title: "AVALIAÇÃO DO PROFESSOR", desc: "Este formulário é 100% anônimo para proteger sua privacidade.", q1: "1. Desempeño do Professor", q2: "2. Alinhamento do Material", comment: "Comentários ou Sugestões", btn: "Enviar Avaliação", success: "✓ Obrigado pelo seu feedback!" };
+
+  async function salvarFeedback() {
+    setLoading(true);
+    try {
+      await supabase.from("student_feedbacks").insert({
+        teacher_score: teacherScore,
+        material_score: materialScore,
+        platform_score: 5,
+        written_comment: comment || null
+      });
+      setSucesso(true);
+      setTimeout(() => {
+        setSucesso(false);
+        setComment("");
+        onClose();
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isOpen ? 'visible' : 'invisible'}`}>
+      <div onClick={onClose} className={`absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`} />
+      
+      <div className={`relative w-full max-w-md bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl transition-all duration-300 transform ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            {t.title}
+          </h2>
+          <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
+            {idioma === 'PT' ? 'FECHAR' : idioma === 'ES' ? 'CERRAR' : 'CLOSE'}
+          </button>
+        </div>
+
+        {sucesso ? (
+          <div className="text-center py-8 text-emerald-400 font-mono text-xs font-bold animate-pulse">{t.success}</div>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-3 flex gap-2 items-center">
+              <ShieldCheck size={14} className="text-amber-500 shrink-0" />
+              <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.q1}</label>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <button key={num} type="button" onClick={() => setTeacherScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${teacherScore === num ? "bg-amber-500 text-black border-amber-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.q2}</label>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <button key={num} type="button" onClick={() => setMaterialScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${materialScore === num ? "bg-amber-500 text-black border-amber-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.comment}</label>
+              <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={200} placeholder="..." className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/40 h-16 resize-none" />
+            </div>
+            <button type="button" onClick={salvarFeedback} disabled={loading} className="w-full bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold uppercase tracking-wider text-xs py-3 rounded-xl transition-all">{loading ? "..." : t.btn}</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
