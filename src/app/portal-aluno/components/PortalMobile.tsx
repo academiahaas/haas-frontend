@@ -2130,6 +2130,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
             </div>
 
+            {isMatriculadoSimulado && (
+              <div className="mb-3 p-3 bg-emerald-950/80 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 font-medium leading-relaxed shadow-sm">
+                {idiomaSelecionado === "PT" ? (
+                  <>🟢 <strong className="text-emerald-400 font-black">SEU PLANO ESTÁ ATIVO.</strong> Mensalidade Atual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovação automática: 05/Próx Mês.</>
+                ) : idiomaSelecionado === "ES" ? (
+                  <>🟢 <strong className="text-emerald-400 font-black">TU PLAN ESTÁ ACTIVO.</strong> Mensualidad Actual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovación automática: 05/Próx Mes.</>
+                ) : (
+                  <>🟢 <strong className="text-emerald-400 font-black">YOUR PLAN IS ACTIVE.</strong> Current Monthly Fee: <strong className="text-white font-black">$ 300.000 COP</strong>. Next automatic renewal: 05/Next Month.</>
+                )}
+              </div>
+            )}
+
             {etapaPagamento === 0 && (
               <div className="flex flex-col gap-3 my-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
