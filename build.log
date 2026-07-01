@@ -1,0 +1,32 @@
+
+> haas-frontend@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/6) ...
+   Generating static pages (1/6) 
+   Generating static pages (2/6) 
+   Generating static pages (4/6) 
+ ✓ Generating static pages (6/6)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /_not-found                          873 B          88.2 kB
+├ ○ /login                               62.7 kB         150 kB
+├ ○ /portal-aluno                        95.4 kB         183 kB
+└ ○ /portal-professor                    2.3 kB         89.7 kB
++ First Load JS shared by all            87.4 kB
+  ├ chunks/117-20f644b72b6c59b3.js       31.7 kB
+  ├ chunks/fd9d1056-7bf902d0933ec668.js  53.6 kB
+  └ other shared chunks (total)          2 kB
+
+
+○  (Static)  prerendered as static content
+

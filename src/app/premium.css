@@ -1,0 +1,90 @@
+/* ==========================================
+   PALETA PREMIUM: DUOLINGO + LINEAR + DISCORD
+   ========================================== */
+
+/* 1. Fundo Geral */
+.bg-premium-geral {
+    background-color: #F8FAFC !important;
+}
+
+/* 2. Header */
+.header-premium {
+    background-color: #0c192c !important;
+    border-bottom: 1px solid #E9EEF5 !important;
+}
+
+/* 3. Avatar do Usuário (H) */
+.avatar-premium-h {
+    background: linear-gradient(135deg, #8B5CF6, #A855F7) !important;
+    color: #FFFFFF !important;
+}
+
+/* 4. Badge Comunicador */
+.badge-comunicador {
+    background: linear-gradient(135deg, #7C3AED, #A855F7) !important;
+    color: #FFFFFF !important;
+}
+
+/* 6. Card da IA */
+.card-ia-container {
+    background-color: #071B4D !important;
+    color: #FFFFFF !important;
+}
+.card-ia-destaque {
+    color: #FACC15 !important;
+}
+
+/* 7. Avatar da IA (Mentor) */
+.avatar-ia-mentor {
+    background: linear-gradient(135deg, #8B5CF6, #22D3EE) !important;
+}
+
+/* 9. Barra de Progresso Principal */
+.progresso-premium-bar {
+    background: linear-gradient(90deg, #8B5CF6, #EC4899) !important;
+}
+
+/* 10. Botão Principal com Glow */
+.btn-principal-premium {
+    background: linear-gradient(135deg, #7C3AED, #EC4899) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.25) !important;
+    transition: all 0.2s ease-in-out;
+}
+.btn-principal-premium:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(236, 72, 153, 0.45) !important;
+}
+
+/* 11. Card de Racha */
+.card-racha-premium {
+    border: 1px solid #A855F7 !important;
+    background-color: #0c192c !important;
+}
+.text-racha-premium { color: #A855F7 !important; }
+
+/* 12. Card de XP */
+.card-xp-premium {
+    background-color: #FEFEFF !important;
+    border: 1px solid #8B5CF6 !important;
+}
+.text-xp-premium { color: #8B5CF6 !important; }
+
+/* 13. Card de Recompensa */
+.card-recompensa-premium {
+    background-color: #F0FDF4 !important;
+    border: 1px solid #22C55E !important;
+}
+.text-recompensa-premium { color: #22C55E !important; }
+
+/* 14. Botão Alpha Leader */
+.btn-alpha-leader {
+    background: linear-gradient(135deg, #84CC16, #22C55E) !important;
+    color: #FFFFFF !important;
+}
+
+/* 15. Rodapé de Estatísticas */
+.footer-estatisticas {
+    background-color: #0c192c !important;
+    border-top: 1px solid #E9EEF5 !important;
+}

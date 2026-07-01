@@ -1,0 +1,200 @@
+/* =========================================================================
+  MÓDULO TABULEIRO / ARCADE - HAAS EDUCACIONAL
+  MECÂNICA: MEMÓRIA DE PARES (MEMORY MATCH) - NÍVEL B2
+  
+  ⚠️ PROTEÇÃO DE INTERFACE & FLUXO:
+  CONSTRUÍDO EM GRID REATIVO COMPACTO. APÓS ENCONTRAR TODOS OS PARES,
+  O INTERRUPTOR TRAVA O TABULEIRO E LIBERA O AVANÇO DIRETO SEM LOOPS.
+  =========================================================================
+*/
+
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, Cpu, PartyPopper, Sparkles, HelpCircle } from 'lucide-react';
+import confetti from 'canvas-commetti'; // Nota: Mantenha o padrão do seu projeto (se for canvas-confetti, ajuste a importação se necessário)
+import confetti2 from 'canvas-confetti';
+import '../globals.css';
+
+// Deck de cartas estruturado (Termos B2 Corporativos e seus Significados)
+const CARTAS_BASE = [
+  { id: '1', conteudo: 'MINIMIZE', parId: 'match_1', tipo: 'ingles' },
+  { id: '2', conteudo: 'REDUZIR', parId: 'match_1', tipo: 'portugues' },
+  { id: '3', conteudo: 'FRICTION', parId: 'match_2', tipo: 'ingles' },
+  { id: '4', conteudo: 'ATRICTO/GARGALO', parId: 'match_2', tipo: 'portugues' },
+  { id: '5', conteudo: 'METRICS', parId: 'match_3', tipo: 'ingles' },
+  { id: '6', conteudo: 'MÉTRICAS', parId: 'match_3', tipo: 'portugues' },
+];
+
+export default function LessonArcadePage() {
+  const router = useRouter();
+  
+  // Cartas embaralhadas estaticamente para garantir consistência inicial estável nos testes
+  const [cartas, setCartas] = useState([
+    CARTAS_BASE[4], // METRICS
+    CARTAS_BASE[1], // REDUZIR
+    CARTAS_BASE[3], // ATRICTO/GARGALO
+    CARTAS_BASE[0], // MINIMIZE
+    CARTAS_BASE[5], // MÉTRICAS
+    CARTAS_BASE[2], // FRICTION
+  ]);
+
+  const [selecionadas, setSelecionadas] = useState<number[]>([]);
+  const [resolvidas, setResolvidas] = useState<string[]>([]);
+  const [bloqueado, setBloqueado] = useState(false);
+  const [jogoConcluido, setJogoConcluido] = useState(false);
+
+  // Monitora se o par selecionado é idêntico
+  useEffect(() => {
+    if (selecionadas.length !== 2) return;
+    setBloqueado(true);
+
+    const [idx1, idx2] = selecionadas;
+    const carta1 = cartas[idx1];
+    const carta2 = cartas[idx2];
+
+    if (carta1.parId === carta2.parId && idx1 !== idx2) {
+      // Encontrou um Match!
+      const novasResolvidas = [...resolvidas, carta1.parId];
+      setResolvidas(novasResolvidas);
+      setSelecionadas([]);
+      setBloqueado(false);
+
+      // Checa se o tabuleiro inteiro foi limpo
+      if (novasResolvidas.length === CARTAS_BASE.length / 2) {
+        setJogoConcluido(true);
+        // Dispara explosão de comemoração
+        try {
+          confetti2({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#00FF66', '#FFD700', '#00E5FF']
+          });
+        } catch (e) {}
+      }
+    } else {
+      // Errou o par: mantém exibido por 1 segundo e desvira
+      setTimeout(() => {
+        setSelecionadas([]);
+        setBloqueado(false);
+      }, 1000);
+    }
+  }, [selecionadas, cartas, resolvidas]);
+
+  const handleCliqueCarta = (index: number) => {
+    if (bloqueado || jogoConcluido || selecionadas.includes(index) || resolvidas.includes(cartas[index].parId)) return;
+    setSelecionadas([...selecionadas, index]);
+  };
+
+  const handleAvançar = () => {
+    router.push('/lesson');
+  };
+
+  return (
+    <div className="fixed inset-0 w-screen h-screen bg-[#050b11] text-[#E8EDF2] flex flex-col font-sans antialiased overflow-hidden z-[9999]">
+      
+      <div className="absolute inset-0 bg-[radial-gradient(#101f30_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none z-0" />
+
+      {/* RECIPIENTE PRINCIPAL TABULEIRO */}
+      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-between p-6 pb-8 z-10 my-4 bg-[#09131f] border-2 border-slate-800 rounded-[36px] shadow-[0_40px_100px_rgba(0,0,0,0.95)] max-h-[92vh]">
+        
+        {/* HUD de Competência */}
+        <div className="flex justify-between items-center w-full bg-[#04090f] border border-slate-800/60 p-3.5 rounded-2xl shadow-md flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <Cpu size={14} className="text-slate-500 opacity-60" />
+            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">MÓDULO MINIGAME DE RETENÇÃO</span>
+          </div>
+          <span className="text-[12px] font-black text-[#00E5FF] uppercase tracking-widest font-sans bg-cyan-950/40 px-3 py-0.5 rounded-md border border-cyan-500/10">B2 CONEXÃO</span>
+        </div>
+
+        {/* ÁREA CENTRAL: Grid de Cartas Reativo (Tabuleiro de Memória) */}
+        <div className="w-full max-w-2xl mx-auto grid grid-cols-3 gap-4 my-auto select-none">
+          {cartas.map((carta, index) => {
+            const isSelected = selecionadas.includes(index);
+            const isResolved = resolvidas.includes(carta.parId);
+            const revelada = isSelected || isResolved;
+
+            let cardStyle = "border-slate-800 bg-[#04090f] hover:border-slate-600 cursor-pointer text-slate-500";
+            
+            if (isResolved) {
+              cardStyle = "border-[#00FF66] bg-[#00FF66]/5 text-[#00FF66] shadow-[0_0_15px_rgba(0,255,102,0.1)] font-black";
+            } else if (isSelected) {
+              cardStyle = "border-cyan-500 bg-[#04090f] text-[#00E5FF] font-black shadow-[0_0_15px_rgba(0,229,255,0.15)] scale-[0.98]";
+            }
+
+            return (
+              <div
+                key={index}
+                onClick={() => handleCliqueCarta(index)}
+                className={`h-28 rounded-2xl border-2 flex flex-col items-center justify-center p-3 text-center transition-all duration-300 text-xs tracking-wide uppercase ${cardStyle}`}
+              >
+                {revelada ? (
+                  <span className="animate-fade-in font-extrabold text-[11px] leading-tight break-words max-w-full">
+                    {carta.conteudo}
+                  </span>
+                ) : (
+                  <HelpCircle size={24} className="text-slate-700 opacity-40 animate-pulse" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* BASE COGNITIVA: ORIENTAÇÃO PEDAGÓGICA + BOTÃO UNIFICADO */}
+        <div className="w-full flex flex-col gap-4 flex-shrink-0">
+          
+          {/* Caixa de Revisão Pedagógica */}
+          <div className="w-full flex items-center gap-3.5 bg-[#04090f] border border-slate-800/80 p-3.5 rounded-2xl shadow-md">
+            <div className="p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/10 text-[#00E5FF] flex-shrink-0">
+              <Sparkles size={18} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[9px] font-mono font-bold text-cyan-400 uppercase tracking-widest">► INSTRUÇÃO E REVISÃO PEDAGÓGICA</span>
+              <p className="text-[11px] font-semibold text-slate-400 leading-tight">
+                {!jogoConcluido && 'Encontre os pares corretos associando os termos técnicos avançados em inglês aos seus significados equivalentes.'}
+                {jogoConcluido && 'Fantástico! Tabuleiro limpo. Você memorizou com perfeição as correlações semânticas de nível corporativo.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Painel Inferior Corrigido com HAAS ACADEMY e Cores de Foco Visuais */}
+          <div className="w-full flex items-center gap-3">
+            <div className={`w-[35%] bg-[#04090f] border h-12 rounded-xl flex items-center justify-center gap-1.5 shadow-md transition-all duration-300 font-mono font-bold text-[9px] ${
+              jogoConcluido 
+                ? 'border-emerald-500/30 text-[#00FF66]' 
+                : 'border-slate-800 text-slate-400'
+            }`}>
+              {jogoConcluido ? (
+                <>
+                  <PartyPopper size={14} className="animate-bounce" />
+                  <span>+10p UN</span>
+                </>
+              ) : (
+                // Exibição Limpa da Marca sem engrenagem obstrutiva
+                <div className="flex items-center justify-center text-[9px] font-black tracking-widest text-slate-300">
+                  <span>HAAS ACADEMY</span>
+                </div>
+              )}
+            </div>
+            
+            <button 
+              onClick={handleAvançar}
+              disabled={!jogoConcluido} 
+              className={`py-3.5 rounded-xl font-black text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2 transition-all duration-300 w-full ${
+                jogoConcluido 
+                  ? 'bg-gradient-to-b from-[#F8891D] to-[#E67212] text-white shadow-[0_6px_25px_rgba(248,137,29,0.5)] scale-[1.01] cursor-pointer hover:brightness-110 active:scale-95 opacity-100' 
+                  : 'bg-[#131f2c] text-slate-600 cursor-not-allowed border border-slate-900 opacity-40'
+              }`}
+            >
+              {jogoConcluido ? 'CONTINUAR' : 'LIMPE O TABULEIRO'} <ArrowRight size={14} strokeWidth={3} />
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}

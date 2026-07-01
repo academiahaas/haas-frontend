@@ -1,0 +1,120 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Mic, Volume2, CheckCircle } from 'lucide-react';
+
+interface MioloShadowingProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+}
+
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong }: MioloShadowingProps) {
+  const [status, setStatus] = useState<'IDLE' | 'RECORDING' | 'ANALYZING' | 'DONE'>('IDLE');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const referencePhrase = "I need to check the data before pushing to production.";
+
+  useEffect(() => {
+    drawSimulatedWaveform();
+  }, [status]);
+
+  const drawSimulatedWaveform = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = status === 'RECORDING' ? '#ef4444' : '#00f0ff';
+    
+    for (let i = 0; i < 40; i++) {
+      const h = status === 'RECORDING' ? Math.random() * 35 + 5 : Math.sin(i * 0.5) * 15 + 20;
+      ctx.fillRect(i * 6, (40 - h) / 2, 3, h);
+    }
+  };
+
+  const playAudioRef = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1020, ctx.currentTime);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.03);
+      }
+    } catch (e) {}
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(referencePhrase);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleSimularShadowing = () => {
+    if (status !== 'IDLE') return;
+    setStatus('RECORDING');
+    setTimeout(() => {
+      setStatus('ANALYZING');
+      setTimeout(() => {
+        setStatus('DONE');
+        onSelectCorrect?.();
+      }, 1500);
+    }, 3000);
+  };
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-mono animate-fade-in min-h-0 flex-1 gap-2 md:gap-4 overflow-hidden">
+      
+      {/* HEADER DE COMANDO (TOPO) */}
+      <div className="flex items-center gap-4 shrink-0 bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02]">
+        <button onClick={playAudioRef} className="p-4 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl cursor-pointer transition-all shrink-0">
+          <Volume2 size={22} className="animate-pulse" />
+        </button>
+        <span className="text-[clamp(11px,3.2vw,13px)] font-black text-cyan-400 uppercase tracking-wider leading-snug">
+          Escute a métrica nativa e repita logo em seguida:
+        </span>
+      </div>
+
+      {/* BOX DA FRASE CENTRAL DE REFERÊNCIA (EXPANDIDO) */}
+      <div className="bg-[#020B12] border border-slate-800 rounded-xl py-3 md:py-5 px-3 text-center font-sans text-[clamp(13px,3.8vw,16px)] font-black text-slate-200 tracking-wide flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+        "{referencePhrase}"
+      </div>
+
+      {/* ÁREA CENTRAL DO CANVAS DE ONDA DE VOZ */}
+      <div className="w-full bg-[#01070C] border border-slate-900 rounded-xl p-3 flex justify-center items-center h-20 shadow-inner shrink-0">
+        <canvas ref={canvasRef} width="320" height="40" className="opacity-90 scale-110" />
+      </div>
+
+      {/* BOTÃO MASTER DE GRAVAÇÃO ERGONÔMICO (BASE) */}
+      <div className="w-full shrink-0">
+        <button
+          onClick={handleSimularShadowing}
+          disabled={status !== 'IDLE'}
+          className={`w-full py-4 rounded-xl font-black text-[clamp(12px,3.5vw,14px)] uppercase tracking-widest transition-all border-none flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] ${
+            status === 'RECORDING' ? 'bg-red-600 text-white' : status === 'ANALYZING' ? 'bg-amber-500 text-slate-950' : status === 'DONE' ? 'bg-[#00E676] text-slate-950' : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950'
+          }`}
+        >
+          {status === 'IDLE' && <><Mic size={16} /> Pressione para Sombrear Voz (Shadow)</>}
+          {status === 'RECORDING' && 'Gravando Onda Coincidente...'}
+          {status === 'ANALYZING' && 'Calculando Margem de Latência...'}
+          {status === 'DONE' && 'Análise de Onda Concluída'}
+        </button>
+      </div>
+
+      {/* FEEDBACK INFERIOR - SEM RESERVA FIXA, SURGE DE MANEIRA FLUTUANTE APENAS SE COMPLETADO */}
+      {status === 'DONE' && (
+        <div className="w-full shrink-0 flex items-center justify-center pt-1">
+          <div className="flex items-center gap-2 text-[#00E676] text-[12px] font-black uppercase tracking-wider animate-bounce text-center">
+            <CheckCircle size={16} /> <span>Match de 94%! Altura da onda e cadência aprovadas.</span>
+          </div>
+        </div>
+      )}
+      
+    </div>
+  );
+}

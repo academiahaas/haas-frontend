@@ -1,0 +1,610 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import { Calendar, Clock, RefreshCw, ChevronLeft, ChevronRight, Ticket, X, ChevronDown } from "lucide-react";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  idioma: "PT" | "EN" | "ES";
+}
+
+interface Aula {
+  id: string;
+  data: string; 
+  horario: string; 
+  tipo: "regular" | "reposicao";
+  status: "agendada" | "realizada" | "cancelada";
+}
+
+export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
+  const [activeTab, setActiveTab] = useState<"lista" | "agendar">("lista");
+  const [isLembreteOpen, setIsLembreteOpen] = useState(false);
+  const [mensagemCancelamento, setMensagemCancelamento] = useState<string | null>(null);
+  const [tipoErroCancelamento, setTipoErroCancelamento] = useState<"bloqueio" | "sucesso" | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen && activeTab === "agendar") {
+      setIsLembreteOpen(true);
+    }
+  }, [isOpen, activeTab]);
+  const [modoAgendamento, setModoAgendamento] = useState("clase");
+  const [planoAluno] = useState({ nome: "Pack VIP Std", slug: "pack_vip_std", validade: "2026-07-15" });
+  const [isAvisoOpen, setIsAvisoOpen] = useState(false);
+  const [tipoAviso, setTipoAviso] = useState("marketing");
+  const [mensagem, setMensagem] = useState<{ tipo: "sucesso" | "erro", texto: string } | null>(null);
+
+  const [tipoAula, setTipoAula] = useState<"regular" | "reposicao">("regular");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedHorario, setSelectedHorario] = useState("08:00");
+
+  const [isTipoDropdownOpen, setIsTipoDropdownOpen] = useState(false);
+  const [isHorarioDropdownOpen, setIsHorarioDropdownOpen] = useState(false);
+
+  const tipoRef = useRef<HTMLDivElement>(null);
+  const horarioRef = useRef<HTMLDivElement>(null);
+
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const [currentNavDate, setCurrentNavDate] = useState(new Date());
+
+  const [creditosAulas, setCreditosAulas] = useState(8); 
+  const [creditosReposicao, setCreditosReposicao] = useState(1); 
+  
+  const [aulas, setAulas] = useState<Aula[]>([
+    { id: "1", data: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], horario: "10:00", tipo: "regular", status: "agendada" },
+    { id: "2", data: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0], horario: "15:30", tipo: "reposicao", status: "agendada" }
+  ]);
+
+  const listaHorarios = [
+    "08:00", "09:00", "10:00", "11:00", "12:00", 
+    "14:00", "15:00", "16:00", "17:00", "18:00", 
+    "19:00", "20:00", "21:00"
+  ];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tipoRef.current && !tipoRef.current.contains(event.target as Node)) {
+        setIsTipoDropdownOpen(false);
+      }
+      if (horarioRef.current && !horarioRef.current.contains(event.target as Node)) {
+        setIsHorarioDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!isOpen) return null;
+
+    const t = {
+    PT: {
+      title: "AGENDA DE AULAS", tab1: "Minhas Aulas", tab2: "Novo Agendamento", cancel: "Cancelar",
+      close: "FECHAR", qDate: "DATA DA AULA", selectDateBtn: "Selecionar Data",
+      mainCredits: "Créditos de Aula Disponíveis", repCredits: "Créditos de Reposição",
+      noCreditsError: "Você não possui Créditos de Aula disponíveis.", calTitle: "SELECIONE A DATA", noClasses: "Nenhuma aula agendada.",
+      lblClassType: "Tipo de Aula", lblTime: "Horário", btnConfirm: "Confirmar Agendamento",
+      optRegular: "Classe Regular", optReposicion: "Aula de Reposição",
+      tagRegular: "CLASSE REGULAR", tagReposicion: "REPOSIÇÃO", successMsg: "Agendado com sucesso!",
+      optGrupo: "Grupo", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Grupo", optPackVipStd: "Pack VIP Std", optFlex: "Particulares Flex",
+      avisoDuplicadoTitulo: "HORÁRIO INDISPONÍVEL", avisoDuplicadoTexto: "Você já possui uma aula agendada exatamente para este dia e horário. Por favor, selecione outro horário.",
+      avisoMarketingTitulo: "AVISO DE AGENDAMENTO", avisoMarketingTexto: "Esta modalidade não faz parte do seu combo contratado ou seus créditos expiraram nesta data. Quer adquirir este pacote agora?",
+      btnEntendido: "Entendido", avisoReposicaoTitulo: "CRÉDITOS DE REPOSIÇÃO", avisoReposicaoTexto: "Seus créditos de reposição chegaram ao fim. Não deixe seu planejamento parar! Que tal adquirir novas aulas agora para continuar evoluindo?", btnQueroAulas: "Sim, quero mais aulas", btnSim: "Sim", btnNao: "Não"
+    },
+    EN: {
+      title: "CLASS SCHEDULE", tab1: "My Classes", tab2: "Book a Class", cancel: "Cancel",
+      close: "CLOSE", qDate: "CLASS DATE", selectDateBtn: "Select Date",
+      mainCredits: "Available Class Credits", repCredits: "Reschedule Credits",
+      noCreditsError: "No Class Credits available.", calTitle: "SELECT DATE", noClasses: "No scheduled classes.",
+      lblClassType: "Class Type", lblTime: "Time Slot", btnConfirm: "Confirm Booking",
+      optRegular: "Regular Class", optReposicion: "Makeup Class",
+      tagRegular: "REGULAR CLASS", tagReposicion: "MAKEUP CLASS", successMsg: "Successfully booked!",
+      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "Particulares Flex",
+      avisoDuplicadoTitulo: "SLOT UNAVAILABLE", avisoDuplicadoTexto: "You already have a class booked for this date and time. Please select another time slot.",
+      avisoMarketingTitulo: "BOOKING NOTICE", avisoMarketingTexto: "This modality is not part of your contracted combo or your credits have expired. Would you like to purchase this package now?",
+      btnEntendido: "Got it", btnSim: "Yes", btnNao: "No", avisoReposicaoTitulo: "MAKEUP CREDITS", avisoReposicaoTexto: "Your makeup credits have run out. Don't let your learning stop! How about getting more classes now to keep growing?", btnQueroAulas: "Yes, I want more classes"
+    },
+    ES: {
+      title: "AGENDA DE CLASES", tab1: "Mis Clases", tab2: "Agendar Clase", cancel: "Cancelar",
+      close: "CERRAR", qDate: "FECHA DE LA CLASE", selectDateBtn: "Seleccionar Fecha",
+      mainCredits: "Créditos de Clase", repCredits: "Créditos de Reposición",
+      noCreditsError: "No tienes Créditos de Clase.", calTitle: "SELECCIONE FECHA", noClasses: "Ninguna clase programada.",
+      lblClassType: "Tipo de Clase", lblTime: "Horario", btnConfirm: "Confirmar Reserva",
+      optRegular: "Clase Regular", optReposicion: "Clase de Reposición",
+      tagRegular: "CLASE REGULAR", tagReposicion: "CLASE DE REPOSICIÓN", successMsg: "¡Reservado con éxito!",
+      optGrupo: "Grupo", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Grupo", optPackVipStd: "Pack VIP Std", optFlex: "Particulares Flex",
+      avisoDuplicadoTitulo: "HORARIO NO DISPONIBLE", avisoDuplicadoTexto: "Ya tienes una clase programada exactamente para este día y horario. Por favor, selecciona otro horario.",
+      avisoMarketingTitulo: "AVISO DE RESERVA", avisoMarketingTexto: "Esta modalidad no forma parte de tu combo contratado o te quedaste sin créditos en esta fecha. ¿Quieres adquirir este paquete ahora?",
+      btnEntendido: "Entendido", btnSim: "Sí", btnNao: "No", avisoReposicaoTitulo: "CRÉDITOS DE REPOSICIÓN", avisoReposicaoTexto: "Tus créditos de reposición se han agotado. ¡No dejes que tu planificación se detenga! ¿Qué tal adquirir más clases ahora para seguir evolucionando?", btnQueroAulas: "Sí, quiero más clases"
+    }
+  }[idioma];
+
+  const i18nCalendar = {
+    PT: { weekDays: ["D", "S", "T", "Q", "Q", "S", "S"], months: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"] },
+    EN: { weekDays: ["S", "M", "T", "W", "T", "F", "S"], months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] },
+    ES: { weekDays: ["D", "L", "M", "X", "J", "V", "S"], months: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"] }
+  }[idioma];
+
+  const year = currentNavDate.getFullYear();
+  const month = currentNavDate.getMonth();
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const blanks = Array(firstDayIndex).fill(null);
+  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
+  const gridCells = [...blanks, ...daysInMonth];
+
+  function formatDisplayDate(dateStr: string) {
+    if (!dateStr) return "";
+    const [y, m, d] = dateStr.split("-");
+    return idioma === "EN" ? `${m}/${d}/${y}` : `${d}/${m}/${y}`;
+  }
+
+  function handleSelectDay(day: number) {
+    const formattedMonth = String(month + 1).padStart(2, "0");
+    const formattedDay = String(day).padStart(2, "0");
+    setSelectedDate(`${year}-${formattedMonth}-${formattedDay}`);
+    setIsCalendarModalOpen(false);
+  }
+
+  function getNomeModalidade(slug: string) {
+    if (slug === "grupo") return t.optGrupo;
+    if (slug === "vip_std") return t.optVipStd;
+    if (slug === "vip_pro") return t.optVipPro;
+    if (slug === "pack_grupo") return t.optPackGrupo;
+    if (slug === "pack_vip_std") return t.optPackVipStd;
+    if (slug === "reposicao") return t.optReposicion;
+    return t.optFlex;
+  }
+
+  function handleTentativaCancelamento(aula: any) {
+    const agora = new Date();
+    const [ano, mes, dia] = aula.data.split("-");
+    const [hora, minuto] = aula.horario.split(":");
+    const dataAula = new Date(Number(ano), Number(mes) - 1, Number(dia), Number(hora), Number(minuto));
+    
+    const diferencaHoras = (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60);
+
+    if (diferencaHoras < 12) {
+      setTipoErroCancelamento("bloqueio");
+      if (idioma === "EN") {
+        setMensagemCancelamento("It is not possible to cancel this class. Cancellations must be made at least 12 hours in advance.");
+      } else if (idioma === "ES") {
+        setMensagemCancelamento("No es posible cancelar esta clase. Las cancelaciones deben hacerse con al menos 12 horas de anticipación.");
+      } else {
+        setMensagemCancelamento("Não é possível cancelar esta aula agora. Os cancelamentos devem ser feitos com pelo menos 12 horas de antecedência.");
+      }
+    } else {
+      setTipoErroCancelamento("sucesso");
+      const dataVencimento = new Date(dataAula);
+      dataVencimento.setDate(dataVencimento.getDate() + 5);
+      
+      const d = String(dataVencimento.getDate()).padStart(2, "0");
+      const m = String(dataVencimento.getMonth() + 1).padStart(2, "0");
+      const y = dataVencimento.getFullYear();
+      const dataFormatada = idioma === "EN" ? m + "/" + d + "/" + y : d + "/" + m + "/" + y;
+
+      if (idioma === "EN") {
+        setMensagemCancelamento("Class canceled successfully! You have 5 calendar days (until " + dataFormatada + ") to book your makeup class, counting from the original date.");
+      } else if (idioma === "ES") {
+        setMensagemCancelamento("¡Clase cancelada con éxito! Tienes 5 días naturales (hasta el " + dataFormatada + ") para programar tu reposición, contados a partir de la fecha original.");
+      } else {
+        setMensagemCancelamento("Aula cancelada com sucesso! Você tem 5 dias corridos (até " + dataFormatada + ") para agendar sua reposição, contados a partir da data original desta aula.");
+      }
+    }
+  }
+
+  function executarAgendamento() {
+    setMensagem(null);
+    
+    // TRAVA 1: Validar se o aluno já tem uma aula agendada no mesmo dia e horário
+    const temDuplicado = aulas.some(a => a.data === selectedDate && a.horario === selectedHorario && a.status === "agendada");
+    if (temDuplicado) {
+      setTipoAviso("duplicado");
+      setIsAvisoOpen(true);
+      return;
+    }
+
+        // TRAVA 1: Validar se já possui aula no mesmo dia e horário (Aviso Duplicado)
+    const horarioExiste = aulas.some(a => a.data === selectedDate && a.horario === selectedHorario && a.status === "agendada");
+    if (horarioExiste) {
+      setTipoAviso("duplicado");
+      setIsAvisoOpen(true);
+      return;
+    }
+
+    // TRAVA 2: Validar se a data escolhida ultrapassa a data de validade do plano ativo
+    const dataSelecionada = new Date(selectedDate);
+    const dataValidadePlano = new Date(planoAluno.validade);
+    if (dataSelecionada > dataValidadePlano) {
+      setTipoAviso("zerado");
+      setIsAvisoOpen(true);
+      return;
+    }
+
+    // TRAVA 3: Validar se a modalidade bate com o plano contratado (Fora do Combo)
+    if (modoAgendamento === "clase" && tipoAula !== planoAluno.slug) {
+      setTipoAviso("fora_combo");
+      setIsAvisoOpen(true);
+      return;
+    }
+
+    // TRAVA 4: Validar falta de créditos (Créditos zerados/expirados)
+    const semCreditos = (modoAgendamento === "reposicion" && creditosReposicao <= 0) || (modoAgendamento === "clase" && creditosAulas <= 0);
+    if (semCreditos) {
+      setTipoAviso(modoAgendamento === "reposicion" ? "reposicion_zerada" : "zerado");
+      setIsAvisoOpen(true);
+      return;
+    }
+
+    // Fluxo de gravação normal caso passe em todas as travas
+    if (modoAgendamento === "reposicion") setCreditosReposicao(prev => prev - 1);
+    else setCreditosAulas(prev => prev - 1);
+
+    const nova: Aula = { 
+      id: String(Date.now()), 
+      data: selectedDate, 
+      horario: selectedHorario, 
+      tipo: modoAgendamento === "reposicion" ? "reposicao" : tipoAula, 
+      status: "agendada" 
+    };
+    setAulas(prev => [nova, ...prev]);
+    setMensagem({ tipo: "sucesso", texto: t.successMsg });
+    setActiveTab("lista");
+  }
+
+  return (
+    <>
+      <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isOpen ? 'visible' : 'invisible'}`}>
+        <div onClick={onClose} className={`absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`} />
+        
+        <div className={`relative w-full max-w-md h-full max-h-[85vh] sm:h-[540px] bg-[#030914] border border-white/[0.06] rounded-[24px] p-4 sm:p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 transform ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+          
+          {/* Topo Fixo */}
+          <div className="flex items-center justify-between border-b border-white/5 pb-3 shrink-0">
+            <div className="flex flex-col gap-0.5">
+              <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                {t.title}
+              </h2>
+              <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                                {idioma === "ES" ? `Plan: ${planoAluno.nome} | Vence: ${planoAluno.validade.split("-").reverse().join("/")}` : idioma === "EN" ? `Plan: ${planoAluno.nome} | Expires: ${planoAluno.validade.split("-").reverse().join("/")}` : `Plano: ${planoAluno.nome} | Vence: ${planoAluno.validade.split("-").reverse().join("/")}`}
+              </span>
+            </div>
+            <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
+              {t.close}
+            </button>
+          </div>
+
+          {/* Cards de Créditos */}
+          <div className="grid grid-cols-2 gap-2 mt-3 shrink-0">
+            <div 
+              onClick={() => setModoAgendamento("clase")}
+              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "clase" ? "bg-white/[0.06] border-amber-500/80 shadow-[0_0_15px_rgba(245,158,11,0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
+              <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Ticket size={10} className="text-amber-500" />
+                {t.mainCredits}
+              </span>
+              <span className="text-[clamp(13px,3.8vw,16px)] font-mono font-black text-white">{creditosAulas}</span>
+            </div>
+            
+            <div 
+              onClick={() => setModoAgendamento("reposicion")}
+              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "reposicion" ? "bg-white/[0.06] border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
+              <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <RefreshCw size={10} className="text-cyan-400" />
+                {t.repCredits}
+              </span>
+              <span className="text-[clamp(13px,3.8vw,16px)] font-mono font-black text-cyan-400">{creditosReposicao}</span>
+            </div>
+          </div>
+
+          {/* Abas */}
+          <div className="flex bg-white/5 rounded-xl p-1 gap-1 mt-3 shrink-0">
+            <button type="button" onClick={() => { setActiveTab("lista"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[clamp(11px,3vw,13px)] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "lista" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab1}</button>
+            <button type="button" onClick={() => { setActiveTab("agendar"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[clamp(11px,3vw,13px)] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "agendar" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab2}</button>
+          </div>
+
+          {/* Área de Conteúdo */}
+          <div className="flex-1 mt-4 flex flex-col justify-start relative">
+            
+            {mensagem && (
+              <div className="p-2.5 mb-2 rounded-xl border text-[clamp(11px,3.2vw,13px)] font-mono font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shrink-0 leading-relaxed">
+                {mensagem.texto}
+              </div>
+            )}
+
+            {/* ABA LISTA */}
+            {activeTab === "lista" && (
+              <div className="space-y-2 overflow-y-auto pr-1 flex-1 max-h-[clamp(180px,45vh,260px)] custom-scrollbar">
+                {aulas.length === 0 ? (
+                  <div className="text-center py-8 text-[10px] font-mono text-slate-500">{t.noClasses}</div>
+                ) : (
+                  aulas.map((aula) => (
+                    <div key={aula.id} className="p-3 rounded-xl border border-white/[0.06] bg-white/5 flex justify-between items-center shrink-0">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-200">
+                          <Calendar size={13} className="text-amber-500" />
+                          <span>{aula.data.split("-").reverse().join("/")}</span>
+                          <span className="text-slate-600">•</span>
+                          <Clock size={13} className="text-amber-500" />
+                          <span>{aula.horario}</span>
+                        </div>
+                        <span className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-400">
+                          {aula.tipo === "reposicao" ? t.tagReposicion : t.tagRegular}
+                        </span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => handleTentativaCancelamento(aula)}
+                        className="py-1 px-3 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 text-[10px] font-black font-mono uppercase rounded-lg transition-all cursor-pointer border-none"
+                      >
+                        {idioma === "EN" ? "Cancel" : idioma === "ES" ? "Cancelar" : "Cancelar"}
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* ABA AGENDAR */}
+            {activeTab === "agendar" && (
+              <div className="space-y-3 flex flex-col justify-between flex-1 pb-1">
+                <div className="space-y-3">
+                  
+                  {/* DROPDOWN CUSTOMIZADO: TIPO DE AULA (Sem os números duplicados) */}
+                  {/* DROPDOWN DINÂMICO INTELIGENTE COM 6 MODALIDADES */}
+                  <div className="space-y-1 relative" ref={tipoRef}>
+                    <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.lblClassType}</label>
+                    
+                    {modoAgendamento === "reposicion" ? (
+                      <div className="w-full bg-white/[0.02] border border-cyan-500/30 rounded-xl px-3 py-2 text-xs font-mono text-cyan-400 flex justify-between items-center opacity-80">
+                        <span className="font-black">{t.optReposicion}</span>
+                        <RefreshCw size={12} className="text-cyan-400 animate-spin-slow" />
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => { setIsTipoDropdownOpen(!isTipoDropdownOpen); setIsHorarioDropdownOpen(false); }}
+                          className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                        >
+                          <span className="font-black text-amber-500">{getNomeModalidade(tipoAula)}</span>
+                          <ChevronDown size={14} className="text-amber-500" />
+                        </button>
+                        
+                        {isTipoDropdownOpen && (
+                          <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-hidden z-50 shadow-2xl">
+                            {["grupo", "vip_std", "vip_pro", "pack_grupo", "pack_vip_std", "flex"].map((m) => (
+                              <div
+                                key={m}
+                                onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
+                                className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === m ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500 hover:bg-amber-500 hover:text-[#030914]"}`}
+                              >
+                                {getNomeModalidade(m)}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* SELETOR DE DATA */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
+                      <Calendar size={12} className="text-amber-500" />
+                      {t.qDate}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setIsCalendarModalOpen(true); setIsTipoDropdownOpen(false); setIsHorarioDropdownOpen(false); }}
+                      className="w-full bg-white/5 border border-white/[0.08] hover:border-amber-500/50 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                    >
+                      <span className="text-amber-400 font-black">{formatDisplayDate(selectedDate)}</span>
+                      <span className="text-[9px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-slate-400">{t.selectDateBtn}</span>
+                    </button>
+                  </div>
+
+                  {/* DROPDOWN CUSTOMIZADO: HORÁRIOS DISPONÍVEIS */}
+                  <div className="space-y-1 relative" ref={horarioRef}>
+                    <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.lblTime}</label>
+                    <button
+                      type="button"
+                      onClick={() => { setIsHorarioDropdownOpen(!isHorarioDropdownOpen); setIsTipoDropdownOpen(false); }}
+                      className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                    >
+                      <span className="text-amber-500 font-black">{selectedHorario}</span>
+                      <ChevronDown size={14} className="text-amber-500" />
+                    </button>
+                    
+                    {isHorarioDropdownOpen && (
+                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
+                        {listaHorarios.map((h) => {
+                          const isSelected = selectedHorario === h;
+                          return (
+                            <div
+                              key={h}
+                              onClick={() => { setSelectedHorario(h); setIsHorarioDropdownOpen(false); }}
+                              className={`px-3 py-1.5 text-xs font-mono cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500/90 hover:bg-amber-500 hover:text-[#030914]"}`}
+                            >
+                              {h}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button type="button" onClick={executarAgendamento} className="w-full py-2 mt-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md cursor-pointer shrink-0">
+                  {t.btnConfirm}
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+
+      {/* CAMADA DO CALENDÁRIO INDEPENDENTE */}
+      <div className={`fixed inset-0 z-[60] transition-all duration-300 flex items-center justify-center p-4 ${isCalendarModalOpen ? 'visible' : 'invisible'}`}>
+        <div onClick={() => setIsCalendarModalOpen(false)} className={`absolute inset-0 bg-black/85 backdrop-blur-sm transition-opacity duration-300 ${isCalendarModalOpen ? 'opacity-100' : 'opacity-0'}`} />
+        
+        <div className={`relative w-full max-w-sm bg-[#050c18] border border-white/[0.1] rounded-[20px] p-5 flex flex-col gap-4 shadow-2xl transition-all duration-300 transform ${isCalendarModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+          
+          <div className="flex items-center justify-between border-b border-white/5 pb-2">
+            <span className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Calendar size={12} className="text-amber-500" />
+              {t.calTitle}
+            </span>
+            <button type="button" onClick={() => setIsCalendarModalOpen(false)} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border-none cursor-pointer">
+              <X size={14} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between bg-white/[0.02] p-2 rounded-xl border border-white/5">
+            <button type="button" onClick={() => setCurrentNavDate(new Date(year, month - 1, 1))} className="p-1 rounded-lg bg-white/5 text-slate-400 border-none cursor-pointer"><ChevronLeft size={16} /></button>
+            <span className="text-xs font-mono font-black text-slate-200 uppercase tracking-wide">{i18nCalendar.months[month]} {year}</span>
+            <button type="button" onClick={() => setCurrentNavDate(new Date(year, month + 1, 1))} className="p-1 rounded-lg bg-white/5 text-slate-400 border-none cursor-pointer"><ChevronRight size={16} /></button>
+          </div>
+
+          <div className="grid grid-cols-7 text-center text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+            {i18nCalendar.weekDays.map((wd, i) => <div key={i}>{wd}</div>)}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {gridCells.map((day, index) => {
+              if (day === null) return <div key={index} />;
+              const currentLoopStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const isSelected = selectedDate === currentLoopStr;
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleSelectDay(day)}
+                  className={`py-2 rounded-xl text-xs font-mono font-bold border-none cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-black shadow-md font-black scale-105" : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-amber-400"}`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>      {/* NOVA TELA FLUTUANTE DE MARKETING E AVISOS COM BLUR */}
+      {isAvisoOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div onClick={() => setIsAvisoOpen(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-md transition-opacity" />
+          
+          <div className="relative w-full max-w-sm bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 shadow-2xl text-center flex flex-col gap-4 z-10">
+            <h3 className="text-white text-xs font-black tracking-widest uppercase font-mono flex items-center justify-center gap-2">
+              <span className={`w-1.5 h-1.5 rounded-full ${tipoAviso === 'duplicado' ? 'bg-rose-500' : 'bg-amber-500'} animate-pulse`} />
+              {tipoAviso === "duplicado" ? t.avisoDuplicadoTitulo : tipoAviso === "reposicion_zerada" ? t.avisoReposicaoTitulo : t.avisoMarketingTitulo}
+            </h3>
+
+            <p className="text-slate-400 text-xs font-mono leading-relaxed px-2">
+              {tipoAviso === "duplicado" ? t.avisoDuplicadoTexto : tipoAviso === "reposicion_zerada" ? t.avisoReposicaoTexto : t.avisoMarketingTexto}
+            </p>
+
+            {tipoAviso === "duplicado" ? (
+              <button 
+                type="button" 
+                onClick={() => setIsAvisoOpen(false)} 
+                className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer border border-white/10"
+              >
+                {t.btnEntendido}
+              </button>
+            ) : (
+              <div className="flex gap-3 mt-1">
+                <button 
+                  type="button" 
+                  onClick={() => setIsAvisoOpen(false)} 
+                  className="flex-1 py-2.5 border border-white/[0.06] hover:bg-white/[0.02] text-white text-[11px] font-bold uppercase rounded-xl font-mono transition-all cursor-pointer"
+                >{t.btnNao}</button>
+                <button 
+                  type="button" 
+                  onClick={() => { 
+                    setIsAvisoOpen(false); 
+                    onClose(); 
+                    setTimeout(() => { 
+                      const el = document.getElementById("central-creditos"); 
+                      if (el) el.scrollIntoView({ behavior: "smooth" }); 
+                    }, 300); 
+                  }} 
+                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg"
+                >{t.btnSim}</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+                {/* POP-UP DE RETORNO DO CANCELAMENTO PREMIUM */}
+      {mensagemCancelamento && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
+          <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl flex flex-col gap-4">
+            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-green-500/10 border-green-500/20 text-green-500")}>
+              <span className="font-mono text-xl font-black">{tipoErroCancelamento === "bloqueio" ? "!" : "✓"}</span>
+            </div>
+            
+            <h3 className="text-white text-sm font-black font-mono tracking-widest uppercase">
+              {tipoErroCancelamento === "bloqueio" 
+                ? (idioma === "EN" ? "CANCELLATION BLOCKED" : idioma === "ES" ? "CANCELACIÓN BLOQUEADA" : "CANCELAMENTO BLOQUEADO")
+                : (idioma === "EN" ? "CLASS CANCELED" : idioma === "ES" ? "CLASE CANCELADA" : "AULA CANCELADA")}
+            </h3>
+            
+            <p className="text-slate-400 text-xs font-mono leading-relaxed px-2">
+              {mensagemCancelamento}
+            </p>
+
+            <button 
+              type="button" 
+              onClick={() => { setMensagemCancelamento(null); setTipoErroCancelamento(null); }} 
+              className={"w-full py-2.5 text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg border-none " + (tipoErroCancelamento === "bloqueio" ? "bg-slate-700 hover:bg-slate-600 text-white" : "bg-green-500 hover:bg-green-500 text-black")}
+            >
+              {idioma === "EN" ? "Understand" : idioma === "ES" ? "Entendido" : "Entendido"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* POP-UP DE LEMBRETE ISOLADO E INDEPENDENTE */}
+      {isLembreteOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all duration-300">
+          <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative overflow-hidden flex flex-col gap-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto border border-amber-500/20">
+              <span className="text-amber-500 font-mono text-xl font-black">!</span>
+            </div>
+            
+            <h3 className="text-white text-sm font-black font-mono tracking-widest uppercase">
+              {idioma === "EN" ? "BOOKING REMINDER" : idioma === "ES" ? "RECORDATORIO DE RESERVA" : "LEMBRETE DE AGENDAMENTO"}
+            </h3>
+            
+            <p className="text-slate-400 text-xs font-mono leading-relaxed px-2">
+              {idioma === "EN" 
+                ? "To plan your studies successfully, please remember: classes must be booked at least 24 hours in advance. If you need to cancel a class, your makeup credits will expire within 5 calendar days, counting from the original date of the canceled class. Shall we book?" 
+                : idioma === "ES"
+                ? "Para planificar tus estudios con éxito, recuerda: las clases deben reservarse con al menos 24 horas de anticipación. Si necesitas cancelar una clase, tus créditos de reposición vencerán dentro de los 5 días naturales, contados a partir de la fecha original de la clase cancelada. ¿Vamos a reservar?"
+                : "Para planejar seus estudos com sucesso, lembre-se: as aulas devem ser agendadas com pelo menos 24 horas de antecedência. Caso precise cancelar uma aula, seus créditos de reposição expiram em até 5 dias corridos, contados a partir da data original da aula que foi cancelada. Vamos agendar?"}
+            </p>
+
+            <div className="flex gap-3 mt-2">
+              <button 
+                type="button" 
+                onClick={() => { setIsLembreteOpen(false); setActiveTab("lista"); }} 
+                className="flex-1 py-2.5 border border-white/[0.06] bg-transparent text-white text-[11px] font-bold uppercase rounded-xl font-mono transition-all cursor-pointer"
+              >
+                {idioma === "EN" ? "Not now" : idioma === "ES" ? "Ahora no" : "Agora não"}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setIsLembreteOpen(false)} 
+                className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg border-none"
+              >
+                {idioma === "EN" ? "Yes, let's go" : idioma === "ES" ? "Sí, vamos" : "Sim, vamos lá"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
