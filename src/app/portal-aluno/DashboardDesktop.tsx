@@ -887,29 +887,41 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 {/* Linha 1: Planos Padrão Fechados */}
                 <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Mensal" : idioma === "EN" ? "Monthly" : "Mensual"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Particular 1 a 1" : idioma === "EN" ? "1-on-1 Private" : "Particular 1 a 1"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Corporativo" : idioma === "EN" ? "Corporate" : "Corporativo"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
 
                 {/* Linha 2: Aulas Avulsas / Packs Progressivos */}
                 <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "EN" ? "Extra 1 to 20" : "Extra 1 a 20"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +10 IA /cr" : idioma === "EN" ? "+7d Access | +10 AI /cr" : "+7d Acceso | +10 IA /cr"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "EN" ? "Extra 1 to 20" : "Extra 1 a 20"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Particulares Flex" : idioma === "EN" ? "Private Flex" : "Particulares Flex"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">Extra Pro 1 a 20</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                  </div>
                 </button>
               </div>
             </div>
@@ -958,11 +970,23 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             {/* Resumo e Botão Avançar Original Restaurado */}
             {valorTotal > 0 && (
               <div className="mt-2 flex flex-col gap-3">
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 text-center">
-                  <span className="text-slate-400 text-[11px] block font-medium mb-1 uppercase tracking-wider">{descricaoItem}</span>
+                <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 text-center flex flex-col items-center justify-center">
                   <span className="text-3xl font-black text-amber-400 font-mono">
                     $ {valorTotal.toLocaleString("es-CO")} COP
                   </span>
+
+                  {/* Linha de Status de IA Dinâmica e Minimalista para o Desktop */}
+                  <div className="text-[10px] font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2 mt-2 leading-relaxed">
+                    {["grupo", "vip_std", "vip_pro"].includes(modalidade) ? (
+                      idioma === "PT" ? "Vigência Integral: 30 Dias | Acesso IA: Ilimitado" :
+                      idioma === "EN" ? "Full Validity: 30 Days | AI Access: Unlimited" :
+                      "Vigencia Integral: 30 Días | Acceso IA: Ilimitado"
+                    ) : (
+                      idioma === "PT" ? `Vigência Base: +${Math.min(qtdAvulsas * 7, 30)} Dias (Teto 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas` :
+                      idioma === "EN" ? `Base Term: +${Math.min(qtdAvulsas * 7, 30)} Days (Max 30) | AI Credit: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Queries` :
+                      `Vigencia Base: +${Math.min(qtdAvulsas * 7, 30)} Días (Techo 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas`
+                    )}
+                  </div>
                 </div>
                 
                 <button 
@@ -1072,12 +1096,32 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             }
             const taxaAtual = (window as any)._taxaCop || 4100;
             
-            // Converte o valor base aplicando os 5% internacionais e rotaciona centavos finos (Ex: 18.00 -> 17.92) para o robô achar
-            const dolarBrutoComTaxa = (valorTotal / taxaAtual) * 1.05;
-            const valorEmDolarFinal = (Math.ceil(dolarBrutoComTaxa * 100) - diferencaCentavos) / 100;
+            // Regra de Ouro em COP: Adiciona 5% da taxa do gateway e subtrai o rastro fino de pesos do robô
+            const valorCopComTaxa = Math.round(valorTotal * 1.05);
+            const valorCopFinalComDescontoRobo = valorCopComTaxa - diferencaCentavos;
+            
+            // O Dólar acompanha a taxa real da internet dinamicamente para referência do gringo
+            const valorEmDolarFinal = valorCopFinalComDescontoRobo / taxaAtual;
 
             return (
               <div className="flex flex-col gap-4 text-white animate-fadeIn w-full">
+                
+                {/* BLOCO DE CUPOM REAL SIMULADO 3001 - TOPO DO MODAL */}
+                <div className="w-full bg-[#0a1324] border border-white/[0.05] p-3.5 rounded-xl flex flex-col gap-2 shadow-inner text-left">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                    {idioma === "PT" ? "Possui um cupom de desconto?" : idioma === "EN" ? "Have a discount coupon?" : "¿Tienes un cupón de descuento?"}
+                  </span>
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="text" 
+                      placeholder="HAAS10" 
+                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-orange-500/50 transition-all" 
+                    />
+                    <button className="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 text-orange-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                      {idioma === "PT" ? "Aplicar" : idioma === "EN" ? "Apply" : "Aplicar"}
+                    </button>
+                  </div>
+                </div>
                 
                 {/* Seletor de Localização Simples */}
                 <div className="bg-white/[0.02] border border-white/5 p-2 rounded-xl flex justify-between items-center text-[10px]">
@@ -1127,10 +1171,16 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
                           return (
                             <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left w-full">
-                              <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {usdBaseOriginal} USD</span></div>
-                              <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa global (5%):" : idioma === "EN" ? "Global fee (5%):" : "Fee global (5%):"}</span><span>+ $ {usdFeeInternacional} USD</span></div>
-                              <div className="border-t border-slate-800/80 my-0.5"></div>
-                              <div className="flex justify-between font-black text-amber-400 text-xs"><span>Total:</span><span>$ {valorEmDolarFinal.toFixed(2)} USD</span></div>
+                              <div className="flex justify-between text-slate-400"><span>{idioma === "PT" ? "Base do Plano:" : idioma === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorTotal.toLocaleString("es-CO")} COP</span></div>
+                              <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa de Processamento (5%):" : idioma === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorTotal * 0.05).toLocaleString("es-CO")} COP</span></div>
+                              <div className="flex justify-between text-slate-500 text-[8px]"><span>{idioma === "PT" ? "Desconto de Identificação do Robô:" : idioma === "EN" ? "Robot Identification Discount:" : "Descuento de Identificación del Robot:"}</span><span>- $ {diferencaCentavos} COP</span></div>
+                              <div className="border-t border-slate-800/80 my-1"></div>
+                              <div className="flex flex-col gap-0.5 text-left">
+                                <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "VALOR EXATO PARA DIGITAR NA PASSARELA (COP):" : idioma === "EN" ? "EXACT VALUE TO ENTER IN THE GATEWAY (COP):" : "VALOR EXACTO PARA INGRESAR EN LA PASARELA (COP):"}</span>
+                                <div className="flex justify-between font-black text-emerald-400 text-sm"><span>Total COP:</span><span>$ {(Math.round(valorTotal * 1.05) - diferencaCentavos).toLocaleString("es-CO")} COP</span></div>
+                              </div>
+                              <div className="border-t border-slate-800/40 my-0.5 opacity-30"></div>
+                              <div className="flex justify-between text-slate-400 text-[9px]"><span>{idioma === "PT" ? "Equivalente comercial aproximado:" : idioma === "EN" ? "Approximate commercial equivalent:" : "Equivalente comercial aproximado:"}</span><span className="font-bold font-mono text-slate-300">$ {((Math.round(valorTotal * 1.05) - diferencaCentavos) / taxaAtual).toFixed(2)} USD</span></div>
                             </div>
                           );
                         })()}
@@ -1138,18 +1188,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
                         <button 
                           onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.wompi.co/l/haas_pay_global", "_blank"); }} 
-                          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
+                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
                         >
-                          {idioma === "PT" ? "Pagar com Cartão Internacional" : idioma === "EN" ? "Pay with International Card" : "Pagar con Tarjeta Internacional"}
+                          {idioma === "PT" ? "Ir para o Gateway de Pagamento" : idioma === "EN" ? "Go to Payment Gateway" : "Ir a la Pasarela de Pago"}
                         </button>
                       </div>
 
                     </div>
-                    <div className="text-[8px] text-slate-500 text-center mt-2">
-                      ⚠️ {idioma === "PT" ? (<><b>ATENÇÃO:</b> Processe o valor exato em dólares (USD) indicado para garantir que a validação global seja bem-sucedida e seu plano seja ativado <b>de forma automática</b>. <i>Nota: A taxa de processamento global não é reembolsável em caso de cancelamento.</i></>) : idioma === "EN" ? (<><b>ATTENTION:</b> Process the exact value in dollars (USD) indicated to ensure that the global validation is successful and your plan activates <b>automatically</b>. <i>Note: The global processing fee is non-refundable in case of cancellation.</i></>) : (<><b>ATENCIÓN:</b> Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active <b>de forma automática</b>. <i>Nota: La comisión de procesamiento global no es reembolsable en caso de cancelación.</i></>)}
+                    <div className="text-[8px] text-slate-400 text-center mt-2">
+                      ⚠️ {idioma === "PT" ? (<><b>ATENÇÃO:</b> HAAS processa suas inscrições em moeda local (COP). A taxa bancária de processamento global não é reembolsável em caso de cancelamento. Certifique-se de digitar o valor em COP exato indicado na tabela acima para garantir a ativação automática pelo nosso robô.</>) : idioma === "EN" ? (<><b>ATTENTION:</b> HAAS processes enrollments in local currency (COP). The global processing bank fee is non-refundable in case of cancellation. Please make sure to enter the exact COP value shown in the table above to ensure automatic activation by our system.</>) : (<><b>ATENCIÓN:</b> HAAS procesa las inscripciones en moneda local (COP). La comisión bancaria de procesamiento global no es reembolsable en caso de cancelación. Asegúrese de ingresar el valor exacto en COP indicado en la tabla de arriba para garantizar la activación automática por nuestro robot.</>)}
                     </div>
                   </div>
-                ) : (
+                
+            ) : (
                   <div className="grid grid-cols-2 gap-4 items-stretch">
                     
                     {/* COLUNA ESQUERDA: CARTÃO (CONFIÁVEL & ATIVO) */}
