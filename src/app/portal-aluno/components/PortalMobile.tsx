@@ -189,7 +189,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const recognitionRef = React.useRef(null);
 
   // 🎙️ Função para fazer a Haas falar no idioma correto
-  const falarTexto = (texto, langConfig, audioBase64 = null) => {
+  const falarTexto = (texto, langConfig, audioBase64 = null, podeFalar = true) => {
+    if (!podeFalar) return;
     if (audioBase64) {
       try {
         const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
@@ -230,7 +231,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     rec.continuous = false;
     rec.interimResults = false;
 
-    rec.lang = idiomaSelecionado === 'ES' ? 'es-ES' : idiomaSelecionado === 'EN' ? 'en-US' : 'pt-BR';
+    const currentLang = String(idiomaSelecionado || 'PT').toUpperCase();
+    rec.lang = currentLang === 'ES' ? 'es-ES' : currentLang === 'EN' ? 'en-US' : 'pt-BR';
 
     rec.onstart = () => setGravando(true);
     rec.onerror = (e) => { console.error(e); setGravando(false); };
@@ -265,7 +267,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       const textoFinal = data.reply || data.response || data.resposta || data.content || data.text;
       if (textoFinal) {
         setMensagensMentora(prev => [...prev, { id: Date.now() + 1, sender: 'mentora', text: textoFinal }]);
-        falarTexto(textoFinal, idiomaSelecionado, data.audio);
+        falarTexto(textoFinal, idiomaSelecionado, data.audio, true);
       }
     } catch (err) {
       console.error(err);
@@ -297,7 +299,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
       if (textoFinal) {
         setMensagensMentora(prev => [...prev, { id: Date.now() + 1, sender: "mentora", text: textoFinal }]);
-        falarTexto(textoFinal, idiomaSelecionado, data.audio);
+        falarTexto(textoFinal, idiomaSelecionado, data.audio, false);
       }
     } catch (err) {
       console.error("Erro ao chamar IA Haas:", err);
