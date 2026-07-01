@@ -222,6 +222,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
   const [creditosSelecionados, setCreditosSelecionados] = React.useState(8);
   const [localizacaoAluno, setLocalizacaoAluno] = React.useState('');
+  const [cupomTexto, setCupomTexto] = React.useState('');
+  const [descontoCupom, setDescontoCupom] = React.useState(0);
+  const [cupomAplicado, setCupomAplicado] = React.useState(false);
       const [unidadeExpandida, setUnidadeExpandida] = useState<number | null>(null);
   const [mentoraMobileAberta, setMentoraMobileAberta] = React.useState(false);
   const [textoDuda, setTextoDuda] = React.useState('');
@@ -2259,6 +2262,126 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* BOTÃO PRINCIPAL DE PAGAMENTO */}
                 <button onClick={() => setEtapaPagamento(3)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Ir para o Pagamento Seguro" : idiomaSelecionado === "EN" ? "Proceed to Secure Payment" : "Ir al Pago Seguro"}
+                </button>
+              </div>
+            )}
+
+            {/* ETAPA 3: GATEWAY COLÔMBIA (CARDS EMPILHADOS) */}
+            {etapaPagamento === 3 && (
+              <div className="flex flex-col gap-3.5 my-1 text-slate-100 max-h-[60vh] overflow-y-auto pr-1">
+                {/* SELETOR LOCALIZAÇÃO */}
+                <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    {idiomaSelecionado === "PT" ? "¿Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
+                  </span>
+                  <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-amber-500/40 px-3 py-1.5 rounded-lg text-[10px] font-black text-amber-500 tracking-wider uppercase cursor-pointer hover:bg-amber-500/10">
+                    🌐 {idiomaSelecionado === "PT" ? "Fora da Colômbia" : idiomaSelecionado === "EN" ? "Outside Colombia" : "Fuera de Colombia"}
+                  </button>
+                </div>
+
+                {/* CAMPO DE CUPOM DE DESCONTO */}
+                <div className="w-full bg-[#0a1324] p-3 rounded-xl border border-white/[0.05] flex flex-col gap-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {idiomaSelecionado === "PT" ? "Cupom de Desconto:" : idiomaSelecionado === "EN" ? "Coupon Code:" : "Cupón de Descuento:"}
+                  </span>
+                  <div className="flex gap-2">
+                    <input type="text" value={cupomTexto} onChange={(e) => setCupomTexto(e.target.value)} placeholder="HAAS10" className="flex-1 bg-[#070d19] border border-white/10 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-orange-500" />
+                    <button onClick={() => { if(cupomTexto.toUpperCase() === "HAAS10") { setDescontoCupom(0.10); setCupomAplicado(true); } }} className="bg-orange-500 text-slate-950 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider cursor-pointer">
+                      {cupomAplicado ? "✓" : (idiomaSelecionado === "PT" ? "Aplicar" : idiomaSelecionado === "EN" ? "Apply" : "Aplicar")}
+                    </button>
+                  </div>
+                </div>
+
+                {/* CARD 1: TARJETA WOMPI (+5%) */}
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
+                  <span className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">● {idiomaSelecionado === "PT" ? "Cartão de Crédito / Débito" : idiomaSelecionado === "EN" ? "Credit / Debit Card" : "Tarjeta de Crédito / Débito"}</span>
+                  <span className="text-[10px] text-slate-400 font-medium -mt-1 block">Pasarela segura Wompi / Nequi</span>
+                  <div className="bg-[#070d19] p-3 rounded-lg text-xs font-mono flex flex-col gap-1.5 text-slate-300">
+                    <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
+                    <div className="flex justify-between text-rose-400"><span>Fee pasarela:</span><span>+ $ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 0.05).toLocaleString('de-DE')}</span></div>
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-white text-sm"><span>Total:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 1.05).toLocaleString('de-DE')}</span></div>
+                  </div>
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3 bg-[#10b981] hover:bg-[#0ea5e9] text-slate-950 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-emerald-500/10">
+                    {idiomaSelecionado === "PT" ? "PAGAR VIA WOMPI / NEQUI" : idiomaSelecionado === "EN" ? "PAY VIA WOMPI / NEQUI" : "PAGAR VÍA WOMPI / NEQUI"}
+                  </a>
+                  <span className="text-[9px] text-slate-500 font-medium leading-relaxed block text-center">
+                    {idiomaSelecionado === "PT" ? "Nota: A comissão de processamento é cobrada pela plataforma e não é reembolsável em caso de cancelamento." : idiomaSelecionado === "EN" ? "Note: The processing fee is charged by the platform and is non-refundable in case of cancellation." : "Nota: La comisión de procesamiento es cobrada por la plataforma y no es reembolsable en caso de cancelación."}
+                  </span>
+                </div>
+
+                {/* CARD 2: LLAVE BRE-B (QR CODE - DESCONTO DO ROBÔ) */}
+                <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-2.5 relative overflow-hidden">
+                  <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
+                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
+                  <div className="w-full flex justify-center my-1 bg-white p-2 rounded-xl max-w-[140px] mx-auto">
+                    <img src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg" alt="QR Llave Bre-B" className="w-32 h-32 object-contain" />
+                  </div>
+                  <div className="bg-[#070d19] p-3 rounded-lg text-xs font-mono flex flex-col gap-1.5 text-slate-300">
+                    <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
+                    <div className="flex justify-between text-emerald-400"><span>Comisión:</span><span>$ 0 (¡Gratis!)</span></div>
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-amber-400 text-sm"><span>A transferir:</span><span>$ {(Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) - 34).toLocaleString('de-DE')}</span></div>
+                  </div>
+                  <span className="text-[9px] text-amber-500/90 font-bold leading-relaxed block text-center bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                    {idiomaSelecionado === "PT" ? "▲ ATENÇÃO: Lembre-se de transferir o valor exato com o desconto no seu aplicativo bancário; isso permite que nosso sistema valide seu pagamento automaticamente." : idiomaSelecionado === "EN" ? "▲ ATTENTION: Remember to transfer the exact amount with the discount in your banking app; this allows our system to validate your payment automatically." : "▲ ATENCIÓN: Recuerda ingresar el valor exacto con descuento en tu banco; esto permite que nuestro sistema valide tu pago digitalmente y gestione la activación de tu plan."}
+                  </span>
+                </div>
+
+                {/* BOTÃO FIXO DE FEEDBACK COMPRA */}
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
+                  {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
+                </button>
+              </div>
+            )}
+
+            {/* ETAPA 4: GATEWAY INTERNACIONAL (USD + 5%) */}
+            {etapaPagamento === 4 && (
+              <div className="flex flex-col gap-3.5 my-1 text-slate-100">
+                <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    {idiomaSelecionado === "PT" ? "¿Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
+                  </span>
+                  <button onClick={() => setEtapaPagamento(3)} className="bg-transparent border border-orange-500/40 px-3 py-1.5 rounded-lg text-[10px] font-black text-orange-500 tracking-wider uppercase cursor-pointer hover:bg-orange-500/10">
+                    🇨🇴 {idiomaSelecionado === "PT" ? "Mudar para Colômbia" : idiomaSelecionado === "EN" ? "Change to Colombia" : "Cambiar a Colombia"}
+                  </button>
+                </div>
+
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
+                  <span className="text-xs font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">🌐 {idiomaSelecionado === "PT" ? "PAGAMENTOS INTERNACIONAIS HAAS" : idiomaSelecionado === "EN" ? "HAAS INTERNATIONAL PAYMENTS" : "PAGAMENTOS INTERNACIONAIS HAAS"}</span>
+                  <span className="text-[10px] text-slate-400 font-medium leading-relaxed block">
+                    {idiomaSelecionado === "PT" ? "Para transferências ou cartões do exterior, processe sua matrícula diretamente através do nosso módulo global integrado de alta segurança." : idiomaSelecionado === "EN" ? "For transfers or cards from abroad, process your enrollment directly through our high-security integrated global module." : "Para transferencias o tarjetas desde el exterior, procese su matrícula de manera directa a través de nuestro módulo global integrado de alta seguridad."}
+                  </span>
+                  <div className="bg-[#070d19] p-4 rounded-xl text-xs font-mono flex flex-col gap-2 border border-white/5 my-1">
+                    <div className="flex justify-between"><span>Base:</span><span>$ {Math.round((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450)} USD</span></div>
+                    <div className="flex justify-between text-rose-400"><span>Fee global (5%):</span><span>+ $ {Math.round(((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450) * 0.05)} USD</span></div>
+                    <div className="flex justify-between border-t border-white/10 pt-2 font-black text-amber-400 text-sm"><span>Total:</span><span>$ {Math.round(((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450) * 1.05)} USD</span></div>
+                  </div>
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
+                    {idiomaSelecionado === "PT" ? "PAGAR COM CARTÃO INTERNACIONAL" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
+                  </a>
+                  <span className="text-[9px] text-slate-500 font-medium leading-relaxed block text-center mt-1">
+                    {idiomaSelecionado === "PT" ? "▲ ATENÇÃO: Processe o valor exato em dólares (USD) indicado para assegurar que a validação global seja bem-sucedida e seu plano se ative automaticamente." : idiomaSelecionado === "EN" ? "▲ ATTENTION: Process the exact amount in dollars (USD) indicated to ensure that global validation is successful and your plan activates automatically." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
+                  </span>
+                </div>
+
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono">
+                  {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
+                </button>
+              </div>
+            )}
+
+            {/* ETAPA 5: TELA DE NOTIFICAÇÃO ENVIADA (FEEDBACK SUCESSO) */}
+            {etapaPagamento === 5 && (
+              <div className="flex flex-col gap-4 my-2 text-slate-100 text-center py-2">
+                <span className="text-sm font-black uppercase tracking-wider text-white font-mono block mb-1">NOTIFICACIÓN DE PAGO ENVIADA</span>
+                <div className="bg-[#0a1324] p-4 rounded-xl border border-white/[0.05] text-xs text-slate-300 text-left leading-relaxed flex flex-col gap-3 shadow-inner">
+                  <p>{idiomaSelecionado === "PT" ? "Registramos seu aviso de pagamento. O sistema iniciará a verificação dos valores com o desconto de identificação aplicado para validar a transação com o seu registro." : idiomaSelecionado === "EN" ? "We have registered your payment notice. The system will initiate verification of the values with the applied identification discount to validate the transaction with your record." : "Hemos registrado tu aviso de pago. El sistema iniciará la verificación de los valores con el descuento de identificación aplicado para validar a transación com o seu registro."}</p>
+                </div>
+                <div className="bg-[#0a1324] p-4 rounded-xl border border-white/[0.05] text-xs text-left leading-relaxed flex flex-col gap-2 text-slate-400">
+                  <p><strong className="text-white">¿Qué pasa ahora?</strong> {idiomaSelecionado === "PT" ? "Assim que o sistema validar o recebimento do valor, prosseguiremos com a ativação automática de sua matrícula." : idiomaSelecionado === "EN" ? "Once the system validates the receipt of the amount, we will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
+                  <p><strong className="text-white">Acceso Completo:</strong> {idiomaSelecionado === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso à plataforma será liberado." : idiomaSelecionado === "EN" ? "Upon successful confirmation, you will receive a notification email and your access to the platform will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acceso a la plataforma."}</p>
+                </div>
+                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-3.5 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-orange-500/10 hover:brightness-110">
+                  {idiomaSelecionado === "PT" ? "ENTENDIDO" : idiomaSelecionado === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                 </button>
               </div>
             )}
