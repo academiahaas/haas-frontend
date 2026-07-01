@@ -162,6 +162,41 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
   );
 }
 
+
+  // Matrizes de Preço Oficiais (HAAS Academy)
+  const obterPrecoPacote = (modalidade, aulas) => {
+    if (modalidade === 'pack_grupo') {
+      const tabela = { 1: 40000, 2: 75000, 3: 110000, 4: 145000, 5: 180000, 6: 220000, 7: 260000, 8: 300000 };
+      return tabela[aulas] || 300000;
+    }
+    if (modalidade === 'pack_vip') {
+      const tabela = {
+        1: 55000, 2: 105000, 3: 155000, 4: 205000, 5: 255000, 6: 305000, 7: 355000, 8: 400000,
+        9: 435000, 10: 470000, 11: 505000, 12: 540000, 13: 575000, 14: 610000, 15: 645000,
+        16: 680000, 17: 715000, 18: 750000
+      };
+      return tabela[aulas] || 750000;
+    }
+    if (modalidade === 'flex') {
+      const tabela = {
+        1: 75000, 2: 145000, 3: 215000, 4: 285000, 5: 355000, 6: 425000, 7: 495000, 8: 560000,
+        9: 615000, 10: 670000, 11: 725000, 12: 780000, 13: 835000, 14: 890000, 15: 945000,
+        16: 1000000, 17: 1055000, 18: 1110000, 19: 1155000, 20: 1200000
+      };
+      return tabela[aulas] || 1200000;
+    }
+    if (modalidade === 'grupo') {
+      return Number(aulas) === 8 ? 300000 : Number(aulas) === 12 ? 420000 : 650000;
+    }
+    if (modalidade === 'particular') {
+      return Number(aulas) === 8 ? 400000 : Number(aulas) === 12 ? 540000 : 800000;
+    }
+    if (modalidade === 'business') {
+      return Number(aulas) === 8 ? 560000 : Number(aulas) === 12 ? 780000 : 1200000;
+    }
+    return 0;
+  };
+
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: PortalMobileProps) {
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
   React.useEffect(() => {
@@ -182,6 +217,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   }, []);
   const [abaAtiva, setAbaAtiva] = useState<'inicio' | 'agenda' | 'tarefas' | 'perfil'>('dashboard' as any);
       const [modalAgenda, setModalAgenda] = React.useState('CLOSED');
+  const [modalCreditosAberto, setModalCreditosAberto] = React.useState(false);
+  const [etapaPagamento, setEtapaPagamento] = React.useState(0);
+  const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
+  const [creditosSelecionados, setCreditosSelecionados] = React.useState(8);
+  const [localizacaoAluno, setLocalizacaoAluno] = React.useState('');
       const [unidadeExpandida, setUnidadeExpandida] = useState<number | null>(null);
   const [mentoraMobileAberta, setMentoraMobileAberta] = React.useState(false);
   const [textoDuda, setTextoDuda] = React.useState('');
@@ -1759,8 +1799,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
                 <button 
                   onClick={() => {
-                    const msg = idiomaSelecionado === "PT" ? "Redirecionando para o Checkout..." : idiomaSelecionado === "ES" ? "Redireccionando al Checkout..." : "Redirecting to Checkout...";
-                    alert(msg);
+                    setModalCreditosAberto(true);
+                    setEtapaPagamento(0);
                   }}
                   className="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3.5 py-2.5 rounded-xl text-[clamp(11px,3.2vw,15px)] font-mono font-black uppercase text-cyan-400 tracking-wider active:scale-95 transition-all cursor-pointer whitespace-nowrap min-h-[38px]"
                 >
@@ -1949,6 +1989,63 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabProfile}</span>
         </button>
       </div>
+
+      {/* GAVETA DE COMPRAS PURE MOBILE */}
+      {modalCreditosAberto && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 999999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{ position: 'absolute', inset: 0, zIndex: -1 }} onClick={() => setModalCreditosAberto(false)} />
+          <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-6 w-full max-w-[100vw] min-h-[45vh] shadow-2xl" style={{ zIndex: 9999999 }}>
+            <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3 mb-2">
+              <span className="text-orange-500 font-mono font-black tracking-wider text-sm">HAAS ACADEMY</span>
+              <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
+            </div>
+
+            {etapaPagamento === 0 && (
+              <div className="flex flex-col gap-3 my-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                  {idiomaSelecionado === "PT" ? "Selecione a Modalidade:" : idiomaSelecionado === "EN" ? "Select Modality:" : "Seleccione la Modalidad:"}
+                </span>
+
+                {/* 1. GRUPO MENSAL */}
+                <button onClick={() => { setModalidadeSelecionada('grupo'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Grupo Mensal" : idiomaSelecionado === "EN" ? "Monthly Group" : "Grupo Mensal"}</span>
+                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Assinatura mensal" : "Mensual"}</span>
+                </button>
+
+                {/* 2. VIP STANDARD */}
+                <button onClick={() => { setModalidadeSelecionada('particular'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">VIP Standard</span>
+                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Particular 1 a 1" : "Particular 1 a 1"}</span>
+                </button>
+
+                {/* 3. VIP PRO */}
+                <button onClick={() => { setModalidadeSelecionada('business'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">VIP Pro</span>
+                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Corporativo" : "Corporativo"}</span>
+                </button>
+
+                {/* 4. PACK GRUPO */}
+                <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">Pack Grupo</span>
+                  <span className="text-xs text-orange-400 font-semibold">Extra 1 a 20</span>
+                </button>
+
+                {/* 5. PACK VIP STD */}
+                <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">Pack VIP Std</span>
+                  <span className="text-xs text-orange-400 font-semibold">Extra 1 a 20</span>
+                </button>
+
+                {/* 6. PARTICULARES FLEX */}
+                <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                  <span className="text-sm font-black text-white uppercase tracking-wide">Particulares Flex</span>
+                  <span className="text-xs text-orange-400 font-semibold">Extra Pro 1 a 20</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+       )}
 
     </div>
   );
