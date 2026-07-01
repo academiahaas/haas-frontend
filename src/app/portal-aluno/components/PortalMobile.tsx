@@ -757,6 +757,62 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
             )}
 
+            {etapaPagamento === 1 && (
+              <div className="flex flex-col gap-4 my-2 text-slate-100">
+                {/* BOTÃO VOLTAR DISCRETO */}
+                <button onClick={() => setEtapaPagamento(0)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                  ← Voltar
+                </button>
+
+                {/* SELETOR PLANO RECORRENTE (8, 12, 20 CRÉDITOS) */}
+                {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) && (
+                  <div className="flex flex-col gap-2.5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      {idiomaSelecionado === 'PT' ? 'Selecione a Intensidade Mensal:' : 'Seleccione la Intensidad Mensual:'}
+                    </span>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[8, 12, 20].map((cr) => (
+                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
+                          {cr} CLASES
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* SELETOR PACKS EXTRAS (CONTADOR + E -) */}
+                {['pack_grupo', 'pack_vip', 'flex'].includes(modalidadeSelecionada) && (
+                  <div className="flex flex-col gap-3 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      {idiomaSelecionado === 'PT' ? 'Quantidade de Aulas:' : 'Cantidad de Clases:'}
+                    </span>
+                    <div className="flex items-center gap-6 my-1">
+                      <button onClick={() => setCreditosSelecionados(Math.max(1, creditosSelecionados - 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">-</button>
+                      <span className="text-2xl font-mono font-black text-white">{creditosSelecionados}</span>
+                      <button onClick={() => setCreditosSelecionados(Math.min(modalidadeSelecionada === 'pack_grupo' ? 8 : modalidadeSelecionada === 'pack_vip' ? 18 : 20, creditosSelecionados + 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">+</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* DISPLAY DE VALOR PREMIUM HAAS ACADEMY */}
+                <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 my-1 shadow-inner">
+                  <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
+                    {modalidadeSelecionada.toUpperCase()} // {creditosSelecionados} CLASES
+                  </span>
+                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                    <span className="text-orange-500">$</span>
+                    <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
+                    <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
+                  </div>
+                </div>
+
+                {/* BOTÃO FINAL: CONTINUAR AO PAGO */}
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                  {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : "Continuar al Pago"}
+                </button>
+              </div>
+            )}
+
 {/* CONTAINER DOS MIOLOS COM CABEÇALHO E RODAPÉ DE VALIDAÇÃO */}
             {arenaAtiva && (
               <div className="fixed inset-0 z-[9999] bg-[#060e1a] flex flex-col p-4 overflow-hidden text-white w-full h-full">
