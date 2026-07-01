@@ -2384,21 +2384,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* CAIXA DE VALIDAÇÃO DE CUPONS METICULOSA E NATIVA */}
-                <div className="w-full bg-[#0a1324] border border-white/[0.05] p-3.5 rounded-xl flex flex-col gap-2.5 shadow-inner">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
-                    {idiomaSelecionado === "PT" ? "Possui um cupom de desconto?" : idiomaSelecionado === "EN" ? "Have a discount coupon?" : "¿Tienes un cupón de descuento?"}
-                  </span>
-                  <div className="flex gap-2 w-full">
-                    <input 
-                      type="text" 
-                      placeholder="HAAS10" 
-                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-orange-500/50 transition-all" 
-                    />
-                    <button className="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 text-orange-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
-                      {idiomaSelecionado === "PT" ? "Aplicar" : idiomaSelecionado === "EN" ? "Apply" : "Aplicar"}
-                    </button>
-                  </div>
-                </div>
 
                 {/* CAMPO DE CUPOM DE DESCONTO */}
                 <div className="w-full bg-[#0a1324] p-3 rounded-xl border border-white/[0.05] flex flex-col gap-2">
