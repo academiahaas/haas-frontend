@@ -1155,7 +1155,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       </div>
 
                       {/* COLUNA DIREITA: TABELA EM USD DETALHADA COM TAXA E DESCONTO DO ROBÔ */}
-                      <div className="flex flex-col justify-between gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-800/60">
+                      <div className="flex flex-col justify-between gap-1.5 bg-slate-900/40 p-2 rounded-xl border border-slate-800/60 max-h-[300px] overflow-hidden">
                         {(() => {
                           // Força a taxa do cartão da Colômbia para 5% e gera a rotação fina estável por aluno
                           (window as any)._taxaCartaoCol = 0.05;
@@ -1170,7 +1170,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                           const valorEmDolarFinal = usdBaseOriginal + usdFeeInternacional - (diferencaCentavos / 100);
 
                           return (
-                            <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left w-full">
+                            <div className="flex flex-col gap-0.5 text-[9px] bg-slate-900/40 p-2 rounded-lg border border-slate-800/60 font-mono text-left w-full">
                               <div className="flex justify-between text-slate-400"><span>{idioma === "PT" ? "Base do Plano:" : idioma === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorTotal.toLocaleString("es-CO")} COP</span></div>
                               <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa de Processamento (5%):" : idioma === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorTotal * 0.05).toLocaleString("es-CO")} COP</span></div>
                               <div className="flex justify-between text-slate-500 text-[8px]"><span>{idioma === "PT" ? "Desconto de Identificação do Robô:" : idioma === "EN" ? "Robot Identification Discount:" : "Descuento de Identificación del Robot:"}</span><span>- $ {diferencaCentavos} COP</span></div>
