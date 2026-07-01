@@ -218,6 +218,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [abaAtiva, setAbaAtiva] = useState<'inicio' | 'agenda' | 'tarefas' | 'perfil'>('dashboard' as any);
       const [modalAgenda, setModalAgenda] = React.useState('CLOSED');
   const [modalCreditosAberto, setModalCreditosAberto] = React.useState(false);
+  const [isMatriculadoSimulado, setIsMatriculadoSimulado] = React.useState(false);
   const [etapaPagamento, setEtapaPagamento] = React.useState(0);
   const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
   const [creditosSelecionados, setCreditosSelecionados] = React.useState(8);
@@ -589,6 +590,20 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white">HA</div>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
+            <div className="flex gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black">
+              <button 
+                onClick={() => setIsMatriculadoSimulado(false)} 
+                className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
+              >
+                🆕 {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
+              </button>
+              <button 
+                onClick={() => setIsMatriculadoSimulado(true)} 
+                className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
+              >
+                🔄 {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
+              </button>
+            </div>
 
           </div>
         </div>
