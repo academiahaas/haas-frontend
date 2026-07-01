@@ -1187,7 +1187,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                           
 
                         <button 
-                          onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.wompi.co/l/haas_pay_global", "_blank"); }} 
+                          onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank"); }} 
                           className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
                         >
                           {idioma === "PT" ? "Ir para o Gateway de Pagamento" : idioma === "EN" ? "Go to Payment Gateway" : "Ir a la Pasarela de Pago"}
@@ -1235,7 +1235,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       </div>
 
                       <button 
-                        onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.wompi.co/l/haas_pay", "_blank"); }} 
+                        onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank"); }} 
                         className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
                       >
                         {idioma === "PT" ? "Pagar via Wompi / Nequi" : idioma === "EN" ? "Pay via Wompi / Nequi" : "Pagar vía Wompi / Nequi"}
