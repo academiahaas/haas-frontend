@@ -2272,10 +2272,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* DISPLAY DE VALOR PREMIUM */}
                 <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 my-1 shadow-inner">
-                  <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
-                    {modalidadeSelecionada.toUpperCase()} // {creditosSelecionados} {idiomaSelecionado === "PT" ? "AULAS" : idiomaSelecionado === "EN" ? "CLASSES" : "CLASES"}
-                  </span>
-                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-0.5">
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
@@ -2324,12 +2321,32 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       {modalidadeSelecionada.toUpperCase()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
                     <span className="text-xs text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Quantidade:" : idiomaSelecionado === "EN" ? "Amount:" : "Cantidad:"}
                     </span>
-                    <span className="text-sm font-black text-orange-400 font-mono">
+                    <span className="text-xs font-black text-white font-mono">
                       {creditosSelecionados} {idiomaSelecionado === "PT" ? "Aulas" : idiomaSelecionado === "EN" ? "Classes" : "Clases"}
+                    </span>
+                  </div>
+
+                  {/* Linha de Vigência Discriminada */}
+                  <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
+                    <span className="text-xs text-slate-400 font-medium">
+                      {idiomaSelecionado === "PT" ? "Vigência do Plano:" : idiomaSelecionado === "EN" ? "Plan Validity:" : "Vigencia del Plan:"}
+                    </span>
+                    <span className="text-xs font-black text-amber-400 font-mono">
+                      {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? "30 " + (idiomaSelecionado === "PT" ? "Dias" : idiomaSelecionado === "EN" ? "Days" : "Días") : `+${Math.min(creditosSelecionados * 7, 30)} ` + (idiomaSelecionado === "PT" ? "Dias (Teto 30)" : idiomaSelecionado === "EN" ? "Days (Max 30)" : "Días (Techo 30)")}
+                    </span>
+                  </div>
+
+                  {/* Linha de Benefício de Inteligência Artificial Discriminado */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-400 font-medium">
+                      {idiomaSelecionado === "PT" ? "Créditos de IA:" : idiomaSelecionado === "EN" ? "AI Credits:" : "Créditos de IA:"}
+                    </span>
+                    <span className="text-xs font-black text-orange-400 font-mono">
+                      {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? (idiomaSelecionado === "PT" ? "ILIMITADO" : idiomaSelecionado === "EN" ? "UNLIMITED" : "ILIMITADO") : `+${modalidadeSelecionada === 'pack_grupo' ? creditosSelecionados * 10 : creditosSelecionados * 25} ` + (idiomaSelecionado === "PT" ? "Consultas" : idiomaSelecionado === "EN" ? "Queries" : "Consultas")}
                     </span>
                   </div>
                 </div>
@@ -2359,11 +2376,28 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* SELETOR LOCALIZAÇÃO */}
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    {idiomaSelecionado === "PT" ? "¿Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
+                    {idiomaSelecionado === "PT" ? "Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
                   </span>
                   <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-amber-500/40 px-3 py-1.5 rounded-lg text-[10px] font-black text-amber-500 tracking-wider uppercase cursor-pointer hover:bg-amber-500/10">
                     🌐 {idiomaSelecionado === "PT" ? "Fora da Colômbia" : idiomaSelecionado === "EN" ? "Outside Colombia" : "Fuera de Colombia"}
                   </button>
+                </div>
+
+                {/* CAIXA DE VALIDAÇÃO DE CUPONS METICULOSA E NATIVA */}
+                <div className="w-full bg-[#0a1324] border border-white/[0.05] p-3.5 rounded-xl flex flex-col gap-2.5 shadow-inner">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                    {idiomaSelecionado === "PT" ? "Possui um cupom de desconto?" : idiomaSelecionado === "EN" ? "Have a discount coupon?" : "¿Tienes un cupón de descuento?"}
+                  </span>
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="text" 
+                      placeholder="HAAS10" 
+                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-orange-500/50 transition-all" 
+                    />
+                    <button className="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 text-orange-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                      {idiomaSelecionado === "PT" ? "Aplicar" : idiomaSelecionado === "EN" ? "Apply" : "Aplicar"}
+                    </button>
+                  </div>
                 </div>
 
                 {/* CAMPO DE CUPOM DE DESCONTO */}
@@ -2437,16 +2471,37 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <span className="text-[10px] text-slate-400 font-medium leading-relaxed block">
                     {idiomaSelecionado === "PT" ? "Para transferências ou cartões do exterior, processe sua matrícula diretamente através do nosso módulo global integrado de alta segurança." : idiomaSelecionado === "EN" ? "For transfers or cards from abroad, process your enrollment directly through our high-security integrated global module." : "Para transferencias o tarjetas desde el exterior, procese su matrícula de manera directa a través de nuestro módulo global integrado de alta seguridad."}
                   </span>
-                  <div className="bg-[#070d19] p-4 rounded-xl text-xs font-mono flex flex-col gap-2 border border-white/5 my-1">
-                    <div className="flex justify-between"><span>Base:</span><span>$ {Math.round((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450)} USD</span></div>
-                    <div className="flex justify-between text-rose-400"><span>Fee global (5%):</span><span>+ $ {Math.round(((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450) * 0.05)} USD</span></div>
-                    <div className="flex justify-between border-t border-white/10 pt-2 font-black text-amber-400 text-sm"><span>Total:</span><span>$ {Math.round(((obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) / 3450) * 1.05)} USD</span></div>
-                  </div>
+                  {(() => {
+                    const valorBaseCop = Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom));
+                    const userSeed = typeof window !== "undefined" ? localStorage.getItem("user_email") || "haas" : "haas";
+                    let hashMod = 0;
+                    for (let i = 0; i < userSeed.length; i++) { hashMod += userSeed.charCodeAt(i); }
+                    const rastroPesos = (hashMod % 95) + 1;
+
+                    const valorCopFinalComTaxaERobor = Math.round(valorBaseCop * 1.05) - rastroPesos;
+                    const taxaInternet = (window as any)._taxaCop || 4100;
+                    const usdEquivalente = valorCopFinalComTaxaERobor / taxaInternet;
+
+                    return (
+                      <div className="bg-[#070d19] p-2.5 rounded-lg text-[9px] font-mono flex flex-col gap-0.5 border border-white/5 w-full">
+                        <div className="flex justify-between text-slate-400"><span>{idiomaSelecionado === "PT" ? "Base do Plano:" : idiomaSelecionado === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorBaseCop.toLocaleString("es-CO")} COP</span></div>
+                        <div className="flex justify-between text-rose-400"><span>{idiomaSelecionado === "PT" ? "Taxa do Gateway (5%):" : idiomaSelecionado === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorBaseCop * 0.05).toLocaleString("es-CO")} COP</span></div>
+                        <div className="flex justify-between text-slate-500 text-[8px]"><span>{idiomaSelecionado === "PT" ? "Desconto do Robô:" : idiomaSelecionado === "EN" ? "Robot Discount:" : "Descuento del Robot:"}</span><span>- $ {rastroPesos} COP</span></div>
+                        <div className="border-t border-white/10 my-0.5"></div>
+                        <div className="flex flex-col text-left">
+                          <span className="text-[7.5px] font-bold text-emerald-400 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "DIGITE ESSE VALOR EXATO NA WOMPI (COP):" : idiomaSelecionado === "EN" ? "ENTER THIS EXACT VALUE IN WOMPI (COP):" : "VALOR EXACTO A INGRESAR EN WOMPI (COP):"}</span>
+                          <div className="flex justify-between font-black text-emerald-400 text-xs mt-0.5"><span>Total COP:</span><span>$ {valorCopFinalComTaxaERobor.toLocaleString("es-CO")} COP</span></div>
+                        </div>
+                        <div className="border-t border-white/5 my-0.5 opacity-30"></div>
+                        <div className="flex justify-between text-slate-400 text-[8px]"><span>{idiomaSelecionado === "PT" ? "Aproximado em USD:" : idiomaSelecionado === "EN" ? "Approximate USD:" : "Aproximado en USD:"}</span><span className="font-bold">$ {usdEquivalente.toFixed(2)} USD</span></div>
+                      </div>
+                    );
+                  })()}
                   <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
-                    {idiomaSelecionado === "PT" ? "PAGAR COM CARTÃO INTERNACIONAL" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
+                    {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
                   <span className="text-[9px] text-slate-500 font-medium leading-relaxed block text-center mt-1">
-                    {idiomaSelecionado === "PT" ? "▲ ATENÇÃO: Processe o valor exato em dólares (USD) indicado para assegurar que a validação global seja bem-sucedida e seu plano se ative automaticamente." : idiomaSelecionado === "EN" ? "▲ ATTENTION: Process the exact amount in dollars (USD) indicated to ensure that global validation is successful and your plan activates automatically." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
+                    {idiomaSelecionado === "PT" ? "⚠️ ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "⚠️ ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
                   </span>
                 </div>
 
