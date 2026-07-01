@@ -3,20 +3,20 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { pergunta, idioma } = body;
+    const { pergunta, audio } = body;
 
-    if (!pergunta) {
-      return NextResponse.json({ error: "Pergunta não fornecida" }, { status: 400 });
+    // Monta o payload dinâmico aceitando áudio binário ou texto puro
+    const payloadRobo: any = {};
+    
+    if (audio) {
+      payloadRobo.audio = audio;
+      payloadRobo.message = ""; // Deixa vazio pro Whisper transcrever na raiz
+    } else {
+      payloadRobo.message = pergunta;
+      payloadRobo.text = pergunta;
     }
 
-    // Monta o payload exatamente como o robo_audio_5050.py espera
-    const payloadRobo = {
-      text: pergunta,
-      message: pergunta,
-      idioma: idioma || "PT"
-    };
-
-    // Consome o robô Flask da porta 5050 que gera a voz "nova" da OpenAI
+    // Consome o robô Flask da porta 5050
     const response = await fetch('http://127.0.0.1:5050/api/chat-arena', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

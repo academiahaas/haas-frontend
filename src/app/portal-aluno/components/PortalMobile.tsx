@@ -187,6 +187,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [textoDuda, setTextoDuda] = React.useState('');
   const [gravando, setGravando] = React.useState(false);
   const recognitionRef = React.useRef(null);
+  const mediaRecorderRef = React.useRef(null);
+  const audioChunksRef = React.useRef([]);
 
   // 🎙️ Função para fazer a Haas falar no idioma correto
   const falarTexto = (texto, langConfig, audioBase64 = null, podeFalar = true) => {
@@ -213,42 +215,76 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     window.speechSynthesis.speak(utterance);
   };
 
-  const alternarMicrofone = () => {
+    const alternarMicrofone = async () => {
     if (gravando) {
-      if (recognitionRef.current) recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       setGravando(false);
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('Reconhecimento de voz não suportado neste navegador.');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Gravação de áudio não suportada neste navegador.');
       return;
     }
 
-    const rec = new SpeechRecognition();
-    recognitionRef.current = rec;
-    rec.continuous = false;
-    rec.interimResults = false;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
 
-    const currentLang = String(idiomaSelecionado || 'PT').toUpperCase();
-    rec.lang = currentLang === 'ES' ? 'es-ES' : currentLang === 'EN' ? 'en-US' : 'pt-BR';
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
 
-    rec.onstart = () => setGravando(true);
-    rec.onerror = (e) => { console.error(e); setGravando(false); };
-    rec.onend = () => setGravando(false);
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        // Converte o arquivo de áudio bruto para Base64 de forma limpa
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result;
+          setDigitandoHaas(true);
+          
+          try {
+            // Adiciona uma mensagem temporária indicando que a IA está processando o áudio
+            setMensagensMentora(prev => [...prev, { id: Date.now(), sender: 'user', text: "🎙️ Áudio enviado..." }]);
+            
+            const response = await fetch('/api/portal-aluno', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ pergunta: "[Áudio Transcrito]", audio: base64Audio })
+            });
+            
+            const data = await response.json();
+            setDigitandoHaas(false);
+            const textoFinal = data.reply || data.response || data.resposta || data.content || data.text;
+            if (textoFinal) {
+              setMensagensMentora(prev => [...prev, { id: Date.now() + 1, sender: 'mentora', text: textoFinal }]);
+              falarTexto(textoFinal, idiomaSelecionado, data.audio, true);
+            }
+          } catch (err) {
+            console.error("Erro ao enviar áudio bruto:", err);
+            setDigitandoHaas(false);
+          }
+        };
 
-    rec.onresult = (event) => {
-      const textoCapturado = event.results[0][0].transcript;
-      if (textoCapturado) {
-        setTextoDuda(textoCapturado);
-        setTimeout(() => {
-          enviarDudaDirect(textoCapturado);
-        }, 300);
-      }
-    };
+        // Fecha o microfone do hardware do aparelho para poupar bateria
+        stream.getTracks().forEach(track => track.stop());
+      };
 
-    rec.start();
+      mediaRecorder.start();
+      setGravando(true);
+      console.log("🎙️ Gravador de áudio bruto (Modo Desktop Fluido) iniciado com sucesso!");
+    } catch (err) {
+      console.error("Erro ao acessar microfone:", err);
+      alert("Não foi possível acessar o microfone.");
+    }
   };
 
   const enviarDudaDirect = async (textoDireto) => {
@@ -260,14 +296,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       const response = await fetch('/api/portal-aluno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pergunta: textoDireto, idioma: idiomaSelecionado })
+        body: JSON.stringify({ pergunta: textoDireto })
       });
       const data = await response.json();
       setDigitandoHaas(false);
       const textoFinal = data.reply || data.response || data.resposta || data.content || data.text;
       if (textoFinal) {
         setMensagensMentora(prev => [...prev, { id: Date.now() + 1, sender: 'mentora', text: textoFinal }]);
-        falarTexto(textoFinal, idiomaSelecionado, data.audio, true);
+        falarTexto(textoFinal, idiomaSelecionado, data.audio, false);
       }
     } catch (err) {
       console.error(err);
