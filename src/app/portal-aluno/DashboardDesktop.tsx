@@ -178,6 +178,9 @@ export default function DashboardDesktop() {
   };
   
   const [aluno1, setAluno1] = useState("Alpha_Leader");
+  const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
+  const [isVencidoSimulado, setIsVencidoSimulado] = useState(false);
+  const [isSimuladorLiberado, setIsSimuladorLiberado] = useState(false);
   const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
   const [erro1, setErro1] = useState("Prepositions"), [erro2, setErro2] = useState("Phrasal Verbs");
   const [peso1, setPeso1] = useState("High"), [peso2, setPeso2] = useState("Medium");
@@ -209,20 +212,28 @@ export default function DashboardDesktop() {
         <span className="text-slate-400 font-bold tracking-wider">SIMULAR VISTA:</span>
         <div className="flex gap-1.5">
           <button 
-            onClick={() => { (window as any)._simulaMatriculado = false; (window as any).dispatchEvent(new Event("resize")); }}
-            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+            onClick={() => { (window as any)._simulaMatriculado = false; (window as any)._simulaVencido = false; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
               !(window as any)._simulaMatriculado ? "bg-amber-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
             }`}
           >
-            🆕 Aluno Nuevo
+            🆕 {idioma === 'PT' ? 'Aluno Novo' : idioma === 'EN' ? 'New Student' : 'Aluno Nuevo'}
           </button>
           <button 
-            onClick={() => { (window as any)._simulaMatriculado = true; (window as any).dispatchEvent(new Event("resize")); }}
-            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              (window as any)._simulaMatriculado ? "bg-emerald-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
+            onClick={() => { (window as any)._simulaMatriculado = true; (window as any)._simulaVencido = false; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              (window as any)._simulaMatriculado && !(window as any)._simulaVencido ? "bg-emerald-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
             }`}
           >
-            🔄 Aluno Matriculado (Grupo)
+            🔄 {idioma === 'PT' ? 'Matriculado' : idioma === 'EN' ? 'Enrolled' : 'Aluno Matriculado'}
+          </button>
+          <button 
+            onClick={() => { (window as any)._simulaMatriculado = true; (window as any)._simulaVencido = true; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              (window as any)._simulaMatriculado && (window as any)._simulaVencido ? "bg-rose-500 text-white shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
+            }`}
+          >
+            ⚠️ {idioma === 'PT' ? 'Vencido' : idioma === 'EN' ? 'Expired' : 'Vencido'}
           </button>
         </div>
       </div>
@@ -273,6 +284,60 @@ export default function DashboardDesktop() {
             <div>
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
                 {t.greeting} {aluno1}
+                
+                {!isSimuladorLiberado ? (
+                  <button 
+                    onClick={() => {
+                      const senha = prompt(idioma === 'PT' ? 'Digite a senha admin:' : idioma === 'ES' ? 'Ingrese la contraseña admin:' : 'Enter admin password:');
+                      if (senha === 'haasadmin123') {
+                        setIsSimuladorLiberado(true);
+                      } else if (senha !== null) {
+                        alert(idioma === 'PT' ? 'Senha incorreta!' : idioma === 'ES' ? '¡Contraseña incorrecta!' : 'Incorrect password!');
+                      }
+                    }}
+                    className="ml-2 text-xs opacity-40 hover:opacity-100 transition-all cursor-pointer select-none"
+                    title="Admin Simulation"
+                  >
+                    ⚙️
+                  </button>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none">
+                    <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
+                    </button>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      🔄 {idioma === 'PT' ? 'Ativo' : idioma === 'EN' ? 'Active' : 'Activo'}
+                    </button>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      ⚠️ {idioma === 'PT' ? 'Vencido' : idioma === 'EN' ? 'Expired' : 'Vencido'}
+                    </button>
+                  </div>
+                )}
+                <div className="inline-flex items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none">
+                  <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
+                  <button 
+                    onClick={() => setIsMatriculadoSimulado(false)} 
+                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                  >
+                    🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
+                  </button>
+                  <button 
+                    onClick={() => setIsMatriculadoSimulado(true)} 
+                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${isMatriculadoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                  >
+                    🔄 {idioma === 'PT' ? 'Matriculado' : idioma === 'EN' ? 'Enrolled' : 'Matriculado'}
+                  </button>
+                </div>
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
@@ -788,11 +853,27 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
 
         {/* Banner Condicional de Renovación Activa */}
-        {typeof window !== "undefined" && (window as any)._simulaMatriculado && passo === 1 && (
+        {typeof window !== "undefined" && (window as any)._simulaMatriculado && !(window as any)._simulaVencido && passo === 1 && (
           <div onClick={() => { setModalidade("grupo"); setCreditosMensais(8); setPasso(2); }} className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-2xl text-left relative overflow-hidden animate-fadeIn cursor-pointer hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all group" title="Clique para pagar">
             <div className="absolute right-2 top-2 text-xl opacity-20"></div>
-            <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "Seu Plano está Ativo" : idioma === "EN" ? "Your Plan is Active" : "Tu Plan está Activo"}</div>
+            <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">🟢 {idioma === "PT" ? "Seu Plano está Ativo" : idioma === "EN" ? "Your Plan is Active" : "Tu Plan está Activo"}</div>
             <div className="text-[10px] text-slate-300 mt-0.5">{idioma === "PT" ? "Mensalidade Atual: " : idioma === "EN" ? "Current Fee: " : "Mensualidad Actual: "}<span className="text-white font-bold font-mono">$ 300.000 COP</span>. {idioma === "PT" ? "Próxima renovação automática: 05/Próx Mes. Clique aqui para pagar" : idioma === "EN" ? "Next automatic renewal: 05/Next Month. Click here to pay" : "Próxima renovación automática: 05/Próx Mes. Clique aquí para pagar"}</div>
+          </div>
+        )}
+
+        {/* Banner de Alerta de Vencimiento */}
+        {typeof window !== "undefined" && (window as any)._simulaMatriculado && (window as any)._simulaVencido && passo === 1 && (
+          <div className="bg-rose-500/10 border border-rose-500/30 p-3 rounded-2xl text-left relative overflow-hidden animate-fadeIn select-none">
+            <div className="text-[11px] font-black text-rose-400 uppercase tracking-wider">⚠️ {idioma === "PT" ? "Sua data de renovação expirou" : idioma === "EN" ? "Your renewal date has expired" : "Tu fecha de renovación expiró"}</div>
+            <div className="text-[10px] text-rose-300 mt-0.5">
+              {idioma === "PT" ? (
+                <>Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. <strong className="text-white">Selecione um plano abaixo para reativar seu acesso.</strong></>
+              ) : idioma === "EN" ? (
+                <>In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. <strong className="text-white">Select a new plan below to reactivate your access.</strong></>
+              ) : (
+                <>Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. <strong className="text-white">Selecciona un plan abajo para reactivar tu acceso.</strong></>
+              )}
+            </div>
           </div>
         )}
 
