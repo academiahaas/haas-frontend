@@ -2138,13 +2138,17 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {isMatriculadoSimulado && !isVencidoSimulado && (
-              <div className="mb-3 p-3 bg-emerald-950/80 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 font-medium leading-relaxed shadow-sm">
+              <div 
+                onClick={() => setEtapaPagamento(3)}
+                className="mb-3 p-3 bg-emerald-950/80 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 font-medium leading-relaxed shadow-sm cursor-pointer active:scale-[0.99] hover:bg-emerald-900/40 transition-all select-none animate-fadeIn"
+                title="Renovação Expressa"
+              >
                 {idiomaSelecionado === "PT" ? (
-                  <>🟢 <strong className="text-emerald-400 font-black">SEU PLANO ESTÁ ATIVO.</strong> Mensalidade Atual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovação automática: 05/Próx Mês.</>
+                  <>🟢 <strong className="text-emerald-400 font-black">SEU PLANO ESTÁ ATIVO.</strong> Mensalidade Atual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovação automática: 05/Próx Mês. <span className="text-emerald-400 underline font-bold block mt-1">👉 Clique aqui para pagar</span></>
                 ) : idiomaSelecionado === "ES" ? (
-                  <>🟢 <strong className="text-emerald-400 font-black">TU PLAN ESTÁ ACTIVO.</strong> Mensualidad Actual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovación automática: 05/Próx Mes.</>
+                  <>🟢 <strong className="text-emerald-400 font-black">TU PLAN ESTÁ ACTIVO.</strong> Mensualidad Actual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovación automática: 05/Próx Mes. <span className="text-emerald-400 underline font-bold block mt-1">👉 Clique aquí para pagar</span></>
                 ) : (
-                  <>🟢 <strong className="text-emerald-400 font-black">YOUR PLAN IS ACTIVE.</strong> Current Monthly Fee: <strong className="text-white font-black">$ 300.000 COP</strong>. Next automatic renewal: 05/Next Month.</>
+                  <>🟢 <strong className="text-emerald-400 font-black">YOUR PLAN IS ACTIVE.</strong> Current Monthly Fee: <strong className="text-white font-black">$ 300.000 COP</strong>. Next automatic renewal: 05/Next Month. <span className="text-emerald-400 underline font-bold block mt-1">👉 Click here to pay</span></>
                 )}
               </div>
             )}
