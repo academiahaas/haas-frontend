@@ -2174,37 +2174,61 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* 1. GRUPO MENSAL */}
                 <button onClick={() => { setModalidadeSelecionada('grupo'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Grupo Mensal" : idiomaSelecionado === "EN" ? "Monthly Group" : "Grupo Mensal"}</span>
-                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Assinatura mensal" : "Mensual"}</span>
+                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Vigência: 30 Dias | IA (Gemini): Ilimitada" : 
+                     idiomaSelecionado === "EN" ? "Term: 30 Days | AI (Gemini): Unlimited" : 
+                     "Vigencia: 30 Días | IA (Gemini): Ilimitada"}
+                  </span>
                 </button>
 
                 {/* 2. VIP STANDARD */}
                 <button onClick={() => { setModalidadeSelecionada('particular'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">VIP Standard</span>
-                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Particular 1 a 1" : "Particular 1 a 1"}</span>
+                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Particular 1 a 1 | Vigência: 30 Dias | IA: Ilimitada" : 
+                     idiomaSelecionado === "EN" ? "1-on-1 Private | Term: 30 Days | AI: Unlimited" : 
+                     "Particular 1 a 1 | Vigencia: 30 Días | IA: Ilimitada"}
+                  </span>
                 </button>
 
                 {/* 3. VIP PRO */}
                 <button onClick={() => { setModalidadeSelecionada('business'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">VIP Pro</span>
-                  <span className="text-xs text-orange-400 font-semibold">{idiomaSelecionado === "PT" ? "Corporativo" : "Corporativo"}</span>
+                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Corporativo | Vigência: 30 Dias | IA: Ilimitada" : 
+                     idiomaSelecionado === "EN" ? "Corporate | Term: 30 Days | AI: Unlimited" : 
+                     "Corporativo | Vigencia: 30 Días | IA: Ilimitada"}
+                  </span>
                 </button>
 
                 {/* 4. PACK GRUPO */}
-                <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">Pack Grupo</span>
-                  <span className="text-xs text-orange-400 font-semibold">Extra 1 a 20</span>
+                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Pack Avulso | +10 Consultas IA e +7 Dias por crédito (Teto 30)" : 
+                     idiomaSelecionado === "EN" ? "Extra Pack | +10 AI Queries and +7 Days per credit (Max 30)" : 
+                     "Paquete Extra | +10 Consultas IA y +7 Días por crédito (Techo 30)"}
+                  </span>
                 </button>
 
                 {/* 5. PACK VIP STD */}
-                <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">Pack VIP Std</span>
-                  <span className="text-xs text-orange-400 font-semibold">Extra 1 a 20</span>
+                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Pack VIP | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
+                     idiomaSelecionado === "EN" ? "VIP Extra Pack | +25 AI Queries and +7 Days per credit (Max 30)" : 
+                     "Paquete VIP Extra | +25 Consultas IA y +7 Días por crédito (Techo 30)"}
+                  </span>
                 </button>
 
                 {/* 6. PARTICULARES FLEX */}
-                <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
+                <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
                   <span className="text-sm font-black text-white uppercase tracking-wide">Particulares Flex</span>
-                  <span className="text-xs text-orange-400 font-semibold">Extra Pro 1 a 20</span>
+                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                    {idiomaSelecionado === "PT" ? "Pack Flex | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
+                     idiomaSelecionado === "EN" ? "Pro Flex Pack | +25 AI Queries and +7 Days per credit (Max 30)" : 
+                     "Paquete Flex Extra | +25 Consultas IA y +7 Días por crédito (Techo 30)"}
+                  </span>
                 </button>
               </div>
             )}
@@ -2255,6 +2279,19 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
+                  </div>
+
+                  {/* Detalhamento dinâmico de vigência e IA de acordo com o plano ou pack acumulável */}
+                  <div className="text-[9px] font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2 mt-2 leading-relaxed">
+                    {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? (
+                      idiomaSelecionado === "PT" ? "Vigência Integral: 30 Dias | Acesso IA: Ilimitado" :
+                      idiomaSelecionado === "EN" ? "Full Validity: 30 Days | AI Access: Unlimited" :
+                      "Vigencia Integral: 30 Días | Acceso IA: Ilimitado"
+                    ) : (
+                      idiomaSelecionado === "PT" ? `Vigência Base: +${Math.min(creditosSelecionados * 7, 30)} Dias (Teto 30) | Crédito IA: +${modalidadeSelecionada === 'pack_grupo' ? creditosSelecionados * 10 : creditosSelecionados * 25} Consultas` :
+                      idiomaSelecionado === "EN" ? `Base Term: +${Math.min(creditosSelecionados * 7, 30)} Days (Max 30) | AI Credit: +${modalidadeSelecionada === 'pack_grupo' ? creditosSelecionados * 10 : creditosSelecionados * 25} Queries` :
+                      `Vigencia Base: +${Math.min(creditosSelecionados * 7, 30)} Días (Techo 30) | Crédito IA: +${modalidadeSelecionada === 'pack_grupo' ? creditosSelecionados * 10 : creditosSelecionados * 25} Consultas`
+                    )}
                   </div>
                 </div>
 
