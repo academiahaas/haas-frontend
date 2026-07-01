@@ -258,7 +258,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             const response = await fetch('/api/portal-aluno', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ pergunta: "", audio: base64Audio, moduloActual, idioma: idiomaInicial })
+              body: JSON.stringify({ pergunta: "[Áudio Transcrito]", audio: base64Audio })
             });
             
             const data = await response.json();
@@ -296,7 +296,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       const response = await fetch('/api/portal-aluno', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pergunta: textoDireto, moduloActual, idioma: idiomaInicial })
+        body: JSON.stringify({ pergunta: textoDireto })
       });
       const data = await response.json();
       setDigitandoHaas(false);
@@ -1657,7 +1657,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
         {/* ABA 4: PERFIL */}
         {((abaAtiva as string) === "perfil") && (
-          <div className="flex-1 w-full min-h-[calc(100vh-80px)] justify-between overflow-y-auto px-0 pb-10 pt-0 flex flex-col gap-4 scrollbar-none" >
+          <div className="flex-1 w-full min-h-full overflow-y-auto px-0 pb-10 pt-0 flex flex-col gap-4 scrollbar-none" >
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
             <div className="w-full sticky top-0 z-20 bg-[#030914] bg-gradient-to-b from-[#070d19]/90 to-[#030914]/95 border-b border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0">
