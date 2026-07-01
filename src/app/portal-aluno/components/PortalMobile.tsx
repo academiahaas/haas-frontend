@@ -219,6 +219,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       const [modalAgenda, setModalAgenda] = React.useState('CLOSED');
   const [modalCreditosAberto, setModalCreditosAberto] = React.useState(false);
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = React.useState(false);
+  const [isVencidoSimulado, setIsVencidoSimulado] = React.useState(false);
   const [etapaPagamento, setEtapaPagamento] = React.useState(0);
   const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
   const [creditosSelecionados, setCreditosSelecionados] = React.useState(8);
@@ -592,16 +593,22 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
             <div className="flex gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black">
               <button 
-                onClick={() => setIsMatriculadoSimulado(false)} 
+                onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
                 🆕 {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
               </button>
               <button 
-                onClick={() => setIsMatriculadoSimulado(true)} 
-                className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
+                onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
+                className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
                 🔄 {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
+              </button>
+              <button 
+                onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
+                className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black' : 'text-slate-400 opacity-60'}`}
+              >
+                ⚠️ {idiomaSelecionado === 'PT' ? 'Vencido' : idiomaSelecionado === 'EN' ? 'Expired' : 'Vencido'}
               </button>
             </div>
 
@@ -2130,7 +2137,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
             </div>
 
-            {isMatriculadoSimulado && (
+            {isMatriculadoSimulado && !isVencidoSimulado && (
               <div className="mb-3 p-3 bg-emerald-950/80 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 font-medium leading-relaxed shadow-sm">
                 {idiomaSelecionado === "PT" ? (
                   <>🟢 <strong className="text-emerald-400 font-black">SEU PLANO ESTÁ ATIVO.</strong> Mensalidade Atual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovação automática: 05/Próx Mês.</>
@@ -2138,6 +2145,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <>🟢 <strong className="text-emerald-400 font-black">TU PLAN ESTÁ ACTIVO.</strong> Mensualidad Actual: <strong className="text-white font-black">$ 300.000 COP</strong>. Próxima renovación automática: 05/Próx Mes.</>
                 ) : (
                   <>🟢 <strong className="text-emerald-400 font-black">YOUR PLAN IS ACTIVE.</strong> Current Monthly Fee: <strong className="text-white font-black">$ 300.000 COP</strong>. Next automatic renewal: 05/Next Month.</>
+                )}
+              </div>
+            )}
+
+            {isMatriculadoSimulado && isVencidoSimulado && (
+              <div className="mb-3 p-3 bg-rose-950/80 border border-rose-500/30 rounded-xl text-[10px] text-rose-300 font-medium leading-relaxed shadow-sm">
+                {idiomaSelecionado === "PT" ? (
+                  <>⚠️ <strong className="text-rose-400 font-black">SUA DATA DE RENOVAÇÃO EXPIROU.</strong> Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. Selecione um plano abaixo para reativar seu acesso.</>
+                ) : idiomaSelecionado === "ES" ? (
+                  <>⚠️ <strong className="text-rose-400 font-black">TU FECHA DE RENOVACIÓN EXPIRÓ.</strong> Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. Selecciona un plan abajo para reactivar tu acceso.</>
+                ) : (
+                  <>⚠️ <strong className="text-rose-400 font-black">YOUR RENEWAL DATE HAS EXPIRED.</strong> In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. Select a new plan below to reactivate your access.</>
                 )}
               </div>
             )}
