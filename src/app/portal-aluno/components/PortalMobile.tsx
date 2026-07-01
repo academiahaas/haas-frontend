@@ -2107,9 +2107,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
       {/* GAVETA DE COMPRAS PURE MOBILE */}
       {modalCreditosAberto && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 999999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 999999 }}>
           <div style={{ position: 'absolute', inset: 0, zIndex: -1 }} onClick={() => setModalCreditosAberto(false)} />
-          <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-6 w-full max-w-[100vw] min-h-[45vh] shadow-2xl" style={{ zIndex: 9999999 }}>
+          <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
             <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3 mb-2">
               <span className="text-orange-500 font-mono font-black tracking-wider text-sm">HAAS ACADEMY</span>
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
@@ -2268,7 +2268,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* ETAPA 3: GATEWAY COLÔMBIA (CARDS EMPILHADOS) */}
             {etapaPagamento === 3 && (
-              <div className="flex flex-col gap-3.5 my-1 text-slate-100 max-h-[60vh] overflow-y-auto pr-1">
+              <div className="flex flex-col gap-3.5 my-1 text-slate-100 w-full">
                 {/* SELETOR LOCALIZAÇÃO */}
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
