@@ -2211,6 +2211,57 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </button>
               </div>
             )}
+
+            {etapaPagamento === 2 && (
+              <div className="flex flex-col gap-4 my-1 text-slate-100">
+                {/* BOTÃO VOLTAR */}
+                <button onClick={() => setEtapaPagamento(1)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                  {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "EN" ? "← Back" : "← Volver"}
+                </button>
+
+                {/* TÍTULO DA TELA */}
+                <span className="text-xs font-black uppercase tracking-wider text-slate-400 block mt-1">
+                  {idiomaSelecionado === "PT" ? "Resumo do Pedido:" : idiomaSelecionado === "EN" ? "Order Summary:" : "Resumen del Pedido:"}
+                </span>
+
+                {/* CAIXA DE DETALHES DO PLANO */}
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2">
+                  <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
+                    <span className="text-xs text-slate-400 font-medium">
+                      {idiomaSelecionado === "PT" ? "Plano Selecionado:" : idiomaSelecionado === "EN" ? "Selected Plan:" : "Plan Seleccionado:"}
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-wide text-white font-mono">
+                      {modalidadeSelecionada.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-slate-400 font-medium">
+                      {idiomaSelecionado === "PT" ? "Quantidade:" : idiomaSelecionado === "EN" ? "Amount:" : "Cantidad:"}
+                    </span>
+                    <span className="text-sm font-black text-orange-400 font-mono">
+                      {creditosSelecionados} {idiomaSelecionado === "PT" ? "Aulas" : idiomaSelecionado === "EN" ? "Classes" : "Clases"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* VISUALIZAÇÃO DO PREÇO FINAL */}
+                <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 shadow-inner">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                    {idiomaSelecionado === "PT" ? "Total a pagar" : idiomaSelecionado === "EN" ? "Total to pay" : "Total a pagar"}
+                  </span>
+                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                    <span className="text-orange-500">$</span>
+                    <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
+                    <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
+                  </div>
+                </div>
+
+                {/* BOTÃO PRINCIPAL DE PAGAMENTO */}
+                <button onClick={() => setEtapaPagamento(3)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                  {idiomaSelecionado === "PT" ? "Ir para o Pagamento Seguro" : idiomaSelecionado === "EN" ? "Proceed to Secure Payment" : "Ir al Pago Seguro"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
        )}
