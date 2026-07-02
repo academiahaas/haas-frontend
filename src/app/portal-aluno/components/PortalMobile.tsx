@@ -1162,38 +1162,73 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-2.5 mt-2">
-                    {/* Opção 1: Sessão Regular */}
-                    <button 
-                      onClick={() => { setTipoAgendamento('REGULAR'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                      className="w-full p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
-                    >
-                      <div className="w-4 h-4 bg-transparent border-2 border-cyan-400/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
-                      <div className="flex flex-col">
-                        <span className="text-[clamp(13px,3.8vw,15px)] font-bold text-slate-300">
-                          {idiomaSelecionado === "PT" ? "Sessão Regular" : idiomaSelecionado === "ES" ? "Sesión Regular" : "Regular Session"}
-                        </span>
-                        <span className="text-[clamp(11px,3.2vw,15px)] text-slate-400">
-                          {idiomaSelecionado === "PT" ? "Agende sua sessão semanal padrão da grade" : idiomaSelecionado === "ES" ? "Programe su sesión semanal predeterminada de la parrilla" : "Schedule your standard weekly session"}
-                        </span>
-                      </div>
-                    </button>
+                  <div className="flex flex-col gap-2 mt-1">
+                    {((window as any)._filtroAgenda || 'regular') === 'reposicao' ? (
+                      /* FLUXO FILTRADO PARA REPOSIÇÃO DIRETA */
+                      <button 
+                        onClick={() => { setTipoAgendamento('REPOSICAO'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                        className="w-full p-3 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/20 rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                      >
+                        <div className="w-4 h-4 bg-transparent border-2 border-orange-400 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
+                        <div className="flex flex-col font-mono text-left">
+                          <span className="text-xs font-black text-white uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Consumir Crédito de Reposição" : idiomaSelecionado === "ES" ? "Consumir Crédito de Reposición" : "Use Makeup Credit"}</span>
+                          <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Agendar aula extra gerada por cancelamento prévio" : idiomaSelecionado === "ES" ? "Programar clase extra generada por cancelación previa" : "Schedule extra class from previous cancellation"}</span>
+                        </div>
+                      </button>
+                    ) : (
+                      /* FLUXO COM LISTAGEM COMERCIAL DE TODOS OS PLANOS HAAS */
+                      <div className="flex flex-col gap-2 max-h-[280px] overflow-y-auto scrollbar-none">
+                        
+                        {/* PLANO 1: COLETIVO GRUPO */}
+                        <button 
+                          onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('grupo'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                          className="w-full p-3 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                        >
+                          <div className="w-4 h-4 bg-transparent border-2 border-emerald-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /></div>
+                          <div className="flex flex-col font-mono text-left">
+                            <span className="text-xs font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Plano Coletivo em Grupo" : idiomaSelecionado === "ES" ? "Plan Colectivo en Grupo" : "Colective Group Plan"}</span>
+                            <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Aulas dinâmicas e interativas com a comunidade" : idiomaSelecionado === "ES" ? "Clases dinámicas e interactivas con la comunidad" : "Dynamic and interactive community classes"}</span>
+                          </div>
+                        </button>
 
-                    {/* Opção 2: Sessão de Reposição */}
-                    <button 
-                      onClick={() => { setTipoAgendamento('REPOSICAO'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                      className="w-full p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
-                    >
-                      <div className="w-4 h-4 bg-transparent border-2 border-orange-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
-                      <div className="flex flex-col">
-                        <span className="text-[clamp(13px,3.8vw,15px)] font-bold text-slate-300">
-                          {idiomaSelecionado === "PT" ? "Sessão de Reposição" : idiomaSelecionado === "ES" ? "Sesión de Reposición" : "Makeup Session"}
-                        </span>
-                        <span className="text-[clamp(11px,3.2vw,15px)] text-slate-400">
-                          {idiomaSelecionado === "PT" ? "Utilize créditos extras ou repostas pendentes" : idiomaSelecionado === "ES" ? "Utilice créditos extras o reposiciones pendientes" : "Use extra credits or pending makeups"}
-                        </span>
+                        {/* PLANO 2: VIP STANDARD */}
+                        <button 
+                          onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                          className="w-full p-3 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                        >
+                          <div className="w-4 h-4 bg-transparent border-2 border-amber-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-400" /></div>
+                          <div className="flex flex-col font-mono text-left">
+                            <span className="text-xs font-black text-slate-200 uppercase tracking-wider">VIP Standard (1 a 1)</span>
+                            <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Foco individualizado com professor exclusivo" : idiomaSelecionado === "ES" ? "Enfoque individualizado con profesor exclusivo" : "One-on-one focus with an exclusive teacher"}</span>
+                          </div>
+                        </button>
+
+                        {/* PLANO 3: VIP PRO CORPORATIVO */}
+                        <button 
+                          onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_pro'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                          className="w-full p-3 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                        >
+                          <div className="w-4 h-4 bg-transparent border-2 border-cyan-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
+                          <div className="flex flex-col font-mono text-left">
+                            <span className="text-xs font-black text-slate-200 uppercase tracking-wider">VIP Pro Corporativo</span>
+                            <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Imersão executiva de alta performance de negócios" : idiomaSelecionado === "ES" ? "Inmersión ejecutiva de alto rendimiento de negocios" : "High-performance executive business immersion"}</span>
+                          </div>
+                        </button>
+
+                        {/* PLANO 4: PARTICULAR FLEX */}
+                        <button 
+                          onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('avulsa'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                          className="w-full p-3 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                        >
+                          <div className="w-4 h-4 bg-transparent border-2 border-indigo-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-indigo-400" /></div>
+                          <div className="flex flex-col font-mono text-left">
+                            <span className="text-xs font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Aulas Individuais Flex" : idiomaSelecionado === "ES" ? "Clases Individuales Flex" : "Individual Flex Classes"}</span>
+                            <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Packs acumulativos sob demanda para sua rotina" : idiomaSelecionado === "ES" ? "Packs acumulativos bajo demanda para su rutina" : "On-demand cumulative packs for your routine"}</span>
+                          </div>
+                        </button>
+
                       </div>
-                    </button>
+                    )}
                   </div>
                   
                   {/* ESPAÇADOR DE SEGURANÇA PARA LIMITE DO RODAPÉ REAL */}
