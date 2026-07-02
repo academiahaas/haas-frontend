@@ -1,3 +1,11 @@
+// Tabela de bloqueios adicionada com segurança no escopo global
+const agendaBloqueiosHaas2026 = {
+  1: [1, 12], 2: [], 3: [23], 4: [2, 3], 5: [1, 18],
+  6: [8, 15, 29],
+  7: [6, 20],
+  8: [7, 17],
+  9: [], 10: [12], 11: [2, 16], 12: [8, 25]
+};
 import ArenaQuizMobile from './ArenaQuizMobile';
 import React, { useState, useRef } from 'react';
 import { Gift, Swords, BookOpen, LayoutDashboard, Calendar, Camera, User, Star, MessageSquare, Flame, Award, CheckCircle, TrendingUp, Globe, X, FileText, AlertTriangle, Zap, Timer, Lock } from 'lucide-react';
@@ -222,6 +230,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [isVencidoSimulado, setIsVencidoSimulado] = React.useState(false);
   const [etapaPagamento, setEtapaPagamento] = React.useState(0);
   const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
+  
+  // OBJETO DINÂMICO CONECTADO AO BANCO DE DADOS (Simulação de créditos ativos)
+  const saldosDoAluno = alunoData?.saldos || {
+    grupo: 0,
+    acumulador_grupo: 4,      // Seu plano acumulador ativo da foto
+    vip_std: 5,               // LIBERADO: Créditos ativos para você testar o VIP Standard sem travar!
+    acumulador_vip_std: 0,
+    vip_pro: 0,
+    avulsa: 0
+  };
+  const [gavetaAvisoCompraAberta, setGavetaAvisoCompraAberta] = React.useState(false);
+  const [gavetaErro24hAberta, setGavetaErro24hAberta] = React.useState(false);
   const [creditosSelecionados, setCreditosSelecionados] = React.useState(8);
   const [localizacaoAluno, setLocalizacaoAluno] = React.useState('');
   const [cupomTexto, setCupomTexto] = React.useState('');
@@ -397,9 +417,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [etapaAgendamento, setEtapaAgendamento] = React.useState(0);
   const [sucessoAgendamento, setSucessoAgendamento] = useState<'CLOSED' | 'REGULAR' | 'REPOSICAO'>('CLOSED');
-  const [mesAgendamento, setMesAgendamento] = React.useState(6); // 6=Junho, 7=Julho // 0=Home, 1=Categoria, 2=Calendario, 3=Horarios
+  const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1); // Dinâmico baseado no mês real
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
-  const [diaSelecionado, setDiaSelecionado] = React.useState('19');
+  const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
   const [votoProf, setVotoProf] = React.useState(0);
   const [votoMetod, setVotoMetod] = React.useState(0);
@@ -1032,12 +1052,12 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
                 {(() => {
                   const mod = modalidadeSelecionada || 'vip_std';
-                  if (mod === 'grupo') return "PLAN COLECTIVO EN GRUPO";
-                  if (mod === 'acumulador_grupo') return "PACK ACUMULATIVO GRUPO";
-                  if (mod === 'vip_std') return "VIP STANDARD (1 A 1)";
-                  if (mod === 'acumulador_vip_std') return "PACK VIP STANDARD";
-                  if (mod === 'vip_pro') return "VIP PRO CORPORATIVO";
-                  if (mod === 'avulsa') return "CLASES INDIVIDUALES FLEX";
+                  if (mod === 'grupo') return idiomaSelecionado === "PT" ? "GRUPO MENSAL" : idiomaSelecionado === "ES" ? "GRUPO MENSAL" : "MONTHLY GROUP";
+                  if (mod === 'acumulador_grupo') return idiomaSelecionado === "PT" ? "PACK GRUPO" : idiomaSelecionado === "ES" ? "PACK GRUPO" : "GROUP PACK";
+                  if (mod === 'vip_std') return "VIP STANDARD";
+                  if (mod === 'acumulador_vip_std') return "PACK VIP STD";
+                  if (mod === 'vip_pro') return "VIP PRO";
+                  if (mod === 'avulsa') return idiomaSelecionado === "PT" ? "PARTICULARES FLEX" : idiomaSelecionado === "ES" ? "PARTICULARES FLEX" : "FLEX INDIVIDUAL";
                   return "HAAS PREMIUM PLAN";
                 })()}
               </span>
@@ -1202,7 +1222,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                         {/* PLANO 2: PACK ACUMULATIVO GRUPO */}
                         <button 
-                          onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('acumulador_grupo'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
+                          onClick={() => { setTipoAgendamento('REGULAR'); const padraoComSaldo = Object.keys(saldosDoAluno).find(key => saldosDoAluno[key] > 0) || 'vip_std'; setModalidadeSelecionada(padraoComSaldo); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
                           className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-teal-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-teal-400" /></div>
@@ -1219,7 +1239,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-amber-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Standard (1 a 1)</span>
+                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Standard</span>
                             <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Foco individualizado com professor exclusivo" : idiomaSelecionado === "ES" ? "Enfoque individualizado con profesor exclusivo" : "One-on-one focus with an exclusive teacher"}</span>
                           </div>
                         </button>
@@ -1243,7 +1263,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-cyan-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Pro Corporativo</span>
+                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Pro</span>
                             <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Imersão executiva de alta performance de negócios" : idiomaSelecionado === "ES" ? "Inmersión ejecutiva de alto rendimiento de negocios" : "High-performance executive business immersion"}</span>
                           </div>
                         </button>
@@ -1552,19 +1572,30 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         <span className="text-orange-400 font-bold">{idiomaSelecionado === "EN" ? "06/25" : "25/06"}</span>
                       </p>
                     </div>
-                    {/* CONTROLE CONTRASTANTE E SEGURO DE MUDANÇA DE MÊS */}
-                    <div className="flex items-center gap-1.5 bg-slate-900/80 border border-white/[0.05] p-1 rounded-xl shrink-0">
+                    {/* NAVEGAÇÃO INTELEGENTE POR SETAS SEM ESTADOS ENGESSADOS */}
+                    <div className="flex items-center gap-1 bg-slate-900/80 border border-white/[0.05] p-1 rounded-xl shrink-0">
                       <button 
-                        onClick={() => { setMesAgendamento(6); setDiaSelecionado(''); }}
-                        className={`px-2.5 py-1 rounded-lg font-mono text-[clamp(11px,3.2vw,15px)] uppercase font-bold cursor-pointer ${mesAgendamento === 6 ? 'bg-[#11253e] text-cyan-400 border border-cyan-500/30' : 'text-slate-500'}`}
+                        type="button"
+                        onClick={() => {
+                          setDiaSelecionado('');
+                          if (mesAgendamento === 1) { setMesAgendamento(12); }
+                          else { setMesAgendamento(mesAgendamento - 1); }
+                        }}
+                        className="px-3 py-1 text-slate-400 hover:text-cyan-400 cursor-pointer active:scale-90 transition-all font-black text-sm bg-transparent border-none"
                       >
-                        {idiomaSelecionado === "PT" || idiomaSelecionado === "ES" ? "Jun" : "Jun"}
+                        ←
                       </button>
+                      <div className="w-[1px] h-4 bg-white/[0.05]" />
                       <button 
-                        onClick={() => { setMesAgendamento(7); setDiaSelecionado(''); }}
-                        className={`px-2.5 py-1 rounded-lg font-mono text-[clamp(11px,3.2vw,15px)] uppercase font-bold cursor-pointer ${mesAgendamento === 7 ? 'bg-[#11253e] text-cyan-400 border border-cyan-500/30' : 'text-slate-500'}`}
+                        type="button"
+                        onClick={() => {
+                          setDiaSelecionado('');
+                          if (mesAgendamento === 12) { setMesAgendamento(1); }
+                          else { setMesAgendamento(mesAgendamento + 1); }
+                        }}
+                        className="px-3 py-1 text-slate-400 hover:text-cyan-400 cursor-pointer active:scale-90 transition-all font-black text-sm bg-transparent border-none"
                       >
-                        {idiomaSelecionado === "PT" || idiomaSelecionado === "ES" ? "Jul" : "Jul"}
+                        →
                       </button>
                     </div>
                   </div>
@@ -1593,12 +1624,34 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           );
                         })
                       ) : (
-                        /* Julho 2026 (Começa na Quarta-feira = 3 espaços vazios) */
+                        /* Julho 2026 Protegido Dinamicamente e Trilingue */
                         ['', '', '', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'].map((d, i) => {
                           if (!d) return <div key={i} />;
+                          
+                          const numDay = parseInt(d);
+                          const hojeDiaReal = 2; // Hoje é dia 02 de Julho de 2026
+                          
+                          // 1. Identifica dias no passado e feriados colombianos oficiais de Julho (6 e 20)
+                          const ehPassado = numDay < hojeDiaReal;
+                          const ehFeriadocolombia = [6, 20].includes(numDay);
+                          const isBlocked = ehPassado || ehFeriadocolombia;
+                          
                           const isSelected = diaSelecionado === d;
+                          
                           return (
-                            <button key={i} onClick={() => setDiaSelecionado(d)} className={`aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all ${isSelected ? 'bg-cyan-500 text-black font-black' : 'bg-[#0a1220] text-slate-300 cursor-pointer'}`}>
+                            <button 
+                              key={i} 
+                              disabled={isBlocked} 
+                              onClick={() => setDiaSelecionado(d)} 
+                              title={ehFeriadocolombia ? "Festivo en Colombia" : ""}
+                              className={`aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all ${
+                                isBlocked 
+                                  ? 'text-slate-800 font-normal bg-transparent cursor-not-allowed opacity-25 line-through' 
+                                  : isSelected 
+                                    ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/20 scale-105' 
+                                    : 'bg-[#0a1220] text-slate-300 cursor-pointer active:scale-95'
+                              }`}
+                            >
                               {d}
                             </button>
                           );
@@ -1616,17 +1669,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     
                     if (travaAtiva) {
                       return (
-                        <div className="flex flex-col gap-2 bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl animate-fade-in">
-                          <p className="text-[clamp(12px,3.5vw,13.5px)] text-orange-400 text-center font-medium leading-relaxed font-medium px-1">
-                            {idiomaSelecionado === "PT" ? (
-                              <>Agendamento Regular indisponível após o dia <span className="font-bold">25/06</span> devido à data de renovação da sua assinatura. Renove seu ciclo para liberar ou utilize uma Sessão de Reposição.</>
-                            ) : idiomaSelecionado === "ES" ? (
-                              <>Programación Regular no disponible después del <span className="font-bold">25/06</span> debido a la fecha de renovación de su suscripción. Renueve su ciclo para liberar o use una Sesión de Reposición.</>
-                            ) : (
-                              <>Regular Scheduling unavailable after <span className="font-bold">06/25</span> due to your subscription renewal date. Renew your cycle to unlock or use a Makeup Session.</>
-                            )}
-                          </p>
-                        </div>
+null
                       );
                     }
                     
@@ -1723,6 +1766,55 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     disabled={!horarioSelecionado}
                     onClick={() => {
                       const ehReposicao = String(tipoAgendamento).toLowerCase().includes('reposi') || String(tipoAgendamento).toLowerCase().includes('rep');
+                      
+                      // 🔄 VALIDAÇÃO DINÂMICA DO SUPABASE: Verifica se o aluno tem saldo real para esta modalidade
+                      const saldoDisponivel = saldosDoAluno[modalidadeSelecionada || 'vip_std'] || 0;
+                      
+                      if (!ehReposicao && saldoDisponivel <= 0) {
+                        setGavetaHorariosAberta(false); // Fecha o calendário
+                        setGavetaAvisoCompraAberta(true); // Abre o Upsell Comercial
+                        return;
+                      }
+
+                      // 🇨🇴 VALIDAÇÃO DE FERIADOS COLOMBIANOS OFICIAIS 2026
+                      const feriadosColombia2026 = {
+                        6: [15, 29],      // Junho (Corpus Christi, San Pedro)
+                        7: [6, 20],       // Julho (San Pedro y San Pablo, Independencia)
+                        8: [7, 17]        // Agosto (Batalla de Boyacá, Asunción de la Virgen)
+                      };
+                      const diasFeriadosDoMes = feriadosColombia2026[mesAgendamento] || [];
+                      if (diasFeriadosDoMes.includes(Number(diaSelecionado))) {
+                        alert(idiomaSelecionado === "PT" ? "Feriado na Colômbia! A HAAS Academy não opera nesta data." : idiomaSelecionado === "ES" ? "¡Festivo en Colombia! HAAS Academy no opera en esta fecha." : "Holiday in Colombia! HAAS Academy is closed on this date.");
+                        return;
+                      }
+
+                      // 🕒 VALIDAÇÃO CRÍTICA DE ANTECEDÊNCIA DE 24 HORAS
+                      if (horarioSelecionado) {
+                        const [horasStr, minutosStr] = horarioSelecionado.split(':');
+                        const dataAula = new Date(2026, mesAgendamento, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
+                        const agora = new Date();
+                        const diferencaEmHoras = (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60);
+
+                        if (diferencaEmHoras < 24) {
+                          setGavetaHorariosAberta(false);
+                          setGavetaErro24hAberta(true); // Abre o alerta de 24h igual à foto
+                          return;
+                        }
+                      }
+
+                      // 🕒 VALIDAÇÃO CRÍTICA DE ANTECEDÊNCIA DE 24 HORAS
+                      if (horarioSelecionado) {
+                        const [horasStr, minutosStr] = horarioSelecionado.split(':');
+                        const dataAula = new Date(2026, mesAgendamento, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
+                        const agora = new Date();
+                        const diferencaEmHoras = (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60);
+
+                        if (diferencaEmHoras < 24) {
+                          setGavetaHorariosAberta(false); // Fecha o calendário
+                          setGavetaErro24hAberta(true);   // Abre a gaveta de erro idêntica à foto
+                          return;
+                        }
+                      }
                       setGavetaHorariosAberta(false);
                       if (ehReposicao) {
                         setSucessoAgendamento('REPOSICAO');
@@ -2595,6 +2687,27 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           </div>
         </div>
        )}
+
+      {/* GAVETINHA NOVA DE AVISO COMERCIAL - UPSELL TRILINGUE */}
+      <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2 opacity-40 cursor-pointer" onClick={() => setGavetaAvisoCompraAberta(false)} />
+        <div className="flex flex-col gap-1 text-center">
+          <h3 className="text-base font-bold text-white uppercase tracking-wider">
+            {idiomaSelecionado === "PT" ? "Plano Inativo" : idiomaSelecionado === "ES" ? "Plan Inactivo" : "Inactive Plan"}
+          </h3>
+          <p className="text-xs text-slate-400 max-w-[290px] mx-auto leading-relaxed">
+            {idiomaSelecionado === "PT" ? "Você não possui créditos ativos para este plano. Gostaria de adquirir um pacote?" : idiomaSelecionado === "ES" ? "No tienes créditos activos para este plan. ¿Te gustaría adquirir un paquete?" : "You do not have active credits for this plan. Would you like to purchase a package?"}
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mt-2">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer">
+            {idiomaSelecionado === "PT" ? "Não" : "No"}
+          </button>
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 border-none rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer">
+            {idiomaSelecionado === "PT" ? "Sim" : idiomaSelecionado === "ES" ? "Sí" : "Yes"}
+          </button>
+        </div>
+      </div>
 
     </div>
   );
