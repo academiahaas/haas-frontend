@@ -1027,12 +1027,21 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {(abaAtiva as string) === 'agenda' && (
           <div className="flex-1 w-full h-full flex flex-col overflow-hidden relative text-slate-200">
             
-            {/* CABEÇALHO DA ABA DA AGENDA COM INFORMAÇÃO DE EXPIRAÇÃO */}
-            <div className="px-4 py-2 bg-slate-950/40 border-b border-white/[0.03] flex justify-between items-center shrink-0">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">
-                {modalidadeSelecionada ? modalidadeSelecionada.toUpperCase() : "VIP STANDARD"}
+            {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
+            <div className="px-4 py-3 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
+              <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
+                {(() => {
+                  const mod = modalidadeSelecionada || 'vip_std';
+                  if (mod === 'grupo') return "PLAN COLECTIVO EN GRUPO";
+                  if (mod === 'acumulador_grupo') return "PACK ACUMULATIVO GRUPO";
+                  if (mod === 'vip_std') return "VIP STANDARD (1 A 1)";
+                  if (mod === 'acumulador_vip_std') return "PACK VIP STANDARD";
+                  if (mod === 'vip_pro') return "VIP PRO CORPORATIVO";
+                  if (mod === 'avulsa') return "CLASES INDIVIDUALES FLEX";
+                  return "HAAS PREMIUM PLAN";
+                })()}
               </span>
-              <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md font-mono">
+              <span className="text-[9.5px] font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
                 {idiomaSelecionado === "PT" ? "VENCE EM 12 DIAS" : idiomaSelecionado === "ES" ? "VENCE EN 12 DÍAS" : "EXPIRES IN 12 DAYS"}
               </span>
             </div>
