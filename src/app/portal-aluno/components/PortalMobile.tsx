@@ -983,20 +983,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </button>
 
                 {/* SELETOR PLANO RECORRENTE (8, 12, 20) */}
-                {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-2.5">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                      Seleccione la Intensidad Mensual:
-                    </span>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[8, 12, 20].map((cr) => (
-                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
-                          {cr} CLASES
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
 
                 {/* SELETOR PACKS (CONTADOR) */}
                 {['pack_grupo', 'pack_vip', 'flex'].includes(modalidadeSelecionada) && (
