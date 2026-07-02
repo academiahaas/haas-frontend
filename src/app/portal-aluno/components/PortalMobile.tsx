@@ -1027,26 +1027,51 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {(abaAtiva as string) === 'agenda' && (
           <div className="flex-1 w-full h-full flex flex-col overflow-hidden relative text-slate-200">
             
+            {/* CABEÇALHO DA ABA DA AGENDA COM INFORMAÇÃO DE EXPIRAÇÃO */}
+            <div className="px-4 py-2 bg-slate-950/40 border-b border-white/[0.03] flex justify-between items-center shrink-0">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest font-mono">
+                {modalidadeSelecionada ? modalidadeSelecionada.toUpperCase() : "VIP STANDARD"}
+              </span>
+              <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-md font-mono">
+                {idiomaSelecionado === "PT" ? "VENCE EM 12 DIAS" : idiomaSelecionado === "ES" ? "VENCE EN 12 DÍAS" : "EXPIRES IN 12 DAYS"}
+              </span>
+            </div>
+
             {/* STAGE 0: HOME DA AGENDA (LISTAGEM PADRÃO) */}
             {etapaAgendamento === 0 && (
-              <div className="flex-1 w-full h-full flex flex-col gap-3 overflow-hidden justify-between">
+              <div className="flex-1 w-full h-full flex flex-col gap-3 overflow-hidden justify-between p-3">
                 <div className="flex flex-col gap-3 overflow-y-auto scrollbar-none">
+                  
+                  {/* BOTÕES DE FILTRO DINÂMICO DE CRÉDITOS */}
                   <div className="grid grid-cols-2 gap-2 shrink-0">
-                    <div className="bg-slate-900/40 border border-white/[0.05] p-3 rounded-xl">
+                    <button 
+                      onClick={() => { (window as any)._filtroAgenda = 'regular'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
+                    >
                       <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões Regulares" : idiomaSelecionado === "ES" ? "Sesiones Regulares" : "Regular Sessions"}</span>
                       <p className="text-[clamp(16px,4.5vw,20px)] font-black text-slate-300 flex items-baseline gap-1">4<span className="text-[clamp(11px,3.2vw,13px)] font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
-                    </div>
-                    <div className="bg-slate-900/40 border border-white/[0.05] p-3 rounded-xl">
+                    </button>
+
+                    <button 
+                      onClick={() => { (window as any)._filtroAgenda = 'reposicao'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'reposicao' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
+                    >
                       <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões de Reposição" : idiomaSelecionado === "ES" ? "Sesiones de Reposición" : "Makeup Sessions"}</span>
                       <p className="text-[clamp(16px,4.5vw,20px)] font-black text-slate-300 flex items-baseline gap-1">1<span className="text-[clamp(11px,3.2vw,13px)] font-medium text-white">{idiomaSelecionado === "PT" ? "ativa" : idiomaSelecionado === "ES" ? "activa" : "active"}</span></p>
-                    </div>
+                    </button>
                   </div>
 
-                  <div className="bg-slate-900/20 border border-white/[0.04] rounded-xl p-2.5 flex items-start gap-2 shrink-0">
-                    <AlertTriangle size={12} className="text-rose-500 shrink-0 mt-0.5" />
-                    <p className="text-[clamp(11px,3.2vw,13px)] text-white font-medium leading-relaxed">
-                      {idiomaSelecionado === "PT" ? "Atenção: Os créditos de reposição devem ser agendados em até 5 dias após a data da aula original cancelada." : idiomaSelecionado === "ES" ? "Atención: Los créditos de reposición devem ser programados dentro de los 5 días posteriores a la fecha de la sesión original cancelada." : "Notice: Makeup credits must be scheduled within 5 days of the original canceled session date."}
-                    </p>
+                  {/* BLOCO ATENÇÃO EXPANDIDO COM AS 3 REGRAS DE NEGÓCIO DA ACADEMIA HAAS */}
+                  <div className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex items-start gap-2.5 shrink-0 text-left">
+                    <AlertTriangle size={14} className="text-orange-400 shrink-0 mt-0.5" />
+                    <div className="flex flex-col gap-1 text-[11px] text-slate-300 font-medium leading-relaxed font-mono">
+                      <span className="font-bold text-orange-400 uppercase tracking-wider block text-[10px] mb-0.5">
+                        {idiomaSelecionado === "PT" ? "Regulamento de Sessões:" : idiomaSelecionado === "ES" ? "Reglamento de Sesiones:" : "Session Rules:"}
+                      </span>
+                      <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
+                      <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
+                      <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-2 min-h-0">
