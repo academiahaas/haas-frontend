@@ -1176,8 +1176,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         </div>
                       </button>
                     ) : (
-                      /* FLUXO COM LISTAGEM COMERCIAL DE TODOS OS 6 PLANOS HAAS */
-                      <div className="flex flex-col gap-2 max-h-[290px] overflow-y-auto pr-0.5 scrollbar-none text-left">
+                      /* FLUXO COM LISTAGEM COMERCIAL EXPANDIDA SEM ROLAGEM */
+                      <div className="flex flex-col gap-2 w-full text-left">
                         
                         {/* PLANO 1: COLETIVO GRUPO */}
                         <button 
