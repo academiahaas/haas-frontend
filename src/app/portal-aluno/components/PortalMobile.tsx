@@ -622,7 +622,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       {/* HEADER FIXO */}
       <div className="w-full bg-[#070d19]/90 backdrop-blur-md border-b border-white/[0.05] px-4 h-14 flex items-center justify-between shrink-0 z-50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white">H</div>
+          <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
             <div className="flex gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black">
