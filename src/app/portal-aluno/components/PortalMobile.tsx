@@ -8,7 +8,7 @@ const agendaBloqueiosHaas2026 = {
 };
 import ArenaQuizMobile from './ArenaQuizMobile';
 import React, { useState, useRef } from 'react';
-import { Gift, Swords, BookOpen, LayoutDashboard, Calendar, Camera, User, Star, MessageSquare, Flame, Award, CheckCircle, TrendingUp, Globe, X, FileText, AlertTriangle, Zap, Timer, Lock } from 'lucide-react';
+import { Gift, Swords, BookOpen, LayoutDashboard, Calendar, Camera, User, Star, MessageSquare, Flame, Trophy, Award, CheckCircle, TrendingUp, Globe, X, FileText, AlertTriangle, Zap, Timer, Lock } from 'lucide-react';
 import MioloMultiplaEscolhaMobile from './exercise-types/MioloMultiplaEscolhaMobile';
 import MioloCacaErro from './exercise-types/MioloCacaErro';
 import MioloBlitzChallenge from './exercise-types/MioloBlitzChallenge';
@@ -427,6 +427,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
   const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
+  const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
   const [votoMetod, setVotoMetod] = React.useState(0);
@@ -2001,11 +2002,12 @@ null
  
             {/* 3. Sequência de Dias & Próxima Recompensa */} 
             <div className="grid grid-cols-2 gap-2 w-full"> 
-              <button onClick={() => setAbaAtiva("perfil")} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
-                <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Flame className="w-5 h-5 text-amber-500" /></div> 
+                            {/* 🏆 GATILHO PREMIUM: LIGA DE ELITE / RANKING GLOBAL */}
+              <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
+                <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-amber-500" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
-                  <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-white truncate">{idiomaSelecionado === "PT" ? "12 Dias" : idiomaSelecionado === "ES" ? "12 Días" : "12 Days"}</span> 
-                  <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Consistência" : idiomaSelecionado === "ES" ? "Consistencia" : "Streak"}</span> 
+                  <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-amber-500 truncate">{idiomaSelecionado === "PT" ? "2º Lugar" : idiomaSelecionado === "ES" ? "2º Lugar" : "2nd Place"}</span> 
+                  <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span> 
                 </div> 
               </button> 
               <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
@@ -2826,6 +2828,81 @@ null
                     </div>
                   </div>
                 )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
+      {gavetaRankingAberta && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[120] flex flex-col justify-end">
+          <div className="absolute inset-0" onClick={() => setGavetaRankingAberta(false)} />
+          
+          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[70vh] min-h-[45vh] flex flex-col relative z-10 animate-slide-up">
+            
+            {/* CABEÇALHO DA GAVETA */}
+            <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <Trophy size={16} className="text-amber-500" />
+                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                  {idiomaSelecionado === "PT" ? "Classificação Global" : idiomaSelecionado === "ES" ? "Clasificación Global" : "Global Standing"}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setGavetaRankingAberta(false)}
+                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider"
+              >
+                {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
+              </button>
+            </div>
+
+            {/* TABELA DE PERFORMANCE COMSUBLIME SEM SCROLLBAR */}
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 scrollbar-none pb-8 text-left font-mono text-xs">
+              
+              {/* 1º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-black text-amber-500 text-sm w-4">1</span>
+                  <span className="text-slate-300 font-bold">Alpha_Leader</span>
+                </div>
+                <span className="text-slate-400 font-bold">2.450 PTS</span>
+              </div>
+
+              {/* 2º LUGAR - BRUNA HAAS DESTAQUE PREMIUM */}
+              <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/20 rounded-xl shadow-md shadow-amber-500/[0.02]">
+                <div className="flex items-center gap-3">
+                  <span className="font-black text-amber-400 text-sm w-4">2</span>
+                  <span className="text-white font-black">Bruna_Haas ✨</span>
+                </div>
+                <span className="text-amber-400 font-black">1.920 PTS</span>
+              </div>
+
+              {/* 3º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-black text-amber-600 text-sm w-4">3</span>
+                  <span className="text-slate-400">Rodrigo_M</span>
+                </div>
+                <span className="text-slate-500">1.850 PTS</span>
+              </div>
+
+              {/* 4º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl opacity-80">
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-slate-500 w-4">4</span>
+                  <span className="text-slate-400">Elena_Rostova</span>
+                </div>
+                <span className="text-slate-500">1.620 PTS</span>
+              </div>
+
+              {/* 5º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl opacity-70">
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-slate-500 w-4">5</span>
+                  <span className="text-slate-400">Marcus_Tech</span>
+                </div>
+                <span className="text-slate-500">1.400 PTS</span>
               </div>
 
             </div>
