@@ -108,7 +108,10 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado }: any) {
   
   return (
     <div className="w-full py-4 bg-[#070d19]/40 border border-white/[0.03] rounded-xl flex flex-col gap-2 shrink-0 px-4">
-      <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black uppercase text-white tracking-wider">📅 {idiomaSelecionado === "PT" ? "Cronograma da Semana" : idiomaSelecionado === "ES" ? "Cronograma Semanal" : "Weekly Schedule"}</span>
+      <div className="flex items-center gap-2 text-white">
+        <Calendar size={14} className="text-cyan-400 md:w-5 md:h-5" />
+        <span className="text-[clamp(10px,2.8vw,12px)] md:text-sm font-mono font-black uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Cronograma da Semana" : idiomaSelecionado === "ES" ? "Cronograma Semanal" : "Weekly Schedule"}</span>
+      </div>
       <div className="flex justify-between items-center gap-1.5">
         {diasDaSemana.map((dia) => {
           const temAula = diasComAula.includes(dia.id);
@@ -119,8 +122,8 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado }: any) {
 
           return (
             <div key={dia.id} onClick={() => setAbaAtiva("agenda")} className="flex flex-col items-center flex-1 min-w-0 cursor-pointer active:scale-95 select-none">
-              <span className="text-[7px] font-bold text-slate-500 mb-0.5">{dia.label}</span>
-              <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-mono font-black transition-all ${
+              <span className="text-[7px] md:text-xs font-bold text-slate-500 mb-0.5">{dia.label}</span>
+              <div className={`w-6 h-6 md:w-10 md:h-10 rounded-md flex items-center justify-center text-[9px] md:text-sm font-mono font-black transition-all ${
                 temAula 
                   ? 'bg-cyan-500/10 border border-cyan-400/40 text-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.1)]' 
                   : 'bg-black/20 border border-white/[0.02] text-slate-400'
@@ -511,7 +514,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       tabProfile: "Profile",
       taskTitle: "ASSIGNMENTS PORTFOLIO",
       taskDesc: "Take a picture of your notebook page or upload up to 3 files directly for instructor feedback.",
-      btnPhoto: "Take Photo / Select Files",
+      btnPhoto: "SUBMIT MY ASSIGNMENT",
       btnUploading: "Uploading to Supabase...",
       btnSubmit: "Submit Assignments",
       uploadOk: "All files uploaded successfully! Instructor notified.",
@@ -559,7 +562,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       tabProfile: "Perfil",
       taskTitle: "PORTAFOLIO DE TAREAS",
       taskDesc: "Toma una foto de tu cuaderno o sube hasta 3 archivos directamente para la revisión del instructor.",
-      btnPhoto: "Tomar Foto / Seleccionar Archivos",
+      btnPhoto: "ENVIAR MI TAREA",
       btnUploading: "Subiendo a Supabase...",
       btnSubmit: "Enviar Tareas",
       uploadOk: "¡Todos los archivos se subieron con éxito! Profesor notificado.",
@@ -617,7 +620,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       {/* HEADER FIXO */}
       <div className="w-full bg-[#070d19]/90 backdrop-blur-md border-b border-white/[0.05] px-4 h-14 flex items-center justify-between shrink-0 z-50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white">HA</div>
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white">H</div>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
             <div className="flex gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black">
@@ -653,7 +656,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </button>
             <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-amber-400 font-black px-2.5 py-1 rounded-lg border border-amber-500/20 uppercase font-mono tracking-wide">B1</span>
           </div>
-          <span className="text-[clamp(13px,3.8vw,18px)] font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> 12d</span>
+          <span className="text-[clamp(13px,3.8vw,18px)] md:text-base font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> 12d</span>
         </div>
       </div>
 
@@ -814,7 +817,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {etapaPagamento === 1 && (
               <div className="flex flex-col gap-4 my-2 text-slate-100">
                 {/* BOTÃO VOLTAR DISCRETO */}
-                <button onClick={() => setEtapaPagamento(0)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                <button onClick={() => setEtapaPagamento(0)} className="text-xs md:text-sm font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
                   ← Voltar
                 </button>
 
@@ -853,7 +856,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
                     HAAS PREMIUM PLAN
                   </span>
-                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                  <div className="text-2xl md:text-4xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
@@ -861,7 +864,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO FINAL: CONTINUAR AO PAGO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : "Continuar al Pago"}
                 </button>
               </div>
@@ -1007,7 +1010,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {etapaPagamento === 1 && (
               <div className="flex flex-col gap-4 my-1 text-slate-100">
                 {/* BOTÃO VOLTAR */}
-                <button onClick={() => setEtapaPagamento(0)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                <button onClick={() => setEtapaPagamento(0)} className="text-xs md:text-sm font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
                   ← Voltar
                 </button>
 
@@ -1033,7 +1036,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
                     HAAS PREMIUM PLAN
                   </span>
-                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                  <div className="text-2xl md:text-4xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
@@ -1041,7 +1044,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO DE AÇÃO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   Continuar al Pago
                 </button>
               </div>
@@ -1057,11 +1060,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex-1 w-full h-full flex flex-col overflow-hidden relative text-slate-200">
             
             {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
-            <div className="px-4 py-3 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
-              <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
+            <div className="px-4 py-3 md:px-6 md:py-4 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
+              <span className="text-[11px] md:text-sm font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
                 VIP STANDARD
               </span>
-              <span className="text-[9.5px] font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
+              <span className="text-[9.5px] md:text-xs font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
                 {idiomaSelecionado === "PT" ? "VENCE EM 12 DIAS" : idiomaSelecionado === "ES" ? "VENCE EN 12 DÍAS" : "EXPIRES IN 12 DAYS"}
               </span>
             </div>
@@ -1077,16 +1080,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       onClick={() => { (window as any)._filtroAgenda = 'regular'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
                     >
-                      <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões Regulares" : idiomaSelecionado === "ES" ? "Sesiones Regulares" : "Regular Sessions"}</span>
-                      <p className="text-[clamp(16px,4.5vw,20px)] font-black text-slate-300 flex items-baseline gap-1">4<span className="text-[clamp(11px,3.2vw,13px)] font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
+                      <span className="text-[clamp(10px,2.8vw,12px)] md:text-xs font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões Regulares" : idiomaSelecionado === "ES" ? "Sesiones Regulares" : "Regular Sessions"}</span>
+                      <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">4<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
                     </button>
 
                     <button 
                       onClick={() => { (window as any)._filtroAgenda = 'reposicao'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'reposicao' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
                     >
-                      <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões de Reposição" : idiomaSelecionado === "ES" ? "Sesiones de Reposición" : "Makeup Sessions"}</span>
-                      <p className="text-[clamp(16px,4.5vw,20px)] font-black text-slate-300 flex items-baseline gap-1">1<span className="text-[clamp(11px,3.2vw,13px)] font-medium text-white">{idiomaSelecionado === "PT" ? "ativa" : idiomaSelecionado === "ES" ? "activa" : "active"}</span></p>
+                      <span className="text-[clamp(10px,2.8vw,12px)] md:text-xs font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões de Reposição" : idiomaSelecionado === "ES" ? "Sesiones de Reposición" : "Makeup Sessions"}</span>
+                      <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">1<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "ativa" : idiomaSelecionado === "ES" ? "activa" : "active"}</span></p>
                     </button>
                   </div>
 
@@ -1097,10 +1100,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   >
                     <div className="flex items-center gap-2.5">
                       <AlertTriangle size={14} className="text-orange-400 shrink-0" />
-                      <span className="font-bold text-orange-400 uppercase tracking-wider text-[10px] flex-1">
+                      <span className="font-bold text-orange-400 uppercase tracking-wider text-[10px] md:text-xs flex-1">
                         {idiomaSelecionado === "PT" ? "Regulamento de Sessões" : idiomaSelecionado === "ES" ? "Reglamento de Sesiones" : "Session Rules"}
                       </span>
-                      <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                      <span className="text-[9px] md:text-xs font-mono font-bold text-slate-500 uppercase tracking-widest">
                         {gavetaRegulamentoAberta 
                           ? (idiomaSelecionado === "PT" ? "[Fechar]" : idiomaSelecionado === "ES" ? "[Cerrar]" : "[Close]")
                           : (idiomaSelecionado === "PT" ? "[Ver]" : idiomaSelecionado === "ES" ? "[Ver]" : "[View]")
@@ -1109,11 +1112,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </div>
 
                     {gavetaRegulamentoAberta && (
-                      <div className="flex flex-col gap-1 text-[11px] text-slate-300 font-medium leading-relaxed font-mono border-t border-white/[0.03] pt-2 animate-fade-in">
+                      <div className="flex flex-col gap-1 text-[11px] md:text-sm text-slate-300 font-medium leading-relaxed font-mono border-t border-white/[0.03] pt-2 animate-fade-in">
                         <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
-                        <p className="text-cyan-400 font-bold mt-1 text-[10px] tracking-wide border-t border-white/[0.02] pt-1">
+                        <p className="text-cyan-400 font-bold mt-1 text-[10px] md:text-xs tracking-wide border-t border-white/[0.02] pt-1">
                           🌐 {idiomaSelecionado === "PT" ? "Todos os horários disponíveis seguem o Fuso da Colômbia (BOG)." : idiomaSelecionado === "ES" ? "Todos los horarios disponibles siguen la Hora de Colombia (BOG)." : "All available schedules follow Colombia Time (BOG)."}
                         </p>
                       </div>
@@ -1200,7 +1203,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 <div className="w-full pt-0 bg-transparent shrink-0">
                   <button 
                     onClick={() => { setGavetaTipoAulaAberta(true); }}
-                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px]"
+                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4"
                   >
                     {idiomaSelecionado === "PT" ? "Agendar Nova Sessão" : idiomaSelecionado === "ES" ? "Programar Nueva Sesión" : "Book New Session"}
                   </button>
@@ -1223,10 +1226,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </div>
 
                   <div className="flex flex-col text-center gap-1">
-                    <h3 className="text-[clamp(13px,4vw,15px)] font-mono font-black uppercase tracking-wider text-white">
+                    <h3 className="text-[clamp(13px,4vw,15px)] md:text-xl font-mono font-black uppercase tracking-wider text-white">
                       {idiomaSelecionado === "PT" ? "Selecione o Tipo de Sessão" : idiomaSelecionado === "ES" ? "Seleccione el Tipo de Sesión" : "Select Session Type"}
                     </h3>
-                    <p className="text-[clamp(11px,3.2vw,13px)] text-slate-400">
+                    <p className="text-[clamp(11px,3.2vw,13px)] md:text-base text-slate-400 md:mt-1">
                       {idiomaSelecionado === "PT" ? "Escolha como deseja consumir seus créditos de agendamento" : idiomaSelecionado === "ES" ? "Elija cómo desea consumir sus créditos de programación" : "Choose how you want to use your scheduling credits"}
                     </p>
                   </div>
@@ -1240,8 +1243,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       >
                         <div className="w-4 h-4 bg-transparent border-2 border-orange-400 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
                         <div className="flex flex-col font-mono text-left">
-                          <span className="text-xs font-black text-white uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Consumir Crédito de Reposição" : idiomaSelecionado === "ES" ? "Consumir Crédito de Reposición" : "Use Makeup Credit"}</span>
-                          <span className="text-[10px] text-slate-400">{idiomaSelecionado === "PT" ? "Agendar aula extra gerada por cancelamento prévio" : idiomaSelecionado === "ES" ? "Programar clase extra generada por cancelación previa" : "Schedule extra class from previous cancellation"}</span>
+                          <span className="text-xs md:text-base font-black text-white uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Consumir Crédito de Reposição" : idiomaSelecionado === "ES" ? "Consumir Crédito de Reposición" : "Use Makeup Credit"}</span>
+                          <span className="text-[10px] md:text-sm text-slate-400 mt-0.5">{idiomaSelecionado === "PT" ? "Agendar aula extra gerada por cancelamento prévio" : idiomaSelecionado === "ES" ? "Programar clase extra generada por cancelación previa" : "Schedule extra class from previous cancellation"}</span>
                         </div>
                       </button>
                     ) : (
@@ -1255,8 +1258,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-emerald-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Plano Coletivo em Grupo" : idiomaSelecionado === "ES" ? "Plan Colectivo en Grupo" : "Colective Group Plan"}</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Aulas dinâmicas e interativas com a comunidade" : idiomaSelecionado === "ES" ? "Clases dinámicas e interactivas con la comunidad" : "Dynamic and interactive community classes"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Plano Coletivo em Grupo" : idiomaSelecionado === "ES" ? "Plan Colectivo en Grupo" : "Colective Group Plan"}</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Aulas dinâmicas e interativas com a comunidade" : idiomaSelecionado === "ES" ? "Clases dinámicas e interactivas con la comunidad" : "Dynamic and interactive community classes"}</span>
                           </div>
                         </button>
 
@@ -1267,8 +1270,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-teal-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-teal-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Pack Acumulativo Grupo" : idiomaSelecionado === "ES" ? "Pack Acumulativo Grupo" : "Accumulative Group Pack"}</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Aulas avulsas em grupo sob demanda" : idiomaSelecionado === "ES" ? "Clases sueltas en grupo bajo demanda" : "On-demand single group classes"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Pack Acumulativo Grupo" : idiomaSelecionado === "ES" ? "Pack Acumulativo Grupo" : "Accumulative Group Pack"}</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Aulas avulsas em grupo sob demanda" : idiomaSelecionado === "ES" ? "Clases sueltas en grupo bajo demanda" : "On-demand single group classes"}</span>
                           </div>
                         </button>
 
@@ -1279,8 +1282,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-amber-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Standard</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Foco individualizado com professor exclusivo" : idiomaSelecionado === "ES" ? "Enfoque individualizado con profesor exclusivo" : "One-on-one focus with an exclusive teacher"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">VIP Standard</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Foco individualizado com professor exclusivo" : idiomaSelecionado === "ES" ? "Enfoque individualizado con profesor exclusivo" : "One-on-one focus with an exclusive teacher"}</span>
                           </div>
                         </button>
 
@@ -1291,8 +1294,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-orange-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Pack VIP Standard" : idiomaSelecionado === "ES" ? "Pack VIP Standard" : "VIP Standard Pack"}</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Créditos avulsos premium acumuláveis" : idiomaSelecionado === "ES" ? "Créditos sueltos premium acumulables" : "Premium cumulative single credits"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Pack VIP Standard" : idiomaSelecionado === "ES" ? "Pack VIP Standard" : "VIP Standard Pack"}</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Créditos avulsos premium acumuláveis" : idiomaSelecionado === "ES" ? "Créditos sueltos premium acumulables" : "Premium cumulative single credits"}</span>
                           </div>
                         </button>
 
@@ -1303,8 +1306,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-cyan-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">VIP Pro</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Imersão executiva de alta performance de negócios" : idiomaSelecionado === "ES" ? "Inmersión ejecutiva de alto rendimiento de negocios" : "High-performance executive business immersion"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">VIP Pro</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Imersão executiva de alta performance de negócios" : idiomaSelecionado === "ES" ? "Inmersión ejecutiva de alto rendimiento de negocios" : "High-performance executive business immersion"}</span>
                           </div>
                         </button>
 
@@ -1315,8 +1318,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-indigo-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-indigo-400" /></div>
                           <div className="flex flex-col font-mono text-left">
-                            <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Aulas Individuais Flex" : idiomaSelecionado === "ES" ? "Clases Individuales Flex" : "Individual Flex Classes"}</span>
-                            <span className="text-[9.5px] text-slate-400 leading-tight">{idiomaSelecionado === "PT" ? "Packs acumulativos sob demanda para sua rotina" : idiomaSelecionado === "ES" ? "Packs acumulativos bajo demanda para su rutina" : "On-demand cumulative packs for your routine"}</span>
+                            <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Aulas Individuais Flex" : idiomaSelecionado === "ES" ? "Clases Individuales Flex" : "Individual Flex Classes"}</span>
+                            <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Packs acumulativos sob demanda para sua rotina" : idiomaSelecionado === "ES" ? "Packs acumulativos bajo demanda para su rutina" : "On-demand cumulative packs for your routine"}</span>
                           </div>
                         </button>
 
@@ -1350,21 +1353,21 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full shadow-xl shadow-emerald-500/5">
                         <CheckCircle size={26} />
                       </div>
-                      <h3 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase tracking-wide text-white mt-1">
+                      <h3 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase tracking-wide text-white mt-1">
                         {idiomaSelecionado === "PT" ? "Sessão Regular Confirmada!" : idiomaSelecionado === "ES" ? "¡Sesión Regular Confirmada!" : "Regular Session Confirmed!"}
                       </h3>
-                      <p className="text-[clamp(12px,3.5vw,13.5px)] text-slate-400 leading-relaxed max-w-[90%]">
+                      <p className="text-xs md:text-base md:text-sm text-slate-400 leading-relaxed max-w-[90%]">
                         {idiomaSelecionado === "PT" ? "Seu compromisso com o próximo nível foi selado. Nos vemos na sala de alta performance!" :
                          idiomaSelecionado === "ES" ? "Su compromiso con el siguiente nivel ha sido sellado. ¡Nos vemos na sala de alta performance!" :
                          "Your commitment to the next level has been sealed. See you in the high-performance room!"}
                       </p>
                       
                       <div className="w-full bg-slate-900/60 border border-white/[0.03] rounded-xl p-3.5 mt-2 flex flex-col gap-1 font-mono">
-                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-orange-400 uppercase font-bold tracking-wider">
+                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] md:text-base text-orange-400 uppercase font-bold tracking-wider">
                           <span>{idiomaSelecionado === "PT" ? "Categoria" : idiomaSelecionado === "ES" ? "Categoría" : "Category"}</span>
                           <span className="text-orange-400 font-black">{idiomaSelecionado === "PT" ? "Sessão Regular" : idiomaSelecionado === "ES" ? "Sesión Regular" : "Regular Session"}</span>
                         </div>
-                        <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] text-white font-black mt-1">
+                        <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] md:text-lg text-white font-black mt-1.5">
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
                           <span>
                             {idiomaSelecionado === "EN" 
@@ -1381,21 +1384,21 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <div className="p-3.5 bg-purple-500/10 border border-orange-500/20 text-purple-400 rounded-full shadow-xl shadow-purple-500/5">
                         <CheckCircle size={26} />
                       </div>
-                      <h3 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase tracking-wide text-white mt-1">
+                      <h3 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase tracking-wide text-white mt-1">
                         {idiomaSelecionado === "PT" ? "Reposição Agendada!" : idiomaSelecionado === "ES" ? "¡Reposición Programada!" : "Makeup Scheduled!"}
                       </h3>
-                      <p className="text-[clamp(12px,3.5vw,13.5px)] text-slate-400 leading-relaxed max-w-[90%]">
+                      <p className="text-xs md:text-base md:text-sm text-slate-400 leading-relaxed max-w-[90%]">
                         {idiomaSelecionado === "PT" ? "Excelente! Você salvou o seu crédito dentro do prazo e garantiu o seu ritmo de evolução intacto." :
                          idiomaSelecionado === "ES" ? "¡Excelente! Guardó su crédito dentro del plazo y aseguró que su ritmo de evolución se mantenga intacto." :
                          "Excellent! You saved your credit on time and kept your evolution momentum intact."}
                       </p>
                       
                       <div className="w-full bg-slate-900/60 border border-white/[0.03] rounded-xl p-3.5 mt-2 flex flex-col gap-1 font-mono">
-                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-orange-400 uppercase font-bold tracking-wider">
+                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] md:text-base text-orange-400 uppercase font-bold tracking-wider">
                           <span>{idiomaSelecionado === "PT" ? "Categoria" : idiomaSelecionado === "ES" ? "Categoría" : "Category"}</span>
                           <span className="text-orange-400 font-black">{idiomaSelecionado === "PT" ? "Reposição Ativa" : idiomaSelecionado === "ES" ? "Reposición Activa" : "Active Makeup"}</span>
                         </div>
-                        <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] text-white font-black mt-1">
+                        <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] md:text-lg text-white font-black mt-1.5">
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
                           <span>
                             {idiomaSelecionado === "EN" 
@@ -1409,7 +1412,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   <button 
                     onClick={() => { setSucessoAgendamento('CLOSED'); setEtapaAgendamento(0); setAbaAtiva('inicio'); }} 
-                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider cursor-pointer transition-colors shadow-xl shadow-slate-950/20 min-h-[48px] flex items-center justify-center"
+                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider cursor-pointer transition-colors shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4 flex items-center justify-center"
                   >
                     {idiomaSelecionado === "PT" ? "Bora Praticar" : idiomaSelecionado === "ES" ? "Vamos a Practicar" : "Start Practice"}
                   </button>
@@ -1433,14 +1436,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   
                   {/* MOMENTO DE CHECAGEM DO CARD REGULAR (CONFIRMAÇÃO EM DOIS PASSOS) */}
                   {modalAgenda === 'SUCCESS_REGULAR' && (
-                    <div className="flex flex-col items-center text-center gap-2 py-1">
+                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
-                      <h3 className="text-[clamp(13px,3.8vw,18px)] font-mono font-black uppercase tracking-wider text-white mt-1">
+                      <h3 className="text-sm md:text-xl font-mono font-black uppercase tracking-wider text-white mt-1">
                         {idiomaSelecionado === "PT" ? "Confirmar Cancelamento?" : idiomaSelecionado === "ES" ? "¿Confirmar Cancelación?" : "Confirm CANCELLATION?"}
                       </h3>
-                      <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
+                      <p className="text-xs md:text-base text-slate-300 font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
                           <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 5 dias para reagendá-la.</>
                         ) : idiomaSelecionado === "ES" ? (
@@ -1456,13 +1459,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                             alert(msg);
                             setModalAgenda('CLOSED');
                           }} 
-                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px]"
+                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
                           {idiomaSelecionado === "PT" ? "Sim, Cancelar Sessão" : idiomaSelecionado === "ES" ? "Sí, Cancelar Sesión" : "Yes, Cancel Session"}
                         </button>
                         <button 
                           onClick={() => setModalAgenda('CLOSED')} 
-                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider cursor-pointer transition-all select-none min-h-[48px]"
+                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider cursor-pointer transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
                           {idiomaSelecionado === "PT" ? "Desistir e Manter o Ritmo" : idiomaSelecionado === "ES" ? "Desistir y Mantener el Ritmo" : "Never mind, Keep the Momentum"}
                         </button>
@@ -1472,14 +1475,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {/* MOMENTO DE CHECAGEM DO CARD DE REPOSIÇÃO NO PRAZO (CONFIRMAÇÃO EM DOIS PASSOS) */}
                   {modalAgenda === 'ALERT_REPOSICAO_LOSS' && (
-                    <div className="flex flex-col items-center text-center gap-2 py-1">
+                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
-                      <h3 className="text-[clamp(13px,3.8vw,18px)] font-mono font-black uppercase tracking-wider text-white mt-1">
+                      <h3 className="text-sm md:text-xl font-mono font-black uppercase tracking-wider text-white mt-1">
                         {idiomaSelecionado === "PT" ? "Remarcar Reposição?" : idiomaSelecionado === "ES" ? "¿Reprogramar Reposición?" : "Reschedule Makeup?"}
                       </h3>
-                      <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
+                      <p className="text-xs md:text-base text-slate-300 font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
                           <>Atenção: Esta sessão <span className="text-orange-400 font-black">já é uma reposição</span>. Para não quebrar o ritmo da sua evolução, evite remarcações consecutivas. O prazo limite para uso deste crédito continua correndo a partir da data original.</>
                         ) : idiomaSelecionado === "ES" ? (
@@ -1495,13 +1498,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                             alert(msg);
                             setModalAgenda('CLOSED');
                           }} 
-                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-h-[48px]"
+                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
                           {idiomaSelecionado === "PT" ? "Sim, Confirmar e Liberar Vaga" : idiomaSelecionado === "ES" ? "Sí, Confirmar y Liberar Cupo" : "Yes, Confirm and Release Slot"}
                         </button>
                         <button 
                           onClick={() => setModalAgenda('CLOSED')} 
-                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider cursor-pointer transition-all select-none min-h-[48px]"
+                          className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider cursor-pointer transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
                           {idiomaSelecionado === "PT" ? "Manter meu Cronograma" : idiomaSelecionado === "ES" ? "Mantener mi Cronograma" : "Keep my Schedule"}
                         </button>
@@ -1511,14 +1514,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {/* MOMENTO DE BLOQUEIO OPERACIONAL - MENOS DE 12H (AÇÃO ÚNICA INFORMATIVA) */}
                   {modalAgenda === 'LOCK_12H' && (
-                    <div className="flex flex-col items-center text-center gap-2 py-1">
+                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
-                      <h3 className="text-[clamp(13px,3.8vw,18px)] font-mono font-black uppercase tracking-wider text-white mt-1">
+                      <h3 className="text-sm md:text-xl font-mono font-black uppercase tracking-wider text-white mt-1">
                         {idiomaSelecionado === "PT" ? "Cancelamento Retido" : idiomaSelecionado === "ES" ? "Cancelación Retenida" : "Cancellation Locked"}
                       </h3>
-                      <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
+                      <p className="text-xs md:text-base text-slate-300 font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
                           <>As diretrizes operacionais exigem o mínimo de <span className="text-orange-400 font-black">12 horas de antecedência</span> para cancelamentos. O prazo limite expirou e esta vaga não pode mais ser alterada.</>
                         ) : idiomaSelecionado === "ES" ? (
@@ -1527,7 +1530,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <>Operational guidelines require a minimum of <span className="text-orange-400 font-black">12 hours notice</span> for cancellations. The deadline has expired and this slot can no longer be changed.</>
                         )}
                       </p>
-                      <button onClick={() => setModalAgenda('CLOSED')} className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(13px,3.6vw,17px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px]">
+                      <button onClick={() => setModalAgenda('CLOSED')} className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-sm md:text-base font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5">
                         {idiomaSelecionado === "PT" ? "Entendido" : idiomaSelecionado === "ES" ? "Entendido" : "Got it"}
                       </button>
                     </div>
@@ -1541,11 +1544,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
-                    <button onClick={() => setEtapaAgendamento(0)} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 rounded-lg border border-white/[0.04] cursor-pointer">← Voltar</button>
-                    <span className="text-[clamp(11px,3vw,12px)] font-mono font-bold text-slate-500 uppercase tracking-wider">Etapa 1 de 3</span>
+                    <button onClick={() => setEtapaAgendamento(0)} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">← Voltar</button>
+                    <span className="text-[clamp(11px,3vw,12px)] md:text-sm font-mono font-bold text-slate-500 uppercase tracking-wider">Etapa 1 de 3</span>
                   </div>
                   <div className="px-1">
-                    <h2 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase text-white tracking-wide">Categoria da Aula</h2>
+                    <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase text-white tracking-wide">Categoria da Aula</h2>
                     <p className="text-[clamp(12px,3.4vw,13px)] text-slate-400 mt-0.5">Escolha qual tipo de crédito deseja utilizar.</p>
                   </div>
                   <div className="flex flex-col gap-3">
@@ -1557,7 +1560,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         <span className={`text-[clamp(12px,3.5vw,14px)] font-mono font-black uppercase tracking-wider text-slate-300`}>Sessão Regular</span>
                         <span className="px-2 py-0.5 font-mono text-[clamp(10px,2.8vw,11px)] rounded-md font-bold bg-slate-800 text-slate-400">4 Restantes</span>
                       </div>
-                      <p className="text-[clamp(11px,3.2vw,13px)] text-slate-400 leading-relaxed">Utilize seus créditos de recorrência mensal padrão do ciclo vigente.</p>
+                      <p className="text-[clamp(11px,3.2vw,13px)] text-slate-400 leading-relaxed">{idiomaSelecionado === "PT" ? "Utilize seus créditos de recorrência mensal padrão do ciclo vigente." : idiomaSelecionado === "EN" ? "Use your standard monthly recurrence credits for the current cycle." : "Utilice sus créditos de recurrencia mensual estándar del ciclo vigente."}</p>
                     </div>
                     <div 
                       onClick={() => { setTipoAgendamento('REPOSICAO'); setEtapaAgendamento(2); }}
@@ -1594,23 +1597,20 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
                 <div className="flex-1 flex flex-col gap-3.5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
-                    <button onClick={() => { setGavetaCalendarioAberta(false); setGavetaTipoAulaAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 rounded-lg border border-white/[0.04] cursor-pointer">
+                    <button onClick={() => { setGavetaCalendarioAberta(false); setGavetaTipoAulaAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
                       {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "ES" ? "← Volver" : "← Back"}
                     </button>
-                    <span className="text-[clamp(11px,3vw,12px)] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-[clamp(11px,3vw,12px)] md:text-sm font-mono font-bold text-slate-500 uppercase tracking-wider">
                       {idiomaSelecionado === "PT" ? "Passo 2 de 3" : idiomaSelecionado === "ES" ? "Paso 2 de 3" : "Step 2 of 3"}
                     </span>
                   </div>
                   
                   <div className="px-1 flex justify-between items-end">
                     <div>
-                      <h2 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase text-white tracking-wide">
-                        {idiomaSelecionado === "PT" ? "Selecione a Data" : idiomaSelecionado === "ES" ? "Seleccione la Fecha" : "Select the Date"}
+                      <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase text-white tracking-wide">
+                        {idiomaSelecionado === "PT" ? "DATA" : idiomaSelecionado === "ES" ? "FECHA" : "DATE"}
                       </h2>
-                      <p className="text-[clamp(12px,3.4vw,13px)] text-orange-400 mt-0.5">
-                        {idiomaSelecionado === "PT" ? "Limite do ciclo atual: " : idiomaSelecionado === "ES" ? "Límite del ciclo actual: " : "Current cycle deadline: "}
-                        <span className="text-orange-400 font-bold">{idiomaSelecionado === "EN" ? "06/25" : "25/06"}</span>
-                      </p>
+
                     </div>
                       <h2 className="text-sm font-mono font-black text-cyan-400 uppercase tracking-widest my-2">{(idiomaSelecionado === "PT" ? ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"] : idiomaSelecionado === "ES" ? ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"] : ["January","February","March","April","May","June","July","August","September","October","November","December"])[mesAgendamento - 1] + " " + anoAgendamento}</h2>
                     {/* NAVEGAÇÃO INTELEGENTE POR SETAS SEM ESTADOS ENGESSADOS */}
@@ -1718,7 +1718,7 @@ null
                       <button 
                         disabled={!temDia}
                         onClick={() => { setGavetaCalendarioAberta(false); setGavetaHorariosAberta(true); }}
-                        className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] ${
+                        className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 ${
                           temDia 
                                                         ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                             : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
@@ -1750,21 +1750,21 @@ null
               <div className="flex flex-col gap-4 justify-start h-full py-1 animate-fade-in overflow-hidden">
                 <div className="flex flex-col gap-3 min-h-0 overflow-hidden">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3 shrink-0">
-                    <button onClick={() => { setGavetaHorariosAberta(false); setGavetaCalendarioAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 rounded-lg border border-white/[0.04] cursor-pointer">
+                    <button onClick={() => { setGavetaHorariosAberta(false); setGavetaCalendarioAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
                       {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "ES" ? "← Volver" : "← Back"}
                     </button>
-                    <span className="text-[clamp(11px,3vw,12px)] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-[clamp(11px,3vw,12px)] md:text-sm font-mono font-bold text-slate-500 uppercase tracking-wider">
                       {idiomaSelecionado === "PT" ? "Passo 3 de 3" : idiomaSelecionado === "ES" ? "Paso 3 de 3" : "Step 3 of 3"}
                     </span>
                   </div>
                   
                   <div className="px-1 shrink-0">
-                    <h2 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase text-white tracking-wide">
+                    <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase text-white tracking-wide">
                       {idiomaSelecionado === "PT" ? `Horários para o Dia ${diaSelecionado}/${mesAgendamento === 6 ? '06' : '07'}` : 
                        idiomaSelecionado === "ES" ? `Horarios para el Día ${diaSelecionado}/${mesAgendamento === 6 ? '06' : '07'}` : 
                        `Available Times for ${mesAgendamento === 6 ? '06' : '07'}/${diaSelecionado}`}
                     </h2>
-                    <p className="text-[clamp(12px,3.4vw,13px)] text-orange-400 mt-0.5">
+                    <p className="text-[clamp(12px,3.4vw,13px)] md:text-base text-orange-400 mt-1">
                       {idiomaSelecionado === "PT" ? "Arraste para ver todas as janelas disponíveis." : 
                        idiomaSelecionado === "ES" ? "Deslice para ver todas las ventanas disponibles." : 
                        "Swipe to view all available slots."}
@@ -1792,7 +1792,7 @@ null
                             key={h}
                             onClick={() => setHorarioSelecionado(h)}
                             /* USANDO ring-2 EM VEZ DE border PARA NÃO MELECAR O LAYOUT HORIZONTAL */
-                            className={`py-2.5 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] font-bold transition-all cursor-pointer border border-transparent ${
+                            className={`py-2.5 md:py-4 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all cursor-pointer border border-transparent ${
                               isSelected 
                                 ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/10' 
                                 : 'bg-slate-900/40 border-white/[0.03] text-slate-300'
@@ -1856,7 +1856,7 @@ null
                         setSucessoAgendamento("REGULAR");
                       }
                     }}
-                    className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] border ${
+                    className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 border ${
                       horarioSelecionado 
                                                     ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                         : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
@@ -1882,9 +1882,9 @@ null
           <div className="flex flex-col gap-4 h-full flex-1 overflow-hidden">
             
             {/* CARD DE ENVIO DE ATIVIDADE */}
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 rounded-2xl shadow-xl flex flex-col shrink-0">
-              <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-white uppercase tracking-wider block mb-1">{txt.taskTitle}</span>
-              <p className="text-[clamp(12px,3.5vw,13.5px)] text-slate-300 mb-3 leading-relaxed">{txt.taskDesc}</p>
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex flex-col shrink-0">
+              <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block mb-1">{txt.taskTitle}</span>
+              <p className="text-xs md:text-base md:text-sm md:text-sm text-slate-300 mb-3 leading-relaxed">{txt.taskDesc}</p>
               
               <input 
                 type="file"
@@ -1898,7 +1898,7 @@ null
               <button 
                 onClick={acionarInputNativo}
                 disabled={uploading}
-              className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
+              className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
               >
                                 {txt.btnPhoto}
               </button>
@@ -1939,24 +1939,24 @@ null
             </div>
 
             {/* RADAR CARD EXPANSIVO (FLEX-1 FORCE ELE A PREENCHER TODO O ESPAÇO ATÉ O RODAPÉ) */}
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
               <div className="w-full flex items-center justify-between mb-2 shrink-0">
-                <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
-                <span className="text-[8px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
+                <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
+                <span className="text-[8px] md:text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
               </div>
               
               {/* O container interno do pentágono agora cresce ocupando o espaço central da teia */}
               <div className="flex-1 flex items-center justify-center relative w-full">
-                <div className="w-28 h-28 rounded-full border-4 border-dashed border-purple-500/20 flex items-center justify-center relative scale-110">
+                <div className="w-28 h-28 md:w-44 md:h-44 rounded-full border-4 border-dashed border-purple-500/20 flex items-center justify-center relative scale-110">
                   <div className="absolute inset-3 rounded-full bg-purple-500/10 border border-purple-500/30" />
-                  <span className="text-[9px] font-mono font-black text-purple-400/40">HAAS</span>
+                  <span className="text-[9px] md:text-xs font-mono font-black text-purple-400/40">HAAS</span>
                   
                   {/* AS 5 PONTAS DO PENTÁGONO RIGIDAMENTE ACOPLADAS */}
-                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pFala}</span>
-                  <span className="absolute top-3 -right-12 text-[10px] font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscuta}</span>
-                  <span className="absolute -bottom-4 -right-4 text-[10px] font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pGramatica}</span>
-                  <span className="absolute -bottom-4 -left-4 text-[10px] font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscrita}</span>
-                  <span className="absolute top-3 -left-12 text-[10px] font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pLeitura}</span>
+                  <span className="absolute -top-6 md:-top-8 left-1/2 -translate-x-1/2 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pFala}</span>
+                  <span className="absolute top-3 -right-12 md:-right-16 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscuta}</span>
+                  <span className="absolute -bottom-4 -right-4 md:-right-6 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pGramatica}</span>
+                  <span className="absolute -bottom-4 -left-4 md:-left-6 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscrita}</span>
+                  <span className="absolute top-3 -left-12 md:-left-16 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pLeitura}</span>
                 </div>
               </div>
 
@@ -1972,7 +1972,9 @@ null
         {((abaAtiva as string) === "dashboard") && ( 
           <div className="flex flex-col flex-1 gap-4 px-0 pb-0 pt-0 overflow-y-auto scrollbar-none [&>*]:flex-1">
             {/* 1. Entrar na Aula */} 
-            <button className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-xl font-mono font-black text-[clamp(14px,4vw,22px)] uppercase tracking-wider shadow-[0_0_25px_rgba(249,115,22,0.3)] border-[0.5px] border-orange-400/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"> {idiomaSelecionado === "PT" ? "Entrar na Aula" : idiomaSelecionado === "ES" ? "Entrar a la Clase" : "Enter Class"} 
+            <button onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1&hs=122&ijlm=1783058944948", "_blank")} className="w-full py-3 bg-gradient-to-r from-orange-600/20 via-amber-600/10 to-transparent border border-orange-500/40 text-orange-400 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.1)] border-[0.5px] border-orange-400/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0" style={{ display: "inline-block" }}><path d="M8 5v14l11-7z"/></svg>
+              {idiomaSelecionado === "PT" ? "Entrar na Aula" : idiomaSelecionado === "ES" ? "Entrar a la Clase" : "Enter Class"} 
             </button> 
  
             {/* 2. Foco Estratégico - Hub Mentora HAAS */} 
@@ -2026,15 +2028,17 @@ null
             
 
             {/* 4. Campo de Prática */} 
-            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 bg-slate-950/40 border-[0.5px] border-amber-500/10 rounded-xl flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
+            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 md:p-6 bg-slate-950/40 border-[0.5px] border-amber-500/10 hover:border-cyan-500/30 rounded-xl flex items-center justify-between gap-4 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
               <div className="flex items-center gap-3 min-w-0 flex-1"> 
                  
                 <div className="flex flex-col text-left min-w-0 flex-1"> 
                   <span className="text-[clamp(12px,3.5vw,16px)] font-mono font-black text-white uppercase tracking-wide truncate">{idiomaSelecionado === "PT" ? "Espaço de Prática" : idiomaSelecionado === "ES" ? "Espacio de Práctica" : "Practice Space"}</span> 
-                  <span className="text-[clamp(10px,2.8vw,13px)] text-cyan-100/80 font-medium whitespace-normal break-words leading-tight">{idiomaSelecionado === "PT" ? "Simulações em tempo real e desafios analíticos" : idiomaSelecionado === "ES" ? "Simulaciones en tiempo real y desafíos analíticos" : "Real-time simulations and analytical challenges"}</span> 
+                  <span className="text-[clamp(11px,3vw,14px)] md:text-sm text-slate-400 font-medium whitespace-normal break-words leading-relaxed mt-1">{idiomaSelecionado === "PT" ? "Simulações em tempo real e desafios analíticos" : idiomaSelecionado === "ES" ? "Simulaciones en tiempo real y desafíos analíticos" : "Real-time simulations and analytical challenges"}</span> 
                 </div> 
               </div> 
-               
+              <div className="shrink-0 text-slate-500 group-hover:text-cyan-400 transition-colors pl-2">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-6 md:h-6 stroke-current stroke-2 fill-none"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+              </div>
             </button> 
           </div> 
         )} 
@@ -2045,29 +2049,29 @@ null
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
             <div className="w-full sticky top-0 z-20 bg-[#030914] bg-gradient-to-b from-[#070d19]/90 to-[#030914]/95 border-b border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0">
-              <div className="relative w-20 h-20">
-                <div className="w-full h-full rounded-full border border-white/[0.08] bg-slate-900 flex items-center justify-center text-xl font-mono font-black text-white">
+              <div className="relative w-20 h-20 md:w-28 md:h-28">
+                <div className="w-full h-full rounded-full border border-white/[0.08] bg-slate-900 flex items-center justify-center text-xl md:text-3xl font-mono font-black text-white">
                   BR
                 </div>
                 {/* O quadradinho do idioma encostado na foto que obedece ao clique */}
                 <button 
                   onClick={() => setModalIdiomaAberto(true)}
-                  className="absolute bottom-0 right-0 w-6 h-6 bg-slate-900 border border-white/10 rounded-lg flex items-center justify-center text-[10px] font-mono font-black text-slate-300 shadow-md cursor-pointer uppercase"
+                  className="absolute bottom-0 right-0 w-6 h-6 md:w-8 md:h-8 bg-slate-900 border border-white/10 rounded-lg flex items-center justify-center text-[10px] md:text-xs font-mono font-black text-slate-300 shadow-md cursor-pointer uppercase"
                 >
                   {idiomaSelecionado === "PT" ? "PT" : idiomaSelecionado === "ES" ? "ES" : "US"}
                 </button>
               </div>
               
-              <h2 className="text-[clamp(15px,4.5vw,17px)] font-black text-white mt-1.5 uppercase tracking-tight">Bruna Haas</h2>
+              <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-xl font-black text-white mt-1.5 uppercase tracking-tight">Bruna Haas</h2>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] font-mono font-black rounded uppercase">Nível B2</span>
+                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">Nível B2</span>
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{idiomaSelecionado === 'es' ? 'Explorador' : 'Explorador'}</span>
               </div>
 
               <div className="w-full mt-4">
                 <div className="flex justify-between items-center text-[clamp(11px,3.2vw,15px)] font-mono text-slate-500 mb-1">
-                  <span>{idiomaSelecionado === "PT" ? "Progresso do Módulo" : idiomaSelecionado === "ES" ? "Progreso del Módulo" : "Module Progress"}</span>
-                  <span className="text-cyan-400 font-bold">65%</span>
+                  <span className="md:text-base md:font-bold md:text-slate-300">{idiomaSelecionado === "PT" ? "Progresso do Módulo" : idiomaSelecionado === "ES" ? "Progreso del Módulo" : "Module Progress"}</span>
+                  <span className="text-cyan-400 font-bold md:text-base">65%</span>
                 </div>
                 <div className="w-full h-1 bg-slate-950 rounded-full overflow-hidden border border-white/[0.02]">
                   <div className="h-full bg-cyan-500 rounded-full" style={{ width: '65%' }} />
@@ -2075,22 +2079,22 @@ null
               </div>
             </div>
             {/* 🔄 CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
-            <div className="flex-1 w-full overflow-y-auto px-4 pb-8 pt-2 flex flex-col gap-4 scrollbar-none">
+            <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-6 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
             <div className="grid grid-cols-2 gap-2 w-full px-0 m-0 h-auto">
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
                 <div className="text-amber-400 shrink-0"><Zap size={16} className="text-amber-400" /></div>
                 <div className="flex flex-col">
-                  <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">8.450</span>
-                  <span className="text-[clamp(11px,3.2vw,15px)] uppercase font-bold tracking-wider text-slate-500">Total PTS</span>
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">8.450</span>
+                  <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">Total PTS</span>
                 </div>
               </div>
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
                 <div className="text-cyan-400 shrink-0"><Timer size={16} className="text-cyan-400" /></div>
                 <div className="flex flex-col">
-                  <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">124h</span>
-                  <span className="text-[clamp(11px,3.2vw,15px)] uppercase font-bold tracking-wider text-slate-500">
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">124h</span>
+                  <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                     {idiomaSelecionado === "PT" ? "Horas Ativas" : idiomaSelecionado === "ES" ? "Horas Activas" : "Active Hours"}
                   </span>
                 </div>
@@ -2101,8 +2105,8 @@ null
                 <div className="flex items-center gap-2.5">
                   <div className="text-cyan-400 shrink-0"><Calendar size={14} className="text-cyan-400" /></div>
                   <div className="flex flex-col">
-                    <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">187</span>
-                    <span className="text-[clamp(10px,3vw,11px)] uppercase font-bold tracking-wider text-slate-500">
+                    <span className="text-lg md:text-2xl font-mono font-black text-white">187</span>
+                    <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                       {idiomaSelecionado === "PT" ? "Dias de Jornada" : idiomaSelecionado === "ES" ? "Días de Sesión" : "Journey Days"}
                     </span>
                   </div>
@@ -2112,7 +2116,7 @@ null
                   {(idiomaSelecionado === "PT" ? ["S", "T", "Q", "Q", "S", "S", "D"] : idiomaSelecionado === "ES" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"]).map((dia, idx) => {
                     const ativo = idx < 4; // Simulação: seg a qui feito
                     return (
-                      <span key={idx} className={`text-[10px] w-4 h-4 rounded-sm flex items-center justify-center font-bold font-mono ${ativo ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-950/50 text-slate-600 border border-white/5"}`}>
+                      <span key={idx} className={`text-[10px] md:text-xs w-4 h-4 md:w-6 md:h-6 rounded-sm flex items-center justify-center font-bold font-mono ${ativo ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-950/50 text-slate-600 border border-white/5"}`}>
                         {dia}
                       </span>
                     );
@@ -2123,8 +2127,8 @@ null
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
                 <div className="text-amber-500 shrink-0"><Flame size={16} className="text-amber-500" /></div>
                 <div className="flex flex-col">
-                  <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">23</span>
-                  <span className="text-[clamp(11px,3.2vw,15px)] uppercase font-bold tracking-wider text-slate-500">
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">23</span>
+                  <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                     {idiomaSelecionado === "PT" ? "Sequência Ativa" : idiomaSelecionado === "ES" ? "Racha Activa" : "Active Streak"}
                   </span>
                 </div>
@@ -2133,12 +2137,12 @@ null
 
             {/* CARD FINANCEIRO INTEGRADO E ORGANIZADO */}
             <div className="w-full px-0 mt-2 flex-initial">
-              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-amber-500/10 p-3 rounded-xl flex items-center justify-between gap-3 shadow-md">
+              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-amber-500/10 p-3 md:p-5 rounded-xl flex items-center justify-between gap-3 shadow-md">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-slate-400 uppercase tracking-wider">
+                  <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "STATUS DO PLANO" : idiomaSelecionado === "ES" ? "ESTADO DEL PLANO" : "PLAN STATUS"}
                   </span>
-                  <span className="text-[clamp(12px,3.4vw,13px)] text-slate-300 font-medium">
+                  <span className="text-xs md:text-sm text-slate-300 font-medium">
                     {idiomaSelecionado === "PT" ? "Vence em: " : idiomaSelecionado === "ES" ? "Vence el: " : "Expires on: "}
                     <span className="text-white font-mono font-bold">{idiomaSelecionado === "EN" ? "07/22/2026" : "22/07/2026"}</span>
                   </span>
@@ -2148,7 +2152,7 @@ null
                     setModalCreditosAberto(true);
                     setEtapaPagamento(0);
                   }}
-                  className="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3.5 py-2.5 rounded-xl text-[clamp(11px,3.2vw,15px)] font-mono font-black uppercase text-cyan-400 tracking-wider active:scale-95 transition-all cursor-pointer whitespace-nowrap min-h-[38px]"
+                  className="bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3.5 py-2.5 rounded-xl text-xs md:text-sm font-mono font-black uppercase text-cyan-400 tracking-wider active:scale-95 transition-all cursor-pointer whitespace-nowrap min-h-[38px]"
                 >
                   {idiomaSelecionado === "PT" ? "Pagar / Renovar" : idiomaSelecionado === "ES" ? "Pagar / Renovar" : "Pay / Renew"}
                 </button>
@@ -2156,27 +2160,27 @@ null
             </div>
 
             {/* 3. BLOCO DE CONQUISTAS */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 rounded-xl flex flex-col gap-2.5">
-              <h3 className="text-[clamp(11px,3.2vw,15px)] font-mono font-black uppercase tracking-wider text-slate-400">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2.5">
+              <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
                 {idiomaSelecionado === "PT" ? "Insígnias e Conquistas" : idiomaSelecionado === "ES" ? "Insignias y Logros" : "Badges & Achievements"}
               </h3>
               <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-11 h-11 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-base"><Award size={16} className="text-emerald-400" /></div>
-                  <span className="text-[clamp(10px,3vw,11px)] font-bold text-slate-400">
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-base"><Award size={16} className="text-emerald-400" /></div>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-400">
                     {idiomaSelecionado === "PT" ? "1ª Sessão" : idiomaSelecionado === "ES" ? "1ª Sesión" : "1st Session"}
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-base"><Flame size={16} className="text-amber-400" /></div>
-                  <span className="text-[clamp(10px,3vw,11px)] font-bold text-slate-400">7 Days</span>
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-base"><Flame size={16} className="text-amber-400" /></div>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-400">7 Days</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 shrink-0 opacity-40 grayscale">
-                  <div className="w-11 h-11 bg-slate-950 border border-white/10 rounded-xl flex items-center justify-center text-base relative">
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-slate-950 border border-white/10 rounded-xl flex items-center justify-center text-base relative">
                     <Lock size={14} className="text-slate-500" />
                     <div className="absolute bottom-0 inset-x-0 h-1 bg-purple-500/40 rounded-b-xl" style={{ width: '72%' }} />
                   </div>
-                  <span className="text-[clamp(10px,3vw,11px)] font-bold text-slate-500 uppercase mt-0.5">
+                  <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase mt-0.5">
                     {idiomaSelecionado === "PT" ? "Conversação" : idiomaSelecionado === "ES" ? "Conversación" : "Speaking"}
                   </span>
                 </div>
@@ -2184,11 +2188,11 @@ null
             </div>
 
             {/* 4. BLOCO DE APRENDIZAGEM */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 rounded-xl flex flex-col gap-2">
-              <h3 className="text-[clamp(11px,3.2vw,15px)] font-mono font-black uppercase tracking-wider text-slate-400">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2">
+              <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
                 {idiomaSelecionado === "PT" ? "Desempenho por Área" : idiomaSelecionado === "ES" ? "Desempeño por Área" : "Performance by Area"}
               </h3>
-              <div className="flex flex-col gap-2 font-mono text-[clamp(12px,3.5vw,13.5px)]">
+              <div className="flex flex-col gap-2 font-mono text-xs md:text-base">
                 <div className="flex justify-between text-white">
                   <span>{idiomaSelecionado === "PT" ? "Vocabulário" : idiomaSelecionado === "ES" ? "Vocabulario" : "Vocabulary"} (1.250 p.)</span>
                   <span className="text-slate-400">45h</span>
@@ -2201,9 +2205,9 @@ null
             </div>
 
             {/* 5. BLOCO DE EVOLUÇÃO */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 rounded-xl flex flex-col gap-2">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2">
               <div className="flex justify-between items-baseline font-mono">
-                <span className="text-[clamp(11px,3.2vw,15px)] font-black uppercase tracking-wider text-emerald-400">
+                <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-black uppercase tracking-wider text-emerald-400">
                   {idiomaSelecionado === "PT" ? "Progresso do Módulo" : idiomaSelecionado === "ES" ? "Progreso del Módulo" : "Module Progress"}
                 </span>
                 <span className="text-sm font-black text-white">78%</span>
@@ -2211,7 +2215,7 @@ null
               <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.03] p-0.5">
                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: '78%' }} />
               </div>
-              <p className="text-[clamp(12px,3.5vw,13.5px)] text-slate-400 mt-1 font-mono text-center">
+              <p className="text-xs md:text-base md:text-sm text-slate-400 mt-1 font-mono text-center">
                 {idiomaSelecionado === "PT" ? "Faltam 550 PTS para alcançar Mestre Linguístico." : 
                  idiomaSelecionado === "ES" ? "Faltan 550 PTS para alcanzar Maestro Lingüístico." : 
                  "550 PTS remaining to reach Linguistic Master."}
@@ -2223,7 +2227,7 @@ null
               {/* BOTÃO NATIVO DA PROGRAMAÇÃO COMPLETA */}
               <button 
                 onClick={() => setModalProgramaAberto(true)} 
-                className="w-full py-3.5 bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 rounded-xl px-4 flex items-center justify-between text-cyan-400 font-mono font-bold text-[clamp(13px,3.8vw,18px)] cursor-pointer transition-colors min-h-[48px]"
+                className="w-full py-3.5 bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 rounded-xl px-4 flex items-center justify-between text-cyan-400 font-mono font-bold text-sm md:text-lg cursor-pointer transition-colors min-h-[48px] md:py-5"
               >
                 <div className="flex items-center gap-2">
                   
@@ -2231,13 +2235,13 @@ null
                     {idiomaSelecionado === "PT" ? "Cronograma Completo" : idiomaSelecionado === "ES" ? "Programa Completo" : "Full Schedule"}
                   </span>
                 </div>
-                <span className="text-[clamp(11px,3vw,12px)] uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-lg font-bold">
                   {idiomaSelecionado === "PT" ? "Ver Trilha" : idiomaSelecionado === "ES" ? "Ver Ruta" : "View Path"}
                 </span>
               </button>
               <button 
                 onClick={() => setGavetaErroresAberta(true)} 
-                className="w-full py-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 flex items-center justify-between text-amber-400 font-mono font-bold text-[clamp(13px,3.8vw,18px)] cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px]"
+                className="w-full py-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 flex items-center justify-between text-amber-400 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px] md:py-5"
               >
                 <div className="flex items-center gap-2">
                   
@@ -2245,14 +2249,14 @@ null
                     {idiomaSelecionado === "PT" ? "Cofre de Erros" : idiomaSelecionado === "ES" ? "Cofre de Errores" : "Error Vault"}
                   </span>
                 </div>
-                <span className="text-[clamp(11px,3vw,12px)] uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg font-bold">
                   {idiomaSelecionado === "PT" ? "Revisar" : idiomaSelecionado === "ES" ? "Revisar" : "Review"}
                 </span>
               </button>
 
               <button 
                 onClick={() => setAbaAtiva('inicio')}
-                className="w-full py-3.5 bg-rose-950/10 text-rose-400 font-mono font-black text-[clamp(13px,3.8vw,18px)] uppercase tracking-wider rounded-xl mt-5 mb-2 border border-rose-500/10 cursor-pointer hover:bg-rose-500/10 transition-all min-h-[48px] flex items-center justify-center"
+                className="w-full py-3.5 bg-rose-950/10 text-rose-400 font-mono font-black text-sm md:text-base md:text-lg uppercase tracking-wider rounded-xl mt-6 mb-2 border border-rose-500/10 cursor-pointer hover:bg-rose-500/10 transition-all min-h-[52px] md:py-5 flex items-center justify-center"
               >
                 {idiomaSelecionado === "PT" ? "Sair da Conta" : idiomaSelecionado === "ES" ? "Cerrar Sesión" : "Log Out"}
               </button>
@@ -2343,7 +2347,7 @@ null
           <div style={{ position: 'absolute', inset: 0, zIndex: -1 }} onClick={() => setModalCreditosAberto(false)} />
           <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
             <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3 mb-2">
-              <span className="text-orange-500 font-mono font-black tracking-wider text-sm">HAAS ACADEMY</span>
+              <span className="text-orange-500 font-mono font-black tracking-wider text-sm md:text-lg">HAAS ACADEMY</span>
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
             </div>
 
@@ -2377,14 +2381,14 @@ null
 
             {etapaPagamento === 0 && (
               <div className="flex flex-col gap-3 my-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-slate-400 block mb-2">
                   {idiomaSelecionado === "PT" ? "Selecione a Modalidade:" : idiomaSelecionado === "EN" ? "Select Modality:" : "Seleccione la Modalidad:"}
                 </span>
 
                 {/* 1. GRUPO MENSAL */}
                 <button onClick={() => { setModalidadeSelecionada('grupo'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Grupo Mensal" : idiomaSelecionado === "EN" ? "Monthly Group" : "Grupo Mensal"}</span>
-                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Grupo Mensal" : idiomaSelecionado === "EN" ? "Monthly Group" : "Grupo Mensual"}</span>
+                  <span className="text-[10px] md:text-sm text-orange-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Vigência: 30 Dias | IA (Gemini): Ilimitada" : 
                      idiomaSelecionado === "EN" ? "Term: 30 Days | AI (Gemini): Unlimited" : 
                      "Vigencia: 30 Días | IA (Gemini): Ilimitada"}
@@ -2393,8 +2397,8 @@ null
 
                 {/* 2. VIP STANDARD */}
                 <button onClick={() => { setModalidadeSelecionada('particular'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">VIP Standard</span>
-                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">VIP Standard</span>
+                  <span className="text-[10px] md:text-sm text-orange-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Particular 1 a 1 | Vigência: 30 Dias | IA: Ilimitada" : 
                      idiomaSelecionado === "EN" ? "1-on-1 Private | Term: 30 Days | AI: Unlimited" : 
                      "Particular 1 a 1 | Vigencia: 30 Días | IA: Ilimitada"}
@@ -2403,8 +2407,8 @@ null
 
                 {/* 3. VIP PRO */}
                 <button onClick={() => { setModalidadeSelecionada('business'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">VIP Pro</span>
-                  <span className="text-[10px] text-orange-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">VIP Pro</span>
+                  <span className="text-[10px] md:text-sm text-orange-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Corporativo | Vigência: 30 Dias | IA: Ilimitada" : 
                      idiomaSelecionado === "EN" ? "Corporate | Term: 30 Days | AI: Unlimited" : 
                      "Corporativo | Vigencia: 30 Días | IA: Ilimitada"}
@@ -2413,8 +2417,8 @@ null
 
                 {/* 4. PACK GRUPO */}
                 <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">Pack Grupo</span>
-                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">Pack Grupo</span>
+                  <span className="text-[10px] md:text-sm text-amber-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack Avulso | +10 Consultas IA e +7 Dias por crédito (Teto 30)" : 
                      idiomaSelecionado === "EN" ? "Extra Pack | +10 AI Queries and +7 Days per credit (Max 30)" : 
                      "Paquete Extra | +10 Consultas IA y +7 Días por crédito (Techo 30)"}
@@ -2423,8 +2427,8 @@ null
 
                 {/* 5. PACK VIP STD */}
                 <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">Pack VIP Std</span>
-                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">Pack VIP Std</span>
+                  <span className="text-[10px] md:text-sm text-amber-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack VIP | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
                      idiomaSelecionado === "EN" ? "VIP Extra Pack | +25 AI Queries and +7 Days per credit (Max 30)" : 
                      "Paquete VIP Extra | +25 Consultas IA y +7 Días por crédito (Techo 30)"}
@@ -2433,8 +2437,8 @@ null
 
                 {/* 6. PARTICULARES FLEX */}
                 <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
-                  <span className="text-sm font-black text-white uppercase tracking-wide">Particulares Flex</span>
-                  <span className="text-[10px] text-amber-400 font-medium leading-normal">
+                  <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Particulares Flex" : idiomaSelecionado === "EN" ? "Private Flex" : "Privadas Flex"}</span>
+                  <span className="text-[10px] md:text-sm text-amber-400 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack Flex | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
                      idiomaSelecionado === "EN" ? "Pro Flex Pack | +25 AI Queries and +7 Days per credit (Max 30)" : 
                      "Paquete Flex Extra | +25 Consultas IA y +7 Días por crédito (Techo 30)"}
@@ -2446,7 +2450,7 @@ null
             {etapaPagamento === 1 && (
               <div className="flex flex-col gap-4 my-1 text-slate-100">
                 {/* BOTÃO VOLTAR */}
-                <button onClick={() => setEtapaPagamento(0)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                <button onClick={() => setEtapaPagamento(0)} className="text-xs md:text-sm font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
                   {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "EN" ? "← Back" : "← Volver"}
                 </button>
 
@@ -2482,14 +2486,14 @@ null
 
                 {/* DISPLAY DE VALOR PREMIUM */}
                 <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 my-1 shadow-inner">
-                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-0.5">
+                  <div className="text-2xl md:text-4xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-0.5">
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
                   </div>
 
                   {/* Detalhamento dinâmico de vigência e IA de acordo com o plano ou pack acumulável */}
-                  <div className="text-[9px] font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2 mt-2 leading-relaxed">
+                  <div className="text-[9px] md:text-xs font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2.5 mt-2.5 leading-relaxed">
                     {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? (
                       idiomaSelecionado === "PT" ? "Vigência Integral: 30 Dias | Acesso IA: Ilimitado" :
                       idiomaSelecionado === "EN" ? "Full Validity: 30 Days | AI Access: Unlimited" :
@@ -2503,7 +2507,7 @@ null
                 </div>
 
                 {/* BOTÃO CONTINUAR */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : idiomaSelecionado === "EN" ? "Continue to Payment" : "Continuar al Pago"}
                 </button>
               </div>
@@ -2512,50 +2516,50 @@ null
             {etapaPagamento === 2 && (
               <div className="flex flex-col gap-4 my-1 text-slate-100">
                 {/* BOTÃO VOLTAR */}
-                <button onClick={() => setEtapaPagamento(1)} className="text-xs font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
+                <button onClick={() => setEtapaPagamento(1)} className="text-xs md:text-sm font-bold uppercase tracking-wider text-left text-orange-400 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-orange-500 w-fit">
                   {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "EN" ? "← Back" : "← Volver"}
                 </button>
 
                 {/* TÍTULO DA TELA */}
-                <span className="text-xs font-black uppercase tracking-wider text-slate-400 block mt-1">
+                <span className="text-xs md:text-sm font-black uppercase tracking-wider text-slate-400 block mt-1">
                   {idiomaSelecionado === "PT" ? "Resumo do Pedido:" : idiomaSelecionado === "EN" ? "Order Summary:" : "Resumen del Pedido:"}
                 </span>
 
                 {/* CAIXA DE DETALHES DO PLANO */}
                 <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2">
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs md:text-sm text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Plano Selecionado:" : idiomaSelecionado === "EN" ? "Selected Plan:" : "Plan Seleccionado:"}
                     </span>
-                    <span className="text-xs font-black uppercase tracking-wide text-white font-mono">
-                      "GRUPO MENSAL"
+                    <span className="text-xs md:text-sm font-black uppercase tracking-wide text-white font-mono">
+                      {idiomaSelecionado === "PT" ? "GRUPO MENSAL" : idiomaSelecionado === "EN" ? "MONTHLY GROUP" : "GRUPO MENSUAL"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs md:text-sm text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Quantidade:" : idiomaSelecionado === "EN" ? "Amount:" : "Cantidad:"}
                     </span>
-                    <span className="text-xs font-black text-white font-mono">
+                    <span className="text-xs md:text-sm font-black text-white font-mono">
                       {creditosSelecionados} {idiomaSelecionado === "PT" ? "Aulas" : idiomaSelecionado === "EN" ? "Classes" : "Clases"}
                     </span>
                   </div>
 
                   {/* Linha de Vigência Discriminada */}
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs md:text-sm text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Vigência do Plano:" : idiomaSelecionado === "EN" ? "Plan Validity:" : "Vigencia del Plan:"}
                     </span>
-                    <span className="text-xs font-black text-amber-400 font-mono">
+                    <span className="text-xs md:text-sm font-black text-amber-400 font-mono">
                       {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? "30 " + (idiomaSelecionado === "PT" ? "Dias" : idiomaSelecionado === "EN" ? "Days" : "Días") : `+${Math.min(creditosSelecionados * 7, 30)} ` + (idiomaSelecionado === "PT" ? "Dias (Teto 30)" : idiomaSelecionado === "EN" ? "Days (Max 30)" : "Días (Techo 30)")}
                     </span>
                   </div>
 
                   {/* Linha de Benefício de Inteligência Artificial Discriminado */}
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs md:text-sm text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Créditos de IA:" : idiomaSelecionado === "EN" ? "AI Credits:" : "Créditos de IA:"}
                     </span>
-                    <span className="text-xs font-black text-orange-400 font-mono">
+                    <span className="text-xs md:text-sm font-black text-orange-400 font-mono">
                       {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) ? (idiomaSelecionado === "PT" ? "ILIMITADO" : idiomaSelecionado === "EN" ? "UNLIMITED" : "ILIMITADO") : `+${modalidadeSelecionada === 'pack_grupo' ? creditosSelecionados * 10 : creditosSelecionados * 25} ` + (idiomaSelecionado === "PT" ? "Consultas" : idiomaSelecionado === "EN" ? "Queries" : "Consultas")}
                     </span>
                   </div>
@@ -2563,10 +2567,10 @@ null
 
                 {/* VISUALIZAÇÃO DO PREÇO FINAL */}
                 <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 shadow-inner">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                  <span className="text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">
                     {idiomaSelecionado === "PT" ? "Total a pagar" : idiomaSelecionado === "EN" ? "Total to pay" : "Total a pagar"}
                   </span>
-                  <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
+                  <div className="text-2xl md:text-4xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
                     <span className="text-orange-500">$</span>
                     <span>{obterPrecoPacote(modalidadeSelecionada, creditosSelecionados).toLocaleString('de-DE')}</span>
                     <span className="text-xs text-slate-400 font-bold ml-1 uppercase">COP</span>
@@ -2574,7 +2578,7 @@ null
                 </div>
 
                 {/* BOTÃO PRINCIPAL DE PAGAMENTO */}
-                <button onClick={() => setEtapaPagamento(3)} className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(3)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Ir para o Pagamento Seguro" : idiomaSelecionado === "EN" ? "Proceed to Secure Payment" : "Ir al Pago Seguro"}
                 </button>
               </div>
@@ -2585,10 +2589,10 @@ null
               <div className="flex flex-col gap-3.5 my-1 text-slate-100 w-full">
                 {/* SELETOR LOCALIZAÇÃO */}
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
                   </span>
-                  <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-amber-500/40 px-3 py-1.5 rounded-lg text-[10px] font-black text-amber-500 tracking-wider uppercase cursor-pointer hover:bg-amber-500/10">
+                  <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-amber-500/40 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-black text-amber-500 tracking-wider uppercase cursor-pointer hover:bg-amber-500/10 px-4 py-2">
                     🌐 {idiomaSelecionado === "PT" ? "Fora da Colômbia" : idiomaSelecionado === "EN" ? "Outside Colombia" : "Fuera de Colombia"}
                   </button>
                 </div>
@@ -2597,12 +2601,12 @@ null
 
                 {/* CAMPO DE CUPOM DE DESCONTO */}
                 <div className="w-full bg-[#0a1324] p-3 rounded-xl border border-white/[0.05] flex flex-col gap-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">
                     {idiomaSelecionado === "PT" ? "Cupom de Desconto:" : idiomaSelecionado === "EN" ? "Coupon Code:" : "Cupón de Descuento:"}
                   </span>
                   <div className="flex gap-2">
-                    <input type="text" value={cupomTexto} onChange={(e) => setCupomTexto(e.target.value)} placeholder="HAAS10" className="flex-1 bg-[#070d19] border border-white/10 rounded-lg px-3 py-2 text-xs font-mono uppercase text-white focus:outline-none focus:border-orange-500" />
-                    <button onClick={() => { if(cupomTexto.toUpperCase() === "HAAS10") { setDescontoCupom(0.10); setCupomAplicado(true); } }} className="bg-orange-500 text-slate-950 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider cursor-pointer">
+                    <input type="text" value={cupomTexto} onChange={(e) => setCupomTexto(e.target.value)} placeholder="HAAS10" className="flex-1 bg-[#070d19] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs md:text-sm font-mono uppercase text-white focus:outline-none focus:border-orange-500" />
+                    <button onClick={() => { if(cupomTexto.toUpperCase() === "HAAS10") { setDescontoCupom(0.10); setCupomAplicado(true); } }} className="bg-orange-500 text-slate-950 px-5 py-2.5 rounded-lg text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer">
                       {cupomAplicado ? "✓" : (idiomaSelecionado === "PT" ? "Aplicar" : idiomaSelecionado === "EN" ? "Apply" : "Aplicar")}
                     </button>
                   </div>
@@ -2610,17 +2614,17 @@ null
 
                 {/* CARD 1: TARJETA WOMPI (+5%) */}
                 <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
-                  <span className="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">● {idiomaSelecionado === "PT" ? "Cartão de Crédito / Débito" : idiomaSelecionado === "EN" ? "Credit / Debit Card" : "Tarjeta de Crédito / Débito"}</span>
-                  <span className="text-[10px] text-slate-400 font-medium -mt-1 block">Pasarela segura Wompi / Nequi</span>
-                  <div className="bg-[#070d19] p-3 rounded-lg text-xs font-mono flex flex-col gap-1.5 text-slate-300">
+                  <span className="text-xs md:text-base font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">● {idiomaSelecionado === "PT" ? "Cartão de Crédito / Débito" : idiomaSelecionado === "EN" ? "Credit / Debit Card" : "Tarjeta de Crédito / Débito"}</span>
+                  <span className="text-[10px] md:text-xs text-slate-400 font-medium -mt-1 block">Pasarela segura Wompi / Nequi</span>
+                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-2 text-slate-300">
                     <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
                     <div className="flex justify-between text-rose-400"><span>Fee pasarela:</span><span>+ $ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 0.05).toLocaleString('de-DE')}</span></div>
-                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-white text-sm"><span>Total:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 1.05).toLocaleString('de-DE')}</span></div>
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-white text-sm md:text-lg"><span>Total:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 1.05).toLocaleString('de-DE')}</span></div>
                   </div>
-                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3 bg-[#10b981] hover:bg-[#0ea5e9] text-slate-950 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-emerald-500/10">
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 md:py-4.5 bg-[#10b981] hover:bg-[#0ea5e9] text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-emerald-500/10">
                     {idiomaSelecionado === "PT" ? "PAGAR VIA WOMPI / NEQUI" : idiomaSelecionado === "EN" ? "PAY VIA WOMPI / NEQUI" : "PAGAR VÍA WOMPI / NEQUI"}
                   </a>
-                  <span className="text-[9px] text-slate-500 font-medium leading-relaxed block text-center">
+                  <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center">
                     {idiomaSelecionado === "PT" ? "Nota: A comissão de processamento é cobrada pela plataforma e não é reembolsável em caso de cancelamento." : idiomaSelecionado === "EN" ? "Note: The processing fee is charged by the platform and is non-refundable in case of cancellation." : "Nota: La comisión de procesamiento es cobrada por la plataforma y no es reembolsable en caso de cancelación."}
                   </span>
                 </div>
@@ -2628,22 +2632,22 @@ null
                 {/* CARD 2: LLAVE BRE-B (QR CODE - DESCONTO DO ROBÔ) */}
                 <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-2.5 relative overflow-hidden">
                   <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
-                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
+                  <span className="text-xs md:text-base font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
                   <div className="w-full flex justify-center my-1 bg-white p-2 rounded-xl max-w-[140px] mx-auto">
                     <img src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg" alt="QR Llave Bre-B" className="w-32 h-32 object-contain" />
                   </div>
-                  <div className="bg-[#070d19] p-3 rounded-lg text-xs font-mono flex flex-col gap-1.5 text-slate-300">
+                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-2 text-slate-300">
                     <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
                     <div className="flex justify-between text-emerald-400"><span>Comisión:</span><span>$ 0 (¡Gratis!)</span></div>
-                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-amber-400 text-sm"><span>A transferir:</span><span>$ {(Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) - 34).toLocaleString('de-DE')}</span></div>
+                    <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-amber-400 text-sm md:text-lg"><span>A transferir:</span><span>$ {(Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) - 34).toLocaleString('de-DE')}</span></div>
                   </div>
-                  <span className="text-[9px] text-amber-500/90 font-bold leading-relaxed block text-center bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                  <span className="text-[9px] md:text-xs text-amber-500/90 font-bold leading-relaxed block text-center bg-amber-500/5 p-3 rounded-lg border border-amber-500/10">
                     {idiomaSelecionado === "PT" ? "▲ ATENÇÃO: Lembre-se de transferir o valor exato com o desconto no seu aplicativo bancário; isso permite que nosso sistema valide seu pagamento automaticamente." : idiomaSelecionado === "EN" ? "▲ ATTENTION: Remember to transfer the exact amount with the discount in your banking app; this allows our system to validate your payment automatically." : "▲ ATENCIÓN: Recuerda ingresar el valor exacto con descuento en tu banco; esto permite que nuestro sistema valide tu pago digitalmente y gestione la activación de tu plan."}
                   </span>
                 </div>
 
                 {/* BOTÃO FIXO DE FEEDBACK COMPRA */}
-                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 md:py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
                   {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
                 </button>
               </div>
@@ -2653,7 +2657,7 @@ null
             {etapaPagamento === 4 && (
               <div className="flex flex-col gap-3.5 my-1 text-slate-100">
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "¿Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
                   </span>
                   <button onClick={() => setEtapaPagamento(3)} className="bg-transparent border border-orange-500/40 px-3 py-1.5 rounded-lg text-[10px] font-black text-orange-500 tracking-wider uppercase cursor-pointer hover:bg-orange-500/10">
@@ -2662,8 +2666,8 @@ null
                 </div>
 
                 <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
-                  <span className="text-xs font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">🌐 {idiomaSelecionado === "PT" ? "PAGAMENTOS INTERNACIONAIS HAAS" : idiomaSelecionado === "EN" ? "HAAS INTERNATIONAL PAYMENTS" : "PAGAMENTOS INTERNACIONAIS HAAS"}</span>
-                  <span className="text-[10px] text-slate-400 font-medium leading-relaxed block">
+                  <span className="text-xs md:text-base font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">🌐 {idiomaSelecionado === "PT" ? "PAGAMENTOS INTERNACIONAIS HAAS" : idiomaSelecionado === "EN" ? "HAAS INTERNATIONAL PAYMENTS" : "PAGAMENTOS INTERNACIONAIS HAAS"}</span>
+                  <span className="text-[10px] md:text-xs text-slate-400 font-medium leading-relaxed block">
                     {idiomaSelecionado === "PT" ? "Para transferências ou cartões do exterior, processe sua matrícula diretamente através do nosso módulo global integrado de alta segurança." : idiomaSelecionado === "EN" ? "For transfers or cards from abroad, process your enrollment directly through our high-security integrated global module." : "Para transferencias o tarjetas desde el exterior, procese su matrícula de manera directa a través de nuestro módulo global integrado de alta seguridad."}
                   </span>
                   {(() => {
@@ -2678,24 +2682,24 @@ null
                     const usdEquivalente = valorCopFinalComTaxaERobor / taxaInternet;
 
                     return (
-                      <div className="bg-[#070d19] p-2.5 rounded-lg text-[9px] font-mono flex flex-col gap-0.5 border border-white/5 w-full">
+                      <div className="bg-[#070d19] p-3.5 rounded-lg text-[9px] md:text-xs font-mono flex flex-col gap-1 border border-white/5 w-full">
                         <div className="flex justify-between text-slate-400"><span>{idiomaSelecionado === "PT" ? "Base do Plano:" : idiomaSelecionado === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorBaseCop.toLocaleString("es-CO")} COP</span></div>
                         <div className="flex justify-between text-rose-400"><span>{idiomaSelecionado === "PT" ? "Taxa do Gateway (5%):" : idiomaSelecionado === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorBaseCop * 0.05).toLocaleString("es-CO")} COP</span></div>
-                        <div className="flex justify-between text-slate-500 text-[8px]"><span>{idiomaSelecionado === "PT" ? "Desconto do Robô:" : idiomaSelecionado === "EN" ? "Robot Discount:" : "Descuento del Robot:"}</span><span>- $ {rastroPesos} COP</span></div>
+                        <div className="flex justify-between text-slate-500 text-[8px] md:text-xs"><span>{idiomaSelecionado === "PT" ? "Desconto do Robô:" : idiomaSelecionado === "EN" ? "Robot Discount:" : "Descuento del Robot:"}</span><span>- $ {rastroPesos} COP</span></div>
                         <div className="border-t border-white/10 my-0.5"></div>
                         <div className="flex flex-col text-left">
-                          <span className="text-[7.5px] font-bold text-emerald-400 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "DIGITE ESSE VALOR EXATO NA WOMPI (COP):" : idiomaSelecionado === "EN" ? "ENTER THIS EXACT VALUE IN WOMPI (COP):" : "VALOR EXACTO A INGRESAR EN WOMPI (COP):"}</span>
-                          <div className="flex justify-between font-black text-emerald-400 text-xs mt-0.5"><span>Total COP:</span><span>$ {valorCopFinalComTaxaERobor.toLocaleString("es-CO")} COP</span></div>
+                          <span className="text-[7.5px] md:text-[11px] font-bold text-emerald-400 uppercase tracking-wider">{idiomaSelecionado === "PT" ? "DIGITE ESSE VALOR EXATO NA WOMPI (COP):" : idiomaSelecionado === "EN" ? "ENTER THIS EXACT VALUE IN WOMPI (COP):" : "VALOR EXACTO A INGRESAR EN WOMPI (COP):"}</span>
+                          <div className="flex justify-between font-black text-emerald-400 text-xs md:text-base mt-0.5"><span>Total COP:</span><span>$ {valorCopFinalComTaxaERobor.toLocaleString("es-CO")} COP</span></div>
                         </div>
                         <div className="border-t border-white/5 my-0.5 opacity-30"></div>
-                        <div className="flex justify-between text-slate-400 text-[8px]"><span>{idiomaSelecionado === "PT" ? "Aproximado em USD:" : idiomaSelecionado === "EN" ? "Approximate USD:" : "Aproximado en USD:"}</span><span className="font-bold">$ {usdEquivalente.toFixed(2)} USD</span></div>
+                        <div className="flex justify-between text-slate-400 text-[8px] md:text-xs"><span>{idiomaSelecionado === "PT" ? "Aproximado em USD:" : idiomaSelecionado === "EN" ? "Approximate USD:" : "Aproximado en USD:"}</span><span className="font-bold">$ {usdEquivalente.toFixed(2)} USD</span></div>
                       </div>
                     );
                   })()}
-                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
                     {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
-                  <span className="text-[9px] text-slate-500 font-medium leading-relaxed block text-center mt-1">
+                  <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center mt-1">
                     {idiomaSelecionado === "PT" ? "⚠️ ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "⚠️ ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
                   </span>
                 </div>
@@ -2709,15 +2713,15 @@ null
             {/* ETAPA 5: TELA DE NOTIFICAÇÃO ENVIADA (FEEDBACK SUCESSO) */}
             {etapaPagamento === 5 && (
               <div className="flex flex-col gap-4 my-2 text-slate-100 text-center py-2">
-                <span className="text-sm font-black uppercase tracking-wider text-white font-mono block mb-1">NOTIFICACIÓN DE PAGO ENVIADA</span>
-                <div className="bg-[#0a1324] p-4 rounded-xl border border-white/[0.05] text-xs text-slate-300 text-left leading-relaxed flex flex-col gap-3 shadow-inner">
+                <span className="text-sm md:text-lg font-black uppercase tracking-wider text-white font-mono block mb-1">NOTIFICACIÓN DE PAGO ENVIADA</span>
+                <div className="bg-[#0a1324] p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-slate-300 text-left leading-relaxed flex flex-col gap-3 shadow-inner">
                   <p>{idiomaSelecionado === "PT" ? "Registramos seu aviso de pagamento. O sistema iniciará a verificação dos valores com o desconto de identificação aplicado para validar a transação com o seu registro." : idiomaSelecionado === "EN" ? "We have registered your payment notice. The system will initiate verification of the values with the applied identification discount to validate the transaction with your record." : "Hemos registrado tu aviso de pago. El sistema iniciará la verificación de los valores con el descuento de identificación aplicado para validar a transación com o seu registro."}</p>
                 </div>
-                <div className="bg-[#0a1324] p-4 rounded-xl border border-white/[0.05] text-xs text-left leading-relaxed flex flex-col gap-2 text-slate-400">
+                <div className="bg-[#0a1324] p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-left leading-relaxed flex flex-col gap-2.5 text-slate-400">
                   <p><strong className="text-white">¿Qué pasa ahora?</strong> {idiomaSelecionado === "PT" ? "Assim que o sistema validar o recebimento do valor, prosseguiremos com a ativação automática de sua matrícula." : idiomaSelecionado === "EN" ? "Once the system validates the receipt of the amount, we will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                   <p><strong className="text-white">Acceso Completo:</strong> {idiomaSelecionado === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso à plataforma será liberado." : idiomaSelecionado === "EN" ? "Upon successful confirmation, you will receive a notification email and your access to the platform will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acceso a la plataforma."}</p>
                 </div>
-                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-3.5 bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-4 md:py-4.5 bg-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "ENTENDIDO" : idiomaSelecionado === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                 </button>
               </div>
@@ -2737,13 +2741,13 @@ null
             <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
                   {idiomaSelecionado === "PT" ? "Módulos do Programa" : idiomaSelecionado === "ES" ? "Módulos del Programa" : "Program Modules"}
                 </h3>
               </div>
               <button 
                 onClick={() => setModalProgramaAberto(false)}
-                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider active:scale-[0.97]"
+                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] md:text-sm uppercase tracking-wider active:scale-[0.97] md:px-5 md:py-2"
               >
                 {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
               </button>
@@ -2759,18 +2763,18 @@ null
                   className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-mono font-black uppercase text-emerald-400 tracking-wider">
+                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-emerald-400 tracking-wider">
                       MODULE 02 • {idiomaSelecionado === "PT" ? "CONCLUÍDO" : idiomaSelecionado === "ES" ? "COMPLETADO" : "COMPLETED"}
                     </span>
-                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-slate-300 font-bold leading-tight">Crisis Management & Decision Making</h4>
+                    <h4 className="text-sm md:text-xl text-slate-300 font-bold leading-tight">Crisis Management & Decision Making</h4>
                   </div>
                   <span className="text-emerald-400 font-mono text-xs">{moduloExpandido === 2 ? "▲" : "▼"}</span>
                 </div>
                 {moduloExpandido === 2 && (
                   <div className="p-3 pt-0 border-t border-emerald-500/5 flex flex-col gap-2 bg-[#040912]">
                     <div className="flex justify-between items-center p-2 bg-slate-900/30 rounded-lg border border-white/[0.02] mt-2">
-                      <p className="text-[11px] text-slate-400 font-mono">1. Risk Identification & Mitigation (20 min)</p>
-                      <button className="text-[10px] font-mono font-black uppercase text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded bg-emerald-500/5">{idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}</button>
+                      <p className="text-[11px] md:text-base text-slate-400 font-mono">1. Risk Identification & Mitigation (20 min)</p>
+                      <button className="text-[10px] md:text-sm font-mono font-black uppercase text-emerald-400 border border-emerald-500/20 px-3 md:px-5 py-1 md:py-2 rounded bg-emerald-500/5">{idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}</button>
                     </div>
                   </div>
                 )}
@@ -2783,10 +2787,10 @@ null
                   className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-mono font-black uppercase text-orange-400 tracking-wider animate-pulse">
+                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-orange-400 tracking-wider animate-pulse">
                       MODULE 03 • {idiomaSelecionado === "PT" ? "ATUAL" : idiomaSelecionado === "ES" ? "ACTUAL" : "CURRENT"}
                     </span>
-                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-white font-black leading-tight">C-Level Business Strategy & Scale</h4>
+                    <h4 className="text-sm md:text-xl text-white font-black leading-tight">C-Level Business Strategy & Scale</h4>
                   </div>
                   <span className="text-orange-400 font-mono text-xs">{moduloExpandido === 3 ? "▲" : "▼"}</span>
                 </div>
@@ -2794,17 +2798,17 @@ null
                   <div className="p-3 pt-0 border-t border-orange-500/10 flex flex-col gap-2 bg-[#040912]">
                     <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03] mt-2">
                       <div>
-                        <p className="text-[11px] text-white font-bold">Equity Modeling & Partnerships</p>
-                        <span className="text-[9px] font-mono text-slate-500">30 min</span>
+                        <p className="text-[11px] md:text-base text-white font-bold">Equity Modeling & Partnerships</p>
+                        <span className="text-[9px] md:text-sm font-mono text-slate-500">30 min</span>
                       </div>
-                      <button className="text-[10px] font-mono font-black uppercase bg-orange-500 text-black px-3 py-1 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
+                      <button className="text-[10px] md:text-sm font-mono font-black uppercase bg-orange-500 text-black px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
                     </div>
                     <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03]">
                       <div>
-                        <p className="text-[11px] text-white font-bold">Mergers, Acquisitions & Scaling</p>
-                        <span className="text-[9px] font-mono text-slate-500">15 min</span>
+                        <p className="text-[11px] md:text-base text-white font-bold">Mergers, Acquisitions & Scaling</p>
+                        <span className="text-[9px] md:text-sm font-mono text-slate-500">15 min</span>
                       </div>
-                      <button className="text-[10px] font-mono font-black uppercase bg-orange-500 text-black px-3 py-1 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
+                      <button className="text-[10px] md:text-sm font-mono font-black uppercase bg-orange-500 text-black px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
                     </div>
                   </div>
                 )}
@@ -2817,18 +2821,18 @@ null
                   className="p-3 flex justify-between items-center cursor-pointer"
                 >
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-mono font-black uppercase text-slate-500 tracking-wider">
+                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-slate-500 tracking-wider">
                       MODULE 04 • {idiomaSelecionado === "PT" ? "BLOQUEADO" : idiomaSelecionado === "ES" ? "BLOQUEADO" : "LOCKED"}
                     </span>
-                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-slate-500 font-bold leading-tight">Corporate Governance & Board Relations</h4>
+                    <h4 className="text-sm md:text-xl text-slate-500 font-bold leading-tight">Corporate Governance & Board Relations</h4>
                   </div>
                   <span className="text-slate-500 font-mono text-xs">{moduloExpandido === 4 ? "▲" : "▼"}</span>
                 </div>
                 {moduloExpandido === 4 && (
                   <div className="p-3 pt-0 border-t border-white/[0.02] flex flex-col gap-2 bg-[#040912]">
                     <div className="flex justify-between items-center p-2 bg-slate-900/20 rounded-lg mt-2">
-                      <p className="text-[11px] text-slate-600 font-mono">1. Board Communication Matrix (45 min)</p>
-                      <button disabled className="text-[9px] font-mono font-black uppercase text-slate-600 border border-white/[0.02] px-2 py-0.5 rounded cursor-not-allowed">{idiomaSelecionado === "PT" ? "TRAVADO" : "LOCKED"}</button>
+                      <p className="text-[11px] md:text-base text-slate-600 font-mono">1. Board Communication Matrix (45 min)</p>
+                      <button disabled className="text-[9px] md:text-sm font-mono font-black uppercase text-slate-600 border border-white/[0.02] px-3 md:px-5 py-1 md:py-2 rounded cursor-not-allowed">{idiomaSelecionado === "PT" ? "TRAVADO" : "LOCKED"}</button>
                     </div>
                   </div>
                 )}
@@ -2849,20 +2853,20 @@ null
             <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
                   {idiomaSelecionado === "PT" ? "Cofre de Erros Críticos" : idiomaSelecionado === "ES" ? "Cofre de Errores Críticos" : "Critical Error Vault"}
                 </h3>
               </div>
               <button 
                 onClick={() => setGavetaErroresAberta(false)}
-                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider"
+                className="py-1 px-3 md:py-2 md:px-5 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] md:text-sm uppercase tracking-wider"
               >
                 {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
               </button>
             </div>
 
             {/* LISTA DO TOP 10 ERROS - COMPLETA, SEM OPACIDADES QUE PREJUDIQUEM A LEITURA */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 scrollbar-none pb-10 text-left font-mono text-xs">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 scrollbar-none pb-10 text-left font-mono text-xs md:text-base">
               
               {[
                 { pt: "Preposições de Tempo (In/On/At)", es: "Preposiciones de Tiempo", en: "Time Prepositions" },
@@ -2878,12 +2882,12 @@ null
               ].map((erro, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 bg-slate-950/30 border border-white/[0.02] rounded-xl">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="font-black text-amber-500 text-sm w-5 shrink-0">#{String(idx + 1).padStart(2, "0")}</span>
-                    <span className="text-slate-200 font-medium truncate">
+                    <span className="font-black text-amber-500 text-sm md:text-base w-5 md:w-7 shrink-0">#{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="text-slate-200 font-medium md:font-bold truncate text-xs md:text-base">
                       {idiomaSelecionado === "PT" ? erro.pt : idiomaSelecionado === "ES" ? erro.es : erro.en}
                     </span>
                   </div>
-                  <button className="text-[10px] font-mono font-black uppercase text-amber-500 border border-amber-500/20 px-2 py-1 rounded bg-amber-500/5 active:bg-amber-500/20 shrink-0 ml-2">
+                  <button className="text-[10px] md:text-xs font-mono font-black uppercase text-amber-500 border border-amber-500/20 px-2 py-1 md:px-4 md:py-2 rounded-lg bg-amber-500/5 active:bg-amber-500/20 shrink-0 ml-2 shadow-md">
                     {idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}
                   </button>
                 </div>
@@ -2898,26 +2902,26 @@ null
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[120] flex flex-col justify-end">
           <div className="absolute inset-0" onClick={() => setGavetaRankingAberta(false)} />
           
-          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[70vh] min-h-[55vh] flex flex-col relative z-10 animate-slide-up">
+          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[70vh] md:max-h-[85vh] min-h-[55vh] flex flex-col relative z-10 animate-slide-up">
             
             {/* CABEÇALHO DA GAVETA */}
             <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2">
                 <Trophy size={16} className="text-amber-500" />
-                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
                   {idiomaSelecionado === "PT" ? "Classificação Global" : idiomaSelecionado === "ES" ? "Clasificación Global" : "Global Standing"}
                 </h3>
               </div>
               <button 
                 onClick={() => setGavetaRankingAberta(false)}
-                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider"
+                className="py-1 px-3 md:py-2 md:px-5 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] md:text-sm uppercase tracking-wider"
               >
                 {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
               </button>
             </div>
 
             {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 scrollbar-none pb-8 text-left font-mono text-xs">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-2 md:gap-3 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
               
               {/* 1º LUGAR - DESTAQUE DE LIDERANÇA */}
               <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/30 rounded-xl shadow-md shadow-amber-500/[0.02]">
@@ -3017,18 +3021,18 @@ null
       <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2 opacity-40 cursor-pointer" onClick={() => setGavetaAvisoCompraAberta(false)} />
         <div className="flex flex-col gap-1 text-center">
-          <h3 className="text-base font-bold text-white uppercase tracking-wider">
+          <h3 className="text-base md:text-xl font-bold text-white uppercase tracking-wider">
             {idiomaSelecionado === "PT" ? "Plano Inativo" : idiomaSelecionado === "ES" ? "Plan Inactivo" : "Inactive Plan"}
           </h3>
-          <p className="text-xs text-slate-400 max-w-[290px] mx-auto leading-relaxed">
+          <p className="text-xs md:text-base text-slate-400 max-w-[290px] md:max-w-[500px] mx-auto leading-relaxed md:mt-1">
             {idiomaSelecionado === "PT" ? "Você não possui créditos ativos para este plano. Gostaria de adquirir um pacote?" : idiomaSelecionado === "ES" ? "No tienes créditos activos para este plan. ¿Te gustaría adquirir un paquete?" : "You do not have active credits for this plan. Would you like to purchase a package?"}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 mt-2">
-          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 md:py-4 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Não" : "No"}
           </button>
-          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 border-none rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 md:py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 border-none rounded-xl text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Sim" : idiomaSelecionado === "ES" ? "Sí" : "Yes"}
           </button>
         </div>
