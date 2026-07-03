@@ -460,6 +460,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [uploadSuccess, setUploadSuccess] = React.useState(false);
   const [erroMaxArquivos, setErroMaxArquivos] = React.useState(false);
   const [arenaAtiva, setArenaAtiva] = React.useState(false);
+  const [capaAtiva, setCapaAtiva] = React.useState(true);
+  const [contador, setContador] = React.useState(null);
   const [jogoSelecionadoMobile, setJogoSelecionadoMobile] = React.useState('escolha');
   const [gavetaExerciciosAberta, setGavetaExerciciosAberta] = React.useState(false);
   const [gavetaTipoAulaAberta, setGavetaTipoAulaAberta] = React.useState(false);
@@ -779,7 +781,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {!mentoraMobileAberta ? (
               <div className="flex items-center gap-2 w-full shrink-0">
                 <button 
-                  onClick={() => setArenaAtiva(true)}
+                  onClick={() => { setCapaAtiva(true); setContador(null); setArenaAtiva(true); }}
                   className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-4 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-2 border-none active:scale-[0.98] transition-all shadow-lg shadow-orange-500/10 cursor-pointer shrink-0"
                 >
                   <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" /> {idiomaSelecionado === "PT" ? "INICIAR TREINO PRÁTICO" : idiomaSelecionado === "ES" ? "INICIAR ENTRENAMIENTO" : "START TRAINING"}
@@ -873,6 +875,45 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 {/* CONTAINER DOS MIOLOS COM CABEÇALHO E RODAPÉ DE VALIDAÇÃO */}
             {arenaAtiva && (
               <div className="fixed inset-0 z-[9999] bg-[#060e1a] flex flex-col p-4 overflow-hidden text-white w-full h-full">
+                
+                {/* CAPA DE PREPARAÇÃO UNIVERSAL PREMIUM */}
+                {capaAtiva && (
+                  <div 
+                    onClick={() => {
+                      if (contador !== null) return;
+                      let tempo = 3;
+                      setContador(tempo);
+                      const intervalo = setInterval(() => {
+                        tempo -= 1;
+                        if (tempo > 0) {
+                          setContador(tempo);
+                        } else {
+                          setContador(idiomaSelecionado === "PT" ? "¡BORA!" : idiomaSelecionado === "ES" ? "¡VAMOS!" : "GO!");
+                          clearInterval(intervalo);
+                          setTimeout(() => {
+                            setCapaAtiva(false);
+                          }, 600);
+                        }
+                      }, 1000);
+                    }}
+                    className="absolute inset-0 z-[10000] bg-[#030914] flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none"
+                  >
+                    {contador === null ? (
+                      <div className="flex flex-col items-center gap-4 animate-fadeIn">
+                        <h1 className="text-2xl font-mono font-black tracking-widest text-white uppercase">
+                          {idiomaSelecionado === "PT" ? "TREINO PRONTIFICADO" : idiomaSelecionado === "ES" ? "ENTRENAMIENTO LISTO" : "TRAINING READY"}
+                        </h1>
+                        <p className="text-sm font-sans font-medium text-slate-400 tracking-wide">
+                          {idiomaSelecionado === "PT" ? "Toque em qualquer lugar da tela para iniciar" : idiomaSelecionado === "ES" ? "Toque em cualquier lugar de la pantalla para iniciar" : "Tap anywhere on the screen to start"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="text-6xl md:text-8xl font-mono font-black text-orange-500 tracking-tighter animate-ping duration-300">
+                        {contador}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] shrink-0 mb-4">
                   <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">AUDITORIA DE EXERCÍCIOS</span>
                   <button 
@@ -2048,7 +2089,7 @@ null
           <div className="flex-1 w-full h-[calc(100vh-80px)] flex flex-col overflow-hidden">
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
-            <div className="w-full sticky top-0 z-20 bg-[#030914] bg-gradient-to-b from-[#070d19]/90 to-[#030914]/95 border-b border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0">
+            <div className="w-[calc(100%-32px)] mx-auto mt-4 bg-[#070d19]/90 bg-gradient-to-b from-[#070d19]/95 to-[#030914]/95 border border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0 rounded-2xl shadow-lg shadow-black/40">
               <div className="relative w-20 h-20 md:w-28 md:h-28">
                 <div className="w-full h-full rounded-full border border-white/[0.08] bg-slate-900 flex items-center justify-center text-xl md:text-3xl font-mono font-black text-white">
                   BR
@@ -2251,6 +2292,21 @@ null
                 </div>
                 <span className="text-[10px] md:text-xs uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg font-bold">
                   {idiomaSelecionado === "PT" ? "Revisar" : idiomaSelecionado === "ES" ? "Revisar" : "Review"}
+                </span>
+              </button>
+
+              {/* BOTÃO NATIVO DE ATENDIMENTO AO CLIENTE (WHATSAPP) */}
+              <button 
+                onClick={() => window.open("https://api.whatsapp.com/send/?phone=573239421071&text=Hello%21+I%27m+interested+in+learning+more+about+Escuela+Haas.&type=phone_number&app_absent=0", "_blank")}
+                className="w-full py-3.5 bg-emerald-500/5 border border-emerald-500/20 rounded-xl px-4 flex items-center justify-between text-emerald-400 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-emerald-500/10 transition-colors min-h-[48px] md:py-5"
+              >
+                <div className="flex items-center gap-2">
+                  <span>
+                    {idiomaSelecionado === "PT" ? "Atendimento ao Cliente" : idiomaSelecionado === "ES" ? "Atención al Cliente" : "Customer Service"}
+                  </span>
+                </div>
+                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg font-bold">
+                  {idiomaSelecionado === "PT" ? "Contato" : idiomaSelecionado === "ES" ? "Contacto" : "Contact"}
                 </span>
               </button>
 
