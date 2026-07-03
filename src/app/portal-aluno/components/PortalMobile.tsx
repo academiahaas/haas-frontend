@@ -428,6 +428,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
   const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
+  const [gavetaErroresAberta, setGavetaErroresAberta] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
   const [votoMetod, setVotoMetod] = React.useState(0);
@@ -2233,7 +2234,7 @@ null
                 </span>
               </button>
               <button 
-                onClick={() => alert(idiomaSelecionado === "PT" ? "Abrindo Cofre de Erros..." : idiomaSelecionado === "ES" ? "Abriendo Cofre de Errores..." : "Opening Error Vault...")} 
+                onClick={() => setGavetaErroresAberta(true)} 
                 className="w-full py-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 flex items-center justify-between text-amber-400 font-mono font-bold text-[clamp(13px,3.8vw,18px)] cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px]"
               >
                 <div className="flex items-center gap-2">
@@ -2834,7 +2835,62 @@ null
           </div>
         </div>
       )}
-                  {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
+                  {/* 🔐 BOTTOMSHEET: COFRE DE ERROS (ERROR VAULT) */}
+      {gavetaErroresAberta && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[130] flex flex-col justify-end">
+          <div className="absolute inset-0" onClick={() => setGavetaErroresAberta(false)} />
+          
+          <div className="w-full bg-[#090602] border-t border-amber-500/20 rounded-t-2xl max-h-[75vh] min-h-[50vh] flex flex-col relative z-10 animate-slide-up">
+            
+            {/* CABEÇALHO */}
+            <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                  {idiomaSelecionado === "PT" ? "Cofre de Erros Críticos" : idiomaSelecionado === "ES" ? "Cofre de Errores Críticos" : "Critical Error Vault"}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setGavetaErroresAberta(false)}
+                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider"
+              >
+                {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
+              </button>
+            </div>
+
+            {/* LISTA DO TOP 10 ERROS - COMPLETA, SEM OPACIDADES QUE PREJUDIQUEM A LEITURA */}
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 scrollbar-none pb-10 text-left font-mono text-xs">
+              
+              {[
+                { pt: "Preposições de Tempo (In/On/At)", es: "Preposiciones de Tiempo", en: "Time Prepositions" },
+                { pt: "Concordância Verbal: Terceira Pessoa", es: "Concordancia Verbal: 3ª Persona", en: "Subject-Verb Agreement" },
+                { pt: "Uso de Artigos Definidos em Relatórios", es: "Uso de Artículos Definidos", en: "Definite Articles Usage" },
+                { pt: "Pronúncia: Terminações em '-ed'", es: "Pronunciación: Terminaciones '-ed'", en: "Pronunciation: '-ed' Endings" },
+                { pt: "Falsos Cognatos no Business Strategy", es: "Falsos Cognados en Business", en: "Business False Cognates" },
+                { pt: "Estrutura de Perguntas Indiretas (C-Level)", es: "Estructura de Preguntas Indirectas", en: "Indirect Questions Structure" },
+                { pt: "Uso de 'Make' vs 'Do' em Negociações", es: "Uso de 'Make' vs 'Do'", en: "'Make' vs 'Do' Usage" },
+                { pt: "Voz Passiva em Documentos Corporativos", es: "Voz Pasiva en Reportes", en: "Passive Voice in Reports" },
+                { pt: "Phrasal Verbs Aplicados a Reuniões", es: "Phrasal Verbs de Reunión", en: "Meeting Phrasal Verbs" },
+                { pt: "Entonação e Ritmo em Pitchs Globais", es: "Entonación en Pitchs de Venta", en: "Sales Pitch Intonation" }
+              ].map((erro, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-slate-950/30 border border-white/[0.02] rounded-xl">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="font-black text-amber-500 text-sm w-5 shrink-0">#{String(idx + 1).padStart(2, "0")}</span>
+                    <span className="text-slate-200 font-medium truncate">
+                      {idiomaSelecionado === "PT" ? erro.pt : idiomaSelecionado === "ES" ? erro.es : erro.en}
+                    </span>
+                  </div>
+                  <button className="text-[10px] font-mono font-black uppercase text-amber-500 border border-amber-500/20 px-2 py-1 rounded bg-amber-500/5 active:bg-amber-500/20 shrink-0 ml-2">
+                    {idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}
+                  </button>
+                </div>
+              ))}
+
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
       {gavetaRankingAberta && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[120] flex flex-col justify-end">
           <div className="absolute inset-0" onClick={() => setGavetaRankingAberta(false)} />
