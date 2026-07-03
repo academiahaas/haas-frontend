@@ -1325,7 +1325,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </div>
                   
                   {/* ESPAÇADOR DE SEGURANÇA PARA LIMITE DO RODAPÉ REAL */}
-                  <div className="w-full h-10 shrink-0 pointer-events-none" />
+                  <div className="w-full h-0 shrink-0 pointer-events-none" />
 
                 </div>
               </div>
@@ -2075,7 +2075,7 @@ null
               </div>
             </div>
             {/* 🔄 CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
-            <div className="flex-1 w-full overflow-y-auto px-4 pb-28 pt-2 flex flex-col gap-4 scrollbar-none">
+            <div className="flex-1 w-full overflow-y-auto px-4 pb-8 pt-2 flex flex-col gap-4 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
             <div className="grid grid-cols-2 gap-2 w-full px-0 m-0 h-auto">
