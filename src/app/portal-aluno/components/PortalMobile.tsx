@@ -417,10 +417,17 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [etapaAgendamento, setEtapaAgendamento] = React.useState(0);
   const [sucessoAgendamento, setSucessoAgendamento] = useState<'CLOSED' | 'REGULAR' | 'REPOSICAO'>('CLOSED');
-  const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1); // Dinâmico baseado no mês real
+  const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1);
+  const [anoAgendamento, setAnoAgendamento] = React.useState(() => new Date().getFullYear());
+  const [meusAgendamentos, setMeusAgendamentos] = React.useState([
+    { tipo: "REPOSICAO", dataStr: "Hoy a las 18:30" },
+    { tipo: "REGULAR", dataStr: "22/06/2026 a las 19:30" }
+  ]); // Dinâmico baseado no mês real
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
+  const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
+  const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
   const [votoMetod, setVotoMetod] = React.useState(0);
   
@@ -842,7 +849,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* DISPLAY DE VALOR PREMIUM HAAS ACADEMY */}
                 <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 my-1 shadow-inner">
                   <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
-                    {modalidadeSelecionada.toUpperCase()} // {creditosSelecionados} CLASES
+                    HAAS PREMIUM PLAN
                   </span>
                   <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
                     <span className="text-orange-500">$</span>
@@ -1022,7 +1029,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CAIXA DE VALOR PREMIUM */}
                 <div className="w-full p-4 bg-gradient-to-b from-[#0a1324] to-[#070d19] border border-orange-500/20 rounded-2xl flex flex-col items-center justify-center gap-0.5 my-1 shadow-inner">
                   <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest font-mono">
-                    {modalidadeSelecionada.toUpperCase()} // {creditosSelecionados} CLASES
+                    HAAS PREMIUM PLAN
                   </span>
                   <div className="text-2xl font-mono font-black text-white flex items-center gap-1.5 tracking-wide mt-1">
                     <span className="text-orange-500">$</span>
@@ -1050,16 +1057,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
             <div className="px-4 py-3 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
               <span className="text-[11px] font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
-                {(() => {
-                  const mod = modalidadeSelecionada || 'vip_std';
-                  if (mod === 'grupo') return idiomaSelecionado === "PT" ? "GRUPO MENSAL" : idiomaSelecionado === "ES" ? "GRUPO MENSAL" : "MONTHLY GROUP";
-                  if (mod === 'acumulador_grupo') return idiomaSelecionado === "PT" ? "PACK GRUPO" : idiomaSelecionado === "ES" ? "PACK GRUPO" : "GROUP PACK";
-                  if (mod === 'vip_std') return "VIP STANDARD";
-                  if (mod === 'acumulador_vip_std') return "PACK VIP STD";
-                  if (mod === 'vip_pro') return "VIP PRO";
-                  if (mod === 'avulsa') return idiomaSelecionado === "PT" ? "PARTICULARES FLEX" : idiomaSelecionado === "ES" ? "PARTICULARES FLEX" : "FLEX INDIVIDUAL";
-                  return "HAAS PREMIUM PLAN";
-                })()}
+                VIP STANDARD
               </span>
               <span className="text-[9.5px] font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
                 {idiomaSelecionado === "PT" ? "VENCE EM 12 DIAS" : idiomaSelecionado === "ES" ? "VENCE EN 12 DÍAS" : "EXPIRES IN 12 DAYS"}
@@ -1090,17 +1088,34 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </button>
                   </div>
 
-                  {/* BLOCO ATENÇÃO EXPANDIDO COM AS 3 REGRAS DE NEGÓCIO DA ACADEMIA HAAS */}
-                  <div className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex items-start gap-2.5 shrink-0 text-left">
-                    <AlertTriangle size={14} className="text-orange-400 shrink-0 mt-0.5" />
-                    <div className="flex flex-col gap-1 text-[11px] text-slate-300 font-medium leading-relaxed font-mono">
-                      <span className="font-bold text-orange-400 uppercase tracking-wider block text-[10px] mb-0.5">
-                        {idiomaSelecionado === "PT" ? "Regulamento de Sessões:" : idiomaSelecionado === "ES" ? "Reglamento de Sesiones:" : "Session Rules:"}
+                                    {/* 🔄 GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
+                  <div 
+                    onClick={() => setGavetaRegulamentoAberta(!gavetaRegulamentoAberta)} 
+                    className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex flex-col gap-2 shrink-0 text-left cursor-pointer active:scale-[0.99] transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <AlertTriangle size={14} className="text-orange-400 shrink-0" />
+                      <span className="font-bold text-orange-400 uppercase tracking-wider text-[10px] flex-1">
+                        {idiomaSelecionado === "PT" ? "Regulamento de Sessões" : idiomaSelecionado === "ES" ? "Reglamento de Sesiones" : "Session Rules"}
                       </span>
-                      <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
-                      <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
-                      <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
+                      <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                        {gavetaRegulamentoAberta 
+                          ? (idiomaSelecionado === "PT" ? "[Fechar]" : idiomaSelecionado === "ES" ? "[Cerrar]" : "[Close]")
+                          : (idiomaSelecionado === "PT" ? "[Ver]" : idiomaSelecionado === "ES" ? "[Ver]" : "[View]")
+                        }
+                      </span>
                     </div>
+
+                    {gavetaRegulamentoAberta && (
+                      <div className="flex flex-col gap-1 text-[11px] text-slate-300 font-medium leading-relaxed font-mono border-t border-white/[0.03] pt-2 animate-fade-in">
+                        <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
+                        <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
+                        <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
+                        <p className="text-cyan-400 font-bold mt-1 text-[10px] tracking-wide border-t border-white/[0.02] pt-1">
+                          🌐 {idiomaSelecionado === "PT" ? "Todos os horários disponíveis seguem o Fuso da Colômbia (BOG)." : idiomaSelecionado === "ES" ? "Todos los horarios disponibles siguen la Hora de Colombia (BOG)." : "All available schedules follow Colombia Time (BOG)."}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2 min-h-0">
@@ -1153,6 +1168,29 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           {idiomaSelecionado === "PT" ? "Cancelar Sessão" : idiomaSelecionado === "ES" ? "Cancelar Sesión" : "Cancel Session"}
                         </button>
                       </div>
+
+                      {/* 🔄 CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
+                      {meusAgendamentos.slice(2).map((agendamento, index) => {
+                        const isRegular = agendamento.tipo === "REGULAR";
+                        return (
+                          <div key={index} className={`${isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-2 shrink-0`}>
+                            <div className="flex justify-between items-center">
+                              <span className={`px-2 py-0.5 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border ${isRegular ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
+                                {agendamento.tipo}
+                              </span>
+                            </div>
+                            <div className={`flex flex-col gap-0.5 border-l-2 ${isRegular ? "border-cyan-500" : "border-orange-500"} pl-2 py-0.5`}>
+                              <p className="text-[clamp(13px,3.6vw,15px)] text-white font-bold">{agendamento.dataStr}</p>
+                            </div>
+                            <button 
+                              onClick={() => setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS")}
+                              className="w-full py-2.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-w-0"
+                            >
+                              {idiomaSelecionado === "PT" ? "Cancelar Sessão" : idiomaSelecionado === "ES" ? "Cancelar Sesión" : "Cancel Session"}
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1328,8 +1366,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
                           <span>
                             {idiomaSelecionado === "EN" 
-                              ? `${mesAgendamento === 6 ? '06' : '07'}/${diaSelecionado}/2026 at ${horarioSelecionado}` 
-                              : `${diaSelecionado}/${mesAgendamento === 6 ? '06' : '07'}/2026 ${idiomaSelecionado === "ES" ? "a las" : "às"} ${horarioSelecionado}`}
+                              ? `${String(mesAgendamento).padStart(2, "0")}/${diaSelecionado}/${anoAgendamento} at ${horarioSelecionado}` 
+                              : `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/${anoAgendamento} ${idiomaSelecionado === "ES" ? "a las" : "às"} ${horarioSelecionado}`}
                           </span>
                         </div>
                       </div>
@@ -1359,8 +1397,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
                           <span>
                             {idiomaSelecionado === "EN" 
-                              ? `${mesAgendamento === 6 ? '06' : '07'}/${diaSelecionado}/2026 at ${horarioSelecionado}` 
-                              : `${diaSelecionado}/${mesAgendamento === 6 ? '06' : '07'}/2026 ${idiomaSelecionado === "ES" ? "a las" : "às"} ${horarioSelecionado}`}
+                              ? `${String(mesAgendamento).padStart(2, "0")}/${diaSelecionado}/${anoAgendamento} at ${horarioSelecionado}` 
+                              : `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/${anoAgendamento} ${idiomaSelecionado === "ES" ? "a las" : "às"} ${horarioSelecionado}`}
                           </span>
                         </div>
                       </div>
@@ -1572,13 +1610,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         <span className="text-orange-400 font-bold">{idiomaSelecionado === "EN" ? "06/25" : "25/06"}</span>
                       </p>
                     </div>
+                      <h2 className="text-sm font-mono font-black text-cyan-400 uppercase tracking-widest my-2">{(idiomaSelecionado === "PT" ? ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"] : idiomaSelecionado === "ES" ? ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"] : ["January","February","March","April","May","June","July","August","September","October","November","December"])[mesAgendamento - 1] + " " + anoAgendamento}</h2>
                     {/* NAVEGAÇÃO INTELEGENTE POR SETAS SEM ESTADOS ENGESSADOS */}
                     <div className="flex items-center gap-1 bg-slate-900/80 border border-white/[0.05] p-1 rounded-xl shrink-0">
                       <button 
                         type="button"
                         onClick={() => {
                           setDiaSelecionado('');
-                          if (mesAgendamento === 1) { setMesAgendamento(12); }
+                          if (mesAgendamento === 1) { setMesAgendamento(12); setAnoAgendamento(anoAgendamento - 1); }
                           else { setMesAgendamento(mesAgendamento - 1); }
                         }}
                         className="px-3 py-1 text-slate-400 hover:text-cyan-400 cursor-pointer active:scale-90 transition-all font-black text-sm bg-transparent border-none"
@@ -1590,7 +1629,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         type="button"
                         onClick={() => {
                           setDiaSelecionado('');
-                          if (mesAgendamento === 12) { setMesAgendamento(1); }
+                          if (mesAgendamento === 12) { setMesAgendamento(1); setAnoAgendamento(anoAgendamento + 1); }
                           else { setMesAgendamento(mesAgendamento + 1); }
                         }}
                         className="px-3 py-1 text-slate-400 hover:text-cyan-400 cursor-pointer active:scale-90 transition-all font-black text-sm bg-transparent border-none"
@@ -1610,53 +1649,50 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     
                     <div className="grid grid-cols-7 gap-x-1.5 gap-y-2 text-center">
                       {/* RENDERIZA JUNHO OU JULHO COM BASE NO ESTADO */}
-                      {mesAgendamento === 6 ? (
-                        /* Junho 2026 */
-                        ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'].map((d, i) => {
-                          if (!d) return <div key={i} />;
+                      {(() => {
+                        
+                        const obterDiasDoMesUniversal = (mes, ano) => {
+                          const diaSemanaInicial = new Date(ano, mes - 1, 1).getDay();
+                          const totalDias = new Date(ano, mes, 0).getDate();
+                          const grade = [];
+                          for (let i = 0; i < diaSemanaInicial; i++) grade.push("");
+                          for (let d = 1; d <= totalDias; d++) grade.push(String(d));
+                          return grade;
+                        };
+                        const mapasMeses2026 = { [mesAgendamento]: obterDiasDoMesUniversal(mesAgendamento, anoAgendamento) };
+
+
+                        return (mapasMeses2026[mesAgendamento] || []).map((d, i) => {
+                          if (!d) return <div key={i} className="aspect-square" />;
+                          
                           const numDay = parseInt(d);
-                          const isPast = numDay < 18;
+                          const feriadosColombia2026 = {
+                            1: [1, 12], 2: [], 3: [23], 4: [2, 3], 5: [1, 18],
+                            6: [8, 15, 29], 7: [6, 20], 8: [7, 17],
+                            9: [], 10: [12], 11: [2, 16], 12: [8, 25]
+                          };
+
+                          // Se o mês selecionado for menor que o mês atual, assume que é do ano seguinte (2027)
+                          const hoje = new Date();
+                          const anoCalculado = anoAgendamento;
+                          const dataAlvo = new Date(anoCalculado, mesAgendamento - 1, numDay);
+                          const dataHojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+                          
+                          if (dataAlvo < dataHojeSemHora || (feriadosColombia2026[mesAgendamento] || []).includes(numDay)) {
+                            return <div key={i} className="aspect-square bg-transparent opacity-0" />;
+                          }
+
                           const isSelected = diaSelecionado === d;
+                          const classeBotao = "aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all " + 
+                            (isSelected ? "bg-cyan-500 text-black font-black" : "bg-[#0a1220] text-slate-300 cursor-pointer");
+
                           return (
-                            <button key={i} disabled={isPast} onClick={() => setDiaSelecionado(d)} className={`aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all ${isPast ? 'text-slate-800 font-normal bg-transparent cursor-not-allowed' : isSelected ? 'bg-cyan-500 text-black font-black' : 'bg-[#0a1220] text-slate-300 cursor-pointer'}`}>
+                            <button key={i} type="button" onClick={() => setDiaSelecionado(d)} className={classeBotao}>
                               {d}
                             </button>
                           );
-                        })
-                      ) : (
-                        /* Julho 2026 Protegido Dinamicamente e Trilingue */
-                        ['', '', '', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'].map((d, i) => {
-                          if (!d) return <div key={i} />;
-                          
-                          const numDay = parseInt(d);
-                          const hojeDiaReal = 2; // Hoje é dia 02 de Julho de 2026
-                          
-                          // 1. Identifica dias no passado e feriados colombianos oficiais de Julho (6 e 20)
-                          const ehPassado = numDay < hojeDiaReal;
-                          const ehFeriadocolombia = [6, 20].includes(numDay);
-                          const isBlocked = ehPassado || ehFeriadocolombia;
-                          
-                          const isSelected = diaSelecionado === d;
-                          
-                          return (
-                            <button 
-                              key={i} 
-                              disabled={isBlocked} 
-                              onClick={() => setDiaSelecionado(d)} 
-                              title={ehFeriadocolombia ? "Festivo en Colombia" : ""}
-                              className={`aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all ${
-                                isBlocked 
-                                  ? 'text-slate-800 font-normal bg-transparent cursor-not-allowed opacity-25 line-through' 
-                                  : isSelected 
-                                    ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/20 scale-105' 
-                                    : 'bg-[#0a1220] text-slate-300 cursor-pointer active:scale-95'
-                              }`}
-                            >
-                              {d}
-                            </button>
-                          );
-                        })
-                      )}
+                        });
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -1664,8 +1700,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CRITÉRIO DE TRAVA DINÂMICA FINANCEIRA NO BOTÃO AVANÇAR */}
                 <div className="w-full pt-0">
                   {(() => {
-                    const foraDoCiclo = (mesAgendamento === 6 && parseInt(diaSelecionado) >= 26) || mesAgendamento === 7;
-                    const travaAtiva = tipoAgendamento === 'REGULAR' && foraDoCiclo;
+                    const foraDoCiclo = (mesAgendamento === 7 && parseInt(diaSelecionado) >= 26) || mesAgendamento > 7 || anoAgendamento > 2026;
+                    const travaAtiva = foraDoCiclo;
                     
                     if (travaAtiva) {
                       return (
@@ -1673,7 +1709,9 @@ null
                       );
                     }
                     
-                    const temDia = diaSelecionado !== '';
+                    const hojeData = new Date();
+                    const ehHoje = mesAgendamento === (hojeData.getMonth() + 1) && parseInt(diaSelecionado) === hojeData.getDate() && anoAgendamento === hojeData.getFullYear();
+                    const temDia = diaSelecionado !== "" && !ehHoje;
                     return (
                       <button 
                         disabled={!temDia}
@@ -1739,7 +1777,13 @@ null
                         '11:00', '11:30', '13:00', '13:30', '14:00', '14:30', 
                         '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', 
                         '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'
-                      ].map((h) => {
+                      ].filter((h) => {
+                        const [horasStr, minutosStr] = h.split(":");
+                        const dataHorario = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
+                        const agora = new Date();
+                        const diferenca = (dataHorario.getTime() - agora.getTime()) / (1000 * 60 * 60);
+                        return diferenca >= 24;
+                      }).map((h) => {
                         const isSelected = horarioSelecionado === h;
                         return (
                           <button
@@ -1791,35 +1835,23 @@ null
                       // 🕒 VALIDAÇÃO CRÍTICA DE ANTECEDÊNCIA DE 24 HORAS
                       if (horarioSelecionado) {
                         const [horasStr, minutosStr] = horarioSelecionado.split(':');
-                        const dataAula = new Date(2026, mesAgendamento, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
+                        const dataAula = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
                         const agora = new Date();
                         const diferencaEmHoras = (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60);
 
                         if (diferencaEmHoras < 24) {
                           setGavetaHorariosAberta(false);
-                          setGavetaErro24hAberta(true); // Abre o alerta de 24h igual à foto
-                          return;
-                        }
-                      }
-
-                      // 🕒 VALIDAÇÃO CRÍTICA DE ANTECEDÊNCIA DE 24 HORAS
-                      if (horarioSelecionado) {
-                        const [horasStr, minutosStr] = horarioSelecionado.split(':');
-                        const dataAula = new Date(2026, mesAgendamento, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
-                        const agora = new Date();
-                        const diferencaEmHoras = (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60);
-
-                        if (diferencaEmHoras < 24) {
-                          setGavetaHorariosAberta(false); // Fecha o calendário
-                          setGavetaErro24hAberta(true);   // Abre a gaveta de erro idêntica à foto
+                          setGavetaErro24hAberta(true);
                           return;
                         }
                       }
                       setGavetaHorariosAberta(false);
+                      const novaDataTexto = `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/2026 a las ${horarioSelecionado}`;
+                      setMeusAgendamentos(prev => [...prev, { tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
                       if (ehReposicao) {
-                        setSucessoAgendamento('REPOSICAO');
+                        setSucessoAgendamento("REPOSICAO");
                       } else {
-                        setSucessoAgendamento('REGULAR');
+                        setSucessoAgendamento("REGULAR");
                       }
                     }}
                     className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] border ${
@@ -2490,7 +2522,7 @@ null
                       {idiomaSelecionado === "PT" ? "Plano Selecionado:" : idiomaSelecionado === "EN" ? "Selected Plan:" : "Plan Seleccionado:"}
                     </span>
                     <span className="text-xs font-black uppercase tracking-wide text-white font-mono">
-                      {modalidadeSelecionada.toUpperCase()}
+                      "GRUPO MENSAL"
                     </span>
                   </div>
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
@@ -2688,6 +2720,118 @@ null
         </div>
        )}
 
+      {/* 🔄 BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO */}
+      {modalProgramaAberto && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex flex-col justify-end">
+          <div className="absolute inset-0" onClick={() => setModalProgramaAberto(false)} />
+          
+          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[75vh] min-h-[50vh] flex flex-col relative z-10 animate-slide-up">
+            
+            {/* CABEÇALHO DA GAVETA */}
+            <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                <h3 className="font-mono font-black uppercase text-[clamp(12px,3.5vw,14px)] tracking-wider text-slate-200">
+                  {idiomaSelecionado === "PT" ? "Módulos do Programa" : idiomaSelecionado === "ES" ? "Módulos del Programa" : "Program Modules"}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setModalProgramaAberto(false)}
+                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] uppercase tracking-wider active:scale-[0.97]"
+              >
+                {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
+              </button>
+            </div>
+
+            {/* CONTEÚDO ROLÁVEL (ACCORDION) */}
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar-none pb-8 text-left">
+              
+              {/* MÓDULO 02 - CONCLUÍDO */}
+              <div className="border border-emerald-500/10 bg-emerald-500/[0.01] rounded-xl overflow-hidden transition-all">
+                <div 
+                  onClick={() => setModuloExpandido(moduloExpandido === 2 ? 0 : 2)}
+                  className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-black uppercase text-emerald-400 tracking-wider">
+                      MODULE 02 • {idiomaSelecionado === "PT" ? "CONCLUÍDO" : idiomaSelecionado === "ES" ? "COMPLETADO" : "COMPLETED"}
+                    </span>
+                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-slate-300 font-bold leading-tight">Crisis Management & Decision Making</h4>
+                  </div>
+                  <span className="text-emerald-400 font-mono text-xs">{moduloExpandido === 2 ? "▲" : "▼"}</span>
+                </div>
+                {moduloExpandido === 2 && (
+                  <div className="p-3 pt-0 border-t border-emerald-500/5 flex flex-col gap-2 bg-[#040912]">
+                    <div className="flex justify-between items-center p-2 bg-slate-900/30 rounded-lg border border-white/[0.02] mt-2">
+                      <p className="text-[11px] text-slate-400 font-mono">1. Risk Identification & Mitigation (20 min)</p>
+                      <button className="text-[10px] font-mono font-black uppercase text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded bg-emerald-500/5">{idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* MÓDULO 03 - ATUAL (CURRENT) */}
+              <div className="border border-orange-500/30 bg-orange-500/[0.02] rounded-xl overflow-hidden transition-all shadow-lg shadow-orange-500/5">
+                <div 
+                  onClick={() => setModuloExpandido(moduloExpandido === 3 ? 0 : 3)}
+                  className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-black uppercase text-orange-400 tracking-wider animate-pulse">
+                      MODULE 03 • {idiomaSelecionado === "PT" ? "ATUAL" : idiomaSelecionado === "ES" ? "ACTUAL" : "CURRENT"}
+                    </span>
+                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-white font-black leading-tight">C-Level Business Strategy & Scale</h4>
+                  </div>
+                  <span className="text-orange-400 font-mono text-xs">{moduloExpandido === 3 ? "▲" : "▼"}</span>
+                </div>
+                {moduloExpandido === 3 && (
+                  <div className="p-3 pt-0 border-t border-orange-500/10 flex flex-col gap-2 bg-[#040912]">
+                    <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03] mt-2">
+                      <div>
+                        <p className="text-[11px] text-white font-bold">Equity Modeling & Partnerships</p>
+                        <span className="text-[9px] font-mono text-slate-500">30 min</span>
+                      </div>
+                      <button className="text-[10px] font-mono font-black uppercase bg-orange-500 text-black px-3 py-1 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
+                    </div>
+                    <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03]">
+                      <div>
+                        <p className="text-[11px] text-white font-bold">Mergers, Acquisitions & Scaling</p>
+                        <span className="text-[9px] font-mono text-slate-500">15 min</span>
+                      </div>
+                      <button className="text-[10px] font-mono font-black uppercase bg-orange-500 text-black px-3 py-1 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* MÓDULO 04 - BLOQUEADO (LOCKED) */}
+              <div className="border border-white/[0.03] bg-white/[0.01] rounded-xl overflow-hidden opacity-40">
+                <div 
+                  onClick={() => setModuloExpandido(moduloExpandido === 4 ? 0 : 4)}
+                  className="p-3 flex justify-between items-center cursor-pointer"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-mono font-black uppercase text-slate-500 tracking-wider">
+                      MODULE 04 • {idiomaSelecionado === "PT" ? "BLOQUEADO" : idiomaSelecionado === "ES" ? "BLOQUEADO" : "LOCKED"}
+                    </span>
+                    <h4 className="text-[clamp(12px,3.5vw,14px)] text-slate-500 font-bold leading-tight">Corporate Governance & Board Relations</h4>
+                  </div>
+                  <span className="text-slate-500 font-mono text-xs">{moduloExpandido === 4 ? "▲" : "▼"}</span>
+                </div>
+                {moduloExpandido === 4 && (
+                  <div className="p-3 pt-0 border-t border-white/[0.02] flex flex-col gap-2 bg-[#040912]">
+                    <div className="flex justify-between items-center p-2 bg-slate-900/20 rounded-lg mt-2">
+                      <p className="text-[11px] text-slate-600 font-mono">1. Board Communication Matrix (45 min)</p>
+                      <button disabled className="text-[9px] font-mono font-black uppercase text-slate-600 border border-white/[0.02] px-2 py-0.5 rounded cursor-not-allowed">{idiomaSelecionado === "PT" ? "TRAVADO" : "LOCKED"}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
       {/* GAVETINHA NOVA DE AVISO COMERCIAL - UPSELL TRILINGUE */}
       <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2 opacity-40 cursor-pointer" onClick={() => setGavetaAvisoCompraAberta(false)} />
