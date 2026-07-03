@@ -2834,12 +2834,12 @@ null
           </div>
         </div>
       )}
-      {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
+                  {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
       {gavetaRankingAberta && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[120] flex flex-col justify-end">
           <div className="absolute inset-0" onClick={() => setGavetaRankingAberta(false)} />
           
-          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[70vh] min-h-[45vh] flex flex-col relative z-10 animate-slide-up">
+          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[70vh] min-h-[55vh] flex flex-col relative z-10 animate-slide-up">
             
             {/* CABEÇALHO DA GAVETA */}
             <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
@@ -2857,59 +2857,104 @@ null
               </button>
             </div>
 
-            {/* TABELA DE PERFORMANCE COMSUBLIME SEM SCROLLBAR */}
+            {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 scrollbar-none pb-8 text-left font-mono text-xs">
               
-              {/* 1º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+              {/* 1º LUGAR - DESTAQUE DE LIDERANÇA */}
+              <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/30 rounded-xl shadow-md shadow-amber-500/[0.02]">
                 <div className="flex items-center gap-3">
                   <span className="font-black text-amber-500 text-sm w-4">1</span>
-                  <span className="text-slate-300 font-bold">Alpha_Leader</span>
+                  <span className="text-white font-black">Alpha_Leader</span>
                 </div>
-                <span className="text-slate-400 font-bold">2.450 PTS</span>
+                <span className="text-amber-500 font-black">2.450 PTS</span>
               </div>
 
-              {/* 2º LUGAR - BRUNA HAAS DESTAQUE PREMIUM */}
-              <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/20 rounded-xl shadow-md shadow-amber-500/[0.02]">
+              {/* 2º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
                 <div className="flex items-center gap-3">
-                  <span className="font-black text-amber-400 text-sm w-4">2</span>
-                  <span className="text-white font-black">Bruna_Haas ✨</span>
+                  <span className="font-bold text-slate-400 text-sm w-4">2</span>
+                  <span className="text-slate-200 font-bold">Bruna_Haas</span>
                 </div>
-                <span className="text-amber-400 font-black">1.920 PTS</span>
+                <span className="text-slate-400">1.920 PTS</span>
               </div>
 
               {/* 3º LUGAR */}
               <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
                 <div className="flex items-center gap-3">
-                  <span className="font-black text-amber-600 text-sm w-4">3</span>
-                  <span className="text-slate-400">Rodrigo_M</span>
+                  <span className="font-bold text-slate-400 text-sm w-4">3</span>
+                  <span className="text-slate-200">Rodrigo_M</span>
                 </div>
-                <span className="text-slate-500">1.850 PTS</span>
+                <span className="text-slate-400">1.850 PTS</span>
               </div>
 
               {/* 4º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl opacity-80">
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-slate-500 w-4">4</span>
-                  <span className="text-slate-400">Elena_Rostova</span>
+                  <span className="font-medium text-slate-400 w-4">4</span>
+                  <span className="text-slate-200">Elena_Rostova</span>
                 </div>
-                <span className="text-slate-500">1.620 PTS</span>
+                <span className="text-slate-400">1.620 PTS</span>
               </div>
 
               {/* 5º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl opacity-70">
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-slate-500 w-4">5</span>
-                  <span className="text-slate-400">Marcus_Tech</span>
+                  <span className="font-medium text-slate-400 w-4">5</span>
+                  <span className="text-slate-200">Marcus_Tech</span>
                 </div>
-                <span className="text-slate-500">1.400 PTS</span>
+                <span className="text-slate-400">1.400 PTS</span>
+              </div>
+
+              {/* 6º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">6</span>
+                  <span className="text-slate-200">David_CEO</span>
+                </div>
+                <span className="text-slate-400">1.320 PTS</span>
+              </div>
+
+              {/* 7º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">7</span>
+                  <span className="text-slate-200">Sophia_Global</span>
+                </div>
+                <span className="text-slate-400">1.250 PTS</span>
+              </div>
+
+              {/* 8º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">8</span>
+                  <span className="text-slate-200">Lucas_Scale</span>
+                </div>
+                <span className="text-slate-400">1.180 PTS</span>
+              </div>
+
+              {/* 9º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">9</span>
+                  <span className="text-slate-200">Elena_Strategy</span>
+                </div>
+                <span className="text-slate-400">1.100 PTS</span>
+              </div>
+
+              {/* 10º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">10</span>
+                  <span className="text-slate-200">Robert_M&A</span>
+                </div>
+                <span className="text-slate-400">950 PTS</span>
               </div>
 
             </div>
           </div>
         </div>
       )}
-      {/* GAVETINHA NOVA DE AVISO COMERCIAL - UPSELL TRILINGUE */}
+{/* GAVETINHA NOVA DE AVISO COMERCIAL - UPSELL TRILINGUE */}
       <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2 opacity-40 cursor-pointer" onClick={() => setGavetaAvisoCompraAberta(false)} />
         <div className="flex flex-col gap-1 text-center">
