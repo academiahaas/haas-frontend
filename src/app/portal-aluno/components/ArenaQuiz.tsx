@@ -448,7 +448,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[7];
 
   return (
-    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
       
       <div className="absolute top-4 left-4 z-[10001]">
         <button 
