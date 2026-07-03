@@ -444,7 +444,10 @@ export default function DashboardDesktop() {
             </div>
 
             <div className="w-full mt-3 shrink-0">
-              <button onClick={() => { setIsArenaOpen(true); }} className="w-full bg-gradient-to-r from-[#f59e0b] via-[#d97706] to-[#b45309] hover:brightness-110 active:scale-[0.98] text-white font-black py-3.5 rounded-2xl text-base uppercase tracking-widest border border-orange-500/20 shadow-lg shadow-orange-950/40 transition-all">
+              <button 
+                onClick={() => { setIsArenaOpen(true); }} 
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(237,108,2,0.25)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
+              >
                 {t.trainBtn}
               </button>
             </div>
@@ -567,7 +570,13 @@ export default function DashboardDesktop() {
           </div>
 
           <div className="w-full flex flex-col shrink-0 mt-2">
-            <BotaoAula dataAulaIso="" linkMeet="" idiomaAtivo={idioma} />
+            <button 
+              onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1", "_blank")}
+              className="w-full py-3 bg-transparent hover:bg-orange-500/5 border border-orange-500/40 text-orange-400 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0"><path d="M8 5v14l11-7z"/></svg>
+              {idioma === "PT" ? "Entrar na Aula" : idioma === "ES" ? "Entrar a la Clase" : "Enter Class"}
+            </button>
           </div>
         </div>
 
