@@ -280,7 +280,7 @@ export default function DashboardDesktop() {
       <div className="w-full bg-[#061324] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#f59e0b]/40 relative">
         <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-4">
-            <a href="https://academiahaas.com.br" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
+            <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
             <div>
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
                 {t.greeting} {aluno1}
