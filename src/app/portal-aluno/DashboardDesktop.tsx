@@ -534,7 +534,7 @@ export default function DashboardDesktop() {
                 <span>{idioma === "PT" ? "RANK & USUÁRIO" : idioma === "ES" ? "PUESTO & USUARIO" : "RANK & USER"}</span>
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
-              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-0.5 scrollbar-none">
+              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
                 {mockupLigas.map((user) => (
                   <div key={user.rank} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${user.rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
                     <div className="flex items-center gap-2.5">
@@ -722,10 +722,20 @@ export default function DashboardDesktop() {
           </div>
 
           <div className="border-t border-white/5 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
-            <div className="bg-amber-500/5 border border-amber-500/10 py-[1vh] px-3 rounded-xl text-[11px] text-slate-400 leading-relaxed font-sans relative flex flex-col justify-center">
-              <span className="font-bold text-amber-500 block mb-0.5">Mentora Haas:</span>
-              {idioma === 'PT' ? 'Alpha, seu ponto fraco hoje são Phrasal Verbs. A Arena te espera para ajustar esse ponteiro.' : idioma === 'ES' ? 'Alpha, tu punto débil hoy son Phrasal Verbs. La Arena te espera para ajustar este indicador.' : 'Alpha, your weak point today is Phrasal Verbs. The Arena awaits you to calibrate this vector.'}
-            </div>
+            <button 
+              onClick={() => window.open("https://api.whatsapp.com/send/?phone=573239421071&text=Hello%21+I%27m+interested+in+learning+more+about+Escuela+Haas.&type=phone_number&app_absent=0", "_blank")}
+              className="w-full py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 flex items-center justify-between text-emerald-400 font-mono font-bold text-[10px] md:text-xs cursor-pointer transition-colors min-h-[38px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="uppercase tracking-wider font-black">
+                  {idioma === "PT" ? "Atendimento ao Cliente" : idioma === "ES" ? "Atención al Cliente" : "Customer Service"}
+                </span>
+              </div>
+              <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-black">
+                {idioma === "PT" ? "CONTATO" : idioma === "ES" ? "CONTACTO" : "CONTACT"}
+              </span>
+            </button>
             <button onClick={() => { if(confirm(idioma === 'PT' ? 'Deseja realmente sair da conta?' : idioma === 'ES' ? '¿Realmente deseja salir de la cuenta?' : 'Are you sure you want to log out?')) { window.location.href = '/'; } }} className="w-full bg-red-950/20 hover:bg-red-950/40 text-red-400 hover:text-red-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-red-500/10 text-center transition-all">{idioma === 'PT' ? 'Sair da Conta' : idioma === 'ES' ? 'Cerrar Sesión' : 'Log Out'}</button>
           </div>
 
