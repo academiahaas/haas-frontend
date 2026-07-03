@@ -2041,7 +2041,7 @@ null
 
         {/* ABA 4: PERFIL */}
         {((abaAtiva as string) === "perfil") && (
-          <div className="flex-1 w-full min-h-[calc(100vh-80px)] justify-between overflow-y-auto px-0 pb-10 pt-0 flex flex-col gap-4 scrollbar-none" >
+          <div className="flex-1 w-full h-[calc(100vh-80px)] flex flex-col overflow-hidden">
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
             <div className="w-full sticky top-0 z-20 bg-[#030914] bg-gradient-to-b from-[#070d19]/90 to-[#030914]/95 border-b border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0">
@@ -2074,6 +2074,8 @@ null
                 </div>
               </div>
             </div>
+            {/* 🔄 CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
+            <div className="flex-1 w-full overflow-y-auto px-4 pb-28 pt-2 flex flex-col gap-4 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
             <div className="grid grid-cols-2 gap-2 w-full px-0 m-0 h-auto">
@@ -2254,6 +2256,7 @@ null
               >
                 {idiomaSelecionado === "PT" ? "Sair da Conta" : idiomaSelecionado === "ES" ? "Cerrar Sesión" : "Log Out"}
               </button>
+            </div>
             </div>
 
           </div>
