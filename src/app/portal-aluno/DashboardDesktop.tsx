@@ -64,6 +64,24 @@ export default function DashboardDesktop() {
 
   // <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />TRAVA DE SCROLL AUTOMÁTICA DA ARENA
   useEffect(() => {
+    async function obterDadosDoBanco() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase.from('usuarios').select('nome, nivel_atual, tipo_aluno').eq('id', user.id).maybeSingle();
+          if (data && !error) {
+            setAluno1(data.nome || "Alpha_Leader");
+            if (data.nivel_atual) setNivelAtual(data.nivel_atual.toUpperCase());
+            if (data.tipo_aluno) setTipoAluno(data.tipo_aluno.toLowerCase());
+          } else {
+            setAluno1(user.user_metadata?.nome || user.email?.split('@')[0] || "Aluno");
+          }
+        }
+      } catch (err) {
+        console.error("Erro Supabase:", err);
+      }
+    }
+    obterDadosDoBanco();
     if (isArenaOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -178,7 +196,71 @@ export default function DashboardDesktop() {
   };
   
   const [aluno1, setAluno1] = useState("Alpha_Leader");
+  const [tipoAluno, setTipoAluno] = useState("particular");
+  const [idiomaCurso, setIdiomaCurso] = useState("SEM IDIOMA");
+  const [nivelObjetivo, setNivelObjetivo] = useState("SEM NÍVEL");
+
+  useEffect(() => {
+    async function carregarNomeUsuario() {
+      try {
+        // Busca o ultimo usuario da tabela de usuarios do Supabase para simular a sessao
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("nome, idioma_curso, nivel_objetivo, nivel_atual, tipo_aluno, precisao_clinica, imersao_total, vocabulario_ativo, proximo_vencimento")
+          .limit(1);
+        
+        if (data && data.length > 0 && !error) {
+          console.log("✅ Dados carregados do Supabase:", data[0]);
+          const userObj = data[0];
+          
+          // Guarda os dados reais do Supabase onde o arquivo de idiomas consegue ler
+          if (typeof window !== "undefined") {
+            (window as any).__dadosBanco = userObj;
+          if (userObj.nivel_atual) setNivelAtual(userObj.nivel_atual.toUpperCase());
+          if (userObj.tipo_aluno) setTipoAluno(userObj.tipo_aluno.toLowerCase());
+          if (userObj.precisao_clinica !== undefined && userObj.precisao_clinica !== null) setPrecisaoClinica(userObj.precisao_clinica);
+          if (userObj.imersao_total) setImersaoTotal(userObj.imersao_total);
+          if (userObj.vocabulario_ativo !== undefined && userObj.vocabulario_ativo !== null) setVocabularioAtivo(userObj.vocabulario_ativo);
+          if (userObj.proximo_vencimento) setProximoVencimento(userObj.proximo_vencimento);
+          }
+
+          setAluno1(userObj.nome || "Alpha_Leader");
+          
+          // Atualiza os estados locais
+          const idiomaReal = userObj.idioma_curso ? userObj.idioma_curso.toUpperCase() : "INGLÉS";
+          const nivelReal = userObj.nivel_objetivo ? userObj.nivel_objetivo.toUpperCase() : "B1";
+          
+          setIdiomaCurso(idiomaReal);
+          setNivelObjetivo(nivelReal);
+
+          // Força o objeto "t" de traduções a ler as variáveis que vieram da tomada do Supabase
+          if (t) {
+            t.level = idiomaReal + " " + nivelReal;
+          }
+        } else {
+          console.log("⚠️ Nao encontrou dados ou erro na tabela usuarios:", error);
+        }
+      } catch (err) {
+        console.error("❌ Erro ao conectar na tomada do Supabase:", err);
+      }
+    }
+    carregarNomeUsuario();
+  }, []);
+  const [nivelAtual, setNivelAtual] = useState("A1");
+  const [precisaoClinica, setPrecisaoClinica] = useState(94);
+  const [imersaoTotal, setImersaoTotal] = useState("14h");
+  const [vocabularioAtivo, setVocabularioAtivo] = useState(450);
+  const [proximoVencimento, setProximoVencimento] = useState("10/07/2026");
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true') {
+        setIsAdminMode(true);
+      }
+    }
+  }, []);
   const [isVencidoSimulado, setIsVencidoSimulado] = useState(false);
   const [isSimuladorLiberado, setIsSimuladorLiberado] = useState(false);
   const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
@@ -208,7 +290,7 @@ export default function DashboardDesktop() {
     <div className="w-full min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar">
       
       {/* 🛠️ PAINEL GLOBAL DE SIMULAÇÃO (FLUTUANDO NO TOPO - VISÍVEL EM TODAS AS TELAS) */}
-      <div className="fixed top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-amber-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl">
+      <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-amber-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
         <span className="text-slate-400 font-bold tracking-wider">SIMULAR VISTA:</span>
         <div className="flex gap-1.5">
           <button 
@@ -285,7 +367,7 @@ export default function DashboardDesktop() {
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
                 {t.greeting} {aluno1}
                 
-                {!isSimuladorLiberado ? (
+                {isAdminMode && !isSimuladorLiberado ? (
                   <button 
                     onClick={() => {
                       const senha = prompt(idioma === 'PT' ? 'Digite a senha admin:' : idioma === 'ES' ? 'Ingrese la contraseña admin:' : 'Enter admin password:');
@@ -301,7 +383,7 @@ export default function DashboardDesktop() {
                     ⚙️
                   </button>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none">
+                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
                     <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
@@ -323,7 +405,7 @@ export default function DashboardDesktop() {
                     </button>
                   </div>
                 )}
-                <div className="inline-flex items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none">
+                <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
                   <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
                   <button 
                     onClick={() => setIsMatriculadoSimulado(false)} 
@@ -650,17 +732,17 @@ export default function DashboardDesktop() {
             <div className="flex items-center gap-3.5">
               <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">AL<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
-              <span className="text-white font-black text-sm tracking-wide">Alpha_Leader</span>
+              <span className="text-white font-black text-sm tracking-wide">{aluno1}</span>
               <div className="flex justify-between items-center gap-2 text-[9px] font-mono font-black text-amber-500 uppercase tracking-widest mt-0.5 w-full min-w-0">
                 <span>
-                  {idioma === 'PT' ? 'Nível B1 • Líder Alpha' : idioma === 'ES' ? 'Nivel B1 • Líder Alpha' : 'Level B1 • Alpha Leader'}
+                  {idioma === 'PT' ? `Nível Atual: ${nivelAtual}` : idioma === 'ES' ? `Nivel Actual: ${nivelAtual}` : `Current Level: ${nivelAtual}`}
                 </span>
                 
                 <div></div>
               </div>
               <div className="mt-1 flex gap-1 flex-wrap">
                 {(() => {
-                  const tipoCurso = 'particular'; 
+                  const tipoCurso = tipoAluno; 
                   let textoBadge = '';
                   if (tipoCurso === 'particular') { textoBadge = idioma === 'PT' ? 'Particular' : idioma === 'ES' ? 'Particular' : 'Private'; }
                   else if (tipoCurso === 'grupo') { textoBadge = idioma === 'PT' ? 'Em Grupo' : idioma === 'ES' ? 'En Grupo' : 'Group Class'; }
@@ -691,7 +773,7 @@ export default function DashboardDesktop() {
             <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'DIAGNÓSTICO GERAL' : idioma === 'ES' ? 'DIAGNÓSTICO GENERAL' : 'GENERAL DIAGNOSTIC'}</span>
             <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">94%</div>
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">{precisaoClinica}%</div>
                 <div className="flex flex-col"><span className="text-[11px] text-slate-200 font-bold">{idioma === 'PT' ? 'Eficiência Clínica' : idioma === 'ES' ? 'Precisión Clínica' : 'Clinical Accuracy'}</span><span className="text-[9px] text-slate-500 font-medium">{idioma === 'PT' ? 'Precisão Geral' : idioma === 'ES' ? 'Precisión General' : 'Overall Precision'}</span></div>
               </div>
             </div>
@@ -711,15 +793,15 @@ export default function DashboardDesktop() {
             {/* GRID DOS 4 CARDS RESTAURADOS COM ACESSO DIRETO AO PAGAMENTO */}
             <div className="grid grid-cols-2 gap-2 w-full">
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-sky-400 block leading-none">14h</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Imersão Absoluta' : idioma === 'ES' ? 'Inmersión Total' : 'Total Immersion'}</span>
+                <span className="text-[14px] font-mono font-black text-sky-400 block leading-none">{imersaoTotal}</span>
+                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Horas de Imersão' : idioma === 'ES' ? 'Horas de Inmersión' : 'Immersion Hours'}</span>
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">450</span>
+                <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">{vocabularioAtivo}</span>
                 <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Vocabulário Ativado' : idioma === 'ES' ? 'Vocabulario Activo' : 'Active Vocab'}</span>
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">10/07/2026</span>
+                <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">{proximoVencimento}</span>
                 <span className="font-sans text-[7.5px] font-bold tracking-tight text-slate-500 block uppercase mt-1">{idioma === 'PT' ? 'Próximo Vencimento' : idioma === 'ES' ? 'Próximo Vencimiento' : 'Next Due Date'}</span>
               </div>
               

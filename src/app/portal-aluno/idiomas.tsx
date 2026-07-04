@@ -78,10 +78,10 @@ export const translations = {
   ES: {
     streakTitle: 'RITMO DE RENDIMIENTO',
     greeting: 'Hola,',
-    level: 'INGLÉS FLUIDEZ B1',
+    level: typeof window !== 'undefined' && (window as any).__dadosBanco?.nivel_objetivo ? `INGLÉS FLUIDEZ ${(window as any).__dadosBanco.nivel_objetivo}` : 'INGLÉS FLUIDEZ B1',
     levelA1: 'Explorador A1',
     levelA2: 'Viajero A2',
-    levelB1: 'INGLÉS FLUIDEZ B1',
+    levelB1: typeof window !== 'undefined' && (window as any).__dadosBanco?.nivel_objetivo ? `INGLÉS FLUIDEZ ${(window as any).__dadosBanco.nivel_objetivo}` : 'INGLÉS FLUIDEZ B1',
     levelB2: 'Estratega B2',
     levelC1: 'Fluente C1',
     levelC2: 'Maestro C2',

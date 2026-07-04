@@ -231,6 +231,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [modalCreditosAberto, setModalCreditosAberto] = React.useState(false);
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = React.useState(false);
   const [isVencidoSimulado, setIsVencidoSimulado] = React.useState(false);
+
+  const [isAdminMode, setIsAdminMode] = React.useState(false);
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true') {
+        setIsAdminMode(true);
+      }
+    }
+  }, []);
   const [etapaPagamento, setEtapaPagamento] = React.useState(0);
   const [modalidadeSelecionada, setModalidadeSelecionada] = React.useState('');
   
@@ -625,7 +635,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
-            <div className="flex gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black">
+<div className={`gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black ${isAdminMode ? "flex" : "hidden"}`}>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
@@ -652,7 +662,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex items-center gap-1.5">
             <button 
               onClick={() => setGavetaExerciciosAberta(true)}
-              className="bg-slate-800 border border-white/[0.08] active:scale-95 transition-all text-orange-500 p-1 rounded flex items-center justify-center cursor-pointer"
+              className={`${isAdminMode ? "bg-slate-800 border border-white/[0.08] active:scale-95 transition-all text-orange-500 p-1 rounded flex items-center justify-center cursor-pointer" : "hidden"}`}
             >
               <AlertTriangle size={12} className="animate-pulse" />
             </button>

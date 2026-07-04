@@ -450,7 +450,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   return (
     <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
       
-      <div className="absolute top-4 left-4 z-[10001]">
+        <div className={`top-4 left-4 z-[10001] ${(typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "true") ? "absolute" : "hidden"}`}>
         <button 
           onClick={() => setMenuDevAberto(!menuDevAberto)}
           className="bg-[#1D2D44] border border-[#48627D]/40 text-[#94A3B8] text-[9px] font-black font-mono px-3 py-1.5 rounded-xl hover:text-white transition-colors"
