@@ -1,5 +1,7 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
+
 import React, { useState, useRef, useEffect } from "react";
 import { Calendar, Clock, RefreshCw, ChevronLeft, ChevronRight, Ticket, X, ChevronDown } from "lucide-react";
 
@@ -58,6 +60,33 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
     const [creditosAulas, setCreditosAulas] = useState(8); 
   const [creditosReposicao, setCreditosReposicao] = useState(1); 
   const [aulaSelecionadaId, setAulaSelecionadaId] = useState<string | null>(null);
+
+  // Carregando agendamentos reais do Supabase ao abrir
+  useEffect(() => {
+    if (isOpen) {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from("user_agenda_appointments")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("status", "agendada")
+            .then(({ data, error }) => {
+              if (data && !error) {
+                const mapeadas = data.map(a => ({
+                  id: String(a.id),
+                  data: a.appointment_date,
+                  horario: a.appointment_time.substring(0, 5),
+                  tipo: a.appointment_type,
+                  status: a.status
+                }));
+                setAulas(mapeadas);
+              }
+            });
+        }
+      });
+    }
+  }, [isOpen]);
+
   
   const [aulas, setAulas] = useState<Aula[]>([
     { id: "1", data: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], horario: "10:00", tipo: "regular", status: "agendada" },
@@ -230,53 +259,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
     }
   }
 
-  function executarAgendamento() {
+    function executarAgendamento() {
     setMensagem(null);
     
-    // TRAVA 1: Validar se o aluno já tem uma aula agendada no mesmo dia e horário
-    const temDuplicado = aulas.some(a => a.data === selectedDate && a.horario === selectedHorario && a.status === "agendada");
-    if (temDuplicado) {
-      setTipoAviso("duplicado");
-      setIsAvisoOpen(true);
-      return;
-    }
-
-        // TRAVA 1: Validar se já possui aula no mesmo dia e horário (Aviso Duplicado)
-    const horarioExiste = aulas.some(a => a.data === selectedDate && a.horario === selectedHorario && a.status === "agendada");
-    if (horarioExiste) {
-      setTipoAviso("duplicado");
-      setIsAvisoOpen(true);
-      return;
-    }
-
-    // TRAVA 2: Validar se a data escolhida ultrapassa a data de validade do plano ativo
-    const dataSelecionada = new Date(selectedDate);
-    const dataValidadePlano = new Date(planoAluno.validade);
-    if (dataSelecionada > dataValidadePlano) {
-      setTipoAviso("zerado");
-      setIsAvisoOpen(true);
-      return;
-    }
-
-    // TRAVA 3: Validar se a modalidade bate com o plano contratado (Fora do Combo)
-    if (modoAgendamento === "clase" && tipoAula !== planoAluno.slug) {
-      setTipoAviso("fora_combo");
-      setIsAvisoOpen(true);
-      return;
-    }
-
-    // TRAVA 4: Validar falta de créditos (Créditos zerados/expirados)
-    const semCreditos = (modoAgendamento === "reposicion" && creditosReposicao <= 0) || (modoAgendamento === "clase" && creditosAulas <= 0);
-    if (semCreditos) {
-      setTipoAviso(modoAgendamento === "reposicion" ? "reposicion_zerada" : "zerado");
-      setIsAvisoOpen(true);
-      return;
-    }
-
-    // Fluxo de gravação normal caso passe em todas as travas
-    if (modoAgendamento === "reposicion") setCreditosReposicao(prev => prev - 1);
-    else setCreditosAulas(prev => prev - 1);
-
     const nova: Aula = { 
       id: String(Date.now()), 
       data: selectedDate, 
@@ -284,9 +269,34 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
       tipo: modoAgendamento === "reposicion" ? "reposicao" : tipoAula, 
       status: "agendada" 
     };
-    setAulas(prev => [nova, ...prev]);
-    setMensagem({ tipo: "sucesso", texto: t.successMsg });
-    setActiveTab("lista");
+
+        // Combina data (YYYY-MM-DD) e horário (HH:MM) para o formato ISO Timestamp esperado pelo banco
+    const timestampCombinado = `${selectedDate}T${selectedHorario}:00.000Z`;
+
+    // Converte os tipos para corresponder à Check Constraint do banco
+    const tipoOriginal = modoAgendamento === "reposicion" ? "reposicao" : tipoAula;
+    const tipoBanco = tipoOriginal === "reposicao" ? "replacement" : "regular";
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.from("user_agenda_appointments").insert([
+        {
+          user_id: user?.id || null,
+          appointment_date: timestampCombinado,
+          appointment_type: tipoBanco,
+          status: "agendada"
+        }
+      ]).then(({ error }) => {
+        if (error) {
+          console.error("❌ Erro ao gravar no Supabase:", error.message);
+          alert("Erro ao salvar no banco: " + error.message);
+        } else {
+          console.log("✅ Agendamento salvo com sucesso no Supabase!");
+          setAulas(prev => [nova, ...prev]);
+          setMensagem({ tipo: "sucesso", texto: t.successMsg });
+          setActiveTab("lista");
+        }
+      });
+    });
   }
 
   return (

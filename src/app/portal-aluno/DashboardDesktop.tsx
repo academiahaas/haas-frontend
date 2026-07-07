@@ -205,13 +205,26 @@ export default function DashboardDesktop() {
       try {
         // Busca o ultimo usuario da tabela de usuarios do Supabase para simular a sessao
         const { data, error } = await supabase
-          .from("usuarios")
-          .select("nome, idioma_curso, nivel_objetivo, nivel_atual, tipo_aluno, precisao_clinica, imersao_total, vocabulario_ativo, proximo_vencimento")
+          .from("users")
+          .select("name, course_language, target_level, current_level, student_type, clinical_precision, total_immersion, active_vocabulary, next_expiration_es")
           .limit(1);
+        
         
         if (data && data.length > 0 && !error) {
           console.log("✅ Dados carregados do Supabase:", data[0]);
-          const userObj = data[0];
+          const dbUser = data[0];
+          const userObj = {
+            nome: dbUser.name,
+            idioma_curso: dbUser.course_language,
+            nivel_objetivo: dbUser.target_level,
+            nivel_atual: dbUser.current_level,
+            tipo_aluno: dbUser.student_type,
+            precisao_clinica: dbUser.clinical_precision,
+            imersao_total: dbUser.total_immersion,
+            vocabulario_ativo: dbUser.active_vocabulary,
+            proximo_vencimento: dbUser.next_expiration_es
+          };
+
           
           // Guarda os dados reais do Supabase onde o arquivo de idiomas consegue ler
           if (typeof window !== "undefined") {
