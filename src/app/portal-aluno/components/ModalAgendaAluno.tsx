@@ -259,23 +259,25 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
     }
   }
 
-    function executarAgendamento() {
+        function executarAgendamento() {
     setMensagem(null);
+    
+    // Identifica o tipo correto para a interface manter o layout
+    const tipoOriginal = (modoAgendamento === "reposicion" || modoAgendamento === "reposicao" || tipoAula === "reposicao") ? "reposicao" : "regular";
     
     const nova: Aula = { 
       id: String(Date.now()), 
       data: selectedDate, 
       horario: selectedHorario, 
-      tipo: modoAgendamento === "reposicion" ? "reposicao" : tipoAula, 
+      tipo: tipoOriginal, 
       status: "agendada" 
     };
 
-        // Combina data (YYYY-MM-DD) e horário (HH:MM) para o formato ISO Timestamp esperado pelo banco
-    const timestampCombinado = `${selectedDate}T${selectedHorario}:00.000Z`;
-
-    // Converte os tipos para corresponder à Check Constraint do banco
-    const tipoOriginal = modoAgendamento === "reposicion" ? "reposicao" : tipoAula;
+    // Força estritamente a conversão aceita pela Check Constraint do PostgreSQL
     const tipoBanco = tipoOriginal === "reposicao" ? "replacement" : "regular";
+
+    // Combina data (YYYY-MM-DD) e horário (HH:MM) para o formato ISO esperado pelo banco
+    const timestampCombinado = `${selectedDate}T${selectedHorario}:00.000Z`;
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       supabase.from("user_agenda_appointments").insert([
