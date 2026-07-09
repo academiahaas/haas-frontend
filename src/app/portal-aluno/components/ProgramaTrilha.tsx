@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Lock, CheckCircle2, PlayCircle } from 'lucide-react';
 
 interface ProgramaTrilhaProps {
@@ -11,14 +12,14 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
   const moduloAtualId = '3'; 
   const modulosConcluidosIds = ['1', '2']; 
 
-  const fasesFicticias = [
+  const [fasesFicticias, setFasesFicticias] = useState([
     { id: '1', numero: '01', titulo_pt: 'Fundamentos de Liderança Executiva', titulo_en: 'Executive Leadership Fundamentals' },
     { id: '2', numero: '02', titulo_pt: 'Gestão de Crise e Tomada de Decisão', titulo_en: 'Crisis Management & Decision Making' },
     { id: '3', numero: '03', titulo_pt: 'Estratégia e Escala de Negócios C-Level', titulo_en: 'C-Level Business Strategy & Scale' },
     { id: '4', numero: '04', titulo_pt: 'Fusões, Aquisições e Governança (M&A)', titulo_en: 'Mergers, Acquisitions & Governance (M&A)' }
-  ];
+  ]);
 
-  const missoesFicticias = [
+  const [missoesFicticias, setMissoesFicticias] = useState([
     { id: 'a', fase_id: '1', titulo_pt: 'Alinhamento de Cultura Executiva', titulo_en: 'Executive Culture Alignment', duracao: '15 min' },
     { id: 'b', fase_id: '1', titulo_pt: 'Comunicação de Alto Impacto', titulo_en: 'High-Impact Communication', duracao: '20 min' },
     { id: 'c', fase_id: '1', titulo_pt: 'Simulado Prático: O Primeiro Dia', duracao: '10 min' },
@@ -27,9 +28,82 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
     { id: 'f', fase_id: '3', titulo_pt: 'Modelagem de Equity e Partnerships', titulo_en: 'Equity Modeling & Partnerships', duracao: '30 min' },
     { id: 'g', fase_id: '3', titulo_pt: 'Desafio Final Mestre HAAS', duracao: '15 min' },
     { id: 'h', fase_id: '4', titulo_pt: 'Valuation Avançado de Empresas', titulo_en: 'Advanced Corporate Valuation', duracao: '45 min' }
-  ];
+  ]);
 
   const [moduloAberto, setModuloAberto] = useState<string | null>(moduloAtualId);
+  const [realModuloAtual, setRealModuloAtual] = useState<string>(moduloAtualId);
+  const [realConcluidos, setRealConcluidos] = useState<string[]>(modulosConcluidosIds);
+
+  useEffect(() => {
+    async function synchPedagogicalTrack() {
+      try {
+        // Busca a sessão ativa do aluno diretamente do cliente global
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserId = session?.user?.id;
+        if (!currentUserId) return;
+
+        // 1. Coleta os metadados do aluno para identificar o seu current_level
+        const { data: userData } = await supabase.from('users').select('current_level').eq('id', currentUserId).single();
+        const levelTag = userData?.current_level || 'A1';
+
+        // 2. Coleta o progresso real de unidades concluídas
+        const { data: progressData } = await supabase.from('user_unit_progress').select('unit_id').eq('user_id', currentUserId);
+        const concludedUnitIds = progressData?.map(p => String(p.unit_id)) || [];
+
+        // 3. Coleta os módulos reais correspondentes ao nível do aluno
+        const { data: dbModules } = await supabase.from('modules_content').select('*').eq('level_tag', levelTag).order('module_number', { ascending: true });
+        
+        if (dbModules && dbModules.length > 0) {
+          const mappedFases = dbModules.map(m => ({
+            id: String(m.id),
+            numero: String(m.module_number).padStart(2, '0'),
+            titulo_pt: m.module_title || '',
+            titulo_en: m.module_title || ''
+          }));
+          setFasesFicticias(mappedFases);
+
+          // 4. Coleta as unidades vinculadas aos módulos carregados
+          const moduleIds = dbModules.map(m => m.id);
+          const { data: dbUnits } = await supabase.from('units').select('*').in('module_id', moduleIds).order('unit_number', { ascending: true });
+
+          if (dbUnits) {
+            const mappedMissoes = dbUnits.map(u => ({
+              id: String(u.id),
+              fase_id: String(u.module_id),
+              titulo_pt: u.unit_title || '',
+              titulo_en: u.unit_title || '',
+              // A duração em minutos dinâmica simulada em string respeitando o layout padrão fixo
+              duracao: `${u.unit_number * 5 + 10} min`
+            }));
+            setMissoesFicticias(mappedMissoes);
+
+            // 5. Encontra dinamicamente a posição do marcador atual (Amarelo)
+            let foundCurrentModuleId = String(dbModules[0].id);
+            let finishedModuleIds: string[] = [];
+
+            for (const mod of dbModules) {
+              const unitsOfModule = dbUnits.filter(u => u.module_id === mod.id);
+              const allDone = unitsOfModule.length > 0 && unitsOfModule.every(u => concludedUnitIds.includes(String(u.id)));
+              
+              if (allDone) {
+                finishedModuleIds.push(String(mod.id));
+              } else {
+                foundCurrentModuleId = String(mod.id);
+                break;
+              }
+            }
+
+            setRealModuloAtual(foundCurrentModuleId);
+            setRealConcluidos(finishedModuleIds);
+            setModuloAberto(foundCurrentModuleId);
+          }
+        }
+      } catch (e) {
+        console.error("Erro na carga de sincronismo invisível:", e);
+      }
+    }
+    synchPedagogicalTrack();
+  }, []);
 
   const somCliquePremium = () => {
     return; // 🔒 DASHBOARD MUTADO
@@ -60,8 +134,8 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
         const isOpen = moduloAberto === fase.id;
         const minhasMissoes = missoesFicticias.filter(m => m.fase_id === fase.id);
         
-        const isConcluido = modulosConcluidosIds.includes(fase.id);
-        const isAtual = fase.id === moduloAtualId;
+        const isConcluido = realConcluidos.includes(fase.id);
+        const isAtual = fase.id === realModuloAtual;
         const isBloqueado = !isConcluido && !isAtual;
 
         let cardStyle = "border-white/[0.04] bg-[#07111e]/90";
