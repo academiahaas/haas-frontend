@@ -587,7 +587,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             {/* ABA LISTA */}
             {activeTab === "lista" && (
               <div 
-                className="space-y-2 overflow-y-auto pr-2 flex-1 max-h-[clamp(180px,45vh,350px)]"
+                className="space-y-2 overflow-y-auto pr-2 flex-1 max-h-[clamp(180px,56vh,460px)]"
                 style={{
                   scrollbarWidth: "thin",
                   scrollbarColor: "rgba(255,255,255,0.15) transparent"
