@@ -8,6 +8,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   idioma: "PT" | "EN" | "ES";
+  entregas?: any[];
 }
 
 interface FileObject {
@@ -17,7 +18,7 @@ interface FileObject {
   isImage: boolean;
 }
 
-export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props) {
+export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entregas = [] }: Props) {
   const [files, setFiles] = useState<FileObject[]>([]);
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
@@ -57,7 +58,16 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props
     try {
       // 1. Obter ID do usuário logado na sessão ativa
       const { data: { user } } = await supabase.auth.getUser();
-      const userIdFinal = user?.id || "aluno_demo_123";
+      
+      let userIdFinal = user?.id;
+      if (!userIdFinal || userIdFinal === "aluno_demo_123") {
+        const { data: userData } = await supabase.from("users").select("id").limit(1).maybeSingle();
+        userIdFinal = userData?.id || null;
+      }
+
+      // 1.5 Buscar um ID de unidade válido (UUID) para evitar falhas de validação no banco
+      const { data: unitData } = await supabase.from("units").select("id").limit(1).maybeSingle();
+      const unitIdValido = unitData?.id || null;
 
       for (const item of files) {
         const fileExt = item.file.name.split('.').pop();
@@ -82,7 +92,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props
           .insert([
             {
               user_id: userIdFinal,
-              unit_id: "unidade_atual_id",
+              unit_id: unitIdValido,
               photo_url: urlData.publicUrl,
               status: "pending"
             }
@@ -153,6 +163,50 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props
             <button onClick={enviarArquivos} disabled={loading || files.length === 0} className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-30 disabled:hover:bg-amber-500 text-slate-950 font-mono font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer">
               {loading ? "..." : t.submit}
             </button>
+          </div>
+        )}
+
+        {/* HISTÓRICO DE ENTREGAS COMPLETO DA CENTRAL */}
+        {entregas && entregas.length > 0 && (
+          <div className="border-t border-white/5 pt-3 mt-1">
+            <h3 className="text-[10px] font-black tracking-wider text-slate-400 uppercase mb-2">
+              {idioma === "PT" ? "Suas Entregas" : idioma === "EN" ? "Your Submissions" : "Tus Entregas"} ({entregas.length})
+            </h3>
+            <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+              {entregas.map((ent, idx) => {
+                const statusTexto = ent.status === "approved" || ent.status === "corrigida" ? (idioma === "PT" ? "Corrigida" : idioma === "EN" ? "Reviewed" : "Corregida") : (idioma === "PT" ? "Pendente" : idioma === "EN" ? "Pending" : "Pendiente");
+                const statusCor = ent.status === "approved" || ent.status === "corrigida" ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10" : "text-amber-400 bg-amber-500/5 border-amber-500/10";
+
+                return (
+                  <div key={ent.id || idx} className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-start gap-2.5 text-[10px]">
+                    {ent.photo_url && (
+                      <a href={ent.photo_url} target="_blank" rel="noreferrer" className="shrink-0 w-10 h-10 bg-slate-900 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center group relative">
+                        <img src={ent.photo_url} alt="Task" className="w-full h-full object-cover group-hover:opacity-60 transition-all" />
+                        <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white opacity-0 group-hover:opacity-100 bg-black/40">VER</span>
+                      </a>
+                    )}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-[9px] text-slate-500">#{String(ent.id).substring(0, 6)}</span>
+                        <span className={`px-1.5 py-0.5 border rounded-md font-bold uppercase tracking-wider text-[8px] ${statusCor}`}>
+                          {statusTexto}
+                        </span>
+                      </div>
+                      {ent.grade !== undefined && ent.grade !== null && (
+                        <div className="text-slate-300 font-bold">
+                          {idioma === "PT" ? "Nota:" : idioma === "EN" ? "Grade:" : "Nota:"} <span className="text-amber-400 font-mono">{ent.grade}</span>
+                        </div>
+                      )}
+                      {ent.teacher_feedback && (
+                        <p className="text-slate-400 leading-normal italic bg-white/[0.01] p-1.5 rounded border border-white/[0.02]">
+                          "{ent.teacher_feedback}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

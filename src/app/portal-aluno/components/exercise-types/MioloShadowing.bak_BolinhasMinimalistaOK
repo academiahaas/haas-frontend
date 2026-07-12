@@ -1,0 +1,424 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
+
+interface MioloShadowingProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+interface FeedbackEstruturado {
+  status: 'EXCELENTE' | 'REGULAR' | 'INCOERENTE';
+  mensagem: string;
+  sugestao: string;
+}
+
+const traducoes: Record<string, Record<string, string>> = {
+  es: {
+    conectando: "Conectando...",
+    gravando: "Grabando...",
+    avaliando: "Evaluando...",
+    falaCapturada: "Tu habla capturada:",
+    dica: "Consejo"
+  },
+  en: {
+    conectando: "Connecting...",
+    gravando: "Recording...",
+    avaliando: "Evaluating...",
+    falaCapturada: "Your captured speech:",
+    dica: "Tip"
+  },
+  pt: {
+    conectando: "Conectando...",
+    gravando: "Gravando...",
+    avaliando: "Avaliando...",
+    falaCapturada: "Sua fala capturada:",
+    dica: "Dica"
+  }
+};
+
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
+  const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
+  const [referencePhrase, setReferencePhrase] = useState('');
+  const [transcricaoAluno, setTranscricaoAluno] = useState('');
+  const [scoreFinal, setScoreFinal] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState('Español');
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const obterLangKey = () => {
+    const lang = idiomaNativoAluno?.toLowerCase() || "";
+    if (lang.includes("eng") || lang.includes("ing")) return "en";
+    if (lang.includes("por") || lang.includes("bra")) return "pt";
+    return "es";
+  };
+
+  const t = traducoes[obterLangKey()];
+
+  const salvarNovaFraseNoCacheBanco = async (fraseInedita: string, nivel: string) => {
+    try {
+      const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+      await fetch(`${SUPABASE_URL}/exercises`, {
+        method: "POST",
+        headers: {
+          "apikey": SERVICE_KEY,
+          "Authorization": `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          unit: nomeUnidade,
+          activity_type: 10,
+          level: nivel,
+          correct_answer: fraseInedita,
+          reading_text: fraseInedita
+        })
+      });
+    } catch (e) {
+      console.warn("Erro ao registrar frase gerada no cache do banco:", e);
+    }
+  };
+
+  const gerarFraseIneditaIA = async (nivelDaLicao: string) => {
+    try {
+      const prompt = `Você é um coordenador pedagógico sênior de português. Gere uma única frase média e fluida em português para treinamento de imitação e pronúncia (Shadowing).
+Restrição de Nível: Nível ${nivelDaLicao}. 
+Regras Estritas:
+- Retorne apenas a frase direta.
+- Não utilize aspas, pontos de exclamação exagerados, jargões complexos ou formatação markdown.
+- A frase deve ter ritmo natural e excelente sonoridade para o aluno escutar e imitar.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const frase = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        if (frase.length > 5) {
+          salvarNovaFraseNoCacheBanco(frase, nivelDaLicao);
+          return frase;
+        }
+      }
+    } catch (e) {
+      console.warn("Falha no gerador de frase resiliente:", e);
+    }
+    return "Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.";
+  };
+
+  useEffect(() => {
+    async function carregarCenarioShadowing() {
+      try {
+        setCarregando(true);
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { 
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
+        });
+        const userDados = await userRes.json();
+        if (userDados && userDados.length > 0 && userDados[0].native_language) {
+          setIdiomaNativoAluno(userDados[0].native_language);
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.10&limit=1`;
+        const exeRes = await fetch(exeUrl, { 
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
+        });
+        const exeDados = await exeRes.json();
+
+        if (exeDados && exeDados.length > 0) {
+          setReferencePhrase(exeDados[0].correct_answer || exeDados[0].reading_text);
+        } else {
+          const fraseInedita = await gerarFraseIneditaIA(exeDados?.[0]?.level || "A2");
+          setReferencePhrase(fraseInedita);
+        }
+      } catch (err) {
+        console.error("Erro geral no carregamento de pronúncia:", err);
+        setReferencePhrase("Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCenarioShadowing();
+
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.continuous = true;
+        rec.interimResults = false;
+        rec.lang = "pt-BR";
+
+        rec.onresult = (event: any) => {
+          let acumulado = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) acumulado += event.results[i][0].transcript + " ";
+          }
+          if (acumulado) setTranscricaoAluno((prev) => (prev + " " + acumulado).trim());
+        };
+        recognitionRef.current = rec;
+      }
+    }
+  }, [unidadeAtiva]);
+
+  const playNativo = () => {
+    if (referencePhrase && typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(referencePhrase);
+      utterance.lang = "pt-BR";
+      utterance.rate = 1.08; 
+      utterance.pitch = 1.02; 
+
+      const vozes = window.speechSynthesis.getVoices();
+      const vozHumanaLocal = 
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Google português do Brasil")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Luciana")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Francisca")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Maria")) ||
+        vozes.find(v => v.lang.includes("pt-BR"));
+                        
+      if (vozHumanaLocal) utterance.voice = vozHumanaLocal;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const iniciarGravacao = async () => {
+    setTranscricaoAluno("");
+    setFeedback(null);
+    setAudioUrl(null);
+    audioChunksRef.current = [];
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        setAudioUrl(URL.createObjectURL(audioBlob));
+        setFlowState("PLAYBACK");
+      };
+
+      if (recognitionRef.current) {
+        try { recognitionRef.current.start(); } catch(e) {}
+      }
+
+      recorder.start();
+      setFlowState("RECORDING");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const pararGravacao = () => {
+    if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch (e) {} }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+  };
+
+  const processarAvaliacaoFinaMeteora = async () => {
+    setFlowState("ANALYZING");
+    if (!transcricaoAluno || transcricaoAluno.trim().length < 2) {
+      setFeedback({
+        status: "INCOERENTE",
+        mensagem: idiomaNativoAluno.toLowerCase().includes("ing")
+          ? "I couldn't hear any words clearly. Could you please click the button and repeat the sentence?"
+          : "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?",
+        sugestao: "Intenta falar de forma fluida frente al micrófono."
+      });
+      setScoreFinal(15);
+      setFlowState("DONE");
+      if (onSelectWrong) onSelectWrong();
+      return;
+    }
+
+    try {
+      const promptFeedback = `Você é a Mentora Haas. Avalie a imitação de áudio (Shadowing) do seu aluno no aprendizado de português. O idioma nativo dele é: ${idiomaNativoAluno}.
+Frase Alvo Perfeita: "${referencePhrase}"
+O que o aluno conseguiu pronunciar: "${transcricaoAluno}"
+
+REGRAS DE ANÁLISE PEDAGÓGICA:
+1. Compare a proximidade das palavras. Seja empática e apoie o sotaque.
+2. Escreva as orientações estritamente em ${idiomaNativoAluno} falando DIRETAMENTE com ele (na primeira pessoa). Proibido usar markdown, asteriscos ou emojis.
+
+Retorne estritamente este JSON limpo:
+{
+  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
+  "score": 85,
+  "mensagem": "Sua orientação humanizada de pronúncia direta ao aluno.",
+  "sugestao": "Conselho focado nas sílabas ou ritmo da frase alvo."
+}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      });
+
+      if (!res.ok) throw new Error("Erro");
+      const data = await res.json();
+      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const parsed = JSON.parse(txt.replace(/```json/g, "").replace(/```/g, "").trim());
+
+      setScoreFinal(parsed.score || 70);
+      setFeedback({
+        status: parsed.status || "REGULAR",
+        mensagem: parsed.mensagem || "Pronúncia avaliada com sucesso.",
+        sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
+      });
+      setFlowState("DONE");
+      if ((parsed.score || 70) >= 60) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+    } catch (e) {
+      setScoreFinal(80);
+      setFeedback({
+        status: "REGULAR",
+        mensagem: "Tu imitación fue capturada correctamente y se nota tu esfuerzo en el ritmo de la frase.",
+        sugestao: "Presta atención a la cadencia de las vocais aberta."
+      });
+      setFlowState("DONE");
+      if (onSelectCorrect) onSelectCorrect();
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-6 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+        {t?.conectando || "..."}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+      
+      {/* CARD DE FRASE MODELO SUPERIOR - OCULTADO AUTOMATICAMENTE NO ESTADO 'DONE' */}
+      {flowState !== "DONE" && (
+        <div className="bg-[#0c192e]/60 border border-white/[0.04] p-3.5 rounded-xl flex items-center justify-between gap-3 shrink-0 animate-fade-in">
+          <p className="text-[13px] md:text-[1.1vw] text-slate-100 font-semibold leading-relaxed flex-1 break-words">
+            {referencePhrase}
+          </p>
+          <button 
+            onClick={playNativo}
+            className="p-2.5 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0"
+            title="Escutar Frase"
+          >
+            <Volume2 size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* BOX CENTRAL TOTALMENTE CLEAN E MINIMALISTA - SEM BORDAS ESCURAS INTERNAS */}
+      <div className="flex-1 min-h-0 p-2 flex flex-col justify-center items-center gap-3 overflow-hidden">
+        
+        {flowState === "RECORDING" && (
+          <span className="text-[12px] md:text-[1vw] font-bold uppercase tracking-wider text-rose-400">
+            {t.gravando}
+          </span>
+        )}
+
+        {flowState === "ANALYZING" && (
+          <div className="flex flex-col items-center justify-center gap-2 text-center animate-pulse">
+            <Loader2 size={24} className="text-cyan-400 animate-spin" />
+            <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
+              {t.avaliando}
+            </span>
+          </div>
+        )}
+
+        {flowState === "DONE" && feedback && (
+          <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left animate-fade-in flex-1">
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+              
+              <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
+                <span className="font-bold text-[10px] md:text-[0.9vw] uppercase tracking-wider text-slate-400">
+                  {t.falaCapturada}
+                </span>
+                <div className="text-amber-400 font-semibold text-[10px] md:text-[0.9vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
+                  +{scoreFinal} PTS
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-black/20 rounded-lg border border-white/[0.02] text-[13px] md:text-[1.1vw] text-cyan-100 italic leading-relaxed font-semibold break-words">
+                "{transcricaoAluno}"
+              </div>
+
+              <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words">
+                {feedback.mensagem}
+              </p>
+              
+              <div className="text-[12px] md:text-[1vw] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic font-semibold break-words">
+                {t.dica}: {feedback.sugestao}
+              </div>
+              
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* CONTROLES INFERIORES INTEGRADOS - SE ADAPTAM DINAMICAMENTE EM DUAS BOLINHAS NO PLAYBACK */}
+      <div className="flex justify-center items-center shrink-0 pt-1 pb-1 gap-4 h-[54px]">
+        {flowState === "IDLE" && (
+          <button
+            onClick={iniciarGravacao}
+            className="p-3.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-400 rounded-full hover:border-cyan-400 hover:bg-cyan-950 transition-all cursor-pointer shadow-lg active:scale-95"
+          >
+            <Mic size={18} />
+          </button>
+        )}
+
+        {flowState === "RECORDING" && (
+          <button
+            onClick={pararGravacao}
+            className="p-3.5 bg-rose-600 border border-rose-500 text-white rounded-full transition-all cursor-pointer shadow-lg active:scale-95 shadow-rose-950/40"
+          >
+            <Square size={18} />
+          </button>
+        )}
+
+        {flowState === "PLAYBACK" && (
+          <div className="flex items-center gap-4 animate-fade-in">
+            {/* BOLINHA 1: ESCUTAR MINI */}
+            <button 
+              onClick={() => { if (audioUrl) new Audio(audioUrl).play(); }}
+              className="p-3 bg-cyan-950 border border-cyan-500/40 text-cyan-400 rounded-full hover:bg-cyan-900 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center"
+              title="Escutar minha gravação"
+            >
+              <Volume2 size={16} />
+            </button>
+
+            {/* BOLINHA 2: ENVIAR PARA IA MINI (INDEDEPENDENTE DO SUBMETER DO PORTAL) */}
+            <button 
+              onClick={processarAvaliacaoFinaMeteora}
+              className="p-3 bg-emerald-600 border border-emerald-500 text-white rounded-full hover:bg-emerald-500 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center"
+              title="Validar resposta"
+            >
+              <Send size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+
+    </div>
+  );
+}

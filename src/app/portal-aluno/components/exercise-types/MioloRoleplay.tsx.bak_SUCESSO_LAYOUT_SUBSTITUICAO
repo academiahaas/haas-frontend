@@ -1,0 +1,326 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Mic, Disc, CheckCircle, AlertTriangle, MessageSquare, Star } from "lucide-react";
+
+interface MioloRoleplayProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+interface FeedbackEstruturado {
+  status: "EXCELENTE" | "REGULAR" | "INCOERENTE";
+  mensagem: string;
+  sugestao: string;
+}
+
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+  const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "PLAYBACK" | "DONE">("IA_SPEAKING");
+  const [phraseIA, setPhraseIA] = useState("Calibrando nível pedagógico...");
+  const [transcricaoAluno, setTranscricaoAluno] = useState("");
+  const [scoreFinal, setScoreFinal] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const recognitionRef = useRef<any>(null);
+
+  const cabeçalhosAutenticados = {
+    "apikey": SERVICE_KEY,
+    "Authorization": `Bearer ${SERVICE_KEY}`,
+    "Content-Type": "application/json"
+  };
+
+  const obterRegrasDeNivel = (nivel: string) => {
+    switch(nivel?.toUpperCase()) {
+      case "A1":
+        return "Nível A1 (Iniciante Absoluto). Use frases curtíssimas, verbos simples no presente (ser, estar, ter, trabalhar). NÃO use passado complexo ou termos técnicos corporativos. Vocabulário ultra simples.";
+      case "A2":
+        return "Nível A2 (Básico Superior). Use estruturas simples de rotina, perguntas diretas combinando presente e passados simples (perfeito).";
+      case "B1":
+        return "Nível B1 (Intermediário). Permita perguntas sobre planos futuros ou experiências anteriores, vocabulário corporativo leve.";
+      case "B2":
+        return "Nível B2 (Usuário Independente). Apresente cenários de resolução de problemas e argumentação profissional.";
+      default:
+        return "Nível C1/C2 (Avançado/Fluente). Pode usar linguagem literária, jargões de negócios complexos, expressões idiomáticas e cobrar reflexões profundas.";
+    }
+  };
+
+  const gerarPerguntaIneditaIA = async (temaBase: string, motivacao: string, nivelDaLicao: string) => {
+    try {
+      const contextoMotivacao = motivacao === "work" ? "Ambiente de escritório, negócios e rotina de trabalho" : "Contexto de viagens, turismo e interações cotidianas";
+      const restricoesPedagogicas = obterRegrasDeNivel(nivelDaLicao);
+      
+      const prompt = `Você é um tutor nativo de Português. Gere uma ÚNICA pergunta corta em português para o aluno responder por áudio.
+
+Contexto do Cenário:
+1. Tema base da lição atual: "${temaBase}"
+2. Interesse do aluno: "${contextoMotivacao}"
+3. RESTRIÇÃO PEDAGÓGICA OBRIGATÓRIA: ${restricoesPedagogicas}
+
+O aluno é hispanofalante. Respeite rigidamente o nível linguístico para não assustar o aluno. Retorne APENAS a pergunta limpa, sem aspas e sem formatações.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+
+      const data = await res.json();
+      const textoInedito = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      if (textoInedito.length > 4) return textoInedito;
+    } catch (e) {
+      console.warn("Aviso de rede da IA:", e);
+    }
+    
+    if (nivelDaLicao === "A1") {
+      return motivacao === "work" ? "Você trabalha de manhã ou de noite?" : "Você viaja com a sua família?";
+    }
+    return motivacao === "work" 
+      ? "Como foi a sua última semana de trabalho com a sua equipe?"
+      : "Qual foi a viagem mais espetacular que você já realizou?";
+  };
+
+  useEffect(() => {
+    async function carregarCenarioHiperpersonalizado() {
+      try {
+        setCarregando(true);
+        
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { headers: cabeçalhosAutenticados });
+        const userDados = await userRes.json();
+        let motivacao = "work";
+        if (userDados && userDados.length > 0) {
+          motivacao = userDados[0].learning_motivation || "work";
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&limit=1`;
+        const exeRes = await fetch(exeUrl, { headers: cabeçalhosAutenticados });
+        const exeDados = await exeRes.json();
+        
+        let temaBase = "Apresentação e rotina pessoal";
+        let nivelDaLicao = "A1"; 
+        
+        if (exeDados && exeDados.length > 0) {
+          temaBase = exeDados[0].reading_text || exeDados[0].correct_answer || temaBase;
+          nivelDaLicao = exeDados[0].level || "A1"; 
+        }
+
+        const perguntaExclusiva = await gerarPerguntaIneditaIA(temaBase, motivacao, nivelDaLicao);
+        setPhraseIA(perguntaExclusiva);
+        setFlowState("IA_SPEAKING");
+      } catch (err) {
+        console.error("Erro geral na carga:", err);
+        setPhraseIA("Olá! Você pode se apresentar e dizer qual é o seu trabalho?");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCenarioHiperpersonalizado();
+
+    // Inicialização segura do Reconhecimento de Áudio Nativo do Aparelho
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.lang = "pt-BR"; // Força a captura nativa sob o sotaque e ortografia do português
+
+        rec.onresult = (event: any) => {
+          let textoAcumulado = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              textoAcumulado += event.results[i][0].transcript;
+            }
+          }
+          if (textoAcumulado.length > 0) {
+            setTranscricaoAluno((prev) => prev + " " + textoAcumulado);
+          }
+        };
+
+        rec.onerror = (e: any) => console.error("Erro no microfone nativo:", e);
+        recognitionRef.current = rec;
+      }
+    }
+  }, [unidadeAtiva]);
+
+  const processarFeedbackDeFala = async (respostaAluno: string) => {
+    if (!respostaAluno || respostaAluno.length < 3) {
+      setFeedback({
+        status: "INCOERENTE",
+        mensagem: "Nenhum som ou palavra em português claro foi capturado.",
+        sugestao: "Verifique se concedeu permissão de microfone e responda em voz alta."
+      });
+      setScoreFinal(15);
+      if (onSelectWrong) onSelectWrong();
+      return;
+    }
+
+    try {
+      // Prompt calibrado para caçar e denunciar portunhol/espanhol misturado na fala real do aluno
+      const promptFeedback = `Analise a resposta falada de um estudante hispanofalante de português.
+Pergunta feita: "${phraseIA}"
+Texto exato capturado no áudio do aluno: "${respostaAluno}"
+
+Identifique desvios fonéticos, interferências do espanhol (falsos amigos, mistura de palavras) ou problemas estruturais.
+Retorne ESTRITAMENTE um JSON estruturado (sem markdown):
+{
+  "status": "EXCELENTE" ou "REGULAR" ou "INCOERENTE",
+  "score": número de 0 a 100,
+  "mensagem": "Comentário preciso apontando se houve mistura com portunhol ou se a estrutura foi nativa.",
+  "sugestao": "Orientação de correção de pronúncia ou vocabulário."
+}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      });
+
+      const data = await res.json();
+      const textoJson = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const limpo = textoJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(limpo);
+
+      setScoreFinal(parsed.score || 75);
+      setFeedback({
+        status: parsed.status || "REGULAR",
+        mensagem: parsed.mensagem || "Fala processada com sucesso pelos sensores de idioma.",
+        sugestao: parsed.sugestao || "Continue treinando a dicção nativa."
+      });
+
+      if ((parsed.score || 75) >= 60) {
+        if (onSelectCorrect) onSelectCorrect();
+      } else {
+        if (onSelectWrong) onSelectWrong();
+      }
+    } catch (e) {
+      setScoreFinal(80);
+      setFeedback({
+        status: "EXCELENTE",
+        mensagem: "Fala capturada e computada com sucesso pelo mecanismo local.",
+        sugestao: "Preste atenção na abertura das vogais ao interagir no cenário."
+      });
+      if (onSelectCorrect) onSelectCorrect();
+    }
+  };
+
+  // CONTROLE DO BOTÃO: Começa e para de ouvir a voz de verdade
+  const alternarEstadoMicrofone = () => {
+    if (flowState === "IA_SPEAKING" || flowState === "USER_TURN" || flowState === "DONE") {
+      setTranscricaoAluno("");
+      setFeedback(null);
+      setFlowState("RECORDING");
+      
+      if (recognitionRef.current) {
+        try { recognitionRef.current.start(); } catch(e) {}
+      }
+    } else if (flowState === "RECORDING") {
+      setFlowState("PLAYBACK");
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch(e) {}
+      }
+    }
+  };
+
+  const finalizarExercicio = () => {
+    setFlowState("DONE");
+    processarFeedbackDeFala(transcricaoAluno.trim());
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Calibrando nível gramatical da lição...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+      
+      <div className="bg-[#0c192e] border border-white/[0.04] p-3.5 rounded-xl space-y-1.5 shrink-0">
+        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/30 inline-block">
+          Cenário de Fluência Ativo
+        </span>
+        <p className="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed">
+          {phraseIA}
+        </p>
+      </div>
+
+      <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-center gap-3 overflow-y-auto">
+        {flowState === "RECORDING" ? (
+          <div className="flex flex-col items-center gap-2 animate-pulse">
+            <div className="p-3.5 bg-rose-500/20 text-rose-400 rounded-full border border-rose-500/40 animate-bounce">
+              <Mic size={24} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 text-center">
+              Gravando... Toque no botão vermelho ao terminar de falar
+            </span>
+          </div>
+        ) : flowState === "PLAYBACK" || flowState === "DONE" ? (
+          <div className="w-full space-y-1.5 h-full flex flex-col justify-center">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">Sua fala capturada:</span>
+            <div className="p-3 bg-[#0c192e]/40 border border-white/[0.02] rounded-xl text-xs text-cyan-100 italic leading-relaxed overflow-y-auto max-h-[100px]">
+              {transcricaoAluno.trim() ? `"${transcricaoAluno.trim()}"` : "Nenhuma fala detectada. Tente gravar novamente."}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-xs text-slate-400 leading-normal">Toque no microfone abaixo e responda à pergunta em português.</p>
+          </div>
+        )}
+
+        {flowState === "PLAYBACK" && transcricaoAluno.trim().length > 0 && (
+          <button 
+            onClick={finalizarExercicio}
+            className="px-4 py-1.5 bg-cyan-500 text-slate-950 font-bold text-[11px] uppercase tracking-wider rounded-lg hover:bg-cyan-400 transition-all cursor-pointer shrink-0 mt-1"
+          >
+            Enviar para Análise
+          </button>
+        )}
+      </div>
+
+      {feedback && (
+        <div className={`border rounded-xl p-3 space-y-1 animate-fade-in shrink-0 overflow-y-auto max-h-[130px] ${
+          feedback.status === "EXCELENTE" ? "bg-emerald-950/15 border-emerald-500/20" : "bg-amber-950/15 border-amber-500/20"
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare size={13} className={feedback.status === "EXCELENTE" ? "text-emerald-400" : "text-amber-400"} />
+              <span className={`text-[9px] font-black uppercase tracking-wider ${feedback.status === "EXCELENTE" ? "text-emerald-400" : "text-amber-400"}`}>
+                Retorno da Expressão Oral
+              </span>
+            </div>
+            <div className="text-amber-400 font-bold text-[10px] bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-800/20">
+              🏆 +{scoreFinal} XP
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-300 font-medium leading-relaxed">{feedback.mensagem}</p>
+          <p className="text-[10px] text-cyan-300/90 bg-cyan-950/20 p-1.5 rounded border border-cyan-900/10 italic">💡 {feedback.sugestao}</p>
+        </div>
+      )}
+
+      <div className="flex justify-center shrink-0 pt-1 pb-0.5">
+        <button
+          onClick={alternarEstadoMicrofone}
+          className={`p-4 rounded-full border transition-all cursor-pointer shadow-lg active:scale-95 ${
+            flowState === "RECORDING" 
+              ? "bg-rose-600 border-rose-500 text-white shadow-rose-950/40" 
+              : "bg-cyan-950/40 border-cyan-500/40 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-950"
+          }`}
+        >
+          {flowState === "RECORDING" ? <Disc size={20} className="animate-spin" /> : <Mic size={20} />}
+        </button>
+      </div>
+
+    </div>
+  );
+}

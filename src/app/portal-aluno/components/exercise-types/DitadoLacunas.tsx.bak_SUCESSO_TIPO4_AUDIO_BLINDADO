@@ -1,0 +1,188 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Volume2, CheckCircle, XCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+interface DitadoLacunasProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+export default function DitadoLacunas({ 
+  onSelectionChange, 
+  onValidateResult, 
+  status: propStatus = 'IDLE', 
+  unidadeAtiva 
+}: DitadoLacunasProps) {
+  const [inputValue, setInputValue] = useState("");
+  const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [fraseEstruturada, setFraseEstruturada] = useState<string>("");
+  const [audioUrl, setAudioUrl] = useState("");
+  const [targetWord, setTargetWord] = useState("");
+
+  useEffect(() => {
+    if (propStatus === 'IDLE') {
+      setInputValue('');
+      setLocalStatus('IDLE');
+    } else {
+      setLocalStatus(propStatus);
+    }
+  }, [propStatus]);
+
+  useEffect(() => {
+    async function carregarDitadoDoBanco() {
+      try {
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        
+        const { data: dados, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('unit', nomeUnidade)
+          .eq('activity_type', 4);
+
+        if (error) throw error;
+        
+        if (dados && dados.length > 0) {
+          const exe = dados.find(d => d.id === "96989f22-55bd-4609-94bd-8b8322b3bd4d") || dados[0];
+          
+          // Guarda a resposta exata esperada na lacuna
+          setTargetWord(exe.correct_answer || "");
+          setAudioUrl(exe.audio_url || "");
+          
+          // Captura a estrutura visual com o "______" vinda direto do banco
+          setFraseEstruturada(exe.reading_text || "Nós ______ que resolver tudo antes do almoço.");
+        }
+      } catch (err) {
+        console.error("Erro na Central Cliente (Ditado Prático):", err);
+      }
+    }
+    carregarDitadoDoBanco();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (inputRef.current && fraseEstruturada) inputRef.current.focus();
+  }, [fraseEstruturada]);
+
+  const playAudio = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1020, ctx.currentTime);
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.03);
+      }
+    } catch (e) {}
+
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.play().catch(err => console.error("Erro ao reproduzir áudio real:", err));
+    } else if (typeof window !== 'undefined' && 'speechSynthesis' in window && targetWord) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(`Nós ${targetWord} que resolver tudo antes do almoço.`);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleInputChange = (val: string) => {
+    setInputValue(val);
+    if (onSelectionChange) onSelectionChange(val.trim().length > 0);
+  };
+
+  const handleVerificar = () => {
+    if (localStatus !== 'IDLE' || !inputValue.trim()) return;
+    
+    const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
+    
+    if (acertou) {
+      setLocalStatus('CORRECT');
+    } else {
+      setLocalStatus('WRONG');
+      setTimeout(() => {
+        setInputValue('');
+        setLocalStatus('IDLE');
+        if (inputRef.current) inputRef.current.focus();
+      }, 1500);
+    }
+
+    if (onValidateResult) {
+      onValidateResult(acertou);
+    }
+  };
+
+  // Divide o texto do banco onde tem "______" para encaixar o Input HTML de forma responsiva no meio da frase
+  const partesDaFrase = fraseEstruturada.split(/______+/);
+  const prefixo = partesDaFrase[0] || "";
+  const sufixo = partesDaFrase[1] || "";
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left animate-fade-in font-mono flex-1 min-h-0 gap-4">
+      
+      {/* SEÇÃO DO PLAYER (TOPO) */}
+      <div className="flex items-center gap-4 shrink-0 bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02]">
+        <button 
+          onClick={playAudio} 
+          className="p-4 bg-[#0c192e] hover:bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-2xl transition-all duration-150 cursor-pointer active:scale-95 shadow-[0_4px_15px_rgba(0,255,255,0.05)] shrink-0"
+          title="Ouvir áudio técnico"
+        >
+          <Volume2 size={24} className="animate-pulse" />
+        </button>
+        <span className="text-[clamp(11px,3.2vw,13px)] font-black text-slate-400 uppercase tracking-wider leading-snug">
+          Clique no <span className="text-cyan-400">alto-falante</span> para escutar e digite a palavra ausente
+        </span>
+      </div>
+
+      {/* ÁREA CENTRAL DA FRASE CORRIGIDA */}
+      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl py-6 px-4 text-center text-[clamp(14px,3.8vw,16px)] font-bold text-slate-300 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-3 flex-1 min-h-0 w-full overflow-y-auto">
+        <span className="font-sans font-medium text-[#F8FAFC]">{prefixo}</span>
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          disabled={localStatus === 'CORRECT'}
+          onChange={(e) => handleInputChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleVerificar()}
+          placeholder="???"
+          className={`bg-[#070d19] border-2 rounded-xl px-3 py-1.5 text-center font-black tracking-wide text-[clamp(14px,4vw,16px)] w-32 transition-all focus:outline-none focus:border-[#f59e0b]/50 ${
+            localStatus === 'CORRECT' ? 'border-[#00E676] text-[#00E676]' : localStatus === 'WRONG' ? 'border-red-500 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.15)]' : 'border-white/[0.08] text-[#f59e0b]'
+          }`}
+        />
+        <span className="font-sans font-medium text-[#F8FAFC]">{sufixo}</span>
+      </div>
+
+      {/* SEÇÃO DE FEEDBACKS / AÇÃO (BASE) */}
+      <div className="w-full shrink-0 mt-auto min-h-[50px] flex items-center justify-center">
+        {localStatus === 'IDLE' && (
+          <button 
+            onClick={handleVerificar}
+            className="w-full py-4 bg-[#070d19] hover:bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-black text-[clamp(12px,3.5vw,14px)] uppercase tracking-widest rounded-xl transition-all duration-200 cursor-pointer shadow-[0_4px_15px_rgba(0,255,255,0.02)] hover:border-cyan-400"
+          >
+            Verificar Resposta (Enter)
+          </button>
+        )}
+
+        {localStatus === 'CORRECT' && (
+          <div className="flex items-center justify-center gap-2 text-[#00E676] text-[clamp(12px,3.5vw,14px)] font-black uppercase tracking-wider animate-bounce w-full text-center py-2">
+            <CheckCircle size={16} /> <span>Excelente! Escuta e grafia perfeitas.</span>
+          </div>
+        )}
+
+        {localStatus === 'WRONG' && (
+          <div className="flex items-center justify-center gap-2 text-red-500 text-[clamp(12px,3.5vw,14px)] font-black uppercase tracking-wider animate-pulse w-full text-center py-2">
+            <XCircle size={16} /> <span>Incorreto. Ouça novamente e ajuste a digitação!</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

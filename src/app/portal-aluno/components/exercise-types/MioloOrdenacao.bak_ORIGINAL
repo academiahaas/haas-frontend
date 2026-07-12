@@ -1,0 +1,179 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { Volume2 } from 'lucide-react';
+
+interface FragmentItem {
+  id: number;
+  text: string;
+}
+
+interface MioloOrdenacaoProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+export default function MioloOrdenacao({ onSelectionChange, onValidateResult, status = 'IDLE', unidadeAtiva }: MioloOrdenacaoProps) {
+  const [listaExercicios, setListaExercicios] = useState<any[]>([]);
+  const [indexAtual, setIndexAtual] = useState(0);
+  
+  const [referencePhrase, setReferencePhrase] = useState("Loading...");
+  const [audioUrl, setAudioUrl] = useState("");
+  const [initialFragments, setInitialFragments] = useState<string[]>([]);
+
+  const [bank, setBank] = useState<FragmentItem[]>([]);
+  const [deposit, setDeposit] = useState<FragmentItem[]>([]);
+
+  useEffect(() => {
+    async function carregarOrdenacao() {
+      try {
+        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+        const url = `https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.7`;
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        const res = await fetch(url, {
+          headers: { "apikey": key, "Authorization": "Bearer " + key }
+        });
+        const dados = await res.json();
+        
+        if (dados && dados.length > 0) {
+          setListaExercicios(dados);
+          configurarExercicio(dados[0]);
+        }
+      } catch (err) {
+        console.error("Erro no Supabase Ordenacao:", err);
+      }
+    }
+    carregarOrdenacao();
+  }, [unidadeAtiva]);
+
+  const configurarExercicio = (exe: any) => {
+    if (!exe) return;
+    
+    const respostaAlvo = exe.correct_answer || exe.audio_transcript || "";
+    setReferencePhrase(respostaAlvo);
+    setAudioUrl(exe.audio_url || "");
+    
+    let frags: string[] = [];
+
+    // TRATAMENTO ULTRA SEGURO: Evita que strings estruturadas quebrem o componente .map()
+    if (exe.alternative_options) {
+      if (Array.isArray(exe.alternative_options)) {
+        frags = exe.alternative_options;
+      } else if (typeof exe.alternative_options === 'string') {
+        try {
+          const parsed = JSON.parse(exe.alternative_options);
+          // Se for o JSON do Caça erros, pegamos apenas palavras ou ignoramos usando o fallback estável da frase alvo
+          if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+            frags = parsed;
+          } else {
+            frags = respostaAlvo.split(/\s+/).filter((w: string) => w.length > 0);
+          }
+        } catch (e) {
+          frags = respostaAlvo.split(/\s+/).filter((w: string) => w.length > 0);
+        }
+      }
+    } else {
+      frags = respostaAlvo.split(/\s+/).filter((w: string) => w.length > 0);
+    }
+      
+    setInitialFragments(frags);
+    setBank(frags.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+    setDeposit([]);
+  };
+
+  useEffect(() => {
+    if (status === 'IDLE' && listaExercicios.length > 0) {
+      configurarExercicio(listaExercicios[indexAtual]);
+    } else if (status === 'IDLE') {
+      setBank(initialFragments.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+      setDeposit([]);
+    }
+  }, [status]);
+
+  const toggleToDeposit = (item: FragmentItem) => {
+    if (status !== 'IDLE') return;
+    const newBank = bank.filter(b => b.id !== item.id);
+    const newDeposit = [...deposit, item];
+    setBank(newBank);
+    setDeposit(newDeposit);
+    if (onSelectionChange) onSelectionChange(newDeposit.length > 0);
+    validarProgresso(newDeposit);
+  };
+
+  const toggleToBank = (item: FragmentItem) => {
+    if (status !== 'IDLE') return;
+    const newDeposit = deposit.filter(d => d.id !== item.id);
+    const newBank = [...bank, item];
+    setBank(newBank);
+    setDeposit(newDeposit);
+    if (onSelectionChange) onSelectionChange(newDeposit.length > 0);
+    validarProgresso(newDeposit);
+  };
+
+  const validarProgresso = (currentDeposit: FragmentItem[]) => {
+    const fraseMontada = currentDeposit.map(d => d.text).join(" ").trim().toLowerCase();
+    const fraseAlvoLimpa = referencePhrase.trim().toLowerCase();
+    
+    if (fraseMontada === fraseAlvoLimpa) {
+      if (onValidateResult) onValidateResult(true);
+    } else {
+      if (onValidateResult) onValidateResult(false);
+    }
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden p-1">
+      
+      <div className="bg-[#0c192e] border border-white/[0.04] p-4 rounded-xl flex flex-col gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400/60">Frase para ordenar</span>
+        <div className="flex items-center gap-3">
+          <button className="p-2.5 bg-cyan-950/40 border border-cyan-800/30 rounded-xl text-cyan-400 active:scale-95 transition-all">
+            <Volume2 size={16} />
+          </button>
+          <p className="text-xs text-slate-400 italic">Ouça o áudio e ordene os blocos corretamente abaixo</p>
+        </div>
+      </div>
+
+      {/* Área de Depósito */}
+      <div className={`flex-1 min-h-[90px] bg-[#050b14]/50 border rounded-2xl p-3 flex flex-wrap gap-2 items-start content-start transition-all overflow-y-auto ${
+        status === 'CORRECT' ? 'border-emerald-500/30 bg-emerald-950/5' : 
+        status === 'WRONG' ? 'border-rose-500/30 bg-rose-950/5' : 'border-dashed border-white/[0.06]'
+      }`}>
+        {deposit.length === 0 && (
+          <span className="text-xs text-slate-600 font-medium select-none pointer-events-none p-1">Toque nos blocos abaixo para construir a frase...</span>
+        )}
+        {deposit.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => toggleToBank(item)}
+            disabled={status !== 'IDLE'}
+            className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+              status === 'CORRECT' ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300' :
+              status === 'WRONG' ? 'bg-rose-950/40 border-rose-500 text-rose-300' :
+              'bg-cyan-950/30 border-cyan-500/30 text-cyan-200 hover:border-cyan-400'
+            }`}
+          >
+            {item.text}
+          </button>
+        ))}
+      </div>
+
+      {/* Banco de Blocos Disponíveis */}
+      <div className="bg-[#0c192e]/20 border border-white/[0.02] p-3 rounded-2xl flex flex-wrap gap-2 min-h-[80px] content-start overflow-y-auto shrink-0">
+        {bank.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => toggleToDeposit(item)}
+            disabled={status !== 'IDLE'}
+            className="px-3 py-2 text-xs font-semibold rounded-xl bg-[#0c192e] border border-white/[0.06] text-slate-300 hover:text-white hover:border-white/[0.2] active:scale-95 transition-all cursor-pointer"
+          >
+            {item.text}
+          </button>
+        ))}
+      </div>
+
+    </div>
+  );
+}

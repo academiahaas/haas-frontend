@@ -11,6 +11,7 @@ import React, { useState, useEffect } from 'react';
 import ProgramaTrilha from './components/ProgramaTrilha';
 import ArenaQuiz from './components/ArenaQuiz';
 import { supabase } from '@/lib/supabase';
+import { fetchCentralPortalData } from "@/services/centralService";
 import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
@@ -54,6 +55,92 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 
 export default function DashboardDesktop() {
   const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
+          const [scoreAtivo, setScoreAtivo] = useState(50);
+  const [tempoModulo, setTempoModulo] = useState(15);
+  const [nomeModulo, setNomeModulo] = useState("Carregando módulo...");
+  const [listaUnidades, setListaUnidades] = useState([]);
+  const [xpTotalUnidade, setXpTotalUnidade] = useState(4250);
+  const [patenteBruta, setPatenteBruta] = useState("Explorador");
+
+  useEffect(() => {
+    const carregarMetricasDashboard = async () => {
+      try {
+        const urlBase = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        const headers = { "apikey": token, "Authorization": "Bearer " + token };
+        const uid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level", { headers });
+        const dUser = await rUser.json();
+        if (dUser && dUser[0]) {
+          const nivelSigla = dUser[0].current_level || "A1";
+          const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name", { headers });
+          const dLevel = await rLevel.json();
+          if (dLevel && dLevel[0]) {
+            const nomeBase = dLevel[0].level_name || "Explorador";
+            const traducoes = {
+              "Explorador": { PT: "Explorador", ES: "Explorador", EN: "Explorer" },
+              "Pioneiro": { PT: "Pioneiro", ES: "Pionero", EN: "Pioneer" },
+              "Conquistador": { PT: "Conquistador", ES: "Conquistador", EN: "Conqueror" },
+              "Estrategista": { PT: "Estrategista", ES: "Estratega", EN: "Strategist" },
+              "Embaixador": { PT: "Embaixador", ES: "Embajador", EN: "Ambassador" }
+            };
+            const lang = (typeof idioma !== "undefined" ? idioma : "PT").toUpperCase();
+            if (traducoes[nomeBase]) {
+              setPatenteBruta(traducoes[nomeBase][lang] || traducoes[nomeBase]["PT"]);
+            } else {
+              setPatenteBruta(nomeBase);
+            }
+          }
+        }
+
+        const rProg = await fetch(urlBase + "/rest/v1/user_unit_progress?user_id=eq." + uid + "&select=unit_xp&order=completed_at.desc&limit=1", { headers });
+        const dProg = await rProg.json();
+        if (dProg && dProg[0]) setScoreAtivo(dProg[0].unit_xp || 50);
+
+        // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
+        try {
+          const nivelResolvido = (dUser && dUser[0]) ? (dUser[0].current_level || "A1") : "A1";
+          const moduloAlvo = (dUser && dUser[0]) ? (dUser[0].current_module_number || 1) : 1;
+          
+          const rUnit = await fetch(urlBase + "/rest/v1/units?select=id,unit_title,module_number,level,required_xp&module_number=eq." + moduloAlvo + "&level=eq." + nivelResolvido + "&order=unit_number.asc&limit=5", { headers });
+          const dUnit = await rUnit.json();
+          if (dUnit && dUnit.length > 0) {
+            setListaUnidades(dUnit);
+            setXpTotalUnidade(dUnit[0].required_xp || 4250);
+          }
+        } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
+
+        const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours,module_title&limit=1", { headers });
+        const dMod = await rMod.json();
+        if (dMod && dMod[0]) {
+          setTempoModulo(Math.round((dMod[0].estimated_hours || 2) * 60));
+          if (dMod[0].module_title) setNomeModulo(dMod[0].module_title);
+        }
+      } catch (e) { console.error("Erro ao carregar métricas:", e); }
+
+        // FETCH ISOLADO: Ranking Global com credenciais diretas do ambiente
+        try {
+          const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+          const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+          if (sUrl && sKey) {
+            const rRanking = await fetch(sUrl + "/rest/v1/users?select=id,nickname,total_xp&order=total_xp.desc&limit=10", {
+              headers: {
+                "apikey": sKey,
+                "Authorization": "Bearer " + sKey,
+                "Content-Type": "application/json"
+              }
+            });
+            const dRanking = await rRanking.json();
+            if (dRanking && Array.isArray(dRanking)) {
+              setTopTen(dRanking);
+            }
+          }
+        } catch (errRank) { console.error("Erro ao carregar Ranking Global:", errRank); }
+    };
+    carregarMetricasDashboard();
+  }, []);
+
   const [isTrilhaOpen, setIsTrilhaOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isEntregaOpen, setIsEntregaOpen] = useState(false);
@@ -61,6 +148,7 @@ export default function DashboardDesktop() {
   const [abaProgAtiva, setAbaProgAtiva] = useState(false);
   const tocarSom = (tipo) => { if (typeof window !== 'undefined' && (window as any).tocarSomNativoPremium) { (window as any).tocarSomNativoPremium(tipo); } };
   const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [arenaModo, setArenaModo] = useState({ tipo: null, idx: null });
 
   // <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />TRAVA DE SCROLL AUTOMÁTICA DA ARENA
   useEffect(() => {
@@ -91,9 +179,17 @@ export default function DashboardDesktop() {
   }, [isArenaOpen]);
   const [isPerfilOpen, setIsPerfilOpen] = useState(false);
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
+  const [trainMon, setTrainMon] = useState(false);
+  const [trainTue, setTrainTue] = useState(false);
+  const [trainWed, setTrainWed] = useState(false);
+  const [trainThu, setTrainThu] = useState(false);
+  const [trainFri, setTrainFri] = useState(false);
+  const [trainSat, setTrainSat] = useState(false);
+  const [trainSun, setTrainSun] = useState(false);
+
   const consistenciaSemanal = [
-    { dia: "S", treinou: true }, { dia: "T", treinou: true }, { dia: "Q", treinou: true },
-    { dia: "Q", treinou: false }, { dia: "S", treinou: true }, { dia: "S", treinou: true }, { dia: "D", treinou: false }
+    { dia: "1", treinou: trainMon }, { dia: "2", treinou: trainTue }, { dia: "3", treinou: trainWed },
+    { dia: "4", treinou: trainThu }, { dia: "5", treinou: trainFri }, { dia: "6", treinou: trainSat }, { dia: "7", treinou: trainSun }
   ];
   const [mounted, setMounted] = useState(false);
   // Inicializa buscando do localStorage, se não existir, define 'ES' como padrão absoluto no Desktop
@@ -196,72 +292,99 @@ export default function DashboardDesktop() {
   };
   
   const [aluno1, setAluno1] = useState("Alpha_Leader");
+  const [nicknameAluno, setNicknameAluno] = useState("Alpha_Leader");
+  const [userIdBanco, setUserIdBanco] = useState("");
+  const [streakDays, setStreakDays] = useState(0);
   const [tipoAluno, setTipoAluno] = useState("particular");
   const [idiomaCurso, setIdiomaCurso] = useState("SEM IDIOMA");
   const [nivelObjetivo, setNivelObjetivo] = useState("SEM NÍVEL");
+  const [listaEntregas, setListaEntregas] = useState([]);
 
-  useEffect(() => {
-    async function carregarNomeUsuario() {
+    useEffect(() => {
+    async function carregarDadosCentralizados() {
       try {
-        // Busca o ultimo usuario da tabela de usuarios do Supabase para simular a sessao
-        const { data, error } = await supabase
-          .from("users")
-          .select("name, course_language, target_level, current_level, student_type, clinical_precision, total_immersion, active_vocabulary, next_expiration_es")
-          .limit(1);
-        
-        
-        if (data && data.length > 0 && !error) {
-          console.log("✅ Dados carregados do Supabase:", data[0]);
-          const dbUser = data[0];
-          const userObj = {
-            nome: dbUser.name,
-            idioma_curso: dbUser.course_language,
-            nivel_objetivo: dbUser.target_level,
-            nivel_atual: dbUser.current_level,
-            tipo_aluno: dbUser.student_type,
-            precisao_clinica: dbUser.clinical_precision,
-            imersao_total: dbUser.total_immersion,
-            vocabulario_ativo: dbUser.active_vocabulary,
-            proximo_vencimento: dbUser.next_expiration_es
-          };
-
+        const dadosPortal = await fetchCentralPortalData();
+        if (dadosPortal && dadosPortal.user) {
+          const dbUser = dadosPortal.user;
+          if (dbUser && dbUser.id) setUserIdBanco(dbUser.id);
+          console.log("=== CONTEUDO REAL DE TRAINED_DAYS NO BANCO ===>", dbUser.trained_days);
+          setAluno1(dbUser.name || "Alpha_Leader");
+          if (dbUser.current_level) setNivelAtual(dbUser.current_level.toUpperCase());
+          if (dbUser.student_type) setTipoAluno(dbUser.student_type.toLowerCase());
+          if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
+          if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) setImersaoTotal(String(dbUser.total_immersion_es) + "h");
+          if (dbUser.active_vocabulary !== undefined) setVocabularioAtivo(dbUser.active_vocabulary);
           
-          // Guarda os dados reais do Supabase onde o arquivo de idiomas consegue ler
-          if (typeof window !== "undefined") {
-            (window as any).__dadosBanco = userObj;
-          if (userObj.nivel_atual) setNivelAtual(userObj.nivel_atual.toUpperCase());
-          if (userObj.tipo_aluno) setTipoAluno(userObj.tipo_aluno.toLowerCase());
-          if (userObj.precisao_clinica !== undefined && userObj.precisao_clinica !== null) setPrecisaoClinica(userObj.precisao_clinica);
-          if (userObj.imersao_total) setImersaoTotal(userObj.imersao_total);
-          if (userObj.vocabulario_ativo !== undefined && userObj.vocabulario_ativo !== null) setVocabularioAtivo(userObj.vocabulario_ativo);
-          if (userObj.proximo_vencimento) setProximoVencimento(userObj.proximo_vencimento);
+          if (dadosPortal && dadosPortal.error_logs) {
+            setErrorLogs(dadosPortal.error_logs || []);
           }
 
-          setAluno1(userObj.nome || "Alpha_Leader");
-          
-          // Atualiza os estados locais
-          const idiomaReal = userObj.idioma_curso ? userObj.idioma_curso.toUpperCase() : "INGLÉS";
-          const nivelReal = userObj.nivel_objetivo ? userObj.nivel_objetivo.toUpperCase() : "B1";
-          
+          if (dbUser && dbUser.clinical_precision !== undefined) {
+            setPrecisaoClinica(dbUser.clinical_precision);
+          }
+          if (dadosPortal && dadosPortal.competencias) {
+            const comp = dadosPortal.competencias;
+            if (comp.habla !== undefined) setCHabla(Number(comp.habla));
+            if (comp.escucha !== undefined) setCEscucha(Number(comp.escucha));
+            if (comp.gramatica !== undefined) setCGramatica(Number(comp.gramatica));
+            if (comp.escritura !== undefined) setCEscritura(Number(comp.escritura));
+            if (comp.lectura !== undefined) setCLectura(Number(comp.lectura));
+          }
+          if (dbUser.next_expiration_es) {
+            const dateStr = String(dbUser.next_expiration_es);
+            if (dateStr.includes("-")) {
+              const [ano, mes, dia] = dateStr.split("T")[0].split("-");
+              setProximoVencimento(`${dia}/${mes}/${ano}`);
+            } else {
+              setProximoVencimento(dateStr);
+            }
+          }
+          if (dbUser.total_xp) setXpTotal(String(dbUser.total_xp));
+          setNicknameAluno(dbUser.nickname || dbUser.name || "Alpha_Leader");
+          if (dbUser.streak_days !== undefined && dbUser.streak_days !== null) setStreakDays(Number(dbUser.streak_days));
+          if (dbUser.trained_days && Array.isArray(dbUser.trained_days)) {
+            setTrainMon(!!dbUser.trained_days[0]);
+            setTrainTue(!!dbUser.trained_days[1]);
+            setTrainWed(!!dbUser.trained_days[2]);
+            setTrainThu(!!dbUser.trained_days[3]);
+            setTrainFri(!!dbUser.trained_days[4]);
+            setTrainSat(!!dbUser.trained_days[5]);
+            setTrainSun(!!dbUser.trained_days[6]);
+          }
+          const idiomaReal = dbUser.course_language ? dbUser.course_language.toUpperCase() : "INGLÉS";
+          const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "B1";
           setIdiomaCurso(idiomaReal);
           setNivelObjetivo(nivelReal);
-
-          // Força o objeto "t" de traduções a ler as variáveis que vieram da tomada do Supabase
-          if (t) {
-            t.level = idiomaReal + " " + nivelReal;
+          if (dadosPortal.submissions) setListaEntregas(dadosPortal.submissions);
+          if (typeof window !== "undefined") {
+            (window as any).__dadosBanco = {
+              nome: dbUser.name,
+              idioma_curso: dbUser.course_language,
+              nivel_objetivo: dbUser.target_level,
+              nivel_atual: dbUser.current_level,
+              tipo_aluno: dbUser.student_type,
+              nickname_cru: dbUser.nickname,
+              objeto_user_inteiro: dbUser
+            };
           }
-        } else {
-          console.log("⚠️ Nao encontrou dados ou erro na tabela usuarios:", error);
         }
-      } catch (err) {
-        console.error("❌ Erro ao conectar na tomada do Supabase:", err);
-      }
+      } catch (err) { console.error(err); }
     }
-    carregarNomeUsuario();
+    carregarDadosCentralizados();
   }, []);
+
+  const carregarNomeUsuarioDesativado = async () => {};
+  // Funcao antiga removida com sucesso para centralizacao
   const [nivelAtual, setNivelAtual] = useState("A1");
   const [precisaoClinica, setPrecisaoClinica] = useState(94);
   const [imersaoTotal, setImersaoTotal] = useState("14h");
+  const [cHabla, setCHabla] = useState(70);
+  const [errorLogs, setErrorLogs] = useState([]);
+  const [isDepurarOpen, setIsDepurarOpen] = useState(false);
+  const [cEscucha, setCEscucha] = useState(70);
+  const [cGramatica, setCGramatica] = useState(70);
+  const [cEscritura, setCEscritura] = useState(70);
+  const [cLectura, setCLectura] = useState(70);
   const [vocabularioAtivo, setVocabularioAtivo] = useState(450);
   const [proximoVencimento, setProximoVencimento] = useState("10/07/2026");
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
@@ -277,6 +400,7 @@ export default function DashboardDesktop() {
   const [isVencidoSimulado, setIsVencidoSimulado] = useState(false);
   const [isSimuladorLiberado, setIsSimuladorLiberado] = useState(false);
   const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
+  const [topTen, setTopTen] = useState([]);
   const [erro1, setErro1] = useState("Prepositions"), [erro2, setErro2] = useState("Phrasal Verbs");
   const [peso1, setPeso1] = useState("High"), [peso2, setPeso2] = useState("Medium");
   const [isLigaOpen, setIsLigaOpen] = useState(false);
@@ -296,7 +420,11 @@ export default function DashboardDesktop() {
   useEffect(() => { setMounted(true); }, []);
 
   const dadosRadar = [
-    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: 75 }, { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: 85 }, { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: 60 }, { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: 70 }, { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: 90 }
+    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: cHabla },
+    { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: cEscucha },
+    { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: cGramatica },
+    { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: cEscritura },
+    { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: cLectura }
   ];
 
   return (
@@ -436,7 +564,7 @@ export default function DashboardDesktop() {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
-                <span className="bg-[#f59e0b] text-white text-[10px] px-2.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{t.level}</span>
+                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{idiomaCurso} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {nivelObjetivo}</span>
               </div>
             </div>
           </div>
@@ -482,14 +610,21 @@ export default function DashboardDesktop() {
                     <span className="w-2 h-2 rounded-full bg-[#f59e0b] inline-block shrink-0" /> {t.missionTag}
                   </span>
                   <div className="mt-2 flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-slate-200 font-mono tracking-wider">{t.module}</span>
-                    <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight">Data Schema Integrity Checks</h2>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[10px] font-black text-amber-500 font-mono tracking-widest uppercase">
+                        {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
+                      </span>
+                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase">
+                        {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {listaUnidades[0]?.level || 'A1'}
+                      </span>
+                    </div>
+                    <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight mt-0.5">{nomeModulo}</h2>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3 shrink-0 w-full md:w-auto justify-end">
                   <div onClick={handleBotClick} className="flex items-center gap-2 xl:gap-3 cursor-pointer select-none active:scale-98" title="Clique para falar com o Co-Pilot">
-                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-2.5 xl:p-3 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
+                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-4 xl:p-4.5 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
                       {obterConselhoIA()}
                       <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-900"></div>
                     </div>
@@ -499,48 +634,59 @@ export default function DashboardDesktop() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 xl:gap-4 mt-4 bg-[#040e1b] p-3 rounded-xl border border-white/5 text-white/90 font-mono text-[9px] xl:text-[10px] font-black shadow-inner shrink-0">
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.reward || 'SCORE: +50 PTS'}</span></div>
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.time || '15 MIN'}</span></div>
-                <div className="flex items-center gap-1.5 text-white"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.badge}</span></div>
+                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ EN: "ACTIVE SCORE", ES: "SCORE ACTIVO", PT: "SCORE ATIVO" }[(idioma || "PT").toUpperCase()] || "SCORE ATIVO")}: +{scoreAtivo} PTS</span></div>
+                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{(t.time || "TEMPO:").split(":")[0].toUpperCase()}: {tempoModulo} MIN</span></div>
+                <div className="flex items-center gap-1.5 text-white"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")}: {(() => { const d = { "Explorador": { PT: "EXPLORADOR", ES: "EXPLORADOR", EN: "EXPLORER" }, "Pioneiro": { PT: "PIONEIRO", ES: "PIONERO", EN: "PIONEER" }, "Conquistador": { PT: "CONQUISTADOR", ES: "CONQUISTADOR", EN: "CONQUEROR" }, "Estrategista": { PT: "ESTRATEGISTA", ES: "ESTRATEGA", EN: "STRATEGIST" }, "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" } }; return (d[patenteBruta] ? (d[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase(); })()}</span></div>
               </div>
 
               <div className="mt-5 mb-2 w-full flex flex-col gap-2 select-none xl:flex-1 min-h-0">
-                <div className="grid grid-cols-2 gap-x-4 xl:gap-x-8 mb-1 border-b border-white/5 pb-1 shrink-0">
-                  <div className="text-[10px] xl:text-[11px] font-bold tracking-wider text-white/30 uppercase truncate">
-                    {idioma === 'PT' ? 'Estruturas Gramaticais' : idioma === 'ES' ? 'Estructuras Gramaticales' : 'Grammar Structures'}
-                  </div>
-                  <div className="text-[10px] xl:text-[11px] font-bold tracking-wider text-white/30 uppercase truncate">
-                    {idioma === 'PT' ? 'Léxico & Vocabulário' : idioma === 'ES' ? 'Léxico y Vocabulario' : 'Lexicon & Vocabulary'}
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-x-4 xl:gap-x-8 xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[11.5px] xl:text-[12.72px]">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.03]">
-                      {['Verificação de Condicionais Complexas', 'Voz Passiva para Logs de Erro', 'Preposições de Direção e Causalidade', 'Estruturas de Controle e Laços Avançados', 'Tratamento de Exceções Escopadas'].map((item, idx) => (
-                        <div key={idx} onClick={() => setIsArenaOpen(true)} className="group h-[32px] flex items-center cursor-pointer transition-all duration-150 select-none">
-                          <span className="truncate group-hover:text-amber-400 group-hover:translate-x-1 transition-transform duration-150">{idioma === 'PT' ? item : 'Technical Topic Unit'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.03]">
-                      {['Gerenciamento de Threads Paralelas', 'Regras de Restrição e Schema', 'Otimização de Consultas Complexas', 'Casos de Borda e Tolerância a Falhas', 'Auditorias de Integridade de Produção'].map((item, idx) => (
-                        <div key={idx} onClick={() => setIsArenaOpen(true)} className="group h-[32px] flex items-center cursor-pointer transition-all duration-150 select-none">
-                          <span className="truncate group-hover:text-[#00D4FF] group-hover:translate-x-1 transition-transform duration-150">{idioma === 'PT' ? item : 'Vocabulary Sector'}</span>
+                <div className="flex flex-col xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[12.5px] xl:text-[13.5px] mt-1">
+                  <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.04]">
+                    {(listaUnidades.length > 0 ? listaUnidades : [
+                      { unit_title: 'O Primeiro Impacto e as Vogais Fracas' },
+                      { unit_title: 'Identidade e os Sons' },
+                      { unit_title: 'De Onde Você É? O Labirinto do R e do J' },
+                      { unit_title: 'Educação e Sobrevivência' },
+                      { unit_title: 'Despedidas Corporativas/Sociais e as Nasais' }
+                    ]).map((unit, idx) => {
+                      const currentTitle = unit.unit_title;
+                      const currentId = unit.id || null;
+                      
+                      return (
+                        <div 
+                          key={idx} 
+                          onClick={() => { 
+                            setArenaModo({ tipo: 'unidade', idx: currentId || idx }); 
+                            setIsArenaOpen(true); 
+                          }} 
+                          className="group h-[38px] flex items-center justify-between cursor-pointer transition-all duration-150 select-none hover:bg-white/[0.015] px-2 rounded-lg"
+                        >
+                          <div className="flex items-center gap-4 min-w-0 flex-1">
+                            <span className="font-mono text-[9px] text-amber-500/80 font-black bg-amber-500/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
+                            <span className="group-hover:text-amber-400 group-hover:translate-x-1 transition-transform duration-150 tracking-wide font-medium text-white/90 whitespace-nowrap">
+                              {currentTitle}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[9.5px] font-mono text-slate-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-150 group-hover:text-amber-400">
+                              {idioma === 'ES' ? 'Acceder a la Arena' : idioma === 'EN' ? 'Access Arena' : 'Acessar Arena'}
+                            </span>
+                            <span className="text-slate-600 group-hover:text-amber-400 transition-colors duration-150 font-sans text-sm font-light">➔</span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full mt-3 shrink-0">
+            <div className="w-full mt-auto shrink-0 pt-4">
               <button 
-                onClick={() => { setIsArenaOpen(true); }} 
+                onClick={() => { setArenaModo({ tipo: null, idx: null }); setIsArenaOpen(true); }} 
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(237,108,2,0.25)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
               >
                 {t.trainBtn}
@@ -552,24 +698,33 @@ export default function DashboardDesktop() {
             <div className="w-full border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15),inset_0_0_15px_rgba(245,158,11,0.08)] rounded-[24px] p-4 flex flex-col justify-between min-h-[95px] sm:h-full select-none relative overflow-hidden text-white" style={{ background: "radial-gradient(circle at 5% 50%, rgba(217,119,6,0.22) 0%, transparent 55%), radial-gradient(circle at 95% 50%, rgba(217,119,6,0.18) 0%, transparent 50%), #0d1520" }}>
               <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest font-mono">{t.streakTitle}</span>
               <div className="space-y-0.5">
-                <div className="flex items-center gap-3"><span className="text-2xl xl:text-3xl font-black text-white tracking-wide font-sans">12 {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><Flame size={26} className="text-amber-500 shrink-0 stroke-[1.5]" /></div>
+                <div className="flex items-center gap-3"><span className="text-2xl xl:text-3xl font-black text-white tracking-wide font-sans">{streakDays} {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><Flame size={26} className="text-amber-500 shrink-0 stroke-[1.5]" /></div>
                 <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider text-left block">{t.streakSub}</span>
               </div>
             </div>
 
             <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
-              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{t.ranking}</span>
+              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
-                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{xpAtual} <span className="text-[11px] font-bold text-slate-400">/ {xpTotal} PTS</span></span>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${porcentagemXp}%` }} /></div>
+                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal)) * 100), 100)}%` }} /></div>
               </div>
             </div>
 
             <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
               <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{t.nextReward}</span>
               <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{idioma === "PT" ? "Nível Explorer" : idioma === "ES" ? "Nivel Explorer" : "Level Explorer"}</span><span className="text-amber-500 font-mono font-bold">-30 PTS</span></div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: "85%" }} /></div>
+                <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")} {(() => {
+                    const dic = {
+                      "Explorador": { PT: "EXPLORADOR", ES: "EXPLORADOR", EN: "EXPLORER" },
+                      "Pioneiro": { PT: "PIONEIRO", ES: "PIONERO", EN: "PIONEER" },
+                      "Conquistador": { PT: "CONQUISTADOR", ES: "CONQUISTADOR", EN: "CONQUEROR" },
+                      "Estrategista": { PT: "ESTRATEGISTA", ES: "ESTRATEGA", EN: "STRATEGIST" },
+                      "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" }
+                    };
+                    return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
+                  })()}</span><span className="text-amber-500 font-mono font-bold">-{Math.max(0, Number(xpTotal) - Number(xpAtual))} PTS</span></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((scoreAtivo / xpTotalUnidade) * 100), 100)}%` }} /></div>
               </div>
             </div>
           </div>
@@ -588,7 +743,7 @@ export default function DashboardDesktop() {
                         <stop offset="100%" stopColor="#d97706" stopOpacity="0.02"/>
                       </linearGradient>
                     </defs>
-                    <PolarGrid stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+                    <PolarGrid stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
                     <PolarAngleAxis dataKey="competenca" tick={{ fill: "#94A3B8", fontSize: 9, fontWeight: "800", letterSpacing: "0.03em" }} />
                     <PolarRadiusAxis tick={false} domain={[0, 100]} />
                     <Radar 
@@ -606,11 +761,35 @@ export default function DashboardDesktop() {
               ) : <div className="text-[10px] font-mono text-slate-400 animate-pulse">Sync...</div>}
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 text-[7.5px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
-              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={9}/> {t.insights[0]}</span>
-              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={9}/> {t.insights[1]}</span>
-              <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><AlertTriangle size={9}/> {t.insights[2]}</span>
-            </div>
+            {(() => {
+              const lista = [
+                { id: "habla", pt: "Fala", es: "Habla", en: "Speaking", nota: cHabla },
+                { id: "escucha", pt: "Escuta", es: "Escucha", en: "Listening", nota: cEscucha },
+                { id: "gramatica", pt: "Gramática", es: "Gramática", en: "Grammar", nota: cGramatica },
+                { id: "escritura", pt: "Escrita", es: "Escritura", en: "Writing", nota: cEscritura },
+                { id: "lectura", pt: "Leitura", es: "Lectura", en: "Reading", nota: cLectura }
+              ].sort((a, b) => b.nota - a.nota);
+
+              const top1 = lista[0];
+              const top2 = lista[1];
+              const bottom = lista[4];
+
+              const tLabel = (item: any) => idioma === "PT" ? item.pt : idioma === "ES" ? item.es : item.en;
+
+              return (
+                <div className="grid grid-cols-3 gap-1.5 text-[7.2px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
+                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <TrendingUp size={9}/> {tLabel(top1)} +{top1.nota}%
+                  </span>
+                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <TrendingUp size={9}/> {tLabel(top2)} +{top2.nota}%
+                  </span>
+                  <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <AlertTriangle size={9}/> {idioma === "PT" ? "Prática de" : idioma === "ES" ? "Prática de" : "Practice"} {tLabel(bottom)}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="w-full flex flex-col gap-1 shrink-0 relative z-20 mt-2">
@@ -623,7 +802,7 @@ export default function DashboardDesktop() {
                 <ChevronDown size={12} className={`text-slate-500 transition-transform duration-300 ${isLigaOpen ? 'rotate-180 text-amber-500' : ''}`} />
               </div>
               <div className="bg-gradient-to-r from-amber-500/10 to-amber-600/20 border border-amber-500/50 text-[#f59e0b] px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
-                <span>{aluno1}</span>
+                <span>{nicknameAluno}</span>
               </div>
             </div>
 
@@ -633,15 +812,19 @@ export default function DashboardDesktop() {
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
               <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
-                {mockupLigas.map((user) => (
-                  <div key={user.rank} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${user.rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-mono text-[10px] font-black w-4 text-center">{user.rank}</span>
-                      <span className="truncate">{user.nome.replace("👑", "").trim()}</span>
+                {topTen.map((user, index) => {
+                  const rank = index + 1;
+                  const ptsFormatados = (user.total_xp || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                  return (
+                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono text-[10px] font-black w-4 text-center">{rank}</span>
+                        <span className="truncate">{user.nickname || "Aluno Anônimo"}</span>
+                      </div>
+                      <span className="font-mono text-[10px] text-slate-400">{ptsFormatados} PTS</span>
                     </div>
-                    <span className="font-mono text-[10px] text-slate-400">{user.xp}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -655,11 +838,27 @@ export default function DashboardDesktop() {
           <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
             <span className="text-[9px] font-black text-[#f59e0b] font-mono uppercase tracking-wider">{t.chestTitle}</span>
             <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] py-1.5 px-3 rounded-xl text-white/90 border border-white/5">
-              <span>Preposições (Alto)</span>
-              <span className="opacity-20">•</span>
-              <span>Phrasal Verbs (Médio)</span>
+              {(() => {
+                const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
+                const ordenados = [...errorLogs].sort((a, b) => {
+                  const pesoA = peso[a.frequencia] || 0;
+                  const pesoB = peso[b.frequencia] || 0;
+                  return pesoB - pesoA;
+                });
+                
+                const erro1 = ordenados[0] ? `${ordenados[0].conteudo} (${ordenados[0].frequencia})` : (idioma === "PT" ? "Nenhum Erro" : idioma === "ES" ? "Sin Errores" : "No Errors");
+                const erro2 = ordenados[1] ? `${ordenados[1].conteudo} (${ordenados[1].frequencia})` : "---";
+                
+                return (
+                  <>
+                    <span className="truncate max-w-[45%]">{erro1}</span>
+                    <span className="opacity-20">•</span>
+                    <span className="truncate max-w-[45%]">{erro2}</span>
+                  </>
+                );
+              })()}
             </div>
-            <button className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-amber-500/60 shadow-sm transition-all">
+            <button onClick={() => setIsDepurarOpen(true)} className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-amber-500/60 shadow-sm transition-all">
               <span className="text-[#f59e0b]">{t.clearBtn}</span>
             </button>
           </div>
@@ -678,11 +877,13 @@ export default function DashboardDesktop() {
       </div>
 
       <PremiumStyle />
-      <ArenaQuiz 
+            <ArenaQuiz 
+        key={arenaModo?.tipo === 'unidade' ? String(arenaModo.idx) : 'arena-fechada'}
         isOpen={isArenaOpen} 
-        onClose={() => setIsArenaOpen(false)} 
-        userId="user_demo_123" 
-        idiomaAtivo={idioma} 
+        onClose={() => { setIsArenaOpen(false); setArenaModo(null); }} 
+        userId={userIdBanco} 
+        idiomaAtivo={idioma}
+        subUnidadeIndex={arenaModo?.tipo === 'unidade' ? arenaModo.idx : 0} 
         onAbrirPedagogo={(tipo) => setModalPedagogoPage({ aberto: true, tipo })} 
       />
 
@@ -725,8 +926,53 @@ export default function DashboardDesktop() {
         </div>
       )}
       <ModalAvaliacaoFidelidade isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} idioma={idioma} />
-      <ModalEntregaAtividade isOpen={isEntregaOpen} onClose={() => setIsEntregaOpen(false)} idioma={idioma} />
-      <ModalAgendaAluno isOpen={isAgendaOpen} onClose={() => setIsAgendaOpen(false)} idioma={idioma} />
+      <ModalEntregaAtividade isOpen={isEntregaOpen} onClose={() => setIsEntregaOpen(false)} idioma={idioma} entregas={listaEntregas} />
+      <ModalAgendaAluno 
+        isOpen={isAgendaOpen} 
+        onClose={() => setIsAgendaOpen(false)} 
+        idioma={idioma} 
+        userId={userIdBanco} 
+      />
+
+      {/* 🔍 MODAL DE DEPURAÇÃO DE LOGS COMPLETO */}
+      {isDepurarOpen && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center animate-fadeIn">
+          <div onClick={() => setIsDepurarOpen(false)} className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md bg-[#040c16] border border-amber-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
+            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+              <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#f59e0b]">
+                {idioma === "PT" ? "Depuração de Logs" : idioma === "ES" ? "Depuración de Logs" : "Logs Debugger"}
+              </h3>
+              <button onClick={() => setIsDepurarOpen(false)} className="text-slate-400 hover:text-white font-black font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-md transition-colors">X</button>
+            </div>
+
+            <div className="flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar">
+              {(() => {
+                const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
+                const ordenados = [...errorLogs].sort((a, b) => (peso[b.frequencia] || 0) - (peso[a.frequencia] || 0));
+
+                if (ordenados.length === 0) {
+                  return <p className="text-[10px] font-mono text-slate-400 py-4 text-center">{idioma === "PT" ? "Nenhum log de erro registrado." : idioma === "ES" ? "No hay logs de errores registrados." : "No error logs registered."}</p>;
+                }
+
+                return ordenados.map((item: any, idx: number) => {
+                  const isCritico = item.frequencia === "Alto";
+                  return (
+                    <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/5 text-[10px] font-mono font-bold">
+                      <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${
+                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      }`}>
+                        {item.frequencia}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 🗂️ GAVETA LUXO PERFIL 100% COMPLETA, COM IDIOMAS E BOTÃO DE PAGAMENTO */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex justify-start ${isPerfilOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'}`}>
@@ -792,7 +1038,7 @@ export default function DashboardDesktop() {
             </div>
             
             <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
-              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">Sequência: 12d</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
               <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
@@ -811,7 +1057,7 @@ export default function DashboardDesktop() {
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
                 <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">{vocabularioAtivo}</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Vocabulário Ativado' : idioma === 'ES' ? 'Vocabulario Activo' : 'Active Vocab'}</span>
+                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Dias Ativos' : idioma === 'ES' ? 'Días Activos' : 'Active Days'}</span>
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
                 <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">{proximoVencimento}</span>
@@ -930,7 +1176,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     // Tabela Flex / Corporativa - Inicia em 75k e rebate nos marcos de 8 (560k), 12 (780k) e 20 (1.2M)
     const tabelaFlex = { 1: 75000, 2: 145000, 3: 215000, 4: 285000, 5: 355000, 6: 425000, 7: 495000, 8: 560000, 9: 615000, 10: 670000, 11: 725000, 12: 780000, 13: 835000, 14: 890000, 15: 945000, 16: 1000000, 17: 1055000, 18: 1110000, 19: 1155000, 20: 1200000 };
     valorTotal = tabelaFlex[qtdAvulsas] || (qtdAvulsas * 75000);
-    descricaoItem = idioma === "PT" ? `Aula Individual Flex: ${qtdAvulsas} Créditos (1 a 1)` : idioma === "EN" ? `Individual Flex Class: ${qtdAvulsas} Credits (1-on-1)` : `Clase Individual Flex: ${qtdAvulsas} Créditos (1 a 1)`;
+    descricaoItem = idioma === "PT" ? `Pack VIP Pro: ${qtdAvulsas} Créditos` : idioma === "EN" ? `VIP Pro Pack: ${qtdAvulsas} Credits` : `Pack VIP Pro: ${qtdAvulsas} Créditos`;
   } else if (modalidade === "acumulador_grupo") {
     const tabela = { 1: 40000, 2: 75000, 3: 110000, 4: 145000, 5: 180000, 6: 220000, 7: 260000, 8: 300000, 9: 330000, 10: 360000, 11: 390000, 12: 420000, 13: 450000, 14: 480000, 15: 510000, 16: 540000, 17: 570000, 18: 600000, 19: 625000, 20: 650000 };
     valorTotal = tabela[qtdAvulsas] || (qtdAvulsas * 40000);
@@ -1032,7 +1278,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
-                  <div className="text-[11px] font-bold text-amber-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Particulares Flex" : idioma === "EN" ? "Private Flex" : "Particulares Flex"}</div>
+                  <div className="text-[11px] font-bold text-amber-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
                   </div>
@@ -1047,7 +1293,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 <div className="flex gap-2">
                   {[8, 12, 20].map((num) => (
                     <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "bg-amber-500 text-black border-amber-500" : "bg-slate-900 border-white/5 hover:border-white/10"}`}>
-                      {num} Créditos
+                      {num} {idioma === "EN" ? "Credits" : "Créditos"}
                     </button>
                   ))}
                 </div>
@@ -1056,7 +1302,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
             {modalidade === "avulsa" && (
               <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-400 font-bold uppercase">Cantidad de Clases Flex ($50.000 COP c/u):</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Quantidade de Aulas VIP Pro:" : idioma === "EN" ? "Amount of VIP Pro Classes:" : "Cantidad de Clases VIP Pro:"}</span>
                 <div className="flex items-center gap-4 justify-center py-1">
                   <button onClick={() => setQtdAvulsas(Math.max(1, qtdAvulsas - 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">-</button>
                   <span className="text-lg font-mono font-black text-amber-400">{qtdAvulsas}</span>
@@ -1067,7 +1313,13 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
             {["acumulador_grupo", "acumulador_vip_std", "acumulador_vip_pro"].includes(modalidade) && (
               <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Quantidade de Aulas em Grupo Acumuladas:" : idioma === "EN" ? "Amount of Accumulated Group Classes:" : "Cantidad de Clases en Grupo Acumuladas:"}</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">
+                  {modalidade === "acumulador_grupo" ? (
+                    idioma === "PT" ? "Quantidade de Aulas em Grupo:" : idioma === "EN" ? "Amount of Group Classes:" : "Cantidad de Clases en Grupo:"
+                  ) : (
+                    idioma === "PT" ? "Quantidade de Aulas VIP Std:" : idioma === "EN" ? "Amount of VIP Std Classes:" : "Cantidad de Clases VIP Std:"
+                  )}
+                </span>
                 <div className="flex items-center gap-4 justify-center py-1">
                   <button onClick={() => setQtdAvulsas(Math.max(1, qtdAvulsas - 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">-</button>
                   <span className="text-lg font-mono font-black text-amber-400">{qtdAvulsas}</span>

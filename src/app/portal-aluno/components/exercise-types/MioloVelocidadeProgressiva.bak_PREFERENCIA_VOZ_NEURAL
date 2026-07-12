@@ -1,0 +1,398 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { Turtle, Zap, Rocket, CheckCircle, XCircle, Sparkles, Send, RefreshCw } from 'lucide-react';
+
+interface MioloVelocidadeProgressivaProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+const traducoesAbas: Record<string, Record<string, string>> = {
+  es: {
+    instrucao: "Ajusta las marchas de audio y selecciona la opción correcta:",
+    validando: "Analizando respuesta...",
+    validar: "Validar Respuesta",
+    refazer: "Intentar de nuevo",
+    aguardando: "Conectando con la mentora...",
+    slow: "Lento",
+    mid: "Normal",
+    pro: "Rápido"
+  },
+  en: {
+    instrucao: "Adjust the audio gears and select the correct option:",
+    validando: "Analyzing response...",
+    validar: "Validate Answer",
+    refazer: "Try Again",
+    aguardando: "Connecting to mentor...",
+    slow: "Slow",
+    mid: "Normal",
+    pro: "Fast"
+  },
+  pt: {
+    instrucao: "Ajuste as marchas de áudio e selecione a opção correta:",
+    validando: "Analisando resposta...",
+    validar: "Validar Resposta",
+    refazer: "Tentar de Novo",
+    aguardando: "Conectando com a mentora...",
+    slow: "Lento",
+    mid: "Normal",
+    pro: "Rápido"
+  }
+};
+
+export default function MioloVelocidadeProgressiva({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloVelocidadeProgressivaProps) {
+  const [readingText, setReadingText] = useState("Carregando o texto da lição...");
+  const [correctAnswer, setCorrectAnswer] = useState("");
+  const [activeSpeed, setActiveSpeed] = useState<'slow' | 'normal' | 'native' | null>('normal');
+  const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [options, setOptions] = useState<any[]>([]);
+  const [correctId, setCorrectId] = useState<number>(0);
+  
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [feedbackIA, setFeedbackIA] = useState("");
+  const [analisando, setAnalisando] = useState(false);
+  const [carregando, setCarregando] = useState(true);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const obterLangKey = () => {
+    const lang = idiomaNativoAluno?.toLowerCase() || "";
+    if (lang.includes("eng") || lang.includes("ing")) return "en";
+    if (lang.includes("por") || lang.includes("bra")) return "pt";
+    return "es";
+  };
+
+  const t = traducoesAbas[obterLangKey()];
+
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        setCarregando(true);
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+        });
+        const userDados = await userRes.json();
+        if (userDados && userDados.length > 0) {
+          setIdiomaNativoAluno(userDados[0].native_language || "Español");
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.13&limit=1`;
+        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` } });
+        
+        let exe = null;
+        if (res.ok) {
+          const dados = await res.json();
+          if (dados && dados.length > 0) exe = dados[0];
+        }
+
+        if (!exe) {
+          exe = {
+            reading_text: "Ontem o dia foi muito agitado. Eu ______ ao banco, fiz um depósito e depois tive que ir ao cartório.",
+            correct_answer: "fui",
+            alternative_options: ["fui", "fiz", "tive", "vim"]
+          };
+        }
+
+        const textoLimpo = exe.reading_text || exe.texto || "";
+        const respostaLimpa = exe.correct_answer || exe.correta || "";
+
+        setReadingText(textoLimpo);
+        setCorrectAnswer(respostaLimpa);
+        
+        let rawOptions: string[] = [];
+        const altOpts = exe.alternative_options || exe.alternativas;
+        if (altOpts) {
+          if (typeof altOpts === 'string') {
+            try {
+              let limpo = altOpts.trim();
+              if (limpo.startsWith('"') && limpo.endsWith('"')) limpo = limpo.substring(1, limpo.length - 1);
+              rawOptions = JSON.parse(limpo);
+            } catch (e) {
+              rawOptions = altOpts.replace(/[\[\]"'\\]/g, '').split(',').map((s: string) => s.trim());
+            }
+          } else if (Array.isArray(altOpts)) {
+            rawOptions = altOpts;
+          }
+        }
+        
+        if (rawOptions.length === 0 && respostaLimpa) {
+          rawOptions = [respostaLimpa, "tive", "fiz", "vim"];
+        }
+
+        const mapped = rawOptions.map((text, idx) => ({
+          id: idx + 1,
+          text: text
+        }));
+        setOptions(mapped);
+
+        const idxCorreto = rawOptions.findIndex(opt => opt.trim().toLowerCase() === respostaLimpa.trim().toLowerCase());
+        setCorrectId(idxCorreto !== -1 ? idxCorreto + 1 : 1);
+        setLocalStatus('IDLE');
+        setSelectedId(null);
+        setFeedbackIA("");
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarDados();
+  }, [unidadeAtiva]);
+
+  const playAudio = (speed: 'slow' | 'normal' | 'native', rate: number) => {
+    setActiveSpeed(speed);
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && readingText) {
+      window.speechSynthesis.cancel();
+      
+      let cleanText = readingText;
+      if (correctAnswer.includes('/')) {
+        const parts = correctAnswer.split('/');
+        parts.forEach(part => { cleanText = cleanText.replace(/______/, part.trim()); });
+      } else {
+        cleanText = cleanText.replace(/___+/g, correctAnswer || "lacuna");
+      }
+
+      const utterance = new SpeechSynthesisUtterance(cleanText.toLowerCase());
+      utterance.lang = 'pt-BR';
+      utterance.rate = rate; 
+      utterance.pitch = 1.02; 
+
+      const vozes = window.speechSynthesis.getVoices();
+      const vozFeminina = 
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Google português do Brasil")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Luciana")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Francisca")) ||
+        vozes.find(v => v.lang.includes("pt-BR"));
+
+      if (vozFeminina) utterance.voice = vozFeminina;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleSelecionarItem = (id: number) => {
+    if (localStatus === 'CORRECT' || analisando) return;
+    setSelectedId(id);
+    setLocalStatus('IDLE');
+  };
+
+  const executarValidacaoInterna = async () => {
+    if (selectedId === null || analisando) return;
+
+    setAnalisando(true);
+    setFeedbackIA("");
+
+    const opcaoTexto = options.find(o => o.id === selectedId)?.text || "";
+    const fraseMontadaComOpcao = readingText.replace(/___+/g, ` ${opcaoTexto.toUpperCase()} `);
+
+    try {
+      const prompt = `Analise a resposta do aluno no exercício de escuta. Frase preenchida pelo aluno: "${fraseMontadaComOpcao}". Palavra correta esperada na lacuna: "${correctAnswer}".
+      Responda estritamente em um formato JSON limpo com duas propriedades:
+      1) "valido": true ou false.
+      2) "feedback": Uma frase curtíssima (máximo 10 palavras) explicando o motivo gramatical. Escreva no idioma nativo do aluno: ${idiomaNativoAluno}.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
+        const resultadoIA = JSON.parse(jsonLimpo);
+
+        const acertou = resultadoIA.valido === true;
+        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+        setFeedbackIA(resultadoIA.feedback || "");
+        
+        if (acertou && onSelectCorrect) onSelectCorrect();
+        if (!acertou && onSelectWrong) onSelectWrong();
+      } else {
+        const acertou = selectedId === correctId;
+        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+        setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
+        if (acertou && onSelectCorrect) onSelectCorrect();
+        if (!acertou && onSelectWrong) onSelectWrong();
+      }
+    } catch (e) {
+      const acertou = selectedId === correctId;
+      setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+    } finally {
+      setAnalisando(false);
+    }
+  };
+
+  const renderDynamicText = () => {
+    const parts = readingText.split(/___+/g);
+    if (parts.length < 2) return <span>{readingText}</span>;
+
+    let wordToShow = "______";
+    let isSelectedStyle = false;
+
+    if (localStatus === 'CORRECT') {
+      wordToShow = correctAnswer.toUpperCase();
+      isSelectedStyle = true;
+    } else if (selectedId !== null) {
+      wordToShow = (options.find(o => o.id === selectedId)?.text || "").toUpperCase();
+      isSelectedStyle = true;
+    }
+
+    return (
+      <span>
+        {parts[0]}
+        <span className={isSelectedStyle ? "text-cyan-400 font-black px-1 transition-all duration-150" : "text-slate-400 font-bold"}>
+          {wordToShow}
+        </span>
+        {parts[1]}
+      </span>
+    );
+  };
+
+  const resetarExercicio = () => {
+    setSelectedId(null);
+    setLocalStatus('IDLE');
+    setFeedbackIA("");
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-6 text-cyan-400 font-bold animate-pulse text-xs tracking-widest uppercase">
+        {t?.aguardando || "CONECTANDO..."}
+      </div>
+    );
+  }
+
+  const exibirContainerInferior = (localStatus === 'IDLE' && selectedId !== null) || analisando || feedbackIA;
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-hidden select-none gap-2 p-1">
+      
+      {/* 1. INSTRUÇÃO COMPACTA */}
+      <span className="text-[clamp(10px,1.2vw,12px)] font-bold text-cyan-400 uppercase tracking-wider block shrink-0">
+        {t.instrucao}
+      </span>
+
+      {/* 2. MARCHAS DE ÁUDIO RECALIBRADAS */}
+      <div className="grid grid-cols-3 gap-1.5 w-full shrink-0">
+        <button
+          type="button"
+          onClick={() => playAudio('slow', 0.75)}
+          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[clamp(10px,1.1vw,11px)] uppercase cursor-pointer ${
+            activeSpeed === 'slow' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          }`}
+        >
+          <Turtle size={12} /> <span>{t.slow}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => playAudio('normal', 1.08)}
+          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[clamp(10px,1.1vw,11px)] uppercase cursor-pointer ${
+            activeSpeed === 'normal' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          }`}
+        >
+          <Zap size={12} /> <span>{t.mid}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => playAudio('native', 1.30)}
+          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[clamp(10px,1.1vw,11px)] uppercase cursor-pointer ${
+            activeSpeed === 'native' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          }`}
+        >
+          <Rocket size={12} /> <span>{t.pro}</span>
+        </button>
+      </div>
+
+      {/* 3. BOX DO PARÁGRAFO */}
+      <div className="w-full bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-2.5 flex items-center justify-center shrink-0">
+        <p className="text-[clamp(12px,1.4vw,14px)] font-bold leading-normal text-center text-slate-200 w-full break-words">
+          {renderDynamicText()}
+        </p>
+      </div>
+
+      {/* 4. BANCO DE OPÇÕES */}
+      <div className="grid grid-cols-2 gap-2 w-full flex-1 min-h-0 items-center content-center overflow-hidden">
+        {options.map((opt) => {
+          const isSelected = selectedId === opt.id;
+          let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300";
+          
+          if (isSelected) {
+            if (localStatus === 'CORRECT') optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400";
+            else if (localStatus === 'WRONG') optStyle = "border-rose-500 bg-rose-950/20 text-rose-400";
+            else optStyle = "border-cyan-400 bg-cyan-950/30 text-cyan-400 font-black";
+          }
+
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => handleSelecionarItem(opt.id)}
+              disabled={localStatus === 'CORRECT' || analisando}
+              className={`w-full text-center py-2 px-3 rounded-lg border text-[clamp(11px,1.3vw,13px)] font-bold transition-all cursor-pointer flex items-center justify-center min-h-[38px] ${optStyle}`}
+            >
+              {opt.text}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 5. SEÇÃO DE SUBMISSÃO E FEEDBACKS TOTALMENTE DINÂMICA */}
+      {exibirContainerInferior && (
+        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in">
+          
+          {/* O BOTÃO TRANSFORMA-SE DIRETAMENTE NO STATUS DE ANALISANDO */}
+          {localStatus === 'IDLE' && selectedId !== null && !analisando && (
+            <button
+              onClick={executarValidacaoInterna}
+              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[clamp(11px,1.3vw,13px)] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Send size={12} /> {t.validar}
+            </button>
+          )}
+
+          {/* O BOTÃO ADQUIRE ESTE ESTILO LIMPO DURANTE O PROGRESSO */}
+          {analisando && (
+            <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2.5 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse">
+              <Sparkles size={12} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            </div>
+          )}
+
+          {/* EM SEGUIDA, ENTRA O FEEDBACK FINAL */}
+          {localStatus === 'CORRECT' && feedbackIA && (
+            <div className="flex flex-col items-center text-center bg-emerald-950/20 border border-emerald-500/20 py-1.5 px-2 rounded-lg animate-fade-in">
+              <div className="flex items-center gap-1 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                <CheckCircle size={12} /> <span>Excelente!</span>
+              </div>
+              <p className="text-[11px] text-slate-300 font-medium italic truncate max-w-full">"{feedbackIA}"</p>
+            </div>
+          )}
+
+          {localStatus === 'WRONG' && feedbackIA && (
+            <div className="flex flex-col items-center gap-0.5 text-center bg-rose-950/20 border border-rose-500/20 py-1.5 px-2 rounded-lg animate-fade-in">
+              <div className="flex items-center gap-1 text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                <XCircle size={12} /> <span>Ajuste necessário</span>
+              </div>
+              <div className="flex items-center justify-between w-full gap-2">
+                <p className="text-[11px] text-slate-300 font-medium italic truncate flex-1 text-left">"{feedbackIA}"</p>
+                <button 
+                  onClick={resetarExercicio}
+                  className="px-2 py-0.5 bg-slate-900 border border-white/[0.05] text-slate-200 text-[9px] uppercase font-black rounded-md cursor-pointer shrink-0"
+                >
+                  <RefreshCw size={10} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+    </div>
+  );
+}

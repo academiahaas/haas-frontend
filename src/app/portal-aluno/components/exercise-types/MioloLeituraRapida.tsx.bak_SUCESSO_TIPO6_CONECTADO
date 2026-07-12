@@ -1,0 +1,158 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Timer, FileText } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+interface MioloLeituraRapidaProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+export default function MioloLeituraRapida({
+  onSelectionChange,
+  onValidateResult,
+  status = 'IDLE',
+  unidadeAtiva
+}: MioloLeituraRapidaProps) {
+  const [textoLongo, setTextoLongo] = useState("Carregando parágrafo de interpretação...");
+  const [textoGabarito, setTextoGabarito] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  
+  const [timeLeft, setTimeLeft] = useState(45); // Tempo calibrado para leitura e digitação do bloco
+  const [fase, setFase] = useState<'LEITURA' | 'DIGITACAO'>('LEITURA');
+  const timerRef = useRef<any>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Carregamento dinâmico direto da Central Cliente
+  useEffect(() => {
+    async function carregarLeituraDoBanco() {
+      try {
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        
+        const { data: dados, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('unit', nomeUnidade)
+          .eq('activity_type', 6);
+
+        if (error) throw error;
+
+        if (dados && dados.length > 0) {
+          const exe = dados[0];
+          const textoBase = exe.reading_text || exe.correct_answer || "";
+          
+          setTextoLongo(textoBase);
+          setTextoGabarito(textoBase.trim());
+          setInputValue("");
+          setFase('LEITURA');
+          setTimeLeft(30); // 30 segundos de foco absoluto para leitura prévia antes de abrir a caixa
+        }
+      } catch (err) {
+        console.error("Erro ao carregar Tipo 6 do Supabase:", err);
+      }
+    }
+    carregarLeituraDoBanco();
+  }, [unidadeAtiva]);
+
+  // Gerenciador do Timer de Fluidez
+  useEffect(() => {
+    if (status !== 'IDLE') {
+      clearInterval(timerRef.current);
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (fase === 'LEITURA') {
+            setFase('DIGITACAO');
+            return 60; // Dá mais 60 segundos para consolidar a resposta escrita
+          }
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [fase, status]);
+
+  // Foco automático ao abrir o input text
+  useEffect(() => {
+    if (fase === 'DIGITACAO' && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [fase]);
+
+  // Monitora o reset de estado enviado pelo botão Avançar/Submeter da Arena
+  useEffect(() => {
+    if (status === 'IDLE' && fase === 'DIGITACAO') {
+      setInputValue("");
+      setFase('LEITURA');
+      setTimeLeft(30);
+    }
+  }, [status]);
+
+  const handleInputChange = (val: string) => {
+    setInputValue(val);
+    if (onSelectionChange) onSelectionChange(val.trim().length > 0);
+
+    // Validação em Tempo Real acoplada na Arena Quiz
+    const respostaAluno = val.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    const gabaritoComparacao = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    
+    const acertou = respostaAluno === gabaritoComparacao;
+    if (onValidateResult) onValidateResult(acertou);
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left animate-fade-in font-mono flex-1 min-h-0 gap-4">
+      
+      {/* BARRA SUPERIOR DE TEMPO E CONTROLE */}
+      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/60 p-3 rounded-xl border border-white/[0.02]">
+        <div className="flex items-center gap-2 text-cyan-400 font-black text-xs uppercase tracking-wider">
+          <FileText size={16} />
+          <span>Fase: <span className="text-white">{fase}</span></span>
+        </div>
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-black text-xs ${
+          timeLeft <= 10 ? 'text-red-500 border-red-500/20 bg-red-500/5 animate-pulse' : 'text-[#f59e0b] border-[#f59e0b]/20 bg-[#f59e0b]/5'
+        }`}>
+          <Timer size={14} />
+          <span>{timeLeft}s</span>
+        </div>
+      </div>
+
+      {/* ÁREA CENTRAL DO TEXTO LONGO DO SUPABASE */}
+      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl p-4 text-[clamp(13px,3.6vw,15px)] font-medium text-slate-300 leading-relaxed flex-1 min-h-0 overflow-y-auto w-full select-none">
+        <p className="font-sans text-[#F8FAFC] text-justify">{textoLongo}</p>
+      </div>
+
+      {/* PAINEL DE DIGITAÇÃO / INPUT ACIONADO APÓS A LEITURA */}
+      <div className="w-full shrink-0 flex flex-col gap-2">
+        {fase === 'LEITURA' ? (
+          <button
+            onClick={() => { setFase('DIGITACAO'); setTimeLeft(60); }}
+            className="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center"
+          >
+            Já terminei de ler! Ir para a validação
+          </button>
+        ) : (
+          <textarea
+            ref={inputRef}
+            value={inputValue}
+            disabled={status === 'CORRECT'}
+            onChange={(e) => handleInputChange(e.target.value)}
+            placeholder="Digite ou resuma o parágrafo acima com precisão textual para validar..."
+            className={`w-full h-24 bg-[#070d19] border-2 rounded-xl p-3 font-sans text-sm text-slate-200 transition-all focus:outline-none focus:border-cyan-500/50 resize-none ${
+              status === 'CORRECT' ? 'border-[#00E676] text-[#00E676]' : status === 'WRONG' ? 'border-red-500 text-red-500' : 'border-white/[0.08]'
+            }`}
+          />
+        )}
+      </div>
+
+    </div>
+  );
+}

@@ -84,12 +84,22 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
   async function salvarFeedback() {
     setLoading(true);
     try {
-      await supabase.from("student_feedbacks").insert({
-        class_date: classDate,
-        teacher_score: teacherScore,
-        material_score: materialScore,
-        platform_score: 5,
-        written_comment: comment || null
+      // Tenta recuperar o id do usuário do localStorage se existir
+      let uid = null;
+      if (typeof window !== "undefined") {
+        uid = localStorage.getItem("haas_uid") || localStorage.getItem("user_id") || null;
+      }
+
+      // Calcula a média das duas avaliações do formulário para salvar em rating_stars
+      const mediaStars = Math.round((teacherScore + materialScore) / 2);
+
+      // Insere na tabela correta com as colunas certas mapeadas do banco
+      await supabase.from("teacher_reviews").insert({
+        user_id: uid,
+        teacher_name: "Professor",
+        rating_stars: mediaStars,
+        comment: comment || "",
+        class_date: classDate
       });
       setSucesso(true);
       setTimeout(() => {

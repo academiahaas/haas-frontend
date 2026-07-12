@@ -1,0 +1,183 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+interface MioloBlocosProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+interface BlocoItem {
+  id: string;
+  texto: string;
+}
+
+export default function MioloBlocos({
+  onSelectionChange,
+  onValidateResult,
+  status = 'IDLE',
+  unidadeAtiva
+}: MioloBlocosProps) {
+  const [gabaritoFrase, setGabaritoFrase] = useState<string>("");
+  const [blocosDisponiveis, setBlocosDisponiveis] = useState<BlocoItem[]>([]);
+  const [blocosMontados, setBlocosMontados] = useState<BlocoItem[]>([]);
+
+  // Carregamento dinâmico da Central Cliente
+  useEffect(() => {
+    async function carregarBlocosDoBanco() {
+      try {
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        
+        const { data: dados, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('unit', nomeUnidade)
+          .eq('activity_type', 5);
+
+        if (error) throw error;
+
+        if (dados && dados.length > 0) {
+          const exe = dados[0];
+          
+          // Define a frase correta para comparação futura (limpa de pontuação para evitar erros do aluno)
+          const fraseLimpa = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim().toLowerCase();
+          setGabaritoFrase(fraseLimpa);
+
+          // Puxa as opções da coluna do banco ou gera fallbacks dinâmicos
+          let palavrasOriginais: string[] = [];
+          if (exe.alternative_options) {
+            try {
+              palavrasOriginais = typeof exe.alternative_options === 'string' 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              palavrasOriginais = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
+            }
+          } else {
+            palavrasOriginais = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
+          }
+
+          // Mapeia para objetos com ID único para evitar o bug de deletar palavras repetidas
+          const blocosMapeados = palavrasOriginais.map((palavra, index) => ({
+            id: `${palavra}-${index}-${Math.random()}`,
+            texto: palavra
+          }));
+
+          setBlocosMontados([]);
+          // Embaralha garantindo a quebra de ordem
+          setBlocosDisponiveis([...blocosMapeados].sort(() => Math.random() - 0.5));
+          
+          console.log(`%c 🧩 [HAAS BLOCOS] Exercício ID: ${exe.id} carregado.`, "background: #f59e0b; color: black; padding: 2px 6px; font-weight: bold;");
+        }
+      } catch (err) {
+        console.error("Erro ao carregar blocos do Supabase:", err);
+      }
+    }
+    carregarBlocosDoBanco();
+  }, [unidadeAtiva]);
+
+  // Monitora o reset de status enviado pela Arena Quiz
+  useEffect(() => {
+    if (status === 'IDLE' && blocosMontados.length > 0) {
+      const todos = [...blocosMontados, ...blocosDisponiveis];
+      setBlocosMontados([]);
+      setBlocosDisponiveis([...todos].sort(() => Math.random() - 0.5));
+    }
+  }, [status]);
+
+  const dispararSomClique = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = "sine"; osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.03, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.04);
+      }
+    } catch (e) {}
+  };
+
+  const handlePush = (bloco: BlocoItem) => {
+    if (status === "CORRECT") return;
+    dispararSomClique();
+    
+    const novosMontados = [...blocosMontados, bloco];
+    setBlocosMontados(novosMontados);
+    setBlocosDisponiveis(prev => prev.filter(b => b.id !== bloco.id));
+    
+    if (onSelectionChange) onSelectionChange(novosMontados.length > 0);
+  };
+
+  const handlePull = (bloco: BlocoItem) => {
+    if (status === "CORRECT") return;
+    dispararSomClique();
+
+    const novosMontados = blocosMontados.filter(b => b.id !== bloco.id);
+    setBlocosMontados(novosMontados);
+    setBlocosDisponiveis(prev => [...prev, bloco]);
+    
+    if (onSelectionChange) onSelectionChange(novosMontados.length > 0);
+  };
+
+  // Gancho interceptor de validação exposto para a Arena Quiz
+  useEffect(() => {
+    if (blocosMontados.length > 0 || blocosDisponiveis.length > 0) {
+      const fraseMontadaAluno = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
+      const acertou = fraseMontadaAluno === gabaritoFrase;
+      if (onValidateResult) onValidateResult(acertou);
+    }
+  }, [blocosMontados, gabaritoFrase, onValidateResult]);
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between gap-4 font-mono text-left animate-fade-in min-h-0 flex-1">
+      <div className="w-full flex flex-col gap-2 flex-1 min-h-0">
+        <span className="text-[clamp(12px,3.5vw,14px)] font-black text-[#38BDF8] tracking-wider uppercase shrink-0 text-center block px-2">
+          Construa a estrutura correta movendo os blocos:
+        </span>
+        
+        {/* ÁREA DE CONSTRUÇÃO DA FRASE */}
+        <div className={`w-full p-4 min-h-[110px] flex-1 rounded-xl flex flex-wrap content-center justify-center gap-2 items-center border-2 transition-all duration-200 ${
+          status === "CORRECT" ? "bg-[#042414]/30 border-[#22C55E]/30" :
+          status === "WRONG" ? "bg-[#2E0B0E]/30 border-red-500/30 animate-shake" :
+          "bg-[#070d19] border-dashed border-white/[0.08] shadow-2xl"
+        }`}>
+          {blocosMontados.length === 0 && (
+            <span className="text-slate-500 text-[clamp(11px,3.2vw,13px)] font-black uppercase tracking-widest pointer-events-none text-center px-4 opacity-70">
+              Toque nos blocos abaixo para ordenar
+            </span>
+          )}
+          {blocosMontados.map((b) => (
+            <button
+              key={b.id}
+              onClick={() => handlePull(b)}
+              disabled={status === "CORRECT"}
+              className="px-3 py-2.5 bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] text-white text-[clamp(13px,3.8vw,15px)] font-black rounded-xl border border-[#FFB478]/35 cursor-pointer shadow-md active:scale-95 transition-all whitespace-nowrap tracking-wide"
+            >
+              {b.texto}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* BANCO DE BLOCOS DISPONÍVEIS */}
+      <div className="flex flex-wrap gap-2.5 w-full p-3 bg-[#070d19]/40 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 min-h-[95px]">
+        {blocosDisponiveis.map((b) => (
+          <button
+            key={b.id}
+            disabled={status !== "IDLE"}
+            onClick={() => handlePush(b)}
+            className="px-3 py-2.5 bg-[#0c192e] hover:border-cyan-500/40 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[clamp(12px,3.5vw,14px)] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+          >
+            {b.texto}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

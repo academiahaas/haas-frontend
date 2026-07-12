@@ -1,0 +1,121 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
+
+interface ParagrafoItem {
+  id: number;
+  text: string;
+}
+
+interface MioloReordenacaoProps {
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: "IDLE" | "CORRECT" | "WRONG";
+  unidadeAtiva?: string;
+}
+
+export default function MioloReordenacaoParagrafos({ onValidateResult, status = "IDLE", unidadeAtiva }: MioloReordenacaoProps) {
+  const [items, setItems] = useState<ParagrafoItem[]>([]);
+  const [gabaritoIds, setGabaritoIds] = useState<number[]>([]);
+  const [carregando, setCarregando] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function carregarEFracionarShadowing() {
+      try {
+        setCarregando(true);
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        // Alvo: Puxa o exercício do Tipo 10 (Shadowing) para transformar em quebra de parágrafos/frases
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?activity_type=eq.10&limit=1";
+        
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+        
+        let frasesOriginais: string[] = [];
+
+        if (dados && dados.length > 0 && dados[0].correct_answer) {
+          // Quebra o texto longo por pontos, exclamações ou interrogações para extrair as frases isoladas
+          frasesOriginais = dados[0].correct_answer
+            .split(/(?<=[.!?])\s+/)
+            .map((f: string) => f.trim())
+            .filter(Boolean);
+        }
+
+        // Fallback preventivo caso o banco falhe ou retorne texto curto demais
+        if (frasesOriginais.length < 2) {
+          frasesOriginais = [
+            "Eu vou revisar a matéria hoje à noite.",
+            "Depois, vou fazer todos os exercícios pendentes.",
+            "Em seguida, vou tirar as dúvidas diretamente com o professor.",
+            "Por fim, estarei pronto para fazer a prova com confiança."
+          ];
+        }
+        
+        const itensMontados = frasesOriginais.map((txt, idx) => ({ id: idx + 1, text: txt }));
+        setGabaritoIds(itensMontados.map(it => it.id));
+        
+        // Embaralha para o aluno resolver o quebra-cabeça
+        setItems([...itensMontados].sort(() => Math.random() - 0.5));
+      } catch (err) {
+        console.error("Erro ao processar quebra do tipo 10:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarEFracionarShadowing();
+  }, [unidadeAtiva]);
+
+  const moverItem = (index: number, direcao: "UP" | "DOWN") => {
+    const novosItens = [...items];
+    const destino = direcao === "UP" ? index - 1 : index + 1;
+    if (destino < 0 || destino >= items.length) return;
+    
+    const [removido] = novosItens.splice(index, 1);
+    novosItens.splice(destino, 0, removido);
+    setItems(novosItens);
+  };
+
+  const handleVerificarOrdem = () => {
+    if (items.length === 0) return;
+    const ordemAtualIds = items.map(it => it.id);
+    const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
+    if (onValidateResult) onValidateResult(acertou);
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-8 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Freadando e Fracionando o Bloco de Shadowing...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden">
+      <div className="flex items-center justify-between bg-[#0c192e] py-3 px-4 rounded-xl border border-white/[0.04] text-xs font-bold text-cyan-400 shrink-0">
+        <span className="uppercase tracking-wider">Coloque as frases do texto na ordem lógica:</span>
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
+        {items.map((item, index) => (
+          <div key={item.id} className="flex items-center gap-3 bg-[#0c192e] border border-white/[0.04] p-3 rounded-xl transition-all hover:border-white/[0.1]">
+            <div className="flex flex-col gap-1 shrink-0">
+              <button onClick={() => moverItem(index, "UP")} disabled={index === 0} className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-300 rounded cursor-pointer transition-all">
+                <ArrowUp size={14} />
+              </button>
+              <button onClick={() => moverItem(index, "DOWN")} disabled={index === items.length - 1} className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-20 text-slate-300 rounded cursor-pointer transition-all">
+                <ArrowDown size={14} />
+              </button>
+            </div>
+            <p className="text-[13px] text-slate-200 leading-relaxed font-medium select-none">
+              {item.text}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleVerificarOrdem} className="w-full py-3.5 shrink-0 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-xs uppercase tracking-widest cursor-pointer shadow-md active:scale-95 border-none">
+        Confirmar Sequência
+      </button>
+    </div>
+  );
+}

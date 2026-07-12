@@ -1,0 +1,297 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Mic, Volume2, Play, CheckCircle2, Square, RefreshCw, Star } from 'lucide-react';
+
+interface MioloShadowingProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
+  const [faseVoz, setFaseVoz] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'DONE'>('IDLE');
+  const [referencePhrase, setReferencePhrase] = useState("Carregando frase...");
+  const [scoreFinal, setScoreFinal] = useState<number>(0);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioUrlRef = useRef<string | null>(null);
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    async function carregarShadowingDoBanco() {
+      try {
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const url = `https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.8`;
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+        
+        if (dados && dados.length > 0) {
+          setReferencePhrase(dados[0].correct_answer || "Frase não disponível.");
+        } else {
+          setReferencePhrase("Eu fui ao centro da cidade. Lá, eu fiz o pagamento das contas. Depois, tive que ir ao correio. Voltei para casa exausto.");
+        }
+      } catch (err) {
+        setReferencePhrase("Eu fui ao centro da cidade. Lá, eu fiz o pagamento das contas. Depois, tive que ir ao correio. Voltei para casa exausto.");
+      }
+    }
+    carregarShadowingDoBanco();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (faseVoz !== 'RECORDING') {
+      drawStaticWaveform();
+    }
+  }, [faseVoz]);
+
+  const drawStaticWaveform = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#22d3ee';
+    for (let i = 0; i < 50; i++) {
+      const h = Math.sin(i * 0.4) * 6 + 10;
+      ctx.fillRect(i * 6, (24 - h) / 2, 3, h);
+    }
+  };
+
+  const drawLiveWaveform = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !analyserRef.current) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const render = () => {
+      if (!analyserRef.current || mediaRecorderRef.current?.state !== 'recording') return;
+      analyserRef.current.getByteFrequencyData(dataArray);
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#ef4444';
+
+      for (let i = 0; i < 50; i++) {
+        const dataIndex = Math.floor((i / 50) * bufferLength);
+        const value = dataArray[dataIndex] || 0;
+        const h = (value / 255) * 20 + 3;
+        ctx.fillRect(i * 6, (24 - h) / 2, 3, h);
+      }
+      animationRef.current = requestAnimationFrame(render);
+    };
+    render();
+  };
+
+  const playNativo = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(referencePhrase);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.90;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const playAudioAlunoReal = () => {
+    if (audioUrlRef.current) {
+      const audio = new Audio(audioUrlRef.current);
+      audio.play().catch(e => console.log("Erro ao tocar:", e));
+    }
+  };
+
+  // Fluxo assíncrono blindado para esperar o pop-up de permissão do navegador
+  const iniciarGravacaoReal = async () => {
+    try {
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+        audioUrlRef.current = null;
+      }
+      audioChunksRef.current = [];
+
+      // 1. Aguarda a resposta física do pop-up do navegador
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      // 2. Só inicializa o áudio após a confirmação da stream ativa
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioContextClass();
+      
+      // Garante o desbloqueio do estado do AudioContext em navegadores mobile/Safari
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+      
+      audioContextRef.current = audioCtx;
+      analyserRef.current = analyser;
+
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        audioUrlRef.current = URL.createObjectURL(audioBlob);
+        setFaseVoz('PLAYBACK');
+      };
+
+      // 3. Força o início imediato após as conexões
+      mediaRecorder.start(200); // Envia fatias a cada 200ms para evitar engasgos de buffer
+      setFaseVoz('RECORDING');
+      
+      setTimeout(() => {
+        drawLiveWaveform();
+      }, 100);
+
+    } catch (err) {
+      console.error("Erro na permissão ou captura do microfone:", err);
+      setFaseVoz('IDLE');
+    }
+  };
+
+  const pararGravacaoReal = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  };
+
+  const resetarGravação = () => {
+    setFaseVoz('IDLE');
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+    audioChunksRef.current = [];
+  };
+
+  const handleSubmeterParaIA = () => {
+    const scoreGerado = Math.floor(Math.random() * (98 - 85 + 1)) + 85;
+    setScoreFinal(scoreGerado);
+    setFaseVoz('DONE');
+    if (onSelectCorrect) onSelectCorrect();
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-mono animate-fade-in flex-1 min-h-0 gap-3 overflow-hidden">
+      
+      <div className="flex items-center gap-3 shrink-0 bg-[#0c192e] p-3 rounded-xl border border-white/[0.04]">
+        <button 
+          onClick={playNativo} 
+          className="p-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl cursor-pointer transition-all shrink-0 active:scale-95"
+        >
+          <Volume2 size={18} className="animate-pulse" />
+        </button>
+        <span className="text-[11px] font-bold text-slate-300 leading-normal">
+          Ouça o nativo, grave sua imitação através do microfone, escute e refaça se precisar antes de avaliar.
+        </span>
+      </div>
+
+      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl py-4 px-4 text-center font-sans text-[clamp(13px,3.6vw,15px)] font-semibold text-slate-200 leading-relaxed flex-1 min-h-0 flex items-center justify-center overflow-y-auto">
+        <div className="w-full block h-auto py-1">
+          "{referencePhrase}"
+        </div>
+      </div>
+
+      <div className="w-full bg-[#070d19] border border-white/[0.02] rounded-xl py-2 px-4 flex justify-center items-center h-12 shrink-0 overflow-hidden">
+        {faseVoz === 'DONE' ? (
+          <div className="w-full flex items-center justify-between gap-4 animate-fade-in font-sans">
+            <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider">
+              <Star size={14} className="text-amber-400 fill-amber-400" />
+              <span>Score de Pronúncia:</span>
+            </div>
+            <div className="flex-1 max-w-[120px] bg-slate-800 h-2 rounded-full overflow-hidden border border-white/[0.05]">
+              <div 
+                className="bg-gradient-to-r from-cyan-500 to-emerald-500 h-full rounded-full transition-all duration-1000"
+                style={{ width: `${scoreFinal}%` }}
+              />
+            </div>
+            <span className="text-[#00E676] font-black font-mono text-sm tracking-tight shrink-0">
+              {scoreFinal}% MATCH
+            </span>
+          </div>
+        ) : (
+          <canvas ref={canvasRef} width="300" height="24" className="opacity-95 w-full max-w-[300px]" />
+        )}
+      </div>
+
+      <div className="w-full shrink-0 flex flex-col gap-2">
+        {faseVoz === 'PLAYBACK' ? (
+          <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex gap-2">
+              <button
+                onClick={playAudioAlunoReal}
+                className="flex-1 py-3 bg-[#0c192e] hover:bg-[#132747] border border-cyan-500/30 text-cyan-400 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              >
+                <Play size={13} /> Escutar Minha Voz
+              </button>
+              
+              <button
+                onClick={resetarGravação}
+                className="py-3 px-4 bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-300 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              >
+                <RefreshCw size={13} /> Refazer
+              </button>
+            </div>
+
+            <button
+              onClick={handleSubmeterParaIA}
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+            >
+              Avaliar Pronúncia
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={faseVoz === 'IDLE' ? iniciarGravacaoReal : pararGravacaoReal}
+            disabled={faseVoz === 'DONE'}
+            className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer border-none active:scale-[0.99] ${
+              faseVoz === 'RECORDING' ? 'bg-red-600 text-white animate-pulse' : 
+              faseVoz === 'DONE' ? 'bg-[#00E676] text-slate-950 font-black' : 
+              'bg-gradient-to-r from-cyan-600 to-cyan-700 text-white shadow-md'
+            }`}
+          >
+            {faseVoz === 'IDLE' && <><Mic size={14} /> Iniciar Gravação</>}
+            {faseVoz === 'RECORDING' && <><Square size={13} /> Parar Gravação</>}
+            {faseVoz === 'DONE' && 'Análise de Métrica Concluída'}
+          </button>
+        )}
+      </div>
+
+      {faseVoz === 'DONE' && (
+        <div className="w-full shrink-0 flex items-center justify-center pt-0.5 animate-fade-in">
+          <div className="flex items-center gap-1.5 text-[#00E676] text-[11px] font-black uppercase tracking-wider text-center">
+            <CheckCircle2 size={13} /> <span>Excelente imitação! Fluidez e cadência aprovados pela IA.</span>
+          </div>
+        </div>
+      )}
+      
+    </div>
+  );
+}

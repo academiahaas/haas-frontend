@@ -1,0 +1,241 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Mic, Disc, CheckCircle, AlertTriangle, MessageSquare } from "lucide-react";
+
+interface MioloRoleplayProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+interface FeedbackEstruturado {
+  status: "EXCELENTE" | "REGULAR" | "INCOERENTE";
+  mensagem: string;
+  sugestao: string;
+}
+
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+  const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "PLAYBACK" | "DONE">("IA_SPEAKING");
+  const [phraseIA, setPhraseIA] = useState("Carregando pergunta da IA...");
+  const [transcricaoAluno, setTranscricaoAluno] = useState("");
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
+
+  // NOVO MOTOR: Detecta anomalias de áudio e interferências de Portunhol/Inglês geradas pelo navegador
+  const avaliarRespostaSemantica = (pergunta: string, resposta: string): FeedbackEstruturado => {
+    const p = pergunta.toLowerCase();
+    const r = resposta.toLowerCase().trim();
+
+    if (!r || r.length < 3) {
+      return {
+        status: "INCOERENTE",
+        mensagem: "O sistema não conseguiu ouvir sua voz.",
+        sugestao: "Fale mais perto do microfone ou verifique se ele está liberado no navegador."
+      };
+    }
+
+    // Padrões de palavras que o transritor pt-BR gera quando o aluno fala Espanhol ou Inglês
+    const padroesInterferencia = [
+      "hola", "buenos", "dias", "tarde", "noite", "si", "pero", "muy", "hablar", "gracias",
+      "olha", "pelo", "mui", "uai", "yes", "i am", "you", "gostar", "pode ser"
+    ];
+
+    const palavrasAluno = r.split(/\s+/);
+    
+    // Identifica se o transritor tentou "aportuguesar" palavras de fora
+    const detectouEstranheza = padroesInterferencia.some(termo => r.includes(termo)) || r.includes("lo ") || r.includes(" de la");
+
+    if (detectouEstranheza && !p.includes("sim")) {
+      return {
+        status: "REGULAR",
+        mensagem: "A IA detectou que você misturou espanhol, inglês ou termos inadequados na sua fala.",
+        sugestao: "Tente responder novamente focando apenas em palavras 100% do português. Evite misturar os idiomas."
+      };
+    }
+
+    // Validação de Coerência Simples: Verifica se o tamanho da resposta condiz com uma tentativa real
+    if (palavrasAluno.length >= 2) {
+      return {
+        status: "EXCELENTE",
+        mensagem: "Resposta aceita! Você respondeu no idioma correto e manteve a conversação ativa.",
+        sugestao: "Muito bem. O fluxo de fala está correto para continuar a atividade."
+      };
+    }
+
+    return {
+      status: "INCOERENTE",
+      mensagem: "Sua resposta ficou curta demais ou desconectada da pergunta.",
+      sugestao: "Tente formular uma frase simples de resposta usando uma ação ou lugar."
+    };
+  };
+
+  const limparPerguntaDeLacunas = (textoSujo: string): string => {
+    if (!textoSujo) return "";
+    let limpo = textoSujo
+      .replace(/_{2,}/g, "")
+      .replace(/-{2,}/g, "")
+      .replace(/\[\.{3}\]/g, "")
+      .replace(/\[\s*\]/g, "")
+      .replace(/\([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+\)/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (limpo.length < 5) limpo = "Como você prefere praticar a conversação em português hoje?";
+    return limpo;
+  };
+
+  useEffect(() => {
+    async function carregarEFiltrarTipo1() {
+      try {
+        setCarregando(true);
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?activity_type=eq.1&limit=1";
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+        
+        if (dados && dados.length > 0) {
+          const exe = dados[0];
+          setPhraseIA(limparPerguntaDeLacunas(exe.reading_text || exe.context || ""));
+          setFlowState("IA_SPEAKING");
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarEFiltrarTipo1();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (flowState === "IA_SPEAKING" && !carregando) {
+      const timer = setTimeout(() => { setFlowState("USER_TURN"); }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [flowState, carregando]);
+
+  const iniciarGravacaoReal = () => {
+    setTranscricaoAluno("");
+    setFeedback(null);
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        streamRef.current = stream;
+        const recorder = new MediaRecorder(stream); mediaRecorderRef.current = recorder;
+        recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data); };
+        recorder.onstop = () => { setFlowState('PLAYBACK'); };
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          const recognition = new SpeechRecognition();
+          recognition.lang = 'pt-BR'; 
+          recognition.continuous = true; 
+          recognition.interimResults = false;
+          
+          recognition.onresult = (event: any) => {
+            let acumulado = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              if (event.results[i].isFinal) acumulado += event.results[i][0].transcript + " ";
+            }
+            if (acumulado) setTranscricaoAluno((prev) => (prev + " " + acumulado).trim());
+          };
+          recognitionRef.current = recognition; recognition.start();
+        }
+        recorder.start(); setFlowState('RECORDING');
+      }).catch(err => console.error(err));
+    }
+  };
+
+  const pararGravacaoReal = () => {
+    if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch(e){} }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') mediaRecorderRef.current.stop();
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+  };
+
+  const processarAvaliacaoFinal = () => {
+    const resultadoFeedback = avaliarRespostaSemantica(phraseIA, transcricaoAluno);
+    setFeedback(resultadoFeedback);
+    setFlowState('DONE');
+
+    if (resultadoFeedback.status === "EXCELENTE") {
+      if (onSelectCorrect) onSelectCorrect();
+    } else {
+      if (onSelectWrong) onSelectWrong();
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Carregando Módulo de Conversação...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden">
+      
+      <div className="bg-[#0c192e] border border-white/[0.04] p-4 rounded-2xl flex items-start transition-all">
+        <div className="space-y-1 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400/60">Pergunta da IA</span>
+          <p className="text-[14px] text-slate-200 font-medium leading-relaxed">{phraseIA}</p>
+        </div>
+      </div>
+
+      {(flowState === 'PLAYBACK' || flowState === 'DONE' || transcricaoAluno) && (
+        <div className="bg-[#070e1b] border border-white/[0.02] p-3 rounded-xl max-h-[70px] overflow-y-auto shrink-0">
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">O que o sistema ouviu:</span>
+          <p className="text-xs text-cyan-300 italic font-medium">"{transcricaoAluno || "Processando áudio..."}"</p>
+        </div>
+      )}
+
+      {flowState === 'DONE' && feedback && (
+        <div className="bg-[#0b1d3a] border border-cyan-500/10 rounded-xl p-4 space-y-2 animate-fade-in shrink-0">
+          <div className="flex items-center gap-2">
+            {feedback.status === "EXCELENTE" && <CheckCircle size={16} className="text-emerald-400" />}
+            {feedback.status === "REGULAR" && <MessageSquare size={16} className="text-amber-400" />}
+            {feedback.status === "INCOERENTE" && <AlertTriangle size={16} className="text-rose-400" />}
+            <span className={`text-[11px] font-black uppercase tracking-wider ${
+              feedback.status === "EXCELENTE" ? "text-emerald-400" : feedback.status === "REGULAR" ? "text-amber-400" : "text-rose-400"
+            }`}>
+              Resultado: {feedback.status}
+            </span>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-slate-300 font-medium leading-relaxed">{feedback.mensagem}</p>
+            <p className="text-[11px] text-cyan-400/80 italic font-normal bg-cyan-950/20 p-2 rounded-lg border border-cyan-900/10">💡 {feedback.sugestao}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#060f1e]/40 rounded-2xl border border-dashed border-white/[0.04] p-4 min-h-[130px]">
+        {flowState === "IA_SPEAKING" && <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest animate-pulse">Aguarde a IA...</p>}
+        {flowState === "USER_TURN" && <p className="text-[10px] font-semibold text-cyan-400 uppercase tracking-widest">Toque no botão abaixo e responda</p>}
+        {flowState === "RECORDING" && <p className="text-[10px] font-semibold text-rose-500 uppercase tracking-widest animate-pulse flex items-center gap-1.5"><Disc size={12} className="animate-spin" /> Gravando áudio...</p>}
+        {flowState === "PLAYBACK" && <p className="text-[10px] font-semibold text-amber-400 uppercase tracking-widest">Áudio pronto para validação</p>}
+
+        {flowState === 'PLAYBACK' ? (
+          <div className="w-full flex gap-3 max-w-xs shrink-0 mt-1">
+            <button onClick={() => { setFlowState('USER_TURN'); setFeedback(null); setTranscricaoAluno(""); }} className="flex-1 py-2.5 bg-slate-800 text-slate-300 rounded-xl font-bold text-xs uppercase tracking-wider cursor-pointer">Refazer</button>
+            <button onClick={processarAvaliacaoFinal} className="flex-1 py-2.5 bg-gradient-to-r from-cyan-600 to-cyan-500 text-white rounded-xl font-bold text-xs uppercase tracking-wider cursor-pointer shadow-md">Avaliar</button>
+          </div>
+        ) : (
+          <button
+            onClick={flowState === 'RECORDING' ? pararGravacaoReal : iniciarGravacaoReal}
+            disabled={flowState === "IA_SPEAKING" || flowState === "DONE"}
+            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-lg active:scale-95 disabled:opacity-20 ${
+              flowState === "RECORDING" ? "bg-rose-600 animate-pulse shadow-rose-950" : "bg-gradient-to-tr from-cyan-600 to-cyan-500 shadow-cyan-950"
+            }`}
+          >
+            <Mic size={24} className="text-white" />
+          </button>
+        )}
+      </div>
+
+    </div>
+  );
+}
