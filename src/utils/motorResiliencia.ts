@@ -109,13 +109,37 @@ export async function registrarFeedbackEErro({
     console.warn("Falha no feedback da IA, usando padrão.", errIA);
   }
 
-  if (!acertouLocal) {
+  // Constantes de credenciais unificadas para a persistência assíncrona
+  const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const BASE_SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+
+  if (acertouLocal) {
+    try {
+      // Aloca os acertos estruturais do aluno na tabela user_progress
+      await fetch(`${BASE_SUPABASE_URL}/user_progress`, {
+        method: "POST",
+        headers: {
+          "apikey": S_KEY,
+          "Authorization": `Bearer ${S_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          unit_name: enunciado.length > 50 ? enunciado.substring(0, 47) + "..." : enunciado,
+          activity_type: enunciado.toLowerCase().includes("fala") || enunciado.toLowerCase().includes("shadowing") ? 10 : 3,
+          points_earned: 10
+        })
+      });
+      console.log(`✨ [PROGRESSO] Acerto contabilizado com sucesso para o aluno: +10 XP`);
+    } catch (progressErr) {
+      console.error("❌ Erro ao registrar acerto na tabela user_progress:", progressErr);
+    }
+  } else {
     const topicoErro = conteudoErroDetectado || "Gramática";
-    const REST_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/user_error_logs";
-    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+    const REST_URL = `${BASE_SUPABASE_URL}/user_error_logs`;
     
     try {
-      // 1. Busca registro existente usando fetch direto via SERVICE_KEY para ignorar RLS
       const checkRes = await fetch(`${REST_URL}?user_id=eq.${userId}&conteudo=eq.${encodeURIComponent(topicoErro)}`, {
         method: "GET",
         headers: {
@@ -128,7 +152,6 @@ export async function registrarFeedbackEErro({
       const logsExistentes = checkRes.ok ? await checkRes.json() : [];
       
       if (logsExistentes && logsExistentes.length > 0) {
-        // 2. Se já existe, faz o incremento da frequencia
         const log = logsExistentes[0];
         await fetch(`${REST_URL}?id=eq.${log.id}`, {
           method: "PATCH",
@@ -142,7 +165,6 @@ export async function registrarFeedbackEErro({
         });
         console.log(`📈 [TELEMETRIA REST] Erro incrementado: "${topicoErro}"`);
       } else {
-        // 3. Se não existe, cria o primeiro registro
         await fetch(REST_URL, {
           method: "POST",
           headers: {
