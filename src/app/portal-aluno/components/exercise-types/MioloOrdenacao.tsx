@@ -179,8 +179,30 @@ export default function MioloOrdenacao({
     }
   };
 
+  const dispararSomClique = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = "sine"; osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.03, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.04);
+      }
+    } catch (e) {
+      console.warn("Erro ao reproduzir clique sintetico:", e);
+    }
+  };
+
   const toggleToDeposit = (item: FragmentItem) => {
     if (localStatus !== 'IDLE' || analisando) return;
+    dispararSomClique();
     const newBank = bank.filter(b => b.id !== item.id);
     const newDeposit = [...deposit, item];
     setBank(newBank);
@@ -190,6 +212,7 @@ export default function MioloOrdenacao({
 
   const toggleToBank = (item: FragmentItem) => {
     if (localStatus !== 'IDLE' || analisando) return;
+    dispararSomClique();
     const newDeposit = deposit.filter(d => d.id !== item.id);
     const newBank = [...bank, item];
     setBank(newBank);
