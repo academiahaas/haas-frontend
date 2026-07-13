@@ -268,7 +268,7 @@ export default function MioloOrdenacao({
       </div>
 
       {/* ÁREA DE DEPÓSITO (ALTURA ADAPTADA CONTROLADA PARA EVITAR VAZAMENTOS) */}
-      <div className={`w-full p-3 flex-1 rounded-2xl flex flex-wrap content-center justify-center gap-2 items-center border transition-all duration-200 overflow-y-auto max-h-[28vh] min-h-[85px] ${
+      <div className={`w-full p-3 flex-1 rounded-2xl flex flex-wrap content-center justify-center gap-2 items-center border transition-all duration-200 overflow-y-auto max-h-[35vh] min-h-[100px] ${
         localStatus === "CORRECT" ? "bg-emerald-950/20 border-emerald-500/30" :
         localStatus === "WRONG" ? "bg-rose-950/20 border-rose-500/30" :
         "bg-[#01070e] border-white/[0.03] shadow-inner"
@@ -297,7 +297,7 @@ export default function MioloOrdenacao({
 
       {/* BANCO DE BLOCOS DISPONÍVEIS INFERIOR (ALTURA REDUZIDA PARA RESPONSIVIDADE) */}
       {!exibirContainerInferior && (
-        <div className="flex flex-wrap gap-2 w-full p-2 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[16vh] min-h-[65px] overflow-hidden">
+        <div className="flex flex-wrap gap-2 w-full p-2 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[22vh] min-h-[80px] overflow-hidden">
           {bank.map((item) => (
             <button
               key={item.id}
