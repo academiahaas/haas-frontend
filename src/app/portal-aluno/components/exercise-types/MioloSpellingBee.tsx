@@ -1,5 +1,5 @@
 "use client";
-import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Volume2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -199,14 +199,29 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     setStatus("IDLE");
   };
 
-  const validarSoletradoFinal = () => {
+  const validarSoletradoFinal = async () => {
     const palavraMontada = userInput.join("").toUpperCase().trim();
-    if (palavraMontada === targetWord) {
+    const acertou = palavraMontada === targetWord;
+
+    if (acertou) {
       setStatus("CORRECT");
       if (onSelectCorrect) onSelectCorrect();
     } else {
       setStatus("WRONG");
       if (onSelectWrong) onSelectWrong();
+      
+      // Dispara a telemetria e gravação de erros em background
+      try {
+        await registrarFeedbackEErro({
+          userId: USER_ID_ALVO,
+          enunciado: "Exercício de Soletração Ortográfica (Spelling Bee).",
+          respostaCorreta: targetWord,
+          respostaAluno: palavraMontada,
+          idiomaNativoAluno: idiomaNativoAluno
+        });
+      } catch (e) {
+        console.error("Erro ao enviar telemetria do Spelling Bee:", e);
+      }
     }
   };
 
