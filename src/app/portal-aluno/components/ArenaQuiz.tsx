@@ -834,18 +834,16 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   setRespostaIA("");
                   handleNextMission();
                 } else {
-                  // Dispara o sinal global nativo de validação para o exercício ativo escutar
                   window.dispatchEvent(new CustomEvent("haas:validate"));
                 }
               }}
-              
-              className={`flex-1 py-2.5 text-[11px] font-black tracking-widest rounded-xl transition-all border-none uppercase text-center disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none ${desafioIniciado && gameStatus !== "CORRECT" ? "hover:-translate-y-0.5 cursor-pointer" : ""} ${
+              className={`w-11 h-11 flex items-center justify-center text-sm font-black rounded-xl transition-all border-none disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none ${desafioIniciado && gameStatus !== "CORRECT" ? "hover:-translate-y-0.5 cursor-pointer" : ""} ${
                 gameStatus === 'CORRECT' 
                   ? 'bg-gradient-to-r from-[#22C55E] to-[#16a34a] text-white'
                   : 'bg-gradient-to-r from-[#FF8A2B] to-[#F97316] text-white'
               }`}
             >
-              {gameStatus === 'CORRECT' ? tArena.next : tArena.validate}
+              ➔
             </button>
           </div>
         </div>
