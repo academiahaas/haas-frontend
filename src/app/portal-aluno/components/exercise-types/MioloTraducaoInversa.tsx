@@ -1,5 +1,5 @@
 'use client';
-import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, RefreshCw, Sparkles, Send, Trophy, ArrowRight, BookOpen } from 'lucide-react';
 
@@ -211,22 +211,16 @@ export default function MioloTraducaoInversa({
     const fraseMontada = depositPieces.map(p => p.text).join(" ");
 
     try {
-      const prompt = `Analise a tradução da frase estrutural. Frase original: "${fraseMatrizPT}". Tradução correta esperada: "${stringAlvoCorreta}". O aluno montou: "${fraseMontada}". Responda estritamente em formato JSON: {"acertou": true/false, "feedback": "Explicação curta no idioma ${idiomaNativoAluno} explicando o motivo de forma direta e curta em no máximo 12 palavras para caber no layout mobile"}`;
-      
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Tradução Inversa. Converter para o idioma alvo a frase: "${fraseMatrizPT}"`,
+        respostaCorreta: stringAlvoCorreta,
+        respostaAluno: fraseMontada,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      const resData = await response.json();
-      const txt = resData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const jsonClean = txt.replace(/```json/g, "").replace(/```/g, "").trim();
-      const obj = JSON.parse(jsonClean);
-
-      // ATENÇÃO: Definimos apenas o estado local para forçar a telinha a abrir! Não chamamos o pai ainda!
-      setLocalStatus(obj.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(obj.feedback || (obj.acertou ? "Correto!" : "Ajuste necessário nos blocos."));
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
     } catch (e) {
       const acertou = fraseMontada.toLowerCase().trim() === stringAlvoCorreta.toLowerCase().trim();
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
