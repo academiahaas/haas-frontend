@@ -1,5 +1,5 @@
 "use client";
-import { resilienciaTextoCompleto, resilienciaOpcoes } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send } from "lucide-react";
 
@@ -197,36 +197,19 @@ export default function MioloVelocidadeProgressiva({
     const fraseMontadaComOpcao = readingText.replace(/___+/g, ` ${opcaoTexto.toUpperCase()} `);
 
     try {
-      const prompt = `Analise a resposta do aluno no exercício de escuta. Frase preenchida pelo aluno: "${fraseMontadaComOpcao}". Palavra correta esperada na lacuna: "${correctAnswer}".
-      Responda estritamente em um formato JSON limpo com duas propriedades:
-      1) "valido": true ou false.
-      2) "feedback": Uma frase curtíssima (máximo 10 palavras) explicando o motivo gramatical. Escreva no idioma nativo do aluno: ${idiomaNativoAluno}.`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Marchas de Áudio e Escuta Progressiva. Texto com lacuna: "${readingText}"`,
+        respostaCorreta: correctAnswer,
+        respostaAluno: opcaoTexto,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-
-        const acertou = resultadoIA.valido === true;
-        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-        setFeedbackIA(resultadoIA.feedback || "");
-        
-        if (acertou && onSelectCorrect) onSelectCorrect();
-        if (!acertou && onSelectWrong) onSelectWrong();
-      } else {
-        const acertou = selectedId === correctId;
-        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-        setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-        if (acertou && onSelectCorrect) onSelectCorrect();
-        if (!acertou && onSelectWrong) onSelectWrong();
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      
+      if (resultado.acertou && onSelectCorrect) onSelectCorrect();
+      if (!resultado.acertou && onSelectWrong) onSelectWrong();
     } catch (e) {
       const acertou = selectedId === correctId;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
