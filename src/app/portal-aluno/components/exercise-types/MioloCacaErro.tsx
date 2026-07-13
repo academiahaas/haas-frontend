@@ -1,4 +1,5 @@
-"use client";
+'use client';
+import { chamarGeminiInteligente } from './geminiService';
 import React, { useState, useEffect } from "react";
 import { registrarFeedbackEErro } from "@/utils/motorResiliencia";
 import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from "lucide-react";
@@ -115,11 +116,10 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
           if (listaUnificada.length === 3) {
             try {
               const promptQuarta = `Com base na frase correta "${fraseCorreta}", gere um distrator gramatical incorreto plausível em português de no máximo 8 palavras. Retorne ESTRITAMENTE um objeto JSON no formato: {"texto": "frase incorreta aqui"}`;
-              const resQuarta = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptQuarta }] }] })
-              });
+              // 🧠 Pool de chaves gratuito com rodízio automático
+              const textoQuartaGerada = await chamarGeminiInteligente(promptQuarta);
+              const dataQuarta = { candidates: [{ content: { parts: [{ text: textoQuartaGerada }] } }] };
+              const resQuarta = { ok: true, json: async () => dataQuarta };
               
               let inseridoComSucesso = false;
               if (resQuarta.ok) {

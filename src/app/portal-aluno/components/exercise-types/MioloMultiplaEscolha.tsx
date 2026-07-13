@@ -1,4 +1,5 @@
 'use client';
+import { chamarGeminiInteligente } from './geminiService';
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
@@ -131,11 +132,10 @@ export default function MioloMultiplaEscolha({
             try {
               const promptGerador = `Com base no enunciado "${exe.reading_text}" e sabendo que a resposta correta é "${respostaCerta}", crie uma única alternativa incorreta adicional que seja plausível para compor uma questão de múltipla escolha. Retorne estritamente o texto da nova opção, sem aspas, explicações ou formatação markdown. Evite repetir estas opções existentes: ${listaUnificada.join(', ')}.`;
               
-              const responseIA = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptGerador }] }] })
-              });
+              // 🧠 Pool de chaves gratuito com rodízio automático
+              const textoAlternativa = await chamarGeminiInteligente(promptGerador);
+              const dataIA = { candidates: [{ content: { parts: [{ text: textoAlternativa }] } }] };
+              const responseIA = { ok: true, json: async () => dataIA };
 
               if (responseIA.ok) {
                 const resData = await responseIA.json();

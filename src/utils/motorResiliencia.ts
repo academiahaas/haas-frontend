@@ -1,23 +1,14 @@
-import { supabase } from '@/lib/supabase';
-
-const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+import { chamarGeminiInteligente } from '../app/portal-aluno/components/exercise-types/geminiService';
 
 export async function resilienciaTextoCompleto(textoAtual: string, contexto: string): Promise<string> {
   try {
     const prompt = `Gere um texto curto, claro e imponente em português nativo para um exercício do tipo: ${contexto}. Não use formatações complexas ou markdown.`;
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Pronto para o próximo desafio estrutural.";
-    }
+    const textoIA = await chamarGeminiInteligente(prompt);
+    return textoIA || "Pronto para o próximo desafio estrutural.";
   } catch (e) {
     console.error("Erro na contingência de texto:", e);
+    return "Pronto para o próximo desafio estrutural.";
   }
-  return "Pronto para o próximo desafio estrutural.";
 }
 
 export async function resilienciaOpcoes(correta: string, erradas: string[], contexto: string): Promise<string[]> {
@@ -28,17 +19,9 @@ export async function resilienciaOpcoes(correta: string, erradas: string[], cont
   if (lista.length < alvo) {
     try {
       const prompt = `Com base na resposta correta "${correta}", gere ${alvo - lista.length} alternativas incorretas plausíveis para o contexto "${contexto}". Retorne apenas as palavras separadas por vírgula, sem numeração ou markdown.`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const geradas = texto.split(',').map((s: string) => s.trim()).filter(Boolean);
-        geradas.forEach(g => { if (lista.length < alvo && !lista.includes(g)) lista.push(g); });
-      }
+      const textoIA = await chamarGeminiInteligente(prompt);
+      const geradas = textoIA.split(',').map((s: string) => s.trim()).filter(Boolean);
+      geradas.forEach(g => { if (lista.length < alvo && !lista.includes(g)) lista.push(g); });
     } catch (e) {
       console.error("Erro na contingência de opções:", e);
     }
@@ -85,37 +68,26 @@ export async function registrarFeedbackEErro({
     
     Regras estritas de resposta:
     1. Retorne obrigatoriamente um JSON limpo com duas propriedades:
-       "feedback": Uma explicação curta (máximo 12 palavras) sobre o acerto ou o desvio ortográfico/sintático/escuta cometido pelo aluno. Escreva na língua nativa do aluno: ${idiomaNativoAluno}.
+       "feedback": Uma explicação corta (mínimo 12 palavras) sobre o acerto ou o desvio ortográfico/sintático/escuta cometido pelo aluno. Escreva na língua nativa do aluno: ${idiomaNativoAluno}.
        "conteudo_erro": Se o aluno errou, identifique em apenas 2 ou 3 palavras qual foi o tópico do erro (Ex: "Verbo ser", "Preposições", "Ortografia Ç", "Vocabulário"). Se ele acertou, deixe essa propriedade vazia "".
     
     Retorne apenas o JSON puro, sem markdown ou blocos de código.`;
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      const jsonLimpo = textoBruto.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
-      const resultado = JSON.parse(jsonLimpo);
-      
-      if (resultado.feedback) feedbackFinal = resultado.feedback;
-      if (resultado.conteudo_erro) conteudoErroDetectado = resultado.conteudo_erro;
-    }
+    const textoIA = await chamarGeminiInteligente(prompt);
+    const jsonLimpo = textoIA.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
+    const resultado = JSON.parse(jsonLimpo);
+    
+    if (resultado.feedback) feedbackFinal = resultado.feedback;
+    if (resultado.conteudo_erro) conteudoErroDetectado = resultado.conteudo_erro;
   } catch (errIA) {
     console.warn("Falha no feedback da IA, usando padrão.", errIA);
   }
 
-  // Constantes de credenciais unificadas para a persistência assíncrona
   const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
   const BASE_SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
 
   if (acertouLocal) {
     try {
-      // Aloca os acertos estruturais do aluno na tabela user_progress
       await fetch(`${BASE_SUPABASE_URL}/user_progress`, {
         method: "POST",
         headers: {
@@ -131,9 +103,8 @@ export async function registrarFeedbackEErro({
           points_earned: 10
         })
       });
-      console.log(`✨ [PROGRESSO] Acerto contabilizado com sucesso para o aluno: +10 XP`);
     } catch (progressErr) {
-      console.error("❌ Erro ao registrar acerto na tabela user_progress:", progressErr);
+      console.error("❌ Erro ao registrar progresso:", progressErr);
     }
   } else {
     const topicoErro = conteudoErroDetectado || "Gramática";
@@ -163,7 +134,6 @@ export async function registrarFeedbackEErro({
           },
           body: JSON.stringify({ frequencia: Number(log.frequencia || 1) + 1 })
         });
-        console.log(`📈 [TELEMETRIA REST] Erro incrementado: "${topicoErro}"`);
       } else {
         await fetch(REST_URL, {
           method: "POST",
@@ -175,10 +145,9 @@ export async function registrarFeedbackEErro({
           },
           body: JSON.stringify({ user_id: userId, conteudo: topicoErro, frequencia: 1 })
         });
-        console.log(`🆕 [TELEMETRIA REST] Novo erro registrado: "${topicoErro}"`);
       }
     } catch (dbErr) {
-      console.error("❌ Falha crítica ao persistir log de erro via REST API:", dbErr);
+      console.error("❌ Falha ao persistir log de erro:", dbErr);
     }
   }
 

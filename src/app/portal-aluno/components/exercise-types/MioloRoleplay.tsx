@@ -1,4 +1,6 @@
-"use client";
+'use client';
+import { chamarGeminiInteligente } from './geminiService';
+
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Disc, Loader2, Volume2 } from "lucide-react";
 

@@ -1,3 +1,4 @@
+import { chamarGeminiInteligente } from './geminiService';
 'use client';
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
