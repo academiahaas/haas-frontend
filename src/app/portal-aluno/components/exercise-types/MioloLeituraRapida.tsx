@@ -1,5 +1,5 @@
 'use client';
-import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Timer, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -169,41 +169,26 @@ export default function MioloLeituraRapida({
     setAnalisando(true);
     setFeedbackIA("");
 
-    const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-    const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-    const possuiAproveitamentoMinimo = respostaAlunoLimpa.length >= Math.min(20, gabaritoLimpo.length * 0.3);
-
     try {
-      const prompt = `Você é um avaliador rigoroso de retenção de leitura e velocidade textual. O aluno leu um parágrafo e tentou transcrever/resumir o texto.
-      Texto original esperado (Gabarito): "${textoGabarito}"
-      Texto digitado pelo aluno: "${inputValue}"
-      Analise se o aluno conseguiu reter os fatos fundamentais ou transcrever o conteúdo com fidelidade (aceite pequenas variações de digitação).
-      Gere uma resposta pedagógica direta e curta (máximo 12 palavras) na língua nativa do aluno: ${idiomaNativoAluno}.
-      Retorne obrigatoriamente um JSON limpo no formato exato: {"acertou": true ou false, "feedback": "sua mensagem aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Leitura Rápida e Retenção Textual. Parágrafo original: "${textoGabarito}"`,
+        respostaCorreta: textoGabarito,
+        respostaAluno: inputValue.trim(),
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-        
-        const validouSucesso = resultadoIA.acertou === true;
-        setFeedbackIA(resultadoIA.feedback || "");
-        setLocalStatus(validouSucesso ? 'CORRECT' : 'WRONG');
-        if (onValidateResult) onValidateResult(validouSucesso);
-      } else {
-        throw new Error("API Offline");
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
-      setFeedbackIA(possuiAproveitamentoMinimo ? "Fidelidade e retenção textual validadas!" : "Texto incompleto ou distante do conteúdo original.");
-      setLocalStatus(possuiAproveitamentoMinimo ? 'CORRECT' : 'WRONG');
-      if (onValidateResult) onValidateResult(possuiAproveitamentoMinimo);
+      const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+      const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+      const possuiMinimo = respostaAlunoLimpa.length >= Math.min(20, gabaritoLimpo.length * 0.3);
+      
+      setLocalStatus(possuiMinimo ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(possuiMinimo ? "Fidelidade e retenção textual validadas!" : "Texto incompleto ou distante do conteúdo original.");
+      if (onValidateResult) onValidateResult(possuiMinimo);
     } finally {
       setAnalisando(false);
     }
