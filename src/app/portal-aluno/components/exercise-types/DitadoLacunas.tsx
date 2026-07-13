@@ -238,7 +238,7 @@ export default function DitadoLacunas({
         </button>
       </div>
 
-      <div className="bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(14px,1.6vw,16px)] font-bold text-slate-300 leading-relaxed flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner">
+      <div className={`bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(16px,2.2vw,22px)] font-black text-slate-200 leading-relaxed flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         <span className="font-sans font-medium text-[#F8FAFC]">{prefixo}</span>
         <input
           ref={inputRef}
@@ -248,7 +248,7 @@ export default function DitadoLacunas({
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && executarValidacaoInterna()}
           placeholder="???"
-          className={`bg-[#070d19] border-2 rounded-xl px-3 py-1 text-center font-black tracking-wide text-[clamp(14px,1.5vw,16px)] w-36 transition-all focus:outline-none focus:border-cyan-500/50 ${
+          className={`bg-[#070d19] border-2 rounded-xl px-3 py-1 text-center font-black tracking-wide text-[clamp(16px,2.2vw,22px)] w-44 transition-all focus:outline-none focus:border-cyan-500/50 ${
             localStatus === 'CORRECT' ? 'border-emerald-500 text-emerald-400 font-black' : localStatus === 'WRONG' ? 'border-rose-500 text-rose-400 font-black' : 'border-white/[0.08] text-cyan-400'
           }`}
         />
@@ -256,30 +256,34 @@ export default function DitadoLacunas({
       </div>
 
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in">
+        <div className="w-full flex-1 flex flex-col justify-end mt-1 animate-fade-in">
           
 
           {analisando && (
-            <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">
-              <Sparkles size={12} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
+              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
+                <Sparkles size={12} className="animate-spin" />
+                <span>Inteligência Artificial</span>
+              </div>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-emerald-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
+              <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <CheckCircle size={12} /> <span>Excelente!</span>
               </div>
-              <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-950/20 border border-rose-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-rose-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
+              <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <XCircle size={12} /> <span>Análise de Escrita</span>
               </div>
-              <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
         </div>

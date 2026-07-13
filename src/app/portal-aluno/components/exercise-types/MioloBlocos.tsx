@@ -243,7 +243,7 @@ export default function MioloBlocos({
       </div>
 
       {/* ÁREA DE CONSTRUÇÃO DE FRASES */}
-      <div className={`w-full p-3 flex-1 rounded-2xl flex flex-wrap content-center justify-center gap-2 items-center border transition-all duration-200 overflow-y-auto max-h-[35vh] min-h-[90px] ${
+      <div className={`w-full p-3 flex-1 rounded-2xl flex flex-wrap content-center justify-center gap-2 items-center border transition-all duration-200 overflow-y-auto max-h-[35vh] min-h-[90px] ${localStatus !== "IDLE" || analisando ? "hidden" : ""} ${
         localStatus === "CORRECT" ? "bg-emerald-950/20 border-emerald-500/30" :
         localStatus === "WRONG" ? "bg-rose-950/20 border-rose-500/30" :
         "bg-[#01070e] border-white/[0.03] shadow-inner"
@@ -259,7 +259,7 @@ export default function MioloBlocos({
             type="button"
             onClick={() => handlePull(b)}
             disabled={localStatus !== "IDLE" || analisando}
-            className="px-2.5 py-1.5 bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] text-white text-[13px] md:text-[1.1vw] font-black rounded-xl border border-[#FFB478]/30 cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap tracking-wide"
+            className="px-3 py-2 bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] text-white text-[clamp(14px,1.6vw,18px)] font-black rounded-xl border border-[#FFB478]/30 cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap tracking-wide"
           >
             {b.texto}
           </button>
@@ -267,14 +267,14 @@ export default function MioloBlocos({
       </div>
 
       {/* BANCO DE BLOCOS SELECIONÁVEIS INFERIOR */}
-      <div className="flex flex-wrap gap-2 w-full p-2.5 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[22vh] min-h-[70px] overflow-y-auto">
+      <div className={`flex flex-wrap gap-2 w-full p-2.5 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[22vh] min-h-[70px] overflow-y-auto ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {blocosDisponiveis.map((b) => (
           <button
             key={b.id}
             type="button"
             disabled={localStatus !== "IDLE" || analisando}
             onClick={() => handlePush(b)}
-            className="px-2.5 py-2 bg-[#0c192e] hover:border-cyan-500/30 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[13px] md:text-[1.1vw] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+            className="px-3 py-2 bg-[#0c192e] hover:border-cyan-500/30 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[clamp(14px,1.6vw,18px)] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
           >
             {b.texto}
           </button>
@@ -283,30 +283,34 @@ export default function MioloBlocos({
 
       {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE FLUIDO */}
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in min-h-[38px]">
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           
 
           {analisando && (
-            <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[38px]">
-              <Sparkles size={11} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
+                <Sparkles size={12} className="animate-spin" />
+                <span>Inteligência Artificial</span>
+              </div>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-1.5 px-3 rounded-xl animate-fade-in min-h-[42px] max-h-[85px] overflow-y-auto">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[120px] gap-1.5">
               <div className="flex items-center gap-1 text-emerald-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
                 <CheckCircle size={11} /> <span>Gramática Correta!</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-0.5 text-center bg-rose-950/20 border border-rose-500/20 py-1.5 px-3 rounded-xl animate-fade-in min-h-[42px] max-h-[85px] overflow-y-auto">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[120px] gap-1.5">
               <div className="flex items-center gap-1 text-rose-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
                 <XCircle size={11} /> <span>Análise de Sintaxe</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
         </div>

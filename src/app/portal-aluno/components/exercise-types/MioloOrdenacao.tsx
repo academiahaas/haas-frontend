@@ -296,23 +296,25 @@ export default function MioloOrdenacao({
       </div>
 
       {/* BANCO DE BLOCOS DISPONÍVEIS INFERIOR (ALTURA REDUZIDA PARA RESPONSIVIDADE) */}
-      <div className="flex flex-wrap gap-2 w-full p-2 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[16vh] min-h-[65px] overflow-y-auto">
-        {bank.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            disabled={localStatus !== 'IDLE' || analisando}
-            onClick={() => toggleToDeposit(item)}
-            className="px-2.5 py-1.5 bg-[#0c192e] hover:border-cyan-500/30 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[13px] md:text-[1.1vw] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
-          >
-            {item.text}
-          </button>
-        ))}
-      </div>
+      {!exibirContainerInferior && (
+        <div className="flex flex-wrap gap-2 w-full p-2 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[16vh] min-h-[65px] overflow-hidden">
+          {bank.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              disabled={localStatus !== 'IDLE' || analisando}
+              onClick={() => toggleToDeposit(item)}
+              className="px-2.5 py-1.5 bg-[#0c192e] hover:border-cyan-500/30 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[13px] md:text-[1.1vw] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+            >
+              {item.text}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE INTEGRADO CONTRA VAZAMENTOS */}
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in min-h-[36px]">
+        <div className="w-full flex-1 flex flex-col justify-center items-stretch mt-0.5 animate-fade-in min-h-0 overflow-hidden bg-[#0c192e] border border-white/[0.04] rounded-xl p-4">
           
 
           {analisando && (
@@ -322,7 +324,7 @@ export default function MioloOrdenacao({
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-1 px-3 rounded-xl animate-fade-in min-h-[40px] max-h-[70px] overflow-y-auto">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-0 overflow-hidden">
               <div className="flex items-center gap-1 text-emerald-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
                 <CheckCircle size={11} /> <span>Sintaxe Correta!</span>
               </div>

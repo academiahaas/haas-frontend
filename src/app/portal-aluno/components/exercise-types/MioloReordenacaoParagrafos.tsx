@@ -99,28 +99,48 @@ export default function MioloReordenacaoParagrafos({
 
         if (error) throw error;
 
-        let textoBrutoBanco = "";
-        if (dados && dados.length > 0 && dados[0].correct_answer) {
-          textoBrutoBanco = dados[0].correct_answer.trim();
-        }
-
-        // Validação de Emergência: Texto vazio ou insuficiente para fracionar em ordem lógica
         let frasesOriginais: string[] = [];
-        if (textoBrutoBanco) {
-          frasesOriginais = textoBrutoBanco.split(/(?<=[.!?])\s+/).map((f: string) => f.trim()).filter(Boolean);
+        let exe = dados && dados.length > 0 ? dados[0] : null;
+
+        if (exe) {
+          const altOpts = exe.alternative_options || exe.alternativas;
+          if (altOpts) {
+            if (Array.isArray(altOpts)) {
+              frasesOriginais = altOpts.map(s => String(s).trim()).filter(Boolean);
+            } else if (typeof altOpts === 'string') {
+              try {
+                const parsed = JSON.parse(altOpts);
+                if (Array.isArray(parsed)) {
+                  frasesOriginais = parsed.map(s => String(s).trim()).filter(Boolean);
+                } else {
+                  frasesOriginais = String(altOpts).split('|').map(s => s.trim()).filter(Boolean);
+                }
+              } catch (e) {
+                // Fallback para separadores comuns caso seja string pura
+                const separador = altOpts.includes('|') ? '|' : altOpts.includes(';') ? ';' : ',';
+                frasesOriginais = altOpts.split(separador).map(s => s.trim()).filter(Boolean);
+              }
+            }
+          }
         }
 
+        // Validação de Emergência se a coluna estiver vazia ou mal formada
         if (frasesOriginais.length < 2) {
-          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto de Reordenação corrompido ou ausente. Acionando IA...");
-          const textoRecuperado = await resilienciaTextoCompleto(textoBrutoBanco, nomeUnidade);
-          textoBrutoBanco = textoRecuperado;
-          frasesOriginais = textoRecuperado.split(/(?<=[.!?])\s+/).map((f: string) => f.trim()).filter(Boolean);
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] alternative_options corrompido ou ausente. Injetando bloco resiliente...");
+          frasesOriginais = [
+            "Primeiramente, abrimos o terminal de comando.",
+            "Em seguida, executamos o script de migração do banco.",
+            "Por fim, validamos se os logs foram salvos com sucesso."
+          ];
         }
 
-        setTextoGabaritoInteiro(textoBrutoBanco);
+        setTextoGabaritoInteiro(frasesOriginais.join(" "));
         
+        // Mapeia a ordem original como o gabarito oficial (1, 2, 3...)
         const itensMontados = frasesOriginais.map((txt, idx) => ({ id: idx + 1, text: txt }));
         setGabaritoIds(itensMontados.map(it => it.id));
+        
+        // Embaralha as frases na interface para o aluno resolver
         setItems([...itensMontados].sort(() => Math.random() - 0.5));
         
         if (onSelectionChange) onSelectionChange(true);
@@ -192,7 +212,7 @@ export default function MioloReordenacaoParagrafos({
     );
   }
 
-  const exibirContainerInferior = localStatus !== 'IDLE' || items.length > 0 || analisando;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando || !!feedbackIA;
 
   return (
     <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
@@ -208,13 +228,14 @@ export default function MioloReordenacaoParagrafos({
       </div>
 
       {/* CONTAINER DOS CARDS COM ALINHAMENTO HORIZONTAL DE CONTROLES ANTIVAZAMENTO */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between gap-2.5 py-0.5">
+      {localStatus === 'IDLE' && !analisando && (
+        <div className="flex-1 min-h-0 flex flex-col justify-between gap-2.5 py-0.5">
         {items.map((item, index) => (
           <div 
             key={item.id} 
             className={`flex items-center justify-between gap-4 bg-[#0c192e]/60 border px-4 rounded-xl transition-all h-full flex-1 min-h-0 max-h-[75px] py-2 ${
-              localStatus === 'CORRECT' ? 'border-emerald-500/20' :
-              localStatus === 'WRONG' ? 'border-rose-500/20' : 'border-white/[0.04] hover:border-white/[0.1]'
+              
+              'border-white/[0.04] hover:border-white/[0.1]'
             }`}
           >
             {/* TEXTO DA FRASE IMPONENTE E RESGUARDADO À ESQUERDA */}
@@ -243,21 +264,22 @@ export default function MioloReordenacaoParagrafos({
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA IA NO RODAPÉ */}
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in">
+        <div className="w-full flex-1 flex flex-col justify-center mt-0.5 animate-fade-in min-h-0 overflow-hidden">
           
 
           {analisando && (
-            <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[38px]">
+            <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 bg-cyan-950/10 border border-cyan-500/15 rounded-xl animate-pulse p-8 min-h-0 overflow-hidden text-[13px] md:text-[1.2vw] text-cyan-400 font-bold tracking-widest uppercase">
               <Sparkles size={11} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-1.5 px-3 rounded-xl animate-fade-in max-h-[85px] overflow-y-auto">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-8 rounded-xl animate-fade-in min-h-0 overflow-hidden">
               <div className="flex items-center gap-1 text-emerald-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
                 <CheckCircle size={11} /> <span>Coerência Textual Perfeita!</span>
               </div>
@@ -266,7 +288,7 @@ export default function MioloReordenacaoParagrafos({
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-0.5 text-center bg-rose-950/20 border border-rose-500/20 py-1.5 px-3 rounded-xl animate-fade-in max-h-[75px] overflow-y-auto">
+            <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 text-center bg-rose-950/20 border border-rose-500/20 p-8 rounded-xl animate-fade-in min-h-0 overflow-hidden">
               <div className="flex items-center gap-1 text-rose-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
                 <XCircle size={11} /> <span>Análise de Coesão</span>
               </div>

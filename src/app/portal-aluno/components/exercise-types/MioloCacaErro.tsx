@@ -236,7 +236,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
         </p>
       </div>
 
-      <div className={`w-full flex-1 min-h-0 justify-stretch gap-2.5 ${isShortText ? "grid grid-cols-1 sm:grid-cols-2" : "flex flex-col"}`}>
+      <div className={`w-full flex-1 min-h-0 justify-stretch gap-2.5 ${isShortText ? "grid grid-cols-1 sm:grid-cols-2" : "flex flex-col"} ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {opcoes.map((op, idx) => {
           const isThisSelected = selecionado === op.texto;
           let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300 hover:bg-[#1C3B50]/10";
@@ -253,7 +253,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
               onClick={() => handleSelect(op.texto)}
-              className={`w-full text-left py-3 px-4 rounded-xl border text-[clamp(12px,1.4vw,14px)] font-medium transition-all cursor-pointer flex items-center justify-start h-full leading-normal break-words ${optStyle}`}
+              className={`w-full text-left py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center justify-start h-full leading-normal break-words ${optStyle}`}
             >
               <span className="leading-relaxed flex-1">{op.texto}</span>
             </button>
@@ -262,30 +262,34 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
       </div>
 
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
+        <div className="w-full flex-1 flex flex-col justify-end mt-1 animate-fade-in">
           
 
           {analisando && (
-            <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">
-              <Sparkles size={12} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
+              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
+                <Sparkles size={12} className="animate-spin" />
+                <span>Inteligência Artificial</span>
+              </div>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === "CORRECT" && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-emerald-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
+              <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <CheckCircle size={12} /> <span>Excelente!</span>
               </div>
-              <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === "WRONG" && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-950/20 border border-rose-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-rose-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
+              <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <XCircle size={12} /> <span>Ajuste necessário</span>
               </div>
-              <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
         </div>

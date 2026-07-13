@@ -144,9 +144,9 @@ export default function MioloBlitzChallenge({
     return (
       <div className='flex flex-col items-center justify-center p-6 bg-[#020813] border border-slate-900 rounded-2xl w-full h-full font-mono text-center animate-fade-in'>
         <Award className='w-12 h-12 text-[#FF8A2B] mb-3 animate-bounce' />
-        <h3 className='text-sm font-bold text-[#F8FAFC] tracking-wider uppercase mb-1'>Desafio Concluído</h3>
-        <p className='text-xs text-slate-400 mb-4'>Sua performance gerou rendimento</p>
-        <div className='text-2xl font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-6 py-2 rounded-xl border border-[#FF8A2B]/20 shadow-[0_0_20px_rgba(255,138,43,0.1)]'>
+        <h3 className='text-[clamp(16px,2vw,22px)] font-black text-[#F8FAFC] tracking-wider uppercase mb-1'>Desafio Concluído</h3>
+        <p className='text-[clamp(12px,1.4vw,15px)] text-slate-400 mb-4 font-medium'>Sua performance gerou rendimento</p>
+        <div className='text-[clamp(22px,2.8vw,32px)] font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-8 py-2.5 rounded-xl border border-[#FF8A2B]/20 shadow-[0_0_20px_rgba(255,138,43,0.1)]'>
           +{totalXp} XP
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function MioloBlitzChallenge({
               key={idx}
               disabled={clickedOption !== null || gameOver}
               onClick={() => handleOptionClick(opcao)}
-              className={'w-full py-3 px-4 rounded-xl font-sans font-semibold text-xs md:text-sm leading-snug border text-center transition-all duration-150 ' + btnStyle}
+              className={'w-full py-3 px-4 rounded-xl font-sans font-bold text-[clamp(14px,1.8vw,18px)] leading-snug border text-center transition-all duration-150 ' + btnStyle}
             >
               {opcao}
             </button>

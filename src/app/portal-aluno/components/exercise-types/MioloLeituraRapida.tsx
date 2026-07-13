@@ -157,8 +157,61 @@ export default function MioloLeituraRapida({
     if (fase === 'DIGITACAO' && inputRef.current) {
       inputRef.current.focus();
     }
+    // Mantém o botão Submeter global ativo para receber o primeiro clique na fase de leitura
+    if (fase === 'LEITURA' && onSelectionChange) {
+      onSelectionChange(true);
+    }
   }, [fase]);
 
+  useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      // Usamos referências locais do estado atualizado
+      if (localStatus !== 'IDLE' || analisando) return;
+      
+      if (fase === 'LEITURA') {
+        setFase('DIGITACAO');
+        setTimeLeft(60);
+      } else {
+        executarValidacaoInterna();
+      }
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [fase, inputValue, localStatus, analisando, textoGabarito]);
+
+  useEffect(() => {
+    if (fase === 'DIGITACAO' && inputRef.current) {
+      inputRef.current.focus();
+    }
+    
+    // Na fase de LEITURA, o botão laranja sempre fica aceso para avançar.
+    // Na fase de DIGITACAO, ele só acende se o aluno tiver digitado algo válido.
+    if (onSelectionChange) {
+      if (fase === 'LEITURA') {
+        onSelectionChange(true);
+      } else {
+        onSelectionChange(inputValue.trim().length > 0);
+      }
+    }
+  }, [fase, inputValue]);
+
+  useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      if (localStatus !== 'IDLE' || analisando) return;
+      
+      if (fase === 'LEITURA') {
+        setFase('DIGITACAO');
+        setTimeLeft(60);
+      } else {
+        // Na fase de digitação, só valida se houver texto
+        if (inputValue.trim().length > 0) {
+          executarValidacaoInterna();
+        }
+      }
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [fase, inputValue, localStatus, analisando, textoGabarito]);
   const handleInputChange = (val: string) => {
     setInputValue(val);
     if (onSelectionChange) onSelectionChange(val.trim().length > 0);
@@ -222,41 +275,47 @@ export default function MioloLeituraRapida({
       </div>
 
       {/* ÁREA CENTRAL MANTIDA INTEGRA E GRANDE */}
-      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl flex-1 h-full w-full overflow-hidden flex flex-col items-stretch justify-start">
+      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl flex-1 h-full min-h-0 w-full overflow-hidden flex flex-col items-stretch justify-start">
         {analisando ? (
           <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-2 animate-pulse flex-1">
             <Sparkles size={24} className="animate-spin text-cyan-400" />
-            <span className="text-[13px] md:text-[1.1vw] text-cyan-400 font-bold uppercase tracking-widest">{t.validando}</span>
+            <span className="text-[clamp(12px,1.4vw,15px)] text-cyan-400 font-bold uppercase tracking-widest px-4">{t.validando}</span>
           </div>
         ) : localStatus === 'CORRECT' && feedbackIA ? (
           <div className="w-full h-full flex flex-col items-center justify-center text-center bg-emerald-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
             <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
               <CheckCircle size={16} /> <span>Excelente Retenção!</span>
             </div>
-            <p className="text-[16px] md:text-[1.35vw] text-slate-200 font-medium italic max-w-2xl break-words">"{feedbackIA}"</p>
+            <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic max-w-2xl break-words leading-relaxed px-4">"{feedbackIA}"</p>
           </div>
         ) : localStatus === 'WRONG' && feedbackIA ? (
           <div className="w-full h-full flex flex-col items-center justify-center text-center bg-rose-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
             <div className="flex items-center gap-1.5 text-rose-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
               <XCircle size={16} /> <span>Análise de Leitura</span>
             </div>
-            <p className="text-[13px] md:text-[1.35vw] text-slate-200 font-medium italic max-w-2xl break-words">"{feedbackIA}"</p>
+            <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic max-w-2xl break-words leading-relaxed px-4">"{feedbackIA}"</p>
+          </div>
+                ) : fase === 'LEITURA' ? (
+          <div className="w-full p-6 text-[16px] md:text-[1.4vw] font-medium text-slate-200 leading-relaxed select-none flex-1 flex items-center justify-center overflow-hidden">
+            <p className="font-sans text-slate-200 text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto">{textoLongo}</p>
           </div>
         ) : (
-          /* CALIBRAÇÃO DA FONTE FLUIDA RESPONSIVA AQUI */
-          <div className="w-full h-full p-5 text-[17px] md:text-[1.4vw] font-medium text-slate-200 leading-relaxed select-none flex-1">
-            <p className="font-sans text-slate-200 text-justify whitespace-pre-wrap tracking-wide">{textoLongo}</p>
+          /* Na fase de DIGITAÇÃO, o texto continua visível no topo, mas compacto e sem scrollbar */
+          <div className="w-full p-6 border-b border-white/[0.02] bg-white/[0.01] text-[14px] md:text-[1.2vw] font-normal text-slate-400 leading-relaxed select-none flex-1 overflow-hidden flex items-center justify-center">
+            <p className="font-sans text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto opacity-70">
+              {textoLongo}
+            </p>
           </div>
         )}
       </div>
 
       {/* RODAPÉ ESTÁVEL NO FIM DA TELA */}
-      <div className="w-full shrink-0 flex flex-col items-stretch">
+      <div className={`w-full shrink-0 flex flex-col items-stretch ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {fase === 'LEITURA' ? (
           <button
             type="button"
             onClick={() => { setFase('DIGITACAO'); setTimeLeft(60); }}
-            className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center h-[38px] md:h-[44px]"
+            className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center h-[38px] md:h-[44px] hidden pointer-events-none"
           >
             {t.botaoIrParaDigitacao}
           </button>
@@ -270,15 +329,7 @@ export default function MioloLeituraRapida({
               placeholder={t.placeholder}
               className="flex-1 bg-transparent border-none font-sans text-[13px] md:text-[1.1vw] text-slate-200 p-2 focus:outline-none resize-none h-12 md:h-14 leading-tight"
             />
-            {localStatus === 'IDLE' && inputValue.trim().length > 0 && !analisando && (
-              <button
-                type="button"
-                onClick={executarValidacaoInterna}
-                className="mr-1 p-2.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-lg transition-all cursor-pointer flex items-center justify-center hover:from-cyan-500 hover:to-cyan-600 shadow active:scale-95 shrink-0 h-9 w-9"
-              >
-                <Send size={14} />
-              </button>
-            )}
+
           </div>
         )}
       </div>

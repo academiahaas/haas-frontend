@@ -245,12 +245,12 @@ export default function MioloMultiplaEscolha({
       </div>
 
       <div className="w-full bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-3 flex items-center justify-center shrink-0 min-h-[48px] md:min-h-[56px]">
-        <p className="text-[clamp(13px,1.5vw,15px)] font-bold leading-relaxed text-center text-slate-200 w-full break-words">
+        <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-center text-slate-100 w-full break-words p-1">
           {pergunta}
         </p>
       </div>
 
-      <div className={`w-full flex-1 justify-start gap-2.5 ${isShortText ? 'grid grid-cols-1 sm:grid-cols-2' : 'flex flex-col'}`}>
+      <div className={`w-full flex-1 justify-start gap-2.5 ${isShortText ? 'grid grid-cols-1 sm:grid-cols-2' : 'flex flex-col'} ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {options.map((opcao, idx) => {
           const isThisSelected = selecionado === opcao;
           let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300 hover:bg-[#1C3B50]/10";
@@ -267,7 +267,7 @@ export default function MioloMultiplaEscolha({
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
               onClick={() => handleSelect(opcao)}
-              className={`w-full py-2 px-4 rounded-xl border text-[clamp(12px,1.4vw,14px)] font-medium transition-all cursor-pointer flex items-center min-h-[44px] md:min-h-[48px] h-auto leading-normal break-words ${
+              className={`w-full py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center min-h-[48px] md:min-h-[56px] h-auto leading-normal break-words ${
                 isShortText ? 'text-center justify-center' : 'text-left justify-start'
               } ${optStyle}`}
             >
@@ -278,31 +278,31 @@ export default function MioloMultiplaEscolha({
       </div>
 
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
+        <div className="w-full flex-1 flex flex-col justify-end mt-1 animate-fade-in">
           
 
           {analisando && (
-            <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 font-black tracking-widest uppercase animate-pulse min-h-[100px] md:min-h-[120px] text-[clamp(12px,1.5vw,16px)]">
               <Sparkles size={12} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-emerald-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
+              <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <CheckCircle size={12} /> <span>Excelente!</span>
               </div>
-              <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-950/20 border border-rose-500/20 py-2 px-3 rounded-xl animate-fade-in min-h-[44px]">
-              <div className="flex items-center gap-1 text-rose-400 text-[11px] font-black uppercase tracking-wider">
+            <div className="w-full flex-1 flex flex-col items-center justify-center gap-3 text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px]">
+              <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
                 <XCircle size={12} /> <span>Ajuste necessário</span>
               </div>
-              <div className="flex items-center justify-between w-full gap-3">
-                <p className="text-[12px] text-slate-300 font-medium italic break-words flex-1 text-left">"{feedbackIA}"</p>
+              <div className="flex flex-col items-center justify-center w-full gap-2.5">
+                <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words text-center w-full">"{feedbackIA}"</p>
                 <button 
                   onClick={resetarExercicio}
                   className="px-2.5 py-1 bg-slate-900 border border-white/[0.05] text-slate-200 text-[10px] uppercase font-black rounded-lg cursor-pointer shrink-0 hover:bg-slate-800 transition-colors"

@@ -228,7 +228,7 @@ export default function MioloVelocidadeProgressiva({
     let wordToShow = "______";
     let isSelectedStyle = false;
 
-    if (localStatus === 'CORRECT') {
+    if ((localStatus as any) === 'CORRECT') {
       wordToShow = correctAnswer.toUpperCase();
       isSelectedStyle = true;
     } else if (selectedId !== null) {
@@ -272,10 +272,10 @@ export default function MioloVelocidadeProgressiva({
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans min-h-0 flex-1 gap-2 overflow-hidden p-1 select-none">
+    <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-visible select-none gap-2 p-1">
       
       {/* 1. INSTRUÇÃO COMPACTA */}
-      <span className="text-[13px] md:text-[1.1vw] font-bold text-cyan-400 uppercase tracking-wider block shrink-0">
+      <span className="text-[clamp(11px,1.3vw,13px)] font-bold text-cyan-400 uppercase tracking-wider block shrink-0">
         {t.instrucao}
       </span>
 
@@ -284,7 +284,7 @@ export default function MioloVelocidadeProgressiva({
         <button
           type="button"
           onClick={() => playAudio('slow', 0.75)}
-          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[13px] md:text-[1.1vw] uppercase cursor-pointer min-h-[40px] h-auto transition-all ${
+          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
             activeSpeed === 'slow' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
           }`}
         >
@@ -293,7 +293,7 @@ export default function MioloVelocidadeProgressiva({
         <button
           type="button"
           onClick={() => playAudio('normal', 1.08)}
-          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[13px] md:text-[1.1vw] uppercase cursor-pointer min-h-[40px] h-auto transition-all ${
+          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
             activeSpeed === 'normal' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
           }`}
         >
@@ -302,7 +302,7 @@ export default function MioloVelocidadeProgressiva({
         <button
           type="button"
           onClick={() => playAudio('native', 1.30)}
-          className={`py-1.5 rounded-xl border flex items-center justify-center gap-1 font-black text-[13px] md:text-[1.1vw] uppercase cursor-pointer min-h-[40px] h-auto transition-all ${
+          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
             activeSpeed === 'native' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
           }`}
         >
@@ -312,20 +312,20 @@ export default function MioloVelocidadeProgressiva({
 
       {/* 3. BOX DO PARÁGRAFO ADAPTATIVO */}
       <div className="w-full bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-2.5 flex items-center justify-center shrink-0">
-        <p className="text-[13px] md:text-[1.1vw] font-bold leading-normal text-center text-slate-200 w-full break-words">
+        <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-center text-slate-100 w-full break-words p-1">
           {renderDynamicText()}
         </p>
       </div>
 
       {/* 4. BANCO DE OPÇÕES - CRESCE DINAMICAMENTE SE NÃO HOUVER VALIDAÇÃO */}
-      <div className="grid grid-cols-2 gap-2 w-full flex-1 min-h-0 items-center content-center overflow-hidden">
+      <div className={`grid grid-cols-2 gap-2 w-full h-auto overflow-visible my-0.5 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {options.map((opt) => {
           const isSelected = selectedId === opt.id;
           let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300";
           
           if (isSelected) {
-            if (localStatus === 'CORRECT') optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400";
-            else if (localStatus === 'WRONG') optStyle = "border-rose-500 bg-rose-950/20 text-rose-400";
+            if ((localStatus as any) === 'CORRECT') optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400";
+            else if ((localStatus as any) === 'WRONG') optStyle = "border-rose-500 bg-rose-950/20 text-rose-400";
             else optStyle = "border-cyan-400 bg-cyan-950/30 text-cyan-400 font-black";
           }
 
@@ -335,7 +335,7 @@ export default function MioloVelocidadeProgressiva({
               type="button"
               onClick={() => handleSelecionarItem(opt.id)}
               disabled={localStatus === 'CORRECT' || analisando}
-              className={`w-full text-center py-2 px-3 rounded-lg border text-[13px] md:text-[1.1vw] font-bold transition-all cursor-pointer flex items-center justify-center min-h-[44px] h-auto whitespace-nowrap ${optStyle}`}
+              className={`w-full text-center py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center justify-center min-h-[48px] md:min-h-[56px] h-auto whitespace-nowrap shadow-sm ${optStyle}`}
             >
               {opt.text}
             </button>
@@ -345,20 +345,24 @@ export default function MioloVelocidadeProgressiva({
 
       {/* 5. CONTAINER DE ANÁLISE ULTRA COMPACTO (SEM ESPAÇO FANTASMA EM IDLE) */}
       {analisando && (
-        <div className="w-full shrink-0 h-[38px] bg-cyan-950/10 border border-cyan-500/10 text-cyan-400 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 animate-pulse mt-1.5">
-          <Sparkles size={12} className="animate-spin" /> {t.validando}
+        <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
+          <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
+            <Sparkles size={12} className="animate-spin" />
+            <span>Inteligência Artificial</span>
+          </div>
+          <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
         </div>
       )}
 
       {localStatus !== 'IDLE' && feedbackIA && (
-        <div className={`w-full shrink-0 flex flex-col items-center justify-center text-center py-2 px-4 rounded-xl border animate-fade-in mt-1.5 min-h-[44px] max-h-[75px] overflow-y-auto ${
+        <div className={`w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border animate-fade-in min-h-[100px] md:min-h-[120px] ${
           localStatus === 'CORRECT' ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-400' : 'bg-rose-950/20 border-rose-500/20 text-rose-400'
         }`}>
-          <div className="flex items-center gap-1.5 font-black text-[11px] uppercase tracking-wider mb-0.5">
+          <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
             {localStatus === 'CORRECT' ? <CheckCircle size={12} /> : <XCircle size={12} />}
             <span>{localStatus === 'CORRECT' ? "Estrutura Correta!" : "Análise de Coesão"}</span>
           </div>
-          <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+          <p className="text-[clamp(11px,1.4vw,13px)] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
         </div>
       )}
 
