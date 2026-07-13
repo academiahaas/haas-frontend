@@ -720,9 +720,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className="w-full max-w-[94vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
+      <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
         
-        <div className="w-full md:w-[60%] h-auto min-h-0 md:h-[66vh] md:min-h-[480px] md:max-h-[600px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
+        <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
             <div className="flex flex-col">
               <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {String(subUnidadeIndex).includes("e9b8fc2c") ? "01" : String(subUnidadeIndex).includes("a4b95abc") ? "02" : String(subUnidadeIndex).includes("b2eaef02") ? "03" : String(subUnidadeIndex).includes("dda5ea8f") ? "04" : String(subUnidadeIndex).includes("936264d8") ? "05" : typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01"}</span>
@@ -850,7 +850,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           </div>
         </div>
 
-        <div className="flex w-full md:w-[40%] h-auto md:h-[66vh] bg-[#0B1528] border border-white/[0.03] rounded-[24px] backdrop-blur-md shadow-2xl p-5 flex flex-col justify-between relative overflow-hidden mt-4 md:mt-0">
+        <div className="flex w-full md:w-[32%] h-auto md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.03] rounded-[24px] backdrop-blur-md shadow-2xl p-5 flex flex-col justify-between relative overflow-hidden mt-4 md:mt-0">
           
           <div className="w-full bg-[#070d19] border border-[#38BDF8]/20 py-2 px-4 rounded-xl flex items-center justify-between font-mono text-[11px] font-black tracking-wider text-slate-200 shadow-lg shrink-0">
             <span className="flex items-center gap-1"><Target size={12} className="text-[#38BDF8]" /> {precision}%</span>
