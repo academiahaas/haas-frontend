@@ -1,5 +1,5 @@
 'use client';
-import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
 
@@ -259,46 +259,26 @@ Regras Estritas:
     }
 
     try {
-      const promptFeedback = `Você é a Mentora Haas. Avalie a imitação de áudio (Shadowing) do seu aluno no aprendizado de português. O idioma nativo dele é: ${idiomaNativoAluno}.
-Frase Alvo Perfeita: "${referencePhrase}"
-O que o aluno conseguiu pronunciar: "${transcricaoAluno}"
-
-REGRAS DE ANÁLISE PEDAGÓGICA:
-1. Compare a proximidade das palavras. Seja empática e apoie o sotaque.
-2. Escreva as orientações estritamente em ${idiomaNativoAluno} falando DIRETAMENTE com ele (na primeira pessoa). Proibido usar markdown, asteriscos ou emojis.
-
-Retorne estritamente este JSON limpo:
-{
-  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
-  "score": 85,
-  "mensagem": "Sua orientação humanizada de pronúncia direta ao aluno.",
-  "sugestao": "Conselho focado nas sílabas ou ritmo da frase alvo."
-}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      const resultadoLog = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Treino de Fala (Shadowing). Imitar o áudio do modelo: "${referencePhrase}"`,
+        respostaCorreta: referencePhrase,
+        respostaAluno: transcricaoAluno,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (!res.ok) throw new Error("Erro");
-      const data = await res.json();
-      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-      const parsed = JSON.parse(txt.replace(/```json/g, "").replace(/```/g, "").trim());
-
-      setScoreFinal(parsed.score || 70);
+      const acertouFronteira = resultadoLog.acertou;
+      setScoreFinal(acertouFronteira ? 95 : 45);
+      
       setFeedback({
-        status: parsed.status || "REGULAR",
-        mensagem: parsed.mensagem || "Pronúncia avaliada com sucesso.",
-        sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
+        status: acertouFronteira ? "EXCELENTE" : "REGULAR",
+        mensagem: resultadoLog.feedback,
+        sugestao: acertouFronteira ? "Excelente sincronia e fonética!" : "Ajuste o ritmo e repita com calma."
       });
+
       setFlowState("DONE");
-      const isCorrect = (parsed.score || 70) >= 60;
-      const textoMensagem = parsed.mensagem || "Pronúncia avaliada com sucesso.";
-      if (onValidateResult) {
-        onValidateResult(isCorrect, textoMensagem);
-      }
-      if (isCorrect) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+      if (onValidateResult) onValidateResult(acertouFronteira, resultadoLog.feedback);
+      if (acertouFronteira) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
     } catch (e) {
       setScoreFinal(80);
       setFeedback({
