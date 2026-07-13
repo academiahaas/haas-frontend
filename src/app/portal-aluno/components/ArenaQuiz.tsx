@@ -736,7 +736,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           </div>
 
           <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0">
-            {gameStatus === 'CORRECT' && String(subUnidadeTipo) !== '1' ? (
+            {false ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-4 select-none">
                 {false ? (
                   <div 
