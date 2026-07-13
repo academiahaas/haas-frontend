@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
 import { Zap, ShieldAlert, Award } from 'lucide-react';
 
@@ -101,7 +102,7 @@ export default function MioloBlitzChallenge({
     return () => clearInterval(timerRef.current);
   }, [currentIndex, gameOver]);
 
-  const handleOptionClick = (opcao: string) => {
+  const handleOptionClick = async (opcao: string) => {
     if (clickedOption || gameOver) return;
     setClickedOption(opcao);
     const acertou = opcao === currentQuestion.correct;
@@ -113,6 +114,19 @@ export default function MioloBlitzChallenge({
     } else {
       setFeedback({ id: String(Date.now()), text: 'SINTAXE INCORRETA!', color: 'text-rose-400' });
       if (onSelectWrong) onSelectWrong();
+    }
+
+    // Dispara a telemetria em background para persistir o erro instantaneamente se errar
+    try {
+      registrarFeedbackEErro({
+        userId: "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
+        enunciado: `Desafio Blitz - Palavra Alvo: ${currentQuestion.word}`,
+        respostaCorreta: currentQuestion.correct,
+        respostaAluno: opcao,
+        idiomaNativoAluno: "Español"
+      });
+    } catch (e) {
+      console.error(e);
     }
     
     setTimeout(() => {

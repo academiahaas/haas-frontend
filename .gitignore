@@ -3,3 +3,4 @@ node_modules/
 .env
 homologacao.log
 .env.local
+_backups_arena/

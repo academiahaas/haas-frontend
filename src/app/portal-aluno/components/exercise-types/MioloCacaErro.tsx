@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { registrarFeedbackEErro } from "@/utils/motorResiliencia";
 import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from "lucide-react";
 
 interface MioloProps {
@@ -45,6 +46,14 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [isShortText, setIsShortText] = useState(true);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [correctOption, setCorrectOption] = useState<string>("");
+
+  useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [selecionado, analisando, correctOption]);
 
   const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises";
   const SUPABASE_USER_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/users";
@@ -105,27 +114,46 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
           if (listaUnificada.length === 3) {
             try {
-              const promptQuarta = `Com base na frase correta "${fraseCorreta}", gere um distrator gramatical incorreto plausível em português. Retorne ESTRITAMENTE um objeto JSON no formato: {"texto": "frase incorreta aqui"}`;
+              const promptQuarta = `Com base na frase correta "${fraseCorreta}", gere um distrator gramatical incorreto plausível em português de no máximo 8 palavras. Retorne ESTRITAMENTE um objeto JSON no formato: {"texto": "frase incorreta aqui"}`;
               const resQuarta = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ contents: [{ parts: [{ text: promptQuarta }] }] })
               });
+              
+              let inseridoComSucesso = false;
               if (resQuarta.ok) {
                 const qData = await resQuarta.json();
-                const textoCru = qData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-                const limpado = higienizarTexto(textoCru);
-                const parsedQuarta = JSON.parse(limpado);
-                if (parsedQuarta && parsedQuarta.texto) {
-                  listaUnificada.push(parsedQuarta.texto);
+                let textoCru = qData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+                let textoFinalOpcao = "";
+                
+                try {
+                  let limpado = textoCru.replace("```json", "").replace("```", "").trim();
+                  let parsedQuarta = JSON.parse(limpado);
+                  if (parsedQuarta && parsedQuarta.texto) textoFinalOpcao = parsedQuarta.texto.trim();
+                } catch(jsonErr) {
+                  textoFinalOpcao = textoCru.replace("```json", "").replace("```", "").trim();
+                }
+
+                if (textoFinalOpcao && textoFinalOpcao.length > 2 && !listaUnificada.includes(textoFinalOpcao)) {
+                  listaUnificada.push(textoFinalOpcao);
+                  inseridoComSucesso = true;
                 }
               }
+              
+              if (!inseridoComSucesso) {
+                // Força um distrator sintático básico garantindo que ele não colida com o Set
+                listaUnificada.push(fraseCorreta + " modificada.");
+              }
             } catch (e) {
-              listaUnificada.push(fraseCorreta.includes("tudo bem") ? "Olá, tudo bom para você?" : fraseCorreta + " incorreto");
+              listaUnificada.push(fraseCorreta + " incorreta.");
             }
           }
 
-          const listaFinal = listaUnificada.slice(0, 4);
+          // Remove duplicadas absolutas geradas por fallbacks ou IA antes de limitar o array
+          const listaLimpaSemDuplicadas = Array.from(new Set(listaUnificada)).filter(Boolean);
+          const listaFinal = listaLimpaSemDuplicadas.slice(0, 4);
+          
           const opcoesMontadas = listaFinal.map(texto => ({
             texto,
             isCorreta: texto === fraseCorreta
@@ -167,38 +195,22 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     setFeedbackIA("");
 
     try {
-      const prompt = `Você é o professor de português do aluno. Analise a escolha dele no Caça Erro. Ele precisava assinalar a frase correta.
-      Frase correta esperada (Gabarito): "${correctOption}".
-      Frase selecionada pelo aluno: "${selecionado}".
-      Dê um feedback pedagógico curtíssimo (máximo 12 palavras) explicando diretamente o erro se ele errou, ou parabenizando com base na estrutura se acertou.
-      Escreva a resposta OBRIGATORIAMENTE na língua nativa do aluno: ${idiomaNativoAluno}.
-      Retorne estritamente um JSON no formato: {"valido": true ou false, "feedback": "mensagem aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: "Exercício Caça-Erro: Identificar a frase gramaticalmente correta.",
+        respostaCorreta: correctOption,
+        respostaAluno: selecionado,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-
-        const acertou = selecionado === correctOption;
-        setLocalStatus(acertou ? "CORRECT" : "WRONG");
-        setFeedbackIA(resultadoIA.feedback || "");
-        if (onValidateResult) onValidateResult(acertou);
-      } else {
-        const acertou = selecionado === correctOption;
-        setLocalStatus(acertou ? "CORRECT" : "WRONG");
-        setFeedbackIA(acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.");
-        if (onValidateResult) onValidateResult(acertou);
-      }
+      setLocalStatus(resultado.acertou ? "CORRECT" : "WRONG");
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? "CORRECT" : "WRONG");
+      setFeedbackIA(acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.");
+      if (onValidateResult) onValidateResult(acertou);
     } finally {
       setAnalisando(false);
     }
@@ -212,7 +224,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     );
   }
 
-  const exibirContainerInferior = (localStatus === "IDLE" && selecionado !== null) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
     <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 p-1">
@@ -251,15 +263,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
-          {localStatus === "IDLE" && selecionado !== null && !analisando && (
-            <button
-              type="button"
-              onClick={executarValidacaoInterna}
-              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[clamp(12px,1.4vw,14px)] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[40px] md:h-[44px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">

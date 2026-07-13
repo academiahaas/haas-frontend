@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { ArrowDown, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -10,7 +11,7 @@ interface ParagrafoItem {
 
 interface MioloReordenacaoProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -98,26 +99,25 @@ export default function MioloReordenacaoParagrafos({
 
         if (error) throw error;
 
-        let frasesOriginais: string[] = [];
-
+        let textoBrutoBanco = "";
         if (dados && dados.length > 0 && dados[0].correct_answer) {
-          setTextoGabaritoInteiro(dados[0].correct_answer);
-          frasesOriginais = dados[0].correct_answer
-            .split(/(?<=[.!?])\s+/)
-            .map((f: string) => f.trim())
-            .filter(Boolean);
+          textoBrutoBanco = dados[0].correct_answer.trim();
+        }
+
+        // Validação de Emergência: Texto vazio ou insuficiente para fracionar em ordem lógica
+        let frasesOriginais: string[] = [];
+        if (textoBrutoBanco) {
+          frasesOriginais = textoBrutoBanco.split(/(?<=[.!?])\s+/).map((f: string) => f.trim()).filter(Boolean);
         }
 
         if (frasesOriginais.length < 2) {
-          const textoFallback = "Eu vou revisar a matéria hoje à noite. Depois, vou fazer todos os exercícios pendentes. Em seguida, vou tirar as dúvidas diretamente com o professor. Por fim, estarei pronto para fazer a prova com confiança.";
-          setTextoGabaritoInteiro(textoFallback);
-          frasesOriginais = [
-            "Eu vou revisar a matéria hoje à noite.",
-            "Depois, vou fazer todos os exercícios pendentes.",
-            "Em seguida, vou tirar as dúvidas diretamente com o professor.",
-            "Por fim, estarei pronto para fazer a prova com confiança."
-          ];
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto de Reordenação corrompido ou ausente. Acionando IA...");
+          const textoRecuperado = await resilienciaTextoCompleto(textoBrutoBanco, nomeUnidade);
+          textoBrutoBanco = textoRecuperado;
+          frasesOriginais = textoRecuperado.split(/(?<=[.!?])\s+/).map((f: string) => f.trim()).filter(Boolean);
         }
+
+        setTextoGabaritoInteiro(textoBrutoBanco);
         
         const itensMontados = frasesOriginais.map((txt, idx) => ({ id: idx + 1, text: txt }));
         setGabaritoIds(itensMontados.map(it => it.id));
@@ -148,6 +148,7 @@ export default function MioloReordenacaoParagrafos({
     if (localStatus !== 'IDLE' || items.length === 0 || analisando) return;
     setAnalisando(true);
     setFeedbackIA("");
+    let msgFinal = "";
 
     const ordemAtualIds = items.map(it => it.id);
     const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
@@ -172,18 +173,29 @@ export default function MioloReordenacaoParagrafos({
         const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
         const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
         const resultadoIA = JSON.parse(jsonLimpo);
-        setFeedbackIA(resultadoIA.feedback || "");
+        msgFinal = resultadoIA.feedback || "";
+        setFeedbackIA(msgFinal);
       } else {
-        setFeedbackIA(acertou ? "Sequência lógica textual validada com maestria!" : "A ordem cronológica das sentenças possui quebras de coesão.");
+        msgFinal = acertou ? "Sequência lógica textual validada com maestria!" : "A ordem cronológica das sentenças possui quebras de coesão.";
+        setFeedbackIA(msgFinal);
       }
     } catch (e) {
-      setFeedbackIA(acertou ? "Excellent ordenação!" : "Ordem incorreta dos parágrafos.");
+      msgFinal = acertou ? "Excellent ordenação!" : "Ordem incorreta dos parágrafos.";
+      setFeedbackIA(msgFinal);
     } finally {
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      if (onValidateResult) onValidateResult(acertou);
+      if (onValidateResult) onValidateResult(acertou, msgFinal);
       setAnalisando(false);
     }
   };
+
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      hackerValidarIA();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [items, localStatus, analisando, gabaritoIds, textoGabaritoInteiro]);
 
   if (carregando) {
     return (
@@ -249,15 +261,7 @@ export default function MioloReordenacaoParagrafos({
       {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA IA NO RODAPÉ */}
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in">
-          {localStatus === 'IDLE' && items.length > 0 && !analisando && (
-            <button 
-              type="button"
-              onClick={hackerValidarIA}
-              className="w-full py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[38px] md:h-[44px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[38px]">

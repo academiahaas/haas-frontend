@@ -237,6 +237,14 @@ export default function MioloOrdenacao({
     }
   };
 
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [deposit, localStatus, analisando, referencePhrase]);
+
   if (carregando) {
     return (
       <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
@@ -245,7 +253,7 @@ export default function MioloOrdenacao({
     );
   }
 
-  const exibirContainerInferior = (localStatus === 'IDLE' && deposit.length > 0) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
     <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2 p-0.5 overflow-hidden">
@@ -313,15 +321,7 @@ export default function MioloOrdenacao({
       {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE INTEGRADO CONTRA VAZAMENTOS */}
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in min-h-[36px]">
-          {localStatus === 'IDLE' && deposit.length > 0 && !analisando && (
-            <button 
-              type="button"
-              onClick={executarValidacaoInterna}
-              className="w-full py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[38px] md:h-[42px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[36px]">

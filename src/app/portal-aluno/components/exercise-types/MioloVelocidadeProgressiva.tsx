@@ -1,4 +1,5 @@
 "use client";
+import { resilienciaTextoCompleto, resilienciaOpcoes } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send } from "lucide-react";
 
@@ -269,6 +270,14 @@ export default function MioloVelocidadeProgressiva({
     setFeedbackIA("");
   };
 
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [selectedId, options, localStatus, analisando, readingText, correctAnswer]);
+
   if (carregando) {
     return (
       <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] tracking-widest uppercase">
@@ -277,7 +286,7 @@ export default function MioloVelocidadeProgressiva({
     );
   }
 
-  const exibirContainerInferior = (localStatus === 'IDLE' && selectedId !== null) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
     <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans min-h-0 flex-1 gap-2 overflow-hidden p-1 select-none">
@@ -351,51 +360,22 @@ export default function MioloVelocidadeProgressiva({
         })}
       </div>
 
-      {/* 5. ZONA DE VALIDAÇÃO TOTALMENTE VOLÁTIL (ZERA SUA ALTURA SE DESATIVADA) */}
-      {exibirContainerInferior && (
-        <div className="w-full shrink-0 h-auto flex items-stretch justify-stretch mt-1.5 animate-fade-in">
-          {localStatus === 'IDLE' && selectedId !== null && !analisando && (
-            <button
-              onClick={executarValidacaoInterna}
-              className="w-full h-[38px] bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[13px] md:text-[1.1vw] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md hover:brightness-110 active:scale-[0.99]"
-            >
-              <Send size={13} /> {t.validar}
-            </button>
-          )}
+      {/* 5. CONTAINER DE ANÁLISE ULTRA COMPACTO (SEM ESPAÇO FANTASMA EM IDLE) */}
+      {analisando && (
+        <div className="w-full shrink-0 h-[38px] bg-cyan-950/10 border border-cyan-500/10 text-cyan-400 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 animate-pulse mt-1.5">
+          <Sparkles size={12} className="animate-spin" /> {t.validando}
+        </div>
+      )}
 
-          {analisando && (
-            <div className="w-full h-[38px] bg-[#0c192e] border border-cyan-800/30 text-cyan-400 rounded-xl font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider flex items-center justify-center gap-2 animate-pulse">
-              <Sparkles size={14} className="animate-spin" /> {t.validando}
-            </div>
-          )}
-
-          {localStatus === 'CORRECT' && (
-            <div className="w-full h-[38px] px-3 bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-between text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-              <div className="flex items-center gap-2 truncate">
-                <CheckCircle size={15} className="shrink-0" />
-                <span className="truncate italic text-slate-300 font-medium normal-case">
-                  {feedbackIA ? `"${feedbackIA}"` : "Excelente!"}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {localStatus === 'WRONG' && (
-            <div className="w-full flex gap-2 items-stretch h-[38px]">
-              <div className="flex-1 px-3 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider min-w-0">
-                <XCircle size={15} className="shrink-0" />
-                <span className="truncate italic text-slate-300 font-medium normal-case">
-                  {feedbackIA ? `"${feedbackIA}"` : "Ajuste necessário"}
-                </span>
-              </div>
-              <button 
-                onClick={resetarExercicio}
-                className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all shrink-0"
-              >
-                <RefreshCw size={12} /> {t.refazer}
-              </button>
-            </div>
-          )}
+      {localStatus !== 'IDLE' && feedbackIA && (
+        <div className={`w-full shrink-0 flex flex-col items-center justify-center text-center py-2 px-4 rounded-xl border animate-fade-in mt-1.5 min-h-[44px] max-h-[75px] overflow-y-auto ${
+          localStatus === 'CORRECT' ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-400' : 'bg-rose-950/20 border-rose-500/20 text-rose-400'
+        }`}>
+          <div className="flex items-center gap-1.5 font-black text-[11px] uppercase tracking-wider mb-0.5">
+            {localStatus === 'CORRECT' ? <CheckCircle size={12} /> : <XCircle size={12} />}
+            <span>{localStatus === 'CORRECT' ? "Estrutura Correta!" : "Análise de Coesão"}</span>
+          </div>
+          <p className="text-[12px] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
         </div>
       )}
 

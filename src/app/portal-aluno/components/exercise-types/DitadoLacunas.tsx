@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaLacunas, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -40,6 +41,8 @@ export default function DitadoLacunas({
   const [inputValue, setInputValue] = useState("");
   const [localStatus = 'IDLE', setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const inputRef = useRef<HTMLInputElement>(null);
+
+
 
   const [fraseEstruturada, setFraseEstruturada] = useState<string>("");
   const [textoParaFalar, setTextoParaFalar] = useState("");
@@ -96,14 +99,30 @@ export default function DitadoLacunas({
 
         if (error) throw error;
         
+        // Ativação da camada de contingência em caso de dados corrompidos ou vazios
+        let textoFinal = "";
+        let respostaFinal = "";
+        let audioFinal = "";
+
         if (dados && dados.length > 0) {
           const exe = dados[0];
-          setTargetWord(exe.correct_answer || "");
-          setFraseEstruturada(exe.reading_text || "");
-          
-          const textoAudio = exe.audio_transcript || exe.correct_answer || "";
-          setTextoParaFalar(textoAudio);
+          textoFinal = exe.reading_text || "";
+          respostaFinal = exe.correct_answer || "";
+          audioFinal = exe.audio_transcript || exe.correct_answer || "";
         }
+
+        // Validação rigorosa: Se faltar texto, resposta ou os underlines obrigatórios da lacuna
+        if (!textoFinal || !respostaFinal || !textoFinal.includes("___")) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Ditado de Lacunas corrompido. Acionando motor de resiliência por IA...");
+          const contingencia = await resilienciaLacunas(textoFinal, respostaFinal, nomeUnidade);
+          textoFinal = contingencia.texto;
+          respostaFinal = contingencia.resposta;
+          audioFinal = contingencia.texto.replace(/___+/g, contingencia.resposta);
+        }
+
+        setTargetWord(respostaFinal);
+        setFraseEstruturada(textoFinal);
+        setTextoParaFalar(audioFinal);
       } catch (err) {
         console.error("Erro no Ditado Prático:", err);
       } finally {
@@ -149,39 +168,43 @@ export default function DitadoLacunas({
     setAnalisando(true);
     setFeedbackIA("");
 
-    const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
-
     try {
-      const prompt = `Você é o professor de português do aluno. No exercício de Ditado Prático, a frase ditada por áudio possui uma lacuna. 
-      A palavra correta que preenche a lacuna (Gabarito) é: "${targetWord}".
-      O aluno ouviu o áudio e digitou a palavra: "${inputValue.trim()}".
-      Forneça um feedback pedagógico ultra direto e curto (máximo 12 palavras). Se ele acertou, valide a excelência ortográfica. Se ele errou, aponte onde está o desvio de audição/grafia em relação ao português nativo.
-      Escreva a resposta OBRIGATORIAMENTE no idioma nativo do aluno: ${idiomaNativoAluno}.
-      Retorne estritamente um JSON limpo no formato: {"feedback": "mensagem explicativa aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Ditado Prático (Lacunas). Contexto completo da frase: "${fraseEstruturada}". Áudio ditado: "${textoParaFalar}"`,
+        respostaCorreta: targetWord,
+        respostaAluno: inputValue.trim(),
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-        setFeedbackIA(resultadoIA.feedback || "");
-      } else {
-        setFeedbackIA(acertou ? "Excelente! Grafia e escuta impecáveis." : `Desvio ortográfico detectado. A palavra esperada era "${targetWord}".`);
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
-      setFeedbackIA(acertou ? "Excelente!" : "Grafia incorreta.");
-    } finally {
+      const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(acertou ? "Excelente!" : `Desvio ortográfico detectado. O esperado era: ${targetWord}`);
       if (onValidateResult) onValidateResult(acertou);
+    } finally {
       setAnalisando(false);
     }
   };
+
+    React.useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [inputValue, localStatus, analisando, targetWord]);
+
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [inputValue, localStatus, analisando, targetWord]);
 
   if (carregando) {
     return (
@@ -215,7 +238,7 @@ export default function DitadoLacunas({
         </button>
       </div>
 
-      <div className="bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-6 px-4 text-center text-[clamp(14px,1.6vw,16px)] font-bold text-slate-300 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-3 flex-1 min-h-0 w-full overflow-y-auto shadow-inner">
+      <div className="bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(14px,1.6vw,16px)] font-bold text-slate-300 leading-relaxed flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner">
         <span className="font-sans font-medium text-[#F8FAFC]">{prefixo}</span>
         <input
           ref={inputRef}
@@ -234,15 +257,7 @@ export default function DitadoLacunas({
 
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
-          {localStatus === 'IDLE' && inputValue.trim().length > 0 && !analisando && (
-            <button 
-              type="button"
-              onClick={executarValidacaoInterna}
-              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[clamp(12px,1.4vw,14px)] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[40px] md:h-[44px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">

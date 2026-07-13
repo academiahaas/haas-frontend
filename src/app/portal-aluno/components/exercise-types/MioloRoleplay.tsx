@@ -6,6 +6,7 @@ interface MioloRoleplayProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
 }
 
 interface FeedbackEstruturado {
@@ -44,7 +45,7 @@ const traducoesInterface: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloRoleplayProps) {
   const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "ANALYZING" | "DONE">("IA_SPEAKING");
   const [phraseIA, setPhraseIA] = useState("...");
   const [transcricaoAluno, setTranscricaoAluno] = useState("");
@@ -253,7 +254,12 @@ Retorne estritamente este formato JSON limpo sem markdown:
       });
 
       setFlowState("DONE");
-      if ((parsed.score || 70) >= 60) {
+      const isCorrect = (parsed.score || 70) >= 60;
+      const textoMensagem = parsed.mensagem || "Análise de voz processada com sucesso.";
+      if (onValidateResult) {
+        onValidateResult(isCorrect, textoMensagem);
+      }
+      if (isCorrect) {
         if (onSelectCorrect) onSelectCorrect();
       } else {
         if (onSelectWrong) onSelectWrong();
@@ -267,6 +273,10 @@ Retorne estritamente este formato JSON limpo sem markdown:
         sugestao: "Presta atención a la combinación correcta de las estruturas en el idioma nativo del ejercicio."
       });
       setFlowState("DONE");
+      const msgCatch = `Tu respuesta fue recibida correctamente por el sistema. Recuerda estruturar bien las preposiciones en passado para dar mayor claridad a tu mensagem.`;
+      if (onValidateResult) {
+        onValidateResult(true, msgCatch);
+      }
       if (onSelectCorrect) onSelectCorrect();
     }
   };
@@ -328,64 +338,27 @@ Retorne estritamente este formato JSON limpo sem markdown:
   return (
     <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
       
-      {flowState !== "DONE" && (
-        <div className="bg-[#0c192e] border border-white/[0.04] p-3.5 rounded-xl flex items-center justify-between gap-3 shrink-0 animate-fade-in">
-          <div className="space-y-1 flex-1 min-w-0">
-            <span className="text-[9px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/30 inline-block">
-              {textInt.cenarioAtivo}
-            </span>
-            <p className="text-[13px] md:text-[1.1vw] text-slate-100 font-semibold leading-relaxed break-words">
+            {flowState !== "DONE" && (
+        <div className="flex-1 bg-[#050b14]/40 border border-white/[0.04] p-6 md:p-8 rounded-xl flex items-center justify-between gap-4 animate-fade-in min-h-0 w-full mb-2">
+          <div className="flex-1 flex items-center justify-center text-center py-6">
+            <p className="text-[15px] md:text-[1.3vw] text-slate-100 font-bold leading-relaxed break-words max-w-[90%]">
               {phraseIA}
             </p>
           </div>
           
           <button 
             onClick={escutarFraseMentora}
-            className="p-2.5 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="p-3 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 self-center"
             title="Escutar"
           >
-            <Volume2 size={16} />
+            <Volume2 size={18} />
           </button>
         </div>
       )}
 
-      <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-stretch gap-3 overflow-hidden">
-        
-        {flowState === "RECORDING" && (
-          <div className="flex flex-col items-center justify-center gap-2 text-center flex-1">
-            <div className="p-3.5 bg-rose-500/20 text-rose-400 rounded-full border border-rose-500/40">
-              <Mic size={24} />
-            </div>
-            <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-wider text-rose-400">
-              {textInt.ouvindoVoz}
-            </span>
-            {transcricaoAluno.trim() && (
-              <p className="text-[13px] md:text-[1.1vw] text-cyan-300 italic max-w-full font-medium break-words px-2">
-                "{transcricaoAluno}"
-              </p>
-            )}
-          </div>
-        )}
-
-        {flowState === "ANALYZING" && (
-          <div className="flex flex-col items-center justify-center gap-2.5 text-center flex-1">
-            <Loader2 size={28} className="text-cyan-400 animate-spin" />
-            <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
-              {textInt.analisando}
-            </span>
-          </div>
-        )}
-
-        {flowState === "USER_TURN" && (
-          <div className="text-center p-2 flex flex-col items-center justify-center flex-1">
-            <p className="text-[13px] md:text-[1.1vw] text-slate-400 leading-normal max-w-[280px] mx-auto font-medium">
-              {textInt.instrucaoFale}
-            </p>
-          </div>
-        )}
-
-        {flowState === "DONE" && feedback && (
-          <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left animate-fade-in flex-1">
+      {flowState === "DONE" && feedback ? (
+        <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-stretch gap-3 overflow-hidden animate-fade-in">
+          <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left flex-1">
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
               
               <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
@@ -411,11 +384,26 @@ Retorne estritamente este formato JSON limpo sem markdown:
               
             </div>
           </div>
-        )}
+        </div>
+      ) : (
+        <div className="h-4 flex flex-col items-center justify-center text-center animate-pulse">
+          {flowState === "RECORDING" && transcricaoAluno.trim() && (
+            <p className="text-[13px] md:text-[1.1vw] text-cyan-300 italic max-w-full font-medium break-words px-2">
+              "{transcricaoAluno}"
+            </p>
+          )}
+          {flowState === "ANALYZING" && (
+            <div className="flex flex-col items-center justify-center gap-2.5">
+              <Loader2 size={28} className="text-cyan-400 animate-spin" />
+              <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
+                {textInt.analisando}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
-      </div>
-
-      {flowState !== "ANALYZING" && flowState !== "DONE" && (
+            {flowState !== "ANALYZING" && flowState !== "DONE" && (
         <div className="flex justify-center shrink-0 pt-0.5 pb-0.5">
           <button
             onClick={alternarEstadoMicrofone}

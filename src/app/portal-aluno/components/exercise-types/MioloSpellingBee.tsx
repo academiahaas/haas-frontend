@@ -1,4 +1,5 @@
 "use client";
+import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Volume2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -131,8 +132,13 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
           }
         }
 
-        if (!palavraAlvo) {
-          palavraAlvo = await gerarPalavraIA("A2");
+        // Validação de Emergência: Registro nulo, vazio ou menor que 2 letras
+        if (!palavraAlvo || palavraAlvo.trim().length < 2) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Palavra do Spelling Bee ausente. Acionando motor central...");
+          const palavraRecuperada = await resilienciaTextoCompleto("", nomeUnidade + " - Palavra Curta Única");
+          // Limpa a palavra para garantir que venha apenas letras válidas em maiúsculo
+          palavraAlvo = palavraRecuperada.toUpperCase().replace(/[^A-ZÁÉÍÓÚÂÊÔÃÕÇ]/g, "").trim().slice(0, 8);
+          if (!palavraAlvo) palavraAlvo = "VISÃO";
         }
 
         setTargetWord(palavraAlvo);
@@ -204,6 +210,14 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     }
   };
 
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      validarSoletradoFinal();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [userInput, status, targetWord]);
+
   if (carregando) {
     return (
       <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] tracking-widest">
@@ -249,8 +263,9 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       </div>
 
-      {/* TECLADO SEGURO E EM TAMANHO ULTRA ADAPTATIVO */}
-      <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
+      {/* TECLADO SEGURO (APARECE APENAS DURANTE A DIGITAÇÃO) */}
+      {status === "IDLE" && (
+        <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
         
         {/* LINHA DE ACENTOS OTIMIZADA */}
         <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1 overflow-x-auto select-none no-scrollbar">
@@ -258,7 +273,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
             <button
               key={letter}
               onClick={() => handleKeyPress(letter)}
-              disabled={status === "CORRECT"}
+              
               className="w-[8.5%] min-w-[20px] h-[clamp(24px,6.5vw,30px)] bg-cyan-950/20 active:bg-cyan-900 text-cyan-300 border border-cyan-900/30 rounded font-sans text-[12px] md:text-[1vw] font-bold cursor-pointer transition-all disabled:opacity-5 select-none"
             >
               {letter}
@@ -273,7 +288,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
               <button
                 key={letter}
                 onClick={() => handleKeyPress(letter)}
-                disabled={status === "CORRECT"}
+                
                 className={`h-[clamp(26px,7.5vw,32px)] bg-[#1C3B50]/30 active:bg-[#1C3B50] text-slate-200 border border-slate-800/60 rounded font-sans text-[13px] md:text-[1.1vw] font-black cursor-pointer transition-all disabled:opacity-5 select-none flex items-center justify-center ${
                   letter === "⌫" ? "w-[14%] bg-rose-950/20 border-rose-900/40 text-rose-400 text-[13px]" : "w-[9%]"
                 }`}
@@ -285,37 +300,33 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         ))}
       </div>
 
-      {/* ZONA DE VALIDAÇÃO TRANSFORMÁVEL EMBAIXO DO TECLADO */}
-      <div className="w-full shrink-0 min-h-[38px] flex items-stretch justify-stretch mt-1">
-        {status === "IDLE" && (
-          <button
-            onClick={validarSoletradoFinal}
-            className="w-full h-[38px] bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[13px] md:text-[1.1vw] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md hover:brightness-110 active:scale-[0.99]"
-          >
-            {t.validar}
-          </button>
-        )}
+      )}
 
-        {status === "CORRECT" && (
-          <div className="w-full h-[38px] bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-2 text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider animate-fade-in">
-            <CheckCircle size={15} /> {t.correto}
-          </div>
-        )}
-
-        {status === "WRONG" && (
-          <div className="w-full flex gap-2 items-stretch h-[38px] animate-fade-in">
-            <div className="flex-1 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center justify-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-              <XCircle size={15} /> {t.errado}
+      {/* ZONA DE FEEDBACK RESPONSIVA (APARECE APENAS SE HOUVER RESULTADO) */}
+      {status !== "IDLE" && (
+        <div className="w-full shrink-0 flex items-stretch justify-stretch mt-1 h-[38px] animate-fade-in">
+          {status === "CORRECT" && (
+            <div className="w-full h-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-2 text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
+              <CheckCircle size={15} /> {t.correto}
             </div>
-            <button 
-              onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); }}
-              className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-            >
-              <RefreshCw size={12} /> {t.refazer}
-            </button>
-          </div>
-        )}
-      </div>
+          )}
+
+          {status === "WRONG" && (
+            <div className="w-full flex gap-2 items-stretch h-full">
+              <div className="flex-1 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center justify-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
+                <XCircle size={15} /> {t.errado}
+              </div>
+              <button 
+                type="button"
+                onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); }}
+                className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              >
+                <RefreshCw size={12} /> {t.refazer}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
     </div>
   );

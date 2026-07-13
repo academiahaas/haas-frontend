@@ -625,19 +625,14 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setTimeout(() => setJogoSelecionado(todosOsJogos[proximoIdx].id), 10);
   };
 
-  const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string) => {
-    if (feedbackTexto) {
-      setRespostaIA(feedbackTexto);
-    } else {
-      setRespostaIA("");
-    }
-
+  const handleValidationResult = (isCorrect: boolean) => {
     if (isCorrect) {
       setGameStatus('CORRECT'); tocarSom('success');
       setStreak(prev => prev + 1);
       const baseXP = 25;
       const xpGanho = Math.round(baseXP * getMultiplicador());
       setXpAcumulado(prev => prev + xpGanho);
+      // Dispara a gravação em tempo real no Supabase somando o ganho ao XP atual da unidade
       sincronizarXpUnidadeComBanco(xpUnidade + xpGanho);
       setIsCollectingReward(true);
     } else {
@@ -651,7 +646,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha /> },
     { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro /> },
     { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge /> },
     { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas /> },
@@ -659,8 +654,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida /> },
     { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao /> },
     { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos /> },
-    { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} /> },
-    { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} /> },
+    { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay /> },
+    { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing /> },
     { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee /> },
     { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa /> },
     { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva /> }
@@ -738,7 +733,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0">
             {gameStatus === 'CORRECT' ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-4 select-none">
-                {false ? (
+                {!caixaAberta ? (
                   <div 
                     onClick={() => { tocarSom('level_complete'); setCaixaAberta(true); }}
                     className="group cursor-pointer flex flex-col items-center justify-center gap-3 bg-[#1E2E48]/40 p-6 rounded-2xl border border-[#38BDF8]/20 hover:border-[#22C55E]/40 transition-all hover:scale-105 shadow-[0_0_30px_rgba(56,189,248,0.05)]"
@@ -747,24 +742,17 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     <span className="text-xs font-black tracking-widest text-[#38BDF8] uppercase group-hover:text-white">{currentLang === 'PT' ? 'MÉTRICAS ATUALIZADAS. CLIQUE PARA REVISAR.' : currentLang === 'ES' ? 'MÉTRICAS ACTUALIZADAS. CLIC PARA REVISAR.' : 'METRICS UPDATED. CLICK TO REVIEW.'}</span>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 max-w-md px-2">
-                    <div className="w-12 h-12 bg-[#22C55E]/20 rounded-full flex items-center justify-center text-[#22C55E] border border-[#22C55E]/30 shrink-0">
-                      <CheckCircle2 size={24} />
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="w-14 h-14 bg-[#22C55E]/20 rounded-full flex items-center justify-center text-[#22C55E] border border-[#22C55E]/30">
+                      <CheckCircle2 size={30} />
                     </div>
-                    <div className="flex flex-col gap-1.5 text-center">
-                      <h3 className="text-sm font-black text-emerald-400 uppercase tracking-tight">
-                        {currentLang === 'ES' ? '¡ESTRUCTURA VALIDADA CON MAESTRIA!' : 'ESTRUTURA VALIDADA COM MAESTRIA!'}
-                      </h3>
-                      <p className="text-[12px] text-slate-200 leading-relaxed font-sans bg-white/[0.02] border border-white/5 p-3 rounded-xl italic">
-                        {currentLang === 'ES' 
-                          ? '"¡Excelente desempeño! Las estructuras y los conectores corporativos se aplicaron con perfecta fluidez."' 
-                          : '"Excelente desempenho! As estruturas e conectores corporativos foram aplicados com perfeita fluidez nesta missão."'}
-                      </p>
+                    <div className="flex flex-col gap-0.5">
+                      <h3 className="text-base font-black text-white uppercase tracking-tight">{currentLang === 'PT' ? 'AUDITORIA CONCLUÍDA!' : currentLang === 'ES' ? '¡AUDITORÍA CONCLUIDA!' : 'AUDIT COMPLETED!'}</h3>
+                      <p className="text-[11px] text-[#94A3B8]">{currentLang === 'PT' ? 'Mais uma etapa vencida. Você está construindo a sua melhor versão no idioma.' : currentLang === 'ES' ? 'Una etapa más superada. Estás construyendo tu mejor versión en el idioma.' : 'Another stage cleared. You are building your best version in the language.'}</p>
                     </div>
-                    <div className="flex gap-2 w-full justify-center mt-1 font-mono text-[10px] font-black">
-                      <span className="bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981] px-4 py-2 rounded-xl font-mono tracking-wider">
-                        💎 +{streak >= 3 ? 38 : 25} PTS RECOMPENSA
-                      </span>
+                    <div className="flex gap-2 w-full justify-center mt-2 font-mono text-[10px] font-black">
+                      <span className="bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981] px-3 py-1.5 rounded-xl font-mono">+{xpUnidade} PTS</span>
+                      <span className="bg-[#38BDF8]/10 border border-[#38BDF8]/20 text-[#38BDF8] px-3 py-1.5 rounded-xl font-mono">+3 UT</span>
                     </div>
                   </div>
                 )}
@@ -829,13 +817,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </button>
             <button 
               onClick={() => {
-                if (gameStatus === 'CORRECT' || gameStatus === 'WRONG') {
-                  setGameStatus('IDLE');
-                  setRespostaIA("");
+                if (gameStatus === 'CORRECT') {
                   handleNextMission();
                 } else {
-                  // Dispara o sinal global nativo de validação para o exercício ativo escutar
-                  window.dispatchEvent(new CustomEvent("haas:validate"));
+                  handleValidationResult(true);
                 }
               }}
               

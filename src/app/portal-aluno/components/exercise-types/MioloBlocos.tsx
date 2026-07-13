@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -102,34 +103,39 @@ export default function MioloBlocos({
 
         if (error) throw error;
 
-        if (dados && dados.length > 0) {
-          const exe = dados[0];
-          setFraseOriginalGabarito(exe.correct_answer || "");
-          
-          const fraseLimpa = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim().toLowerCase();
-          setGabaritoFrase(fraseLimpa);
+        let gabaritoBruto = dados && dados.length > 0 ? (dados[0].correct_answer || "") : "";
+        let altOptionsRaw = dados && dados.length > 0 ? dados[0].alternative_options : null;
 
-          let palavrasOriginais: string[] = [];
-          if (exe.alternative_options) {
-            try {
-              palavrasOriginais = typeof exe.alternative_options === 'string' 
-                ? JSON.parse(exe.alternative_options) 
-                : exe.alternative_options;
-            } catch (e) {
-              palavrasOriginais = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
-            }
-          } else {
-            palavrasOriginais = (exe.correct_answer || "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
-          }
-
-          const blocosMapeados = palavrasOriginais.map((palavra, index) => ({
-            id: `${palavra}-${index}-${Math.random()}`,
-            texto: palavra
-          }));
-
-          setBlocosMontados([]);
-          setBlocosDisponiveis([...blocosMapeados].sort(() => Math.random() - 0.5));
+        // Validação de Emergência: String de resposta vazia ou curta demais
+        if (!gabaritoBruto || gabaritoBruto.trim().length < 3) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Blocos de Gramática ausentes. Acionando IA...");
+          gabaritoBruto = await resilienciaTextoCompleto("", nomeUnidade + " - Frase Curta Estruturada Gramatical");
         }
+
+        setFraseOriginalGabarito(gabaritoBruto);
+        const fraseLimpa = gabaritoBruto.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim().toLowerCase();
+        setGabaritoFrase(fraseLimpa);
+
+        let palavrasOriginais: string[] = [];
+        if (altOptionsRaw) {
+          try {
+            palavrasOriginais = typeof altOptionsRaw === 'string' ? JSON.parse(altOptionsRaw) : altOptionsRaw;
+          } catch (e) {
+            palavrasOriginais = gabaritoBruto.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
+          }
+        } else {
+          palavrasOriginais = gabaritoBruto.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
+        }
+
+        palavrasOriginais = palavrasOriginais.map(p => p.trim()).filter(Boolean);
+
+        const blocosMapeados = palavrasOriginais.map((palavra, index) => ({
+          id: `${palavra}-${index}-${Math.random()}`,
+          texto: palavra
+        }));
+
+        setBlocosMontados([]);
+        setBlocosDisponiveis([...blocosMapeados].sort(() => Math.random() - 0.5));
       } catch (err) {
         console.error("Erro ao carregar blocos do Supabase:", err);
       } finally {
@@ -182,39 +188,38 @@ export default function MioloBlocos({
     setAnalisando(true);
     setFeedbackIA("");
 
-    const fraseMontadaAluno = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
-    const acertou = fraseMontadaAluno === gabaritoFrase;
+    const fraseMontadaAluno = blocosMontados.map(b => b.texto).join(" ");
 
     try {
-      const prompt = `Você é um professor nativo de português especializado em sintaxe. No exercício de Ordenação de Blocos de Gramática, a frase montada pelo aluno foi: "${blocosMontados.map(b => b.texto).join(" ")}".
-      O gabarito estrutural oficial correto é: "${fraseOriginalGabarito}".
-      Forneça um feedback pedagógico cirúrgico e direto (máximo 12 palavras). Se ele acertou, valide a coesão gramatical. Se ele errou, aponte sutilmente qual termo quebra a ordem lógica esperada (ex: posição do pronome, ordem sujeito-verbo).
-      Escreva a resposta OBRIGATORIAMENTE na língua nativa do aluno: ${idiomaNativoAluno}.
-      Retorne estritamente um JSON limpo no formato: {"feedback": "mensagem aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: "Exercício de Ordenação Gramatical (Blocos Embaralhados).",
+        respostaCorreta: fraseOriginalGabarito,
+        respostaAluno: fraseMontadaAluno,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-        setFeedbackIA(resultadoIA.feedback || "");
-      } else {
-        setFeedbackIA(acertou ? "Excelente ordenação de sintaxe!" : "A estrutura dos blocos possui desvios de ordem sintática.");
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
-      setFeedbackIA(acertou ? "Excelente!" : "Ordem incorreta dos blocos.");
-    } finally {
+      const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
+      const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(acertou ? "Excelente ordenação de sintaxe!" : "A estrutura dos blocos possui desvios de ordem sintática.");
       if (onValidateResult) onValidateResult(acertou);
+    } finally {
       setAnalisando(false);
     }
   };
+
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [blocosMontados, localStatus, analisando, gabaritoFrase, fraseOriginalGabarito]);
 
   if (carregando) {
     return (
@@ -224,7 +229,7 @@ export default function MioloBlocos({
     );
   }
 
-  const exibirContainerInferior = (localStatus === 'IDLE' && blocosMontados.length > 0) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
     <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
@@ -279,15 +284,7 @@ export default function MioloBlocos({
       {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE FLUIDO */}
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-0.5 animate-fade-in min-h-[38px]">
-          {localStatus === 'IDLE' && blocosMontados.length > 0 && !analisando && (
-            <button 
-              type="button"
-              onClick={executarValidacaoInterna}
-              className="w-full py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[38px] md:h-[44px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[38px]">

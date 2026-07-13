@@ -40,7 +40,7 @@ export default function MioloMultiplaEscolhaMobile({
 
   return (
     <div className="flex flex-col items-stretch justify-between w-full h-full font-mono text-left animate-fade-in flex-1 min-h-0 gap-3">
-      <div id="hidden-paragraph-trigger" onClick={executarValidacaoInterna} className="hidden" />
+      <div id="btn-validar-interno" onClick={executarValidacaoInterna} className="hidden" />
       
       {options.map((opcao, idx) => {
         const isThisSelected = selecionado === opcao;

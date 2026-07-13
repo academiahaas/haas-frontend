@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Timer, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -107,16 +108,19 @@ export default function MioloLeituraRapida({
 
         if (error) throw error;
 
-        if (dados && dados.length > 0) {
-          const exe = dados[0];
-          const textoBase = exe.reading_text || exe.correct_answer || "";
-          
-          setTextoLongo(textoBase);
-          setTextoGabarito(textoBase.trim());
-          setInputValue("");
-          setFase('LEITURA');
-          setTimeLeft(30);
+        let textoBase = dados && dados.length > 0 ? (dados[0].reading_text || dados[0].correct_answer || "") : "";
+
+        // Validação de Emergência: Caso o banco retorne vazio ou colunas corrompidas
+        if (!textoBase || textoBase.trim().length < 5) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto de Leitura Rápida ausente. Acionando IA...");
+          textoBase = await resilienciaTextoCompleto("", nomeUnidade + " - Parágrafo Completo para Leitura Dinâmica");
         }
+
+        setTextoLongo(textoBase);
+        setTextoGabarito(textoBase.trim());
+        setInputValue("");
+        setFase('LEITURA');
+        setTimeLeft(30);
       } catch (err) {
         console.error("Erro ao carregar Tipo 6 do Supabase:", err);
       } finally {

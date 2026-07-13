@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'lucide-react';
@@ -50,6 +51,14 @@ export default function MioloMultiplaEscolha({
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [selecionado, analisando]);
   const [isShortText, setIsShortText] = useState(true);
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
@@ -180,36 +189,22 @@ export default function MioloMultiplaEscolha({
     setFeedbackIA("");
 
     try {
-      const prompt = `Analise a resposta do aluno em uma questão de múltipla escolha. Enunciado: "${pergunta}". Opção selecionada pelo aluno: "${selecionado}". Resposta correta esperada: "${correctOption}".
-      Responda estritamente em formato JSON com duas chaves:
-      1) "valido": true ou false.
-      2) "feedback": Uma justificativa pedagógica curtíssima (máximo 10 palavras) explicando o erro ou confirmando o acerto. Escreva na língua nativa do aluno: ${idiomaNativoAluno}.`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: pergunta,
+        respostaCorreta: correctOption,
+        respostaAluno: selecionado,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-
-        const acertou = resultadoIA.valido === true;
-        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-        setFeedbackIA(resultadoIA.feedback || "");
-        if (onValidateResult) onValidateResult(acertou);
-      } else {
-        const acertou = selecionado === correctOption;
-        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-        setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-        if (onValidateResult) onValidateResult(acertou);
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
+      if (onValidateResult) onValidateResult(acertou);
     } finally {
       setAnalisando(false);
     }
@@ -221,6 +216,14 @@ export default function MioloMultiplaEscolha({
     setFeedbackIA("");
   };
 
+    useEffect(() => {
+    const escutarSubmitGlobal = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", escutarSubmitGlobal);
+    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
+  }, [selecionado, options, localStatus, analisando, pergunta, correctOption]);
+
   if (carregando) {
     return (
       <div className="w-full text-center py-6 text-cyan-400 font-bold animate-pulse text-xs tracking-widest uppercase">
@@ -229,7 +232,7 @@ export default function MioloMultiplaEscolha({
     );
   }
 
-  const exibirContainerInferior = (localStatus === 'IDLE' && selecionado !== null) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
     <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-y-auto select-none gap-3 p-1">
@@ -264,7 +267,9 @@ export default function MioloMultiplaEscolha({
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
               onClick={() => handleSelect(opcao)}
-              className={`w-full text-left py-2 px-4 rounded-xl border text-[clamp(12px,1.4vw,14px)] font-medium transition-all cursor-pointer flex items-center min-h-[44px] md:min-h-[48px] h-auto leading-normal break-words ${optStyle}`}
+              className={`w-full py-2 px-4 rounded-xl border text-[clamp(12px,1.4vw,14px)] font-medium transition-all cursor-pointer flex items-center min-h-[44px] md:min-h-[48px] h-auto leading-normal break-words ${
+                isShortText ? 'text-center justify-center' : 'text-left justify-start'
+              } ${optStyle}`}
             >
               {opcao}
             </button>
@@ -274,14 +279,7 @@ export default function MioloMultiplaEscolha({
 
       {exibirContainerInferior && (
         <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
-          {localStatus === 'IDLE' && selecionado !== null && !analisando && (
-            <button
-              onClick={executarValidacaoInterna}
-              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[clamp(12px,1.4vw,14px)] uppercase tracking-widest cursor-pointer flex items-center justify-center gap-2 shadow-sm h-[40px] md:h-[44px]"
-            >
-              <Send size={12} /> {t.validar}
-            </button>
-          )}
+          
 
           {analisando && (
             <div className="text-[11px] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[40px]">

@@ -1,4 +1,5 @@
 'use client';
+import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
 
@@ -6,6 +7,7 @@ interface MioloShadowingProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
 }
 
 interface FeedbackEstruturado {
@@ -35,7 +37,7 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
   const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
   const [transcricaoAluno, setTranscricaoAluno] = useState('');
@@ -136,12 +138,19 @@ Regras Estritas:
         });
         const exeDados = await exeRes.json();
 
+        let fraseFinal = "";
         if (exeDados && exeDados.length > 0) {
-          setReferencePhrase(exeDados[0].correct_answer || exeDados[0].reading_text);
-        } else {
-          const fraseInedita = await gerarFraseIneditaIA(exeDados?.[0]?.level || "A2");
-          setReferencePhrase(fraseInedita);
+          fraseFinal = exeDados[0].correct_answer || exeDados[0].reading_text || "";
         }
+
+        // Validação de Emergência: Registro inexistente ou colunas de texto vazias/corrompidas
+        if (!fraseFinal || fraseFinal.trim().length < 3) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto do Treino de Fala ausente ou inválido. Acionando motor central...");
+          const nivelDetectado = exeDados?.[0]?.level || "A2";
+          fraseFinal = await resilienciaTextoCompleto("", nomeUnidade + " - Nível " + nivelDetectado);
+        }
+
+        setReferencePhrase(fraseFinal);
       } catch (err) {
         console.error("Erro geral no carregamento de pronúncia:", err);
         setReferencePhrase("Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.");
@@ -284,7 +293,12 @@ Retorne estritamente este JSON limpo:
         sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
       });
       setFlowState("DONE");
-      if ((parsed.score || 70) >= 60) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+      const isCorrect = (parsed.score || 70) >= 60;
+      const textoMensagem = parsed.mensagem || "Pronúncia avaliada com sucesso.";
+      if (onValidateResult) {
+        onValidateResult(isCorrect, textoMensagem);
+      }
+      if (isCorrect) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
     } catch (e) {
       setScoreFinal(80);
       setFeedback({
@@ -293,6 +307,10 @@ Retorne estritamente este JSON limpo:
         sugestao: "Presta atención a la cadencia de las vocais aberta."
       });
       setFlowState("DONE");
+      const msgCatch = "Tu imitación fue capturada correctamente y se nota tu effort en el ritmo de la frase.";
+      if (onValidateResult) {
+        onValidateResult(true, msgCatch);
+      }
       if (onSelectCorrect) onSelectCorrect();
     }
   };
@@ -417,6 +435,7 @@ Retorne estritamente este JSON limpo:
               </button>
 
               <button 
+                id="btn-validar-interno"
                 onClick={processarAvaliacaoFinaMeteora}
                 className="p-3 bg-emerald-600 border border-emerald-500 text-white rounded-full hover:bg-emerald-500 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
                 title="Validar"
