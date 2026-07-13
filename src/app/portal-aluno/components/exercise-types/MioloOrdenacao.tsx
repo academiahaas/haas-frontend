@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { Volume2, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -201,38 +202,29 @@ export default function MioloOrdenacao({
     setAnalisando(true);
     setFeedbackIA("");
 
-    const fraseMontadaAluno = deposit.map(d => d.text).join(" ").trim().toLowerCase();
-    const gabaritoOficial = referencePhrase.trim().toLowerCase();
-    
-    const acertou = fraseMontadaAluno.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") === gabaritoOficial.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    const fraseMontadaAluno = deposit.map(d => d.text).join(" ");
 
     try {
-      const prompt = `Você é um professor nativo de português especialista em sintaxe. No exercício de Ordenação de Frases Auditivas, a frase montada pelo aluno foi: "${deposit.map(d => d.text).join(" ")}".
-      A estrutura gramatical esperada (Gabarito) é: "${referencePhrase}".
-      Forneça um feedback pedagógico ultra direto e curto (máximo 12 palavras). Se ele acertou, valide a ordenação harmônica. Se ele errou, aponte qual palavra ou inversão sintática causou o erro.
-      Responda estritamente no idioma nativo do aluno: ${idiomaNativoAluno}.
-      Retorne obrigatoriamente um JSON limpo no formato: {"feedback": "mensagem aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: `Exercício de Ordenação de Frases Auditivas. Áudio original ditado: "${textoParaFalar}"`,
+        respostaCorreta: referencePhrase,
+        respostaAluno: fraseMontadaAluno,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-        setFeedbackIA(resultadoIA.feedback || "");
-      } else {
-        setFeedbackIA(acertou ? "Excelente ordenação sintática!" : "A ordem dos blocos possui desvios de concordância.");
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
-      setFeedbackIA(acertou ? "Excelente!" : "Ordem incorreta dos fragmentos.");
-    } finally {
+      const fraseMontadaAlunoLimpa = deposit.map(d => d.text).join(" ").trim().toLowerCase();
+      const gabaritoOficial = referencePhrase.trim().toLowerCase();
+      const acertou = fraseMontadaAlunoLimpa.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") === gabaritoOficial.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+      
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(acertou ? "Excelente ordenação sintática!" : "A ordem dos blocos possui desvios de concordância.");
       if (onValidateResult) onValidateResult(acertou);
+    } finally {
       setAnalisando(false);
     }
   };
