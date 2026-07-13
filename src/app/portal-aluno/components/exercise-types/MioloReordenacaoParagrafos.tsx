@@ -1,5 +1,5 @@
 'use client';
-import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { ArrowDown, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -148,43 +148,30 @@ export default function MioloReordenacaoParagrafos({
     if (localStatus !== 'IDLE' || items.length === 0 || analisando) return;
     setAnalisando(true);
     setFeedbackIA("");
-    let msgFinal = "";
 
-    const ordemAtualIds = items.map(it => it.id);
-    const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
+    const sequenciaAluno = items.map(it => it.text).join(" ");
 
     try {
-      const prompt = `Você é um professor nativo de português especialista em coesão e coerência textual. No exercício de Reordenação de Parágrafos/Frases, a sequência organizada pelo aluno resultou em:
-      "${items.map(it => it.text).join(" ")}"
-      A ordem cronológica oficial correta (Gabarito) é:
-      "${textoGabaritoInteiro}"
-      Forneça uma análise pedagógica curta (máximo 12 palavras) apontando se a narrativa flui perfeitamente ou indicando qual parágrafo quebra o nexo lógico temporal.
-      Responda estritamente no idioma nativo do aluno: ${idiomaNativoAluno}.
-      Retorne obrigatoriamente um JSON limpo no formato exato: {"feedback": "mensagem aqui"}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      const resultado = await registrarFeedbackEErro({
+        userId: USER_ID_ALVO,
+        enunciado: "Exercício de Reordenação de Parágrafos e Coerência Narrativa.",
+        respostaCorreta: textoGabaritoInteiro,
+        respostaAluno: sequenciaAluno,
+        idiomaNativoAluno: idiomaNativoAluno
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
-        const resultadoIA = JSON.parse(jsonLimpo);
-        msgFinal = resultadoIA.feedback || "";
-        setFeedbackIA(msgFinal);
-      } else {
-        msgFinal = acertou ? "Sequência lógica textual validada com maestria!" : "A ordem cronológica das sentenças possui quebras de coesão.";
-        setFeedbackIA(msgFinal);
-      }
+      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
+      setFeedbackIA(resultado.feedback);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.feedback);
     } catch (e) {
-      msgFinal = acertou ? "Excellent ordenação!" : "Ordem incorreta dos parágrafos.";
-      setFeedbackIA(msgFinal);
-    } finally {
+      const ordemAtualIds = items.map(it => it.id);
+      const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
+      const msgFallback = acertou ? "Sequência lógica textual validada com maestria!" : "A ordem cronológica das sentenças possui quebras de coesão.";
+      
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      if (onValidateResult) onValidateResult(acertou, msgFinal);
+      setFeedbackIA(msgFallback);
+      if (onValidateResult) onValidateResult(acertou, msgFallback);
+    } finally {
       setAnalisando(false);
     }
   };
