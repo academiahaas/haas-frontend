@@ -217,7 +217,7 @@ export default function DitadoLacunas({
   const partesDaFrase = fraseEstruturada.split(/______+/);
   const prefixo = partesDaFrase[0] || "";
   const sufixo = partesDaFrase[1] || "";
-  const exibirContainerInferior = (localStatus === 'IDLE' && inputValue.trim().length > 0) || analisando || feedbackIA;
+  const exibirContainerInferior = localStatus !== 'IDLE' || analisando || !!feedbackIA;
 
   return (
     <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 p-1">
@@ -256,7 +256,7 @@ export default function DitadoLacunas({
       </div>
 
       {exibirContainerInferior && (
-        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in min-h-[40px]">
+        <div className="w-full shrink-0 flex flex-col justify-end mt-1 animate-fade-in">
           
 
           {analisando && (
