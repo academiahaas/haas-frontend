@@ -749,11 +749,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {String(subUnidadeIndex).includes("e9b8fc2c") ? "01" : String(subUnidadeIndex).includes("a4b95abc") ? "02" : String(subUnidadeIndex).includes("b2eaef02") ? "03" : String(subUnidadeIndex).includes("dda5ea8f") ? "04" : String(subUnidadeIndex).includes("936264d8") ? "05" : typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01"}</span>
               <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
             </div>
-            {gameStatus === 'CORRECT' && (
-              <span className="text-[10px] font-black text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/20 px-3 py-1 rounded-full flex items-center gap-1">
-                <Sparkles size={11} /> {currentLang === 'PT' ? 'PERFORMANCE COMPROVADA' : currentLang === 'ES' ? 'RENDIMIENTO COMPROBADO' : 'PERFORMANCE VERIFIED'}
-              </span>
-            )}
+            {/* BADGE DE PERFORMANCE REMOVIDO */}
           </div>
 
           <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0">
