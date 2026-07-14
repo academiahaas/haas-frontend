@@ -644,7 +644,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string) => {
-    if (feedbackTexto) {
+    // Se o exercício solicitar o som mas exigir mentora intacta, não encostamos no estado dela
+    if (feedbackTexto === "MANTER_MENTORA_INTACTA") {
+      // Ignora completamente e não mexe na mentora
+    } else if (feedbackTexto) {
       setRespostaIA(feedbackTexto);
     } else {
       setRespostaIA("");
@@ -679,8 +682,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} /> },
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} /> },
     { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} /> },
-    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee /> },
-    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa /> },
+    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} /> },
+    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} /> },
     { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva /> }
   ];
 
@@ -847,7 +850,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </button>
             <button 
               onClick={() => {
-                dispararSomCliqueSintetico();
+                // Se for o Spelling Bee validando, não toca o clique sintético para não atropelar o som premium
+                if (jogoSelecionado !== 'spelling' || (gameStatus === 'CORRECT' || gameStatus === 'WRONG')) {
+                  dispararSomCliqueSintetico();
+                }
                 if (gameStatus === 'CORRECT' || gameStatus === 'WRONG') {
                   setGameStatus('IDLE');
                   setRespostaIA("");
