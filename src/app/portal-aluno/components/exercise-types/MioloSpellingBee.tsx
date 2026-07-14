@@ -325,88 +325,59 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       </div>
 
-      {/* TECLADO SEGURO (APARECE APENAS DURANTE A DIGITAÇÃO) */}
-      {status === "IDLE" && (
+      {/* TECLADO SEGURO (APARECE APENAS SE FOR IDLE E NÃO ESTIVER ANALISANDO) */}
+      {status === "IDLE" && !analisando && (
         <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
-        
-        {/* LINHA DE ACENTOS OTIMIZADA */}
-        <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1 overflow-x-auto select-none no-scrollbar">
-          {accentRow.map((letter) => (
-            <button
-              key={letter}
-              onClick={() => handleKeyPress(letter)}
-              
-              className="w-[8.5%] min-w-[20px] h-[clamp(24px,6.5vw,30px)] bg-cyan-950/20 active:bg-cyan-900 text-cyan-300 border border-cyan-900/30 rounded font-sans text-[12px] md:text-[1vw] font-bold cursor-pointer transition-all disabled:opacity-5 select-none"
-            >
-              {letter}
-            </button>
-          ))}
-        </div>
-
-        {/* ALFABETO COMPACTADO PARA RESPEITAR O CONTAINER PAI */}
-        {keyboardRows.map((row, rowIdx) => (
-          <div key={rowIdx} className="flex gap-0.5 justify-center w-full">
-            {row.map((letter) => (
+          
+          {/* LINHA DE ACENTOS OTIMIZADA */}
+          <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1 overflow-x-auto select-none no-scrollbar">
+            {accentRow.map((letter) => (
               <button
                 key={letter}
                 onClick={() => handleKeyPress(letter)}
-                
-                className={`h-[clamp(26px,7.5vw,32px)] bg-[#1C3B50]/30 active:bg-[#1C3B50] text-slate-200 border border-slate-800/60 rounded font-sans text-[13px] md:text-[1.1vw] font-black cursor-pointer transition-all disabled:opacity-5 select-none flex items-center justify-center ${
-                  letter === "⌫" ? "w-[14%] bg-rose-950/20 border-rose-900/40 text-rose-400 text-[13px]" : "w-[9%]"
-                }`}
+                className="w-[8.5%] min-w-[20px] h-[clamp(24px,6.5vw,30px)] bg-cyan-950/20 active:bg-cyan-900 text-cyan-300 border border-cyan-900/30 rounded font-sans text-[12px] md:text-[1vw] font-bold cursor-pointer transition-all disabled:opacity-5 select-none"
               >
                 {letter}
               </button>
             ))}
           </div>
-        ))}
-      </div>
 
+          {/* ALFABETO COMPACTADO PARA RESPEITAR O CONTAINER PAI */}
+          {keyboardRows.map((row, rowIdx) => (
+            <div key={rowIdx} className="flex gap-0.5 justify-center w-full">
+              {row.map((letter) => (
+                <button
+                  key={letter}
+                  onClick={() => handleKeyPress(letter)}
+                  className={`h-[clamp(26px,7.5vw,32px)] bg-[#1C3B50]/30 active:bg-[#1C3B50] text-slate-200 border border-slate-800/60 rounded font-sans text-[13px] md:text-[1.1vw] font-black cursor-pointer transition-all disabled:opacity-5 select-none flex items-center justify-center ${
+                    letter === "⌫" ? "w-[14%] bg-rose-950/20 border-rose-900/40 text-rose-400 text-[13px]" : "w-[9%]"
+                  }`}
+                >
+                  {letter}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* TELA DE ANALISANDO ATIVA */}
       {analisando && (
-        <div className="w-full shrink-0 flex items-center justify-center mt-1 h-[38px] bg-cyan-950/20 border border-cyan-500/30 rounded-xl gap-2 text-cyan-400 font-bold text-[12px] md:text-[1vw] uppercase tracking-widest animate-pulse">
+        <div className="w-full shrink-0 flex items-center justify-center mt-auto h-[42px] bg-cyan-950/20 border border-cyan-500/30 rounded-xl gap-2 text-cyan-400 font-bold text-[12px] md:text-[1vw] uppercase tracking-widest animate-pulse">
           <RefreshCw size={14} className="animate-spin" /> ANALISANDO...
         </div>
       )}
 
-      {/* ZONA DE FEEDBACK RESPONSIVA COM BALÃO DE TEXTO */}
-      {!analisando && status !== "IDLE" && (
-        <div className="w-full shrink-0 flex flex-col gap-2 mt-1 animate-fade-in">
-          <div className="flex items-stretch justify-stretch h-[38px] w-full">
-            {status === "CORRECT" && (
-              <div className="w-full h-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-2 text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-                <CheckCircle size={15} /> {t.correto}
-              </div>
-            )}
-
-            {status === "WRONG" && (
-              <div className="w-full flex gap-2 items-stretch h-full">
-                <div className="flex-1 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center justify-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-                  <XCircle size={15} /> {t.errado}
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); setFeedbackIA(""); }}
-                  className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                >
-                  <RefreshCw size={12} /> {t.refazer}
-                </button>
-              </div>
-            )}
+      {/* FEEDBACK EXCLUSIVO EM ESPANHOL (APENAS O BALÃO EXPLICATIVO, SEM OS CARDS DE STATUS) */}
+      {!analisando && status !== "IDLE" && feedbackIA && (
+        <div className="w-full mt-auto flex flex-col gap-3 animate-fade-in">
+          <div className={`w-full p-4 rounded-2xl text-[12.5px] md:text-[0.95vw] border leading-relaxed font-medium animate-fade-in ${
+            status === "CORRECT" 
+              ? "bg-emerald-950/15 border-emerald-500/20 text-emerald-300" 
+              : "bg-rose-950/15 border-rose-500/20 text-rose-300"
+          }`}>
+            {feedbackIA}
           </div>
-
-          {/* BALÃO DE EXPLICATIVA DO ERRO/ACERTO */}
-          {feedbackIA && (
-            <div className={`w-full p-3 rounded-xl text-[12px] md:text-[0.95vw] border leading-relaxed animate-fade-in ${
-              status === "CORRECT" 
-                ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-300" 
-                : "bg-rose-950/10 border-rose-500/20 text-rose-300"
-            }`}>
-              {feedbackIA}
-            </div>
-          )}
         </div>
       )}
 
