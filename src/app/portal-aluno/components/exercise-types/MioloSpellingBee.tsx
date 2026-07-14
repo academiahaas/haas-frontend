@@ -239,9 +239,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
       setAnalisando(false);
       setStatus(acertou ? "CORRECT" : "WRONG");
 
-      const mensagemFeedback = acertou 
-        ? "Excelente soletração! Você organizou todas as letras na ordem ortográfica exata."
-        : "A ordem das letras possui uma quebra ortográfica. Revise a posição dos caracteres e tente novamente.";
+      const mensagemFeedback = acertou ? "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta." : "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.";
 
       setFeedbackIA(mensagemFeedback);
 
