@@ -359,10 +359,13 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       )}
 
-      {/* TELA DE ANALISANDO ATIVA */}
+      {/* TELA DE ANALISANDO ATIVA (COM A MESMA ESPESSURA, PADDING E BORDAS DO FEEDBACK) */}
       {analisando && (
-        <div className="w-full shrink-0 flex items-center justify-center mt-auto h-[42px] bg-cyan-950/20 border border-cyan-500/30 rounded-xl gap-2 text-cyan-400 font-bold text-[12px] md:text-[1vw] uppercase tracking-widest animate-pulse">
-          <RefreshCw size={14} className="animate-spin" /> ANALISANDO...
+        <div className="w-full mt-auto flex flex-col gap-3 animate-pulse">
+          <div className="w-full p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-300 text-[15px] md:text-[1.25vw] leading-[1.6] font-semibold flex items-center justify-center gap-3 min-h-[80px]">
+            <RefreshCw size={18} className="animate-spin text-cyan-400" />
+            <span className="uppercase tracking-widest">ANALISANDO...</span>
+          </div>
         </div>
       )}
 
