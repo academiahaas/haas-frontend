@@ -371,7 +371,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
       {/* FEEDBACK EXCLUSIVO EM ESPANHOL (APENAS O BALÃO EXPLICATIVO, SEM OS CARDS DE STATUS) */}
       {!analisando && status !== "IDLE" && feedbackIA && (
         <div className="w-full mt-auto flex flex-col gap-3 animate-fade-in">
-          <div className={`w-full p-4 rounded-2xl text-[12.5px] md:text-[0.95vw] border leading-relaxed font-medium animate-fade-in ${
+          <div className={`w-full p-6 rounded-2xl text-[15px] md:text-[1.25vw] border leading-[1.6] font-semibold shadow-lg animate-fade-in ${
             status === "CORRECT" 
               ? "bg-emerald-950/15 border-emerald-500/20 text-emerald-300" 
               : "bg-rose-950/15 border-rose-500/20 text-rose-300"
