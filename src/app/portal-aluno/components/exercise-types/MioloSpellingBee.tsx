@@ -7,6 +7,9 @@ interface MioloSpellingBeeProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onSelectionChange?: (hasItems: boolean) => void;
 }
 
 const traducoes: Record<string, Record<string, string>> = {
@@ -33,13 +36,15 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloSpellingBeeProps) {
+export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unidadeAtiva, status: propStatus = 'IDLE', onValidateResult, onSelectionChange }: MioloSpellingBeeProps) {
   const [targetWord, setTargetWord] = useState("");
   const [userInput, setUserInput] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [status, setStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
   const [carregando, setCarregando] = useState(true);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [analisando, setAnalisando] = useState(false);
+  const [feedbackIA, setFeedbackIA] = useState("");
 
   const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
   const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
@@ -218,32 +223,55 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     setStatus("IDLE");
   };
 
-  const validarSoletradoFinal = async () => {
+      
+
+          const validarSoletradoFinal = async () => {
+    if (analisando) return;
+    
+    setAnalisando(true);
+    setFeedbackIA("");
+
     const palavraMontada = userInput.join("").toUpperCase().trim();
     const acertou = palavraMontada === targetWord;
 
-    if (acertou) {
-      setStatus("CORRECT");
-      if (onSelectCorrect) onSelectCorrect();
-    } else {
-      setStatus("WRONG");
-      if (onSelectWrong) onSelectWrong();
-      
-      // Dispara a telemetria e gravação de erros em background
-      try {
-        await registrarFeedbackEErro({
-          userId: USER_ID_ALVO,
-          enunciado: "Exercício de Soletração Ortográfica (Spelling Bee).",
-          respostaCorreta: targetWord,
-          respostaAluno: palavraMontada,
-          idiomaNativoAluno: idiomaNativoAluno
-        });
-      } catch (e) {
-        console.error("Erro ao enviar telemetria do Spelling Bee:", e);
-      }
-    }
-  };
+    // Aguarda um pequeno delay de 1.2s para simular a análise visual antes de revelar o resultado
+    setTimeout(async () => {
+      setAnalisando(false);
+      setStatus(acertou ? "CORRECT" : "WRONG");
 
+      const mensagemFeedback = acertou 
+        ? "Excelente soletração! Você organizou todas as letras na ordem ortográfica exata."
+        : "A ordem das letras possui uma quebra ortográfica. Revise a posição dos caracteres e tente novamente.";
+
+      setFeedbackIA(mensagemFeedback);
+
+      // Avisa o pai para tocar o som premium sem interferir no balão da Mentora
+      if (onValidateResult) {
+        onValidateResult(acertou, "MANTER_MENTORA_INTACTA");
+      }
+
+      if (acertou) {
+        if (onSelectCorrect) onSelectCorrect();
+      } else {
+        if (onSelectWrong) onSelectWrong();
+      }
+
+      // Telemetria silenciosa em segundo plano
+      if (!acertou) {
+        try {
+          await registrarFeedbackEErro({
+            userId: USER_ID_ALVO,
+            enunciado: "Exercício de Soletração Ortográfica (Spelling Bee).",
+            respostaCorreta: targetWord,
+            respostaAluno: palavraMontada,
+            idiomaNativoAluno: idiomaNativoAluno
+          });
+        } catch (err) {
+          console.warn("Telemetria falhou de forma silenciosa.");
+        }
+      }
+    }, 1200);
+  };
     useEffect(() => {
     const escutarSubmitGlobal = () => {
       validarSoletradoFinal();
@@ -336,27 +364,47 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
 
       )}
 
-      {/* ZONA DE FEEDBACK RESPONSIVA (APARECE APENAS SE HOUVER RESULTADO) */}
-      {status !== "IDLE" && (
-        <div className="w-full shrink-0 flex items-stretch justify-stretch mt-1 h-[38px] animate-fade-in">
-          {status === "CORRECT" && (
-            <div className="w-full h-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-2 text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-              <CheckCircle size={15} /> {t.correto}
-            </div>
-          )}
+      {/* TELA DE ANALISANDO ATIVA */}
+      {analisando && (
+        <div className="w-full shrink-0 flex items-center justify-center mt-1 h-[38px] bg-cyan-950/20 border border-cyan-500/30 rounded-xl gap-2 text-cyan-400 font-bold text-[12px] md:text-[1vw] uppercase tracking-widest animate-pulse">
+          <RefreshCw size={14} className="animate-spin" /> ANALISANDO...
+        </div>
+      )}
 
-          {status === "WRONG" && (
-            <div className="w-full flex gap-2 items-stretch h-full">
-              <div className="flex-1 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center justify-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
-                <XCircle size={15} /> {t.errado}
+      {/* ZONA DE FEEDBACK RESPONSIVA COM BALÃO DE TEXTO */}
+      {!analisando && status !== "IDLE" && (
+        <div className="w-full shrink-0 flex flex-col gap-2 mt-1 animate-fade-in">
+          <div className="flex items-stretch justify-stretch h-[38px] w-full">
+            {status === "CORRECT" && (
+              <div className="w-full h-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-2 text-emerald-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
+                <CheckCircle size={15} /> {t.correto}
               </div>
-              <button 
-                type="button"
-                onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); }}
-                className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-              >
-                <RefreshCw size={12} /> {t.refazer}
-              </button>
+            )}
+
+            {status === "WRONG" && (
+              <div className="w-full flex gap-2 items-stretch h-full">
+                <div className="flex-1 bg-rose-950/30 border border-rose-500/40 rounded-xl flex items-center justify-center gap-2 text-rose-400 font-bold text-[13px] md:text-[1.1vw] uppercase tracking-wider">
+                  <XCircle size={15} /> {t.errado}
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); setFeedbackIA(""); }}
+                  className="px-4 bg-slate-900 border border-white/[0.08] hover:bg-slate-800 text-slate-200 text-[11px] md:text-[0.9vw] uppercase font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <RefreshCw size={12} /> {t.refazer}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* BALÃO DE EXPLICATIVA DO ERRO/ACERTO */}
+          {feedbackIA && (
+            <div className={`w-full p-3 rounded-xl text-[12px] md:text-[0.95vw] border leading-relaxed animate-fade-in ${
+              status === "CORRECT" 
+                ? "bg-emerald-950/10 border-emerald-500/20 text-emerald-300" 
+                : "bg-rose-950/10 border-rose-500/20 text-rose-300"
+            }`}>
+              {feedbackIA}
             </div>
           )}
         </div>
