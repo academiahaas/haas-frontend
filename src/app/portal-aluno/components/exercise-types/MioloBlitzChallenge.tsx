@@ -9,6 +9,7 @@ interface MioloBlitzChallengeProps {
   onSelectWrong?: () => void;
   triggerGlow?: boolean;
   unidadeAtiva?: string;
+  onValidateResult?: (isCorrect: boolean) => void;
 }
 
 interface BlitzQuestion {
@@ -20,8 +21,9 @@ interface BlitzQuestion {
 export default function MioloBlitzChallenge({
   onSelectCorrect,
   onSelectWrong,
-  triggerGlow = false,
-  unidadeAtiva
+  triggerGlow,
+  unidadeAtiva,
+  onValidateResult
 }: MioloBlitzChallengeProps) {
   const [questions, setQuestions] = useState<BlitzQuestion[]>([
     { word: 'CARREGANDO...', correct: 'Carregando...', options: ['Carregando...', '...', '...', '...'] }
@@ -29,12 +31,20 @@ export default function MioloBlitzChallenge({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [gameOver, setGameOver] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (gameOver && onValidateResult && !validadoRef.current) {
+      validadoRef.current = true; // Trava para nunca mais disparar nesta montagem
+      onValidateResult(true);
+    }
+  }, [gameOver, onValidateResult]);
   const [totalXp, setTotalXp] = useState<number>(0);
   
   const [feedback, setFeedback] = useState<{ id: string; text: string; color: string } | null>(null);
   const [clickedOption, setClickedOption] = useState<string | null>(null);
   
   const timerRef = useRef<any>(null);
+  const validadoRef = useRef<boolean>(false);
 
     useEffect(() => {
     async function carregarBlitzDoBanco() {
