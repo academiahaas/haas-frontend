@@ -1,6 +1,7 @@
 "use client";
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send } from "lucide-react";
 
 interface OptionItem {
@@ -90,14 +91,26 @@ export default function MioloVelocidadeProgressiva({
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
 
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.13&limit=1`;
-        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` } });
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto")) {
+          nomeUnidade = "1.1";
+        }
+        
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+        
+        let query = supabase.from("exercises").select("*").eq("activity_type", 13);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+        
+        const { data: dados, error } = await query.limit(1);
+        console.log("🔍 [PROVA REAL MARCHAS] Dados retornados do Supabase:", { dados, error });
         
         let exe = null;
-        if (res.ok) {
-          const dados = await res.json();
-          if (dados && dados.length > 0) exe = dados[0];
+        if (dados && dados.length > 0) {
+          exe = dados[0];
         }
 
         if (!exe) {
