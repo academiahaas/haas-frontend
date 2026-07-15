@@ -95,7 +95,7 @@ export default function MioloReordenacaoParagrafos({
           .from('exercises')
           .select('*')
           .eq('unit', codigoUnidade)
-          .eq('activity_type', 10);
+          .eq('activity_type', 8);
 
         if (error) throw error;
 
