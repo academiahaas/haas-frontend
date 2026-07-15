@@ -1,5 +1,6 @@
 'use client';
-import { chamarGeminiInteligente } from './geminiService';
+import { supabase } from '@/lib/supabase';
+
 
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Disc, Loader2, Volume2 } from "lucide-react";
@@ -126,45 +127,28 @@ Retorne OBRIGATORIAMENTE apenas a pergunta em português, sem aspas e sem format
       try {
         setCarregando(true);
         
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { 
-          headers: {
-            "apikey": SERVICE_KEY,
-            "Authorization": `Bearer ${SERVICE_KEY}`,
-            "Content-Type": "application/json"
-          }
-        });
-        const userDados = await userRes.json();
+        const codigoUnidade = unidadeAtiva || "1.1";
+        const { data: exeDados, error } = await supabase
+          .from("exercises")
+          .select("*")
+          .eq("unit", codigoUnidade)
+          .eq("activity_type", 9);
         
-        let motivacao = "work";
-        if (userDados && userDados.length > 0) {
-          motivacao = userDados[0].learning_motivation || "work";
-          if (userDados[0].native_language) {
-            setIdiomaNativoAluno(userDados[0].native_language);
-          }
-        }
-
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&limit=1`;
+        if (error) throw error;
         
-        const exeRes = await fetch(exeUrl, { 
-          headers: {
-            "apikey": SERVICE_KEY,
-            "Authorization": `Bearer ${SERVICE_KEY}`,
-            "Content-Type": "application/json"
-          }
-        });
-        const exeDados = await exeRes.json();
-        
-        let temaBase = "Apresentação e rotina pessoal";
-        let nivelDaLicao = "A1"; 
+        let cenarioTexto = "Cenário de Fluência Ativo";
+        let falaPartida = "No seu trabalho, onde você foi ontem de manhã?";
         
         if (exeDados && exeDados.length > 0) {
-          temaBase = exeDados[0].reading_text || exeDados[0].correct_answer || temaBase;
-          nivelDaLicao = exeDados[0].level || "A1"; 
+          // Escolhe o primeiro exercício disponível para a unidade
+          const exercicio = exeDados[0];
+          
+          cenarioTexto = exercicio.reading_text || cenarioTexto;
+          falaPartida = exercicio.audio_transcript || falaPartida;
         }
 
-        const perguntaExclusiva = await gerarPerguntaIneditaIA(temaBase, motivacao, nivelDaLicao);
-        setPhraseIA(perguntaExclusiva);
+        // Definimos o cenário e a frase de partida vindas estritamente do banco de dados
+        setPhraseIA(falaPartida);
         setFlowState("USER_TURN");
       } catch (err) {
         console.error("Erro geral na carga:", err);
