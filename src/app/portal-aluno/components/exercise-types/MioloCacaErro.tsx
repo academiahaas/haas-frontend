@@ -1,4 +1,5 @@
-'use client';
+"use client";
+import { supabase } from "@/lib/supabase";
 import { chamarGeminiInteligente } from './geminiService';
 import React, { useState, useEffect } from "react";
 import { registrarFeedbackEErro } from "@/utils/motorResiliencia";
@@ -91,27 +92,51 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
           }
         } catch (e) { console.error("Erro idioma:", e); }
 
-        const url = `${SUPABASE_URL}?activity_type=eq.7&limit=1`;
-        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": "Bearer " + SERVICE_KEY } });
-        const dados = await res.json();
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto") || nomeUnidade.includes("Primeiro")) {
+          nomeUnidade = "1.1";
+        }
+
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+
+        let query = supabase.from("exercises").select("*").eq("activity_type", 2);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+
+        const { data: dados, error: errorCaca } = await query.limit(1);
+        console.log("🔍 [PROVA REAL CAÇA ERRO] Dados retornados do Supabase:", { dados, error: errorCaca });
 
         if (dados && dados.length > 0) {
           const exe = dados[0];
-          const fraseCorreta = exe.audio_transcript || exe.reading_text || exe.context || "";
-          setCorrectOption(fraseCorreta);
+          
+          // No Caça Erro (Tipo 2), "correct_answer" guarda o gabarito (frase errada que o aluno deve caçar)
+          const fraseComErro = exe.correct_answer || "";
+          setCorrectOption(fraseComErro);
           
           let distratoresFinais: string[] = [];
           if (exe.alternative_options) {
-            try {
-              const cache = JSON.parse(exe.alternative_options);
-              if (Array.isArray(cache)) {
-                distratoresFinais = cache.map((item: any) => item.t || item.texto || item).filter(Boolean);
+            if (Array.isArray(exe.alternative_options)) {
+              distratoresFinais = exe.alternative_options;
+            } else {
+              try {
+                const cache = JSON.parse(exe.alternative_options);
+                if (Array.isArray(cache)) {
+                  distratoresFinais = cache.map((item: any) => item.t || item.texto || item).filter(Boolean);
+                }
+              } catch(e) {
+                distratoresFinais = [];
               }
-            } catch(e) { distratoresFinais = []; }
+            }
           }
 
-          const erradasLimpas = distratoresFinais.filter(op => op !== fraseCorreta);
-          let listaUnificada = Array.from(new Set([fraseCorreta, ...erradasLimpas])).filter(Boolean);
+          // Define fraseCorreta (baseline limpo) a partir das alternativas corretas para manter o Gemini funcionando
+          const fraseCorreta = distratoresFinais[0] || "";
+
+          // Monta a lista unificada contendo a frase errada (alvo) e as frases sem erro
+          let listaUnificada = Array.from(new Set([fraseComErro, ...distratoresFinais])).filter(Boolean);
 
           if (listaUnificada.length === 3) {
             try {
