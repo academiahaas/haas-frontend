@@ -39,6 +39,7 @@ export default function DitadoLacunas({
   unidadeAtiva 
 }: DitadoLacunasProps) {
   const [inputValue, setInputValue] = useState("");
+  const [inputValues, setInputValues] = useState<Record<number, string>>({});
   const [localStatus = 'IDLE', setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,6 +68,7 @@ export default function DitadoLacunas({
   useEffect(() => {
     if (propStatus === 'IDLE') {
       setInputValue('');
+      setInputValues({});
       setLocalStatus('IDLE');
       setFeedbackIA('');
     } else {
@@ -167,9 +169,17 @@ export default function DitadoLacunas({
     }
   };
 
-  const handleInputChange = (val: string) => {
-    setInputValue(val);
-    if (onSelectionChange) onSelectionChange(val.trim().length > 0);
+  const handleInputChange = (val: string, index: number = 0) => {
+    const novosValores = { ...inputValues, [index]: val };
+    setInputValues(novosValores);
+    
+    const textoCompleto = Object.values(novosValores).join(" ");
+    setInputValue(textoCompleto);
+
+    if (onSelectionChange) {
+      const temPreenchido = Object.values(novosValores).some(v => v.trim().length > 0);
+      onSelectionChange(temPreenchido);
+    }
   };
 
   const executarValidacaoInterna = async () => {
@@ -205,7 +215,7 @@ export default function DitadoLacunas({
     };
     window.addEventListener("haas:validate", escutarSubmitGlobal);
     return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
-  }, [inputValue, localStatus, analisando, targetWord]);
+  }, [inputValues, localStatus, analisando, targetWord]);
 
     useEffect(() => {
     const escutarSubmitGlobal = () => {
@@ -213,7 +223,7 @@ export default function DitadoLacunas({
     };
     window.addEventListener("haas:validate", escutarSubmitGlobal);
     return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
-  }, [inputValue, localStatus, analisando, targetWord]);
+  }, [inputValues, localStatus, analisando, targetWord]);
 
   if (carregando) {
     return (
@@ -247,21 +257,25 @@ export default function DitadoLacunas({
         </button>
       </div>
 
-      <div className={`bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(16px,2.2vw,22px)] font-black text-slate-200 leading-relaxed flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
-        <span className="font-sans font-medium text-[#F8FAFC]">{prefixo}</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          disabled={localStatus !== 'IDLE' || analisando}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && executarValidacaoInterna()}
-          placeholder="???"
-          className={`bg-[#070d19] border-2 rounded-xl px-3 py-1 text-center font-black tracking-wide text-[clamp(16px,2.2vw,22px)] w-44 transition-all focus:outline-none focus:border-cyan-500/50 ${
-            localStatus === 'CORRECT' ? 'border-emerald-500 text-emerald-400 font-black' : localStatus === 'WRONG' ? 'border-rose-500 text-rose-400 font-black' : 'border-white/[0.08] text-cyan-400'
-          }`}
-        />
-        <span className="font-sans font-medium text-[#F8FAFC]">{sufixo}</span>
+      <div className={`bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(16px,2.2vw,22px)] font-black text-slate-200 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+        {partesDaFrase.map((parte, index) => (
+          <React.Fragment key={index}>
+            <span className="font-sans font-medium text-[#F8FAFC]">{parte}</span>
+            {index < partesDaFrase.length - 1 && (
+              <input
+                type="text"
+                value={inputValues[index] || ""}
+                disabled={localStatus !== "IDLE" || analisando}
+                onChange={(e) => handleInputChange(e.target.value, index)}
+                onKeyDown={(e) => e.key === "Enter" && executarValidacaoInterna()}
+                placeholder="???"
+                className={`bg-[#070d19] border-2 rounded-xl px-2 py-1 text-center font-black tracking-wide text-[clamp(14px,2vw,18px)] w-28 transition-all focus:outline-none focus:border-cyan-500/50 ${
+                  localStatus === "CORRECT" ? "border-emerald-500 text-emerald-400" : localStatus === "WRONG" ? "border-rose-500 text-rose-400" : "border-white/[0.08] text-cyan-400"
+                }`}
+              />
+            )}
+          </React.Fragment>
+        ))}
       </div>
 
       {exibirContainerInferior && (
