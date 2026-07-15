@@ -1,7 +1,7 @@
 'use client';
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
-import { ArrowDown, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
+import { ArrowDown, CheckCircle, XCircle, Sparkles, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface ParagrafoItem {
@@ -53,17 +53,16 @@ export default function MioloReordenacaoParagrafos({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
-  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
-  const obterLangKey = () => {
+  const obtenerLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";
     if (lang.includes("eng") || lang.includes("ing")) return "en";
     if (lang.includes("por") || lang.includes("bra")) return "pt";
     return "es";
   };
 
-  const t = traducoesAbas[obterLangKey()];
+  const t = traducoesAbas[obtenerLangKey()] || traducoesAbas.es;
 
   useEffect(() => {
     if (propStatus === 'IDLE') {
@@ -89,12 +88,13 @@ export default function MioloReordenacaoParagrafos({
           }
         } catch (e) { console.error(e); }
 
-        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+        // Usa o código real da unidade (ex: "1.1") para cruzar com a coluna 'unit' do banco
+        const codigoUnidade = unidadeAtiva || "1.1";
         
         const { data: dados, error } = await supabase
           .from('exercises')
           .select('*')
-          .eq('unit', nomeUnidade)
+          .eq('unit', codigoUnidade)
           .eq('activity_type', 10);
 
         if (error) throw error;
@@ -102,45 +102,35 @@ export default function MioloReordenacaoParagrafos({
         let frasesOriginais: string[] = [];
         let exe = dados && dados.length > 0 ? dados[0] : null;
 
+        // Tenta puxar de alternative_options ou correct_answer
         if (exe) {
           const altOpts = exe.alternative_options || exe.alternativas;
-          if (altOpts) {
-            if (Array.isArray(altOpts)) {
-              frasesOriginais = altOpts.map(s => String(s).trim()).filter(Boolean);
-            } else if (typeof altOpts === 'string') {
-              try {
-                const parsed = JSON.parse(altOpts);
-                if (Array.isArray(parsed)) {
-                  frasesOriginais = parsed.map(s => String(s).trim()).filter(Boolean);
-                } else {
-                  frasesOriginais = String(altOpts).split('|').map(s => s.trim()).filter(Boolean);
-                }
-              } catch (e) {
-                // Fallback para separadores comuns caso seja string pura
-                const separador = altOpts.includes('|') ? '|' : altOpts.includes(';') ? ';' : ',';
-                frasesOriginais = altOpts.split(separador).map(s => s.trim()).filter(Boolean);
-              }
-            }
+          const corrAns = exe.correct_answer;
+
+          if (altOpts && Array.isArray(altOpts) && altOpts.length > 0) {
+            frasesOriginais = altOpts.map(s => String(s).trim()).filter(Boolean);
+          } else if (corrAns && typeof corrAns === 'string' && corrAns.includes('|')) {
+            frasesOriginais = corrAns.split('|').map(s => s.trim()).filter(Boolean);
           }
         }
 
-        // Validação de Emergência se a coluna estiver vazia ou mal formada
+        // Validação de Emergência Dinâmica em Espanhol (nunca deixa a tela em branco se o registro no banco estiver nulo/vazio)
         if (frasesOriginais.length < 2) {
-          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] alternative_options corrompido ou ausente. Injetando bloco resiliente...");
+          console.warn("⚠️ [CONCURSO DE EMERGENCIA] Usando frases de segurança em espanhol.");
           frasesOriginais = [
-            "Primeiramente, abrimos o terminal de comando.",
-            "Em seguida, executamos o script de migração do banco.",
-            "Por fim, validamos se os logs foram salvos com sucesso."
+            "Primero, abrimos la terminal de comandos para iniciar el sistema.",
+            "Luego, ejecutamos el script de migración para sincronizar la base de datos.",
+            "Finalmente, validamos si todos los registros fueron guardados con éxito."
           ];
         }
 
         setTextoGabaritoInteiro(frasesOriginais.join(" "));
         
-        // Mapeia a ordem original como o gabarito oficial (1, 2, 3...)
+        // Mapeia a ordem correta baseada no array original
         const itensMontados = frasesOriginais.map((txt, idx) => ({ id: idx + 1, text: txt }));
         setGabaritoIds(itensMontados.map(it => it.id));
         
-        // Embaralha as frases na interface para o aluno resolver
+        // Embaralha dinamicamente para o aluno ordenar
         setItems([...itensMontados].sort(() => Math.random() - 0.5));
         
         if (onSelectionChange) onSelectionChange(true);
@@ -167,7 +157,7 @@ export default function MioloReordenacaoParagrafos({
         osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.04);
       }
     } catch (e) {
-      console.warn("Erro ao reproduzir clique sintetico:", e);
+      console.warn("Erro ao reproduzir som:", e);
     }
   };
 
@@ -193,7 +183,7 @@ export default function MioloReordenacaoParagrafos({
     try {
       const resultado = await registrarFeedbackEErro({
         userId: USER_ID_ALVO,
-        enunciado: "Exercício de Reordenação de Parágrafos e Coerência Narrativa.",
+        enunciado: `Ejercicio de Reordenación - Unidad ${unidadeAtiva || "1.1"}`,
         respostaCorreta: textoGabaritoInteiro,
         respostaAluno: sequenciaAluno,
         idiomaNativoAluno: idiomaNativoAluno
@@ -205,7 +195,7 @@ export default function MioloReordenacaoParagrafos({
     } catch (e) {
       const ordemAtualIds = items.map(it => it.id);
       const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
-      const msgFallback = acertou ? "Sequência lógica textual validada com maestria!" : "A ordem cronológica das sentenças possui quebras de coesão.";
+      const msgFallback = acertou ? "¡Orden lógico validado con éxito!" : "La secuencia lógica posee detalles de cohesión por corregir.";
       
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(msgFallback);
@@ -215,7 +205,7 @@ export default function MioloReordenacaoParagrafos({
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const escutarSubmitGlobal = () => {
       hackerValidarIA();
     };
@@ -236,7 +226,6 @@ export default function MioloReordenacaoParagrafos({
   return (
     <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
       
-      {/* BARRA SUPERIOR DE INSTRUÇÃO */}
       <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02]">
         <div className="flex items-center gap-2">
           <HelpCircle size={14} className="text-cyan-400 shrink-0" />
@@ -246,23 +235,17 @@ export default function MioloReordenacaoParagrafos({
         </div>
       </div>
 
-      {/* CONTAINER DOS CARDS COM ALINHAMENTO HORIZONTAL DE CONTROLES ANTIVAZAMENTO */}
       {localStatus === 'IDLE' && !analisando && (
         <div className="flex-1 min-h-0 flex flex-col justify-between gap-2.5 py-0.5">
         {items.map((item, index) => (
           <div 
             key={item.id} 
-            className={`flex items-center justify-between gap-4 bg-[#0c192e]/60 border px-4 rounded-xl transition-all h-full flex-1 min-h-0 max-h-[75px] py-2 ${
-              
-              'border-white/[0.04] hover:border-white/[0.1]'
-            }`}
+            className="flex items-center justify-between gap-4 bg-[#0c192e]/60 border px-4 rounded-xl transition-all h-full flex-1 min-h-0 max-h-[75px] py-2 border-white/[0.04] hover:border-white/[0.1]"
           >
-            {/* TEXTO DA FRASE IMPONENTE E RESGUARDADO À ESQUERDA */}
             <p className="text-[14px] md:text-[1.1vw] lg:text-[1.15vw] text-slate-200 leading-relaxed font-semibold select-none break-words flex-1 line-clamp-2 md:line-clamp-3">
               {item.text}
             </p>
 
-            {/* BOTÕES DAS SETAS DISPOSTOS LADO A LADO NA HORIZONTAL PARA NUNCA EXCEDER A ALTURA DO CARD */}
             <div className="flex flex-row gap-1.5 shrink-0 items-center justify-center">
               <button 
                 type="button"
@@ -286,11 +269,8 @@ export default function MioloReordenacaoParagrafos({
         </div>
       )}
 
-      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA IA NO RODAPÉ */}
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col justify-center mt-0.5 animate-fade-in min-h-0 overflow-hidden">
-          
-
           {analisando && (
             <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 bg-cyan-950/10 border border-cyan-500/15 rounded-xl animate-pulse p-8 min-h-0 overflow-hidden text-[13px] md:text-[1.2vw] text-cyan-400 font-bold tracking-widest uppercase">
               <Sparkles size={11} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
