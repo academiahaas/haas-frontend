@@ -89,13 +89,25 @@ export default function MioloReordenacaoParagrafos({
         } catch (e) { console.error(e); }
 
         // Usa o código real da unidade (ex: "1.1") para cruzar com a coluna 'unit' do banco
-        const codigoUnidade = unidadeAtiva || "1.1";
+        const codigoUnidade = unidadeAtiva;
+        if (!codigoUnidade) {
+          setCarregando(false);
+          return;
+        }
         
-        const { data: dados, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('unit', codigoUnidade)
-          .eq('activity_type', 8);
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
+        
+        let query = supabase.from('exercises').select('*').eq('activity_type', 8);
+        
+        if (isUUID) {
+          query = query.eq('unit_id', codigoUnidade);
+        } else {
+          // Se for "0" ou "1" (valores de inicializacao temporarios), busca pela primeira unidade
+          const unitFallback = (codigoUnidade === "0" || codigoUnidade === "1") ? "1.1" : codigoUnidade;
+          query = query.eq('unit', unitFallback);
+        }
+        
+        const { data: dados, error } = await query;
 
         if (error) throw error;
 
