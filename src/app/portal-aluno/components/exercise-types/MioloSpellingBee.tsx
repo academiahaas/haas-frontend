@@ -79,7 +79,7 @@ export default function MioloSpellingBee({
         .from('exercises')
         .insert({
           unit: nomeUnidade,
-          activity_type: 4,
+          activity_type: 11,
           level: nivel,
           correct_answer: palavra,
           reading_text: palavra
@@ -137,7 +137,7 @@ export default function MioloSpellingBee({
         
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
         
-        let query = supabase.from("exercises").select("*").eq("activity_type", 4);
+        let query = supabase.from("exercises").select("*").eq("activity_type", 11);
         if (isUUID) {
           query = query.eq("unit_id", nomeUnidade);
         } else {
