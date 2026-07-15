@@ -101,9 +101,13 @@ export default function MioloTraducaoInversa({
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
 
-        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Primeiro Impacto")) {
+          nomeUnidade = "1.1";
+        }
         const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.12&limit=1`;
         
+        console.log("📡 [CONEXÃO REAL TRADUÇÃO] Buscando no Supabase por:", nomeUnidade);
         const res = await fetch(url, {
           headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
         });
