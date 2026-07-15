@@ -52,6 +52,7 @@ export default function MioloReordenacaoParagrafos({
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
+  const [dadosExercicio, setDadosExercicio] = useState<any>(null);
 
   const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
@@ -110,6 +111,7 @@ export default function MioloReordenacaoParagrafos({
         const { data: dados, error } = await query;
 
         if (error) throw error;
+        if (dados && dados.length > 0) setDadosExercicio(dados[0]);
 
         let frasesOriginais: string[] = [];
         let exe = dados && dados.length > 0 ? dados[0] : null;
@@ -185,36 +187,32 @@ export default function MioloReordenacaoParagrafos({
     setItems(novosItens);
   };
 
-  const hackerValidarIA = async () => {
-    if (localStatus !== 'IDLE' || items.length === 0 || analisando) return;
+  const hackerValidarIA = () => {
+    if (localStatus !== "IDLE" || items.length === 0 || analisando) return;
     setAnalisando(true);
     setFeedbackIA("");
 
-    const sequenciaAluno = items.map(it => it.text).join(" ");
+    const ordemAtualIds = items.map(it => it.id);
+    const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
 
-    try {
-      const resultado = await registrarFeedbackEErro({
-        userId: USER_ID_ALVO,
-        enunciado: `Ejercicio de Reordenación - Unidad ${unidadeAtiva || "1.1"}`,
-        respostaCorreta: textoGabaritoInteiro,
-        respostaAluno: sequenciaAluno,
-        idiomaNativoAluno: idiomaNativoAluno
-      });
-
-      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.feedback);
-    } catch (e) {
-      const ordemAtualIds = items.map(it => it.id);
-      const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
-      const msgFallback = acertou ? "¡Orden lógico validado con éxito!" : "La secuencia lógica posee detalles de cohesión por corregir.";
+    if (acertou) {
+      setLocalStatus("CORRECT");
+      const feedbackTecnico = dadosExercicio?.correct_feedback || "¡Orden lógico validado con éxito!";
+      const incentivoMentora = dadosExercicio?.correct_incentive || "";
       
-      setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(msgFallback);
-      if (onValidateResult) onValidateResult(acertou, msgFallback);
-    } finally {
-      setAnalisando(false);
+      setFeedbackIA(feedbackTecnico);
+      // Passa o incentivo da Mentora Haas se houver, caso contrario o feedback tecnico
+      if (onValidateResult) onValidateResult(true, incentivoMentora || feedbackTecnico);
+    } else {
+      setLocalStatus("WRONG");
+      const feedbackTecnico = dadosExercicio?.incorrect_feedback || "La secuencia lógica posee detalles de cohesión por corregir.";
+      const incentivoMentora = dadosExercicio?.incorrect_incentive || "";
+      
+      setFeedbackIA(feedbackTecnico);
+      if (onValidateResult) onValidateResult(false, incentivoMentora || feedbackTecnico);
     }
+
+    setAnalisando(false);
   };
 
   useEffect(() => {
