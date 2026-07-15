@@ -89,14 +89,21 @@ export default function DitadoLacunas({
           }
         } catch (e) { console.error(e); }
 
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        
-        const { data: dados, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('unit', nomeUnidade)
-          .eq('activity_type', 4);
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto") || nomeUnidade.includes("Primeiro")) {
+          nomeUnidade = "1.1";
+        }
 
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+
+        let query = supabase.from("exercises").select("*").eq("activity_type", 4);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+
+        const { data: dados, error } = await query;
         if (error) throw error;
         
         // Ativação da camada de contingência em caso de dados corrompidos ou vazios
@@ -106,7 +113,9 @@ export default function DitadoLacunas({
 
         if (dados && dados.length > 0) {
           const exe = dados[0];
-          textoFinal = exe.reading_text || "";
+          let rawText = exe.reading_text || "";
+          // Substitui dinamicamente [lacuna], [lacuna ] ou variantes para ___
+          textoFinal = rawText.replace(/\[lacuna\]/gi, "___");
           respostaFinal = exe.correct_answer || "";
           audioFinal = exe.audio_transcript || exe.correct_answer || "";
         }
@@ -214,7 +223,7 @@ export default function DitadoLacunas({
     );
   }
 
-  const partesDaFrase = fraseEstruturada.split(/______+/);
+  const partesDaFrase = fraseEstruturada.split(/___+/);
   const prefixo = partesDaFrase[0] || "";
   const sufixo = partesDaFrase[1] || "";
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando || !!feedbackIA;
