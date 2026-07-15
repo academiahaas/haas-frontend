@@ -2,6 +2,7 @@
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Volume2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { supabase } from '@/lib/supabase';
 
 interface MioloSpellingBeeProps {
   onSelectCorrect?: () => void;
@@ -36,7 +37,14 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unidadeAtiva, status: propStatus = 'IDLE', onValidateResult, onSelectionChange }: MioloSpellingBeeProps) {
+export default function MioloSpellingBee({ 
+  onSelectCorrect, 
+  onSelectWrong, 
+  unidadeAtiva, 
+  status: propStatus = 'IDLE', 
+  onValidateResult, 
+  onSelectionChange 
+}: MioloSpellingBeeProps) {
   const [targetWord, setTargetWord] = useState("");
   const [userInput, setUserInput] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -46,11 +54,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
   const [analisando, setAnalisando] = useState(false);
   const [feedbackIA, setFeedbackIA] = useState("");
 
-  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
-  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
-  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
-
   const accentRow = ["Á", "É", "Í", "Ó", "Ú", "Â", "Ê", "Ô", "Ã", "Õ", "Ç"];
 
   const keyboardRows = [
@@ -70,23 +74,16 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
 
   const salvarNovaPalavraNoCache = async (palavra: string, nivel: string) => {
     try {
-      const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
-      await fetch(`${SUPABASE_URL}/exercises`, {
-        method: "POST",
-        headers: {
-          "apikey": SERVICE_KEY,
-          "Authorization": `Bearer ${SERVICE_KEY}`,
-          "Content-Type": "application/json",
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify({
+      const nomeUnidade = unidadeAtiva || "1.1";
+      await supabase
+        .from('exercises')
+        .insert({
           unit: nomeUnidade,
-          activity_type: 11,
+          activity_type: 4,
           level: nivel,
           correct_answer: palavra,
           reading_text: palavra
-        })
-      });
+        });
     } catch (e) {
       console.warn("Erro ao registrar cache de spelling:", e);
     }
@@ -95,7 +92,11 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
   const gerarPalavraIA = async (nivel: string) => {
     try {
       const prompt = `Gere uma única palavra curta em português com acentuação gráfica opcional para um jogo de soletrar. Nível: ${nivel}. Retorne estritamente apenas a palavra limpa em maiúsculas sem pontos. Deve ter entre 4 e 7 letras no máximo.`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      
+      const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1); // dummy call para assegurar rota
+      const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+      
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key_gemini}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -109,7 +110,9 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
           return palavra;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
     return "CAFÉ";
   };
 
@@ -117,31 +120,33 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     async function inicializarSpelling() {
       try {
         setCarregando(true);
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
-        });
-        const userDados = await userRes.json();
+        
+        const { data: userDados } = await supabase
+          .from('users')
+          .select('native_language')
+          .eq('id', USER_ID_ALVO);
+        
         if (userDados && userDados.length > 0) {
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
 
-        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
-        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.11&limit=1`;
-        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` } });
+        const nomeUnidade = unidadeAtiva || "1.1";
+        
+        const { data: dados, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('unit', nomeUnidade)
+          .eq('activity_type', 4)
+          .limit(1);
         
         let palavraAlvo = "";
-        if (res.ok) {
-          const dados = await res.json();
-          if (dados && dados.length > 0) {
-            palavraAlvo = String(dados[0].correct_answer || dados[0].reading_text).toUpperCase().trim();
-          }
+        if (dados && dados.length > 0) {
+          palavraAlvo = String(dados[0].correct_answer || dados[0].reading_text || "").toUpperCase().trim();
         }
 
-        // Validação de Emergência: Registro nulo, vazio ou menor que 2 letras
         if (!palavraAlvo || palavraAlvo.trim().length < 2) {
           console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Palavra do Spelling Bee ausente. Acionando motor central...");
           const palavraRecuperada = await resilienciaTextoCompleto("", nomeUnidade + " - Palavra Curta Única");
-          // Limpa a palavra para garantir que venha apenas letras válidas em maiúsculo
           palavraAlvo = palavraRecuperada.toUpperCase().replace(/[^A-ZÁÉÍÓÚÂÊÔÃÕÇ]/g, "").trim().slice(0, 8);
           if (!palavraAlvo) palavraAlvo = "VISÃO";
         }
@@ -150,6 +155,8 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         setUserInput(new Array(palavraAlvo.length).fill(""));
         setCurrentIndex(0);
         setStatus("IDLE");
+        
+        if (onSelectionChange) onSelectionChange(true);
       } catch (err) {
         setTargetWord("VISÃO");
         setUserInput(new Array(5).fill(""));
@@ -223,9 +230,7 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     setStatus("IDLE");
   };
 
-      
-
-          const validarSoletradoFinal = async () => {
+  const validarSoletradoFinal = async () => {
     if (analisando) return;
     
     setAnalisando(true);
@@ -234,16 +239,16 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
     const palavraMontada = userInput.join("").toUpperCase().trim();
     const acertou = palavraMontada === targetWord;
 
-    // Aguarda um pequeno delay de 1.2s para simular a análise visual antes de revelar o resultado
     setTimeout(async () => {
       setAnalisando(false);
       setStatus(acertou ? "CORRECT" : "WRONG");
 
-      const mensagemFeedback = acertou ? "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta." : "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.";
+      const mensagemFeedback = acertou 
+        ? "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta." 
+        : "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.";
 
       setFeedbackIA(mensagemFeedback);
 
-      // Avisa o pai para tocar o som premium sem interferir no balão da Mentora
       if (onValidateResult) {
         onValidateResult(acertou, "MANTER_MENTORA_INTACTA");
       }
@@ -254,23 +259,21 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         if (onSelectWrong) onSelectWrong();
       }
 
-      // Telemetria silenciosa em segundo plano
-      if (!acertou) {
-        try {
-          await registrarFeedbackEErro({
-            userId: USER_ID_ALVO,
-            enunciado: "Exercício de Soletração Ortográfica (Spelling Bee).",
-            respostaCorreta: targetWord,
-            respostaAluno: palavraMontada,
-            idiomaNativoAluno: idiomaNativoAluno
-          });
-        } catch (err) {
-          console.warn("Telemetria falhou de forma silenciosa.");
-        }
+      try {
+        await registrarFeedbackEErro({
+          userId: USER_ID_ALVO,
+          enunciado: `Ejercicio de Soletração Ortográfica (Spelling Bee) - Unidad ${unidadeAtiva || "1.1"}`,
+          respostaCorreta: targetWord,
+          respostaAluno: palavraMontada,
+          idiomaNativoAluno: idiomaNativoAluno
+        });
+      } catch (err) {
+        console.warn("Telemetria falhou de forma silenciosa.");
       }
     }, 1200);
   };
-    useEffect(() => {
+
+  useEffect(() => {
     const escutarSubmitGlobal = () => {
       validarSoletradoFinal();
     };
@@ -289,7 +292,6 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
   return (
     <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans min-h-0 flex-1 gap-2 overflow-hidden p-1">
       
-      {/* INSTRUÇÃO COMPACTADA */}
       <div className="flex items-center gap-2 shrink-0 bg-[#0c192e] p-2 rounded-xl border border-white/[0.04]">
         <button 
           onClick={playWordAudio} 
@@ -302,7 +304,6 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </span>
       </div>
 
-      {/* ÁREA CENTRAL LIMPA APENAS COM OS TILES */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-0 h-auto w-full py-2 bg-[#050b14]/40 border border-white/[0.04] rounded-xl px-3">
         <div className="flex justify-center flex-wrap gap-1.5 w-full max-w-full justify-items-center">
           {userInput.map((char, idx) => {
@@ -323,11 +324,8 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       </div>
 
-      {/* TECLADO SEGURO (APARECE APENAS SE FOR IDLE E NÃO ESTIVER ANALISANDO) */}
       {status === "IDLE" && !analisando && (
         <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
-          
-          {/* LINHA DE ACENTOS OTIMIZADA */}
           <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1 overflow-x-auto select-none no-scrollbar">
             {accentRow.map((letter) => (
               <button
@@ -340,7 +338,6 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
             ))}
           </div>
 
-          {/* ALFABETO COMPACTADO PARA RESPEITAR O CONTAINER PAI */}
           {keyboardRows.map((row, rowIdx) => (
             <div key={rowIdx} className="flex gap-0.5 justify-center w-full">
               {row.map((letter) => (
@@ -359,7 +356,6 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       )}
 
-      {/* TELA DE ANALISANDO ATIVA (COM A MESMA ESPESSURA, PADDING E BORDAS DO FEEDBACK) */}
       {analisando && (
         <div className="w-full mt-auto flex flex-col gap-3 animate-pulse">
           <div className="w-full p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-300 text-[15px] md:text-[1.25vw] leading-[1.6] font-semibold flex items-center justify-center gap-3 min-h-[80px]">
@@ -369,7 +365,6 @@ export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unida
         </div>
       )}
 
-      {/* FEEDBACK EXCLUSIVO EM ESPANHOL (APENAS O BALÃO EXPLICATIVO, SEM OS CARDS DE STATUS) */}
       {!analisando && status !== "IDLE" && feedbackIA && (
         <div className="w-full mt-auto flex flex-col gap-3 animate-fade-in">
           <div className={`w-full p-6 rounded-2xl text-[15px] md:text-[1.25vw] border leading-[1.6] font-semibold shadow-lg animate-fade-in ${
