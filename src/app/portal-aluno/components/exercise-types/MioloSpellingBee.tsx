@@ -130,14 +130,22 @@ export default function MioloSpellingBee({
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
 
-        const nomeUnidade = unidadeAtiva || "1.1";
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined") {
+          nomeUnidade = "1.1";
+        }
         
-        const { data: dados, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('unit', nomeUnidade)
-          .eq('activity_type', 4)
-          .limit(1);
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+        
+        let query = supabase.from("exercises").select("*").eq("activity_type", 4);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+        
+        const { data: dados, error } = await query.limit(1);
+        console.log("🔍 [PROVA REAL] Dados brutos retornados do Supabase:", { dados, error });
         
         let palavraAlvo = "";
         if (dados && dados.length > 0) {
