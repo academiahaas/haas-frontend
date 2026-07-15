@@ -93,13 +93,21 @@ export default function MioloBlocos({
           }
         } catch (e) { console.error(e); }
 
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        
-        const { data: dados, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('unit', nomeUnidade)
-          .eq('activity_type', 5);
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto") || nomeUnidade.includes("Primeiro")) {
+          nomeUnidade = "1.1";
+        }
+
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+
+        let query = supabase.from("exercises").select("*").eq("activity_type", 5);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+
+        const { data: dados, error } = await query;
 
         if (error) throw error;
 
