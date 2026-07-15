@@ -241,10 +241,20 @@ export default function MioloTraducaoInversa({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.feedback);
+      
+      // Avisa o pai para disparar o som premium imediatamente
+      if (onValidateResult) {
+        onValidateResult(resultado.acertou);
+      }
     } catch (e) {
       const acertou = fraseMontada.toLowerCase().trim() === stringAlvoCorreta.toLowerCase().trim();
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente! Tradução perfeita." : "Ordem dos blocos incorreta para o padrão corporativo.");
+      
+      // Avisa o pai para disparar o som premium imediatamente no fallback
+      if (onValidateResult) {
+        onValidateResult(acertou);
+      }
     } finally {
       setAnalisando(false);
     }

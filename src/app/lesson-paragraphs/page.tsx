@@ -1,16 +1,9 @@
-/* =========================================================================
-  MÓDULO DE SINTAXE TEXTUAL / REORDENAÇÃO - HAAS EDUCACIONAL
-  MECÂNICA: REORDENAÇÃO DE PARÁGRAFOS (PARAGRAPH ORDERING) - NÍVEL B2
-  
-  ⚠️ TRAVA DE SEGURANÇA PÓS-SUBMISSÃO:
-  APÓS O ENVIO DA RESPOSTA, OS CONTROLES SÃO CONGELADOS, O BOTÃO DE RESET 
-  É ELIMINADO E APENAS A OPÇÃO "CONTINUAR" FICA DISPONÍVEL JUNTO AO FEEDBACK.
-  =========================================================================
-*/
+'use client';
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Cpu, PartyPopper, Sparkles, ChevronUp, ChevronDown } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -22,20 +15,51 @@ const PARAGRAFOS_ORIGINAIS = [
   { id: '3', texto: 'Ultimately, this modern adjustment completely restructured active student engagement metrics over long-term cycles.', ordemCorreta: 2 }
 ];
 
+
 export default function LessonParagraphsPage() {
   const router = useRouter();
   
-  const [paragrafos, setParagrafos] = useState([
-    PARAGRAFOS_ORIGINAIS[1], 
-    PARAGRAFOS_ORIGINAIS[2], 
-    PARAGRAFOS_ORIGINAIS[0]  
-  ]);
-  
+  const [paragrafos, setParagrafos] = useState([]);
+  const [ordemGabarito, setOrdemGabarito] = useState([]);
+  const [carregando, setCarregando] = useState(true);
   const [statusResposta, setStatusStatus] = useState<'idle' | 'correto' | 'errado'>('idle');
+
+  // Busca o exercício real de parágrafos no banco de dados public
+  useEffect(() => {
+    async function puxarExercicioBanco() {
+      try {
+        const { data, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .like('correct_answer', '%|%') // Filtra apenas o tipo que usa separação por barras (Reordenação)
+          .limit(1)
+          .single();
+
+        if (data && !error) {
+          // Destrincha o gabarito correto transformando em uma lista de strings
+          const frasesOrdenadas = data.correct_answer.split('|').map(f => f.trim());
+          
+          // Mapeia as opções embaralhadas que vieram do JSONB alternative_options
+          const opcoesEmbaralhadas = data.alternative_options.map((texto, idx) => {
+            // Descobre qual é o índice correto desse texto olhando para o gabarito
+            const ordemCorreta = frasesOrdenadas.indexOf(texto.trim());
+            return { id: String(idx), texto, ordemCorreta };
+          });
+
+          setParagrafos(opcoesEmbaralhadas);
+          setStatusStatus('idle');
+        }
+      } catch (err) {
+        console.error("Erro ao carregar exercício da Arena:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    puxarExercicioBanco();
+  }, []);
 
   const gerenciarMovimento = (indexAtual: number, novoIndex: number) => {
     if (statusResposta !== 'idle') return;
-
     const novosBlocos = [...paragrafos];
     const temp = novosBlocos[indexAtual];
     novosBlocos[indexAtual] = novosBlocos[novoIndex];
@@ -47,6 +71,7 @@ export default function LessonParagraphsPage() {
     e.preventDefault();
     if (statusResposta !== 'idle') return;
 
+    // O aluno acerta se a ordem em que ele deixou os blocos bater com a ordem sequencial correta (0, 1, 2, 3...)
     const acertouTudo = paragrafos.every((p, idx) => p.ordemCorreta === idx);
 
     if (acertouTudo) {
@@ -62,11 +87,23 @@ export default function LessonParagraphsPage() {
     }
   };
 
+
   const handleAvançar = () => {
     router.push('/lesson');
   };
 
   const jaRespondeu = statusResposta !== 'idle';
+
+    if (carregando) {
+    return (
+      <div className="fixed inset-0 bg-[#050b11] flex items-center justify-center text-white font-sans">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <p className="text-slate-400 uppercase tracking-widest text-xs font-bold">Sincronizando Arena com o Banco...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 w-screen h-screen bg-[#050b11] text-[#E8EDF2] flex flex-col font-sans antialiased overflow-hidden z-[9999]">
@@ -109,7 +146,18 @@ export default function LessonParagraphsPage() {
               setaBaixoStyle = "text-slate-700 border-transparent opacity-10 cursor-not-allowed";
             }
 
-            return (
+              if (carregando) {
+    return (
+      <div className="fixed inset-0 bg-[#050b11] flex items-center justify-center text-white font-sans">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <p className="text-slate-400 uppercase tracking-widest text-xs font-bold">Sincronizando Arena com o Banco...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
               <div 
                 key={p.id}
                 className={`w-full p-4 rounded-xl border-2 flex items-center justify-between gap-4 transition-all duration-300 ${borderStyle}`}

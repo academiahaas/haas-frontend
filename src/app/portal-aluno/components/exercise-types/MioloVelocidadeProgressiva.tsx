@@ -12,6 +12,7 @@ interface MioloProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  onValidateResult?: (acertou: boolean) => void;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -47,7 +48,8 @@ const traducoesAbas: Record<string, Record<string, string>> = {
 export default function MioloVelocidadeProgressiva({
   onSelectCorrect,
   onSelectWrong,
-  unidadeAtiva
+  unidadeAtiva,
+  onValidateResult
 }: MioloProps) {
   const [readingText, setReadingText] = useState("Carregando desafio...");
   const [correctAnswer, setCorrectAnswer] = useState("");
@@ -208,12 +210,18 @@ export default function MioloVelocidadeProgressiva({
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.feedback);
       
+      if (onValidateResult) {
+        onValidateResult(resultado.acertou);
+      }
       if (resultado.acertou && onSelectCorrect) onSelectCorrect();
       if (!resultado.acertou && onSelectWrong) onSelectWrong();
     } catch (e) {
       const acertou = selectedId === correctId;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
+      if (onValidateResult) {
+        onValidateResult(acertou);
+      }
       if (acertou && onSelectCorrect) onSelectCorrect();
       if (!acertou && onSelectWrong) onSelectWrong();
     } finally {
