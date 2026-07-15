@@ -84,25 +84,22 @@ export default function MioloMultiplaEscolha({
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
 
-        let { data: dados, error } = await supabase
-          .from('exercises')
-          .select('*')
-          .eq('id', '49f9e689-d00b-4747-8281-daa2fa946378')
-          .limit(1);
-
-        if (error || !dados || dados.length === 0) {
-          const nomeUnidade = unidadeAtiva || 'O Labirinto dos Passados Irregulares';
-          const { data: dadosFallback, error: errorFallback } = await supabase
-            .from('exercises')
-            .select('*')
-            .eq('unit', nomeUnidade)
-            .eq('activity_type', 3)
-            .limit(1);
-            
-          if (!errorFallback && dadosFallback && dadosFallback.length > 0) {
-            dados = dadosFallback;
-          }
+        let nomeUnidade = unidadeAtiva;
+        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto")) {
+          nomeUnidade = "1.1";
         }
+
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+
+        let query = supabase.from("exercises").select("*").eq("activity_type", 1);
+        if (isUUID) {
+          query = query.eq("unit_id", nomeUnidade);
+        } else {
+          query = query.eq("unit", nomeUnidade);
+        }
+
+        let { data: dados, error } = await query.limit(1);
+        console.log("🔍 [PROVA REAL MÚLTIPLA] Dados retornados do Supabase:", { dados, error });
 
         if (dados && dados.length > 0) {
           const exe = dados[0];

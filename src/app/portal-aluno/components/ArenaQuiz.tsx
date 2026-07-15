@@ -672,7 +672,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro onValidateResult={handleValidationResult} /> },
     { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} /> },
     { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} /> },
