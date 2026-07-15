@@ -1,4 +1,5 @@
-'use client';
+"use client";
+import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, RefreshCw, Sparkles, Send, Trophy, ArrowRight, BookOpen } from 'lucide-react';
@@ -119,16 +120,11 @@ export default function MioloTraducaoInversa({
         let textoOriginal = dadoExercicio?.reading_text || dadoExercicio?.texto || "";
         let respostaCerta = dadoExercicio?.correct_answer || dadoExercicio?.correta || "";
 
-        // Validação de Emergência: Caso o banco retorne vazio ou colunas corrompidas
+        // Validação de Emergência Estática (Sem IA no frontend)
         if (!textoOriginal || !respostaCerta || textoOriginal.trim().length < 3) {
-          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Dados de Tradução Inversa corrompidos ou ausentes. Acionando IA...");
-          const fraseMatrizGerada = await resilienciaTextoCompleto("", nomeUnidade + " - Frase Curta em Português");
-          
-          // Solicita a tradução correspondente ao motor central simulando o contexto inverso
-          const traducaoAlvoGerada = await resilienciaTextoCompleto("", "Traduza estritamente para o inglês a frase: " + fraseMatrizGerada);
-          
-          textoOriginal = fraseMatrizGerada;
-          respostaCerta = traducaoAlvoGerada;
+          console.warn("⚠️ Dados de Tradução Inversa ausentes. Usando fallback estático.");
+          textoOriginal = "Olá! Como você está?";
+          respostaCerta = "Hello! How are you?";
         }
         
         setFraseMatrizPT(textoOriginal);
@@ -226,39 +222,35 @@ export default function MioloTraducaoInversa({
   };
 
   const executarValidacaoInterna = async () => {
-    if (depositPieces.length === 0 || analisando || localStatus !== 'IDLE') return;
+    if (depositPieces.length === 0 || analisando || localStatus !== "IDLE") return;
     setAnalisando(true);
-    const fraseMontada = depositPieces.map(p => p.text).join(" ");
+    
+    const fraseMontada = depositPieces.map(p => p.text.trim()).join(" ").toLowerCase().trim();
+    const respostaCorretaPadrao = stringAlvoCorreta.toLowerCase().trim();
+
+    const limpar = (txt) => txt.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?¿!¡"]/g, "").replace(/\s+/g, " ").trim();
+
+    const respostaMontadaLimpa = limpar(fraseMontada);
+    const respostaCorretaLimpa = limpar(respostaCorretaPadrao);
+
+    const acertou = respostaMontadaLimpa === respostaCorretaLimpa;
 
     try {
-      const resultado = await registrarFeedbackEErro({
-        userId: USER_ID_ALVO,
-        enunciado: `Exercício de Tradução Inversa. Converter para o idioma alvo a frase: "${fraseMatrizPT}"`,
-        respostaCorreta: stringAlvoCorreta,
-        respostaAluno: fraseMontada,
-        idiomaNativoAluno: idiomaNativoAluno
-      });
-
-      setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
-      
-      // Avisa o pai para disparar o som premium imediatamente
-      if (onValidateResult) {
-        onValidateResult(resultado.acertou);
+      if (acertou) {
+        setLocalStatus("CORRECT");
+        setFeedbackIA("Excelente! Tradução perfeita.");
+        if (onValidateResult) onValidateResult(true);
+      } else {
+        setLocalStatus("WRONG");
+        setFeedbackIA(`Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
+        if (onValidateResult) onValidateResult(false);
       }
     } catch (e) {
-      const acertou = fraseMontada.toLowerCase().trim() === stringAlvoCorreta.toLowerCase().trim();
-      setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente! Tradução perfeita." : "Ordem dos blocos incorreta para o padrão corporativo.");
-      
-      // Avisa o pai para disparar o som premium imediatamente no fallback
-      if (onValidateResult) {
-        onValidateResult(acertou);
-      }
+      console.error("Erro na validação:", e);
     } finally {
       setAnalisando(false);
     }
-  };
+  };;
 
   // O pai só é acionado aqui, quando o aluno revisa e clica no botão "Avançar" ou "Tentar de Novo" final
     useEffect(() => {
