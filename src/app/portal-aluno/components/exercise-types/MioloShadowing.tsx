@@ -1,5 +1,5 @@
-import { chamarGeminiInteligente } from './geminiService';
 'use client';
+import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
@@ -124,31 +124,24 @@ Regras Estritas:
     async function carregarCenarioShadowing() {
       try {
         setCarregando(true);
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { 
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
-        });
-        const userDados = await userRes.json();
-        if (userDados && userDados.length > 0 && userDados[0].native_language) {
-          setIdiomaNativoAluno(userDados[0].native_language);
-        }
+        
+        // 1. Unidade ativa compatibilizada
+        const codigoUnidade = unidadeAtiva || "1.1";
+        
+        // 2. Busca estritamente no Supabase usando o cliente oficial público (Evitando 401)
+        const { data: exeDados, error } = await supabase
+          .from("exercises")
+          .select("*")
+          .eq("unit", codigoUnidade)
+          .eq("activity_type", 10)
+          .limit(1);
 
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.10&limit=1`;
-        const exeRes = await fetch(exeUrl, { 
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
-        });
-        const exeDados = await exeRes.json();
+        if (error) throw error;
 
-        let fraseFinal = "";
+        let fraseFinal = "Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.";
+        
         if (exeDados && exeDados.length > 0) {
-          fraseFinal = exeDados[0].correct_answer || exeDados[0].reading_text || "";
-        }
-
-        // Validação de Emergência: Registro inexistente ou colunas de texto vazias/corrompidas
-        if (!fraseFinal || fraseFinal.trim().length < 3) {
-          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto do Treino de Fala ausente ou inválido. Acionando motor central...");
-          const nivelDetectado = exeDados?.[0]?.level || "A2";
-          fraseFinal = await resilienciaTextoCompleto("", nomeUnidade + " - Nível " + nivelDetectado);
+          fraseFinal = exeDados[0].audio_transcript || exeDados[0].correct_answer || exeDados[0].reading_text || fraseFinal;
         }
 
         setReferencePhrase(fraseFinal);
