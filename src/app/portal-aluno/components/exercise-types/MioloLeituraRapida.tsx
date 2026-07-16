@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 interface MioloLeituraRapidaProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -44,6 +44,10 @@ export default function MioloLeituraRapida({
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [textoLongo, setTextoLongo] = useState("Carregando parágrafo de interpretação...");
   const [textoGabarito, setTextoGabarito] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [inputValue, setInputValue] = useState("");
   
   const [timeLeft, setTimeLeft] = useState(30);
@@ -117,6 +121,12 @@ export default function MioloLeituraRapida({
         if (error) throw error;
 
         let textoBase = dados && dados.length > 0 ? (dados[0].reading_text || dados[0].correct_answer || "") : "";
+        if (dados && dados.length > 0) {
+          setFeedbackCorretoBanco(dados[0].correct_feedback || "");
+          setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          setIncentivoCorretoBanco(dados[0].correct_incentive || "");
+          setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
+        }
 
         // Validação de Emergência: Caso o banco retorne vazio ou colunas corrompidas
         if (!textoBase || textoBase.trim().length < 5) {
@@ -240,16 +250,16 @@ export default function MioloLeituraRapida({
       });
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
-      if (onValidateResult) onValidateResult(resultado.acertou);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } catch (e) {
       const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
       const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
       const possuiMinimo = respostaAlunoLimpa.length >= Math.min(20, gabaritoLimpo.length * 0.3);
       
       setLocalStatus(possuiMinimo ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(possuiMinimo ? "Fidelidade e retenção textual validadas!" : "Texto incompleto ou distante do conteúdo original.");
-      if (onValidateResult) onValidateResult(possuiMinimo);
+      setFeedbackIA(possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."));
+      if (onValidateResult) onValidateResult(possuiMinimo, possuiMinimo ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } finally {
       setAnalisando(false);
     }
