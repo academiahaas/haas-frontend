@@ -942,7 +942,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       {getThinkingMessage()}
                     </div>
                   ) : respostaIA ? (
-                    <div className="text-slate-200 text-xs leading-relaxed whitespace-pre-wrap break-words efeito-fumaca">
+                    <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words efeito-fumaca font-medium">
                       {respostaIA}
                     </div>
                   ) : (
