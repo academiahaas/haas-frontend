@@ -19,13 +19,13 @@ interface OpcaoJogo {
 
 const traducoesAbas: Record<string, Record<string, string>> = {
   es: {
-    instrucao: "Analise as opções e selecione a alternativa correta em português:",
+    instrucao: "Encuentra el error: selecciona la opción que contiene el error gramatical o de ortografía en portugués:",
     validando: "Analizando respuesta...",
     validar: "Validar Resposta",
     aguardando: "Cargando desafío..."
   },
   en: {
-    instrucao: "Analise as opções e selecione a alternativa correta em português:",
+    instrucao: "Find the mistake: select the option that contains the grammatical or spelling error in Portuguese:",
     validando: "Analyzing response...",
     validar: "Validate Answer",
     aguardando: "Loading challenge..."
