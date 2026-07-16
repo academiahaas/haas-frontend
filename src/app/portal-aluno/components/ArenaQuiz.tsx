@@ -644,6 +644,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string) => {
+    // Exclui completamente qualquer comportamento de tela externa para Shadowing e Roleplay
+    if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay' || feedbackTexto === "MANTER_MENTORA_INTACTA") {
+      return;
+    }
     // Se o exercício solicitar o som mas exigir mentora intacta, não encostamos no estado dela
     if (feedbackTexto === "MANTER_MENTORA_INTACTA") {
       // Ignora completamente e não mexe na mentora
