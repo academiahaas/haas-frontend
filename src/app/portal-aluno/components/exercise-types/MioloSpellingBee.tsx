@@ -1,7 +1,7 @@
 "use client";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
-import { Volume2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle } from "lucide-react";
 import { supabase } from '@/lib/supabase';
 
 interface MioloSpellingBeeProps {
@@ -93,7 +93,7 @@ export default function MioloSpellingBee({
     try {
       const prompt = `Gere uma única palavra curta em português com acentuação gráfica opcional para um jogo de soletrar. Nível: ${nivel}. Retorne estritamente apenas a palavra limpa em maiúsculas sem pontos. Deve ter entre 4 e 7 letras no máximo.`;
       
-      const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1); // dummy call para assegurar rota
+      const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1);
       const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
       
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key_gemini}`, {
@@ -298,22 +298,30 @@ export default function MioloSpellingBee({
   }
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans min-h-0 flex-1 gap-2 overflow-hidden p-1">
+    <div className="w-full h-full flex flex-col justify-start items-stretch text-left font-sans min-h-0 flex-1 gap-4 overflow-hidden p-1">
       
-      <div className="flex items-center gap-2 shrink-0 bg-[#0c192e] p-2 rounded-xl border border-white/[0.04]">
-        <button 
-          onClick={playWordAudio} 
-          className="p-1.5 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-lg hover:text-cyan-300 active:scale-95 transition-all shrink-0 cursor-pointer"
-        >
-          <Volume2 size={14} />
-        </button>
-        <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 tracking-wider uppercase">
+      {/* Faixa de orientações unificada com (?) azul */}
+      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5 shrink-0">
+        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
+        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
           {t.instrucao}
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center min-h-0 h-auto w-full py-2 bg-[#050b14]/40 border border-white/[0.04] rounded-xl px-3">
-        <div className="flex justify-center flex-wrap gap-1.5 w-full max-w-full justify-items-center">
+      {/* Seção Centralizada: Alto-falante e Letras */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-3 bg-[#050b14]/40 border border-white/[0.04] rounded-xl px-3 min-h-0">
+        
+        {/* Botão do Alto-falante centralizado */}
+        <button 
+          onClick={playWordAudio} 
+          className="p-4 bg-[#0e1e31] border border-cyan-500/30 text-cyan-400 rounded-2xl hover:bg-[#12273f] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg shrink-0"
+          title="Escutar"
+        >
+          <Volume2 size={24} />
+        </button>
+
+        {/* Caixas de Texto da Palavra */}
+        <div className="flex justify-center flex-wrap gap-1.5 w-full max-w-full justify-items-center mt-2">
           {userInput.map((char, idx) => {
             const isCurrent = idx === currentIndex && status !== "CORRECT" && status !== "WRONG";
             return (
