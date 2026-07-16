@@ -375,80 +375,98 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         </span>
       </div>
 
-      {flowState !== "DONE" && (
-        <div className="flex-1 bg-[#050b14]/40 border border-white/[0.04] p-6 md:p-8 rounded-xl flex items-center justify-between gap-4 animate-fade-in min-h-0 w-full mb-2">
-          <div className="flex-1 flex items-center justify-center text-center py-6">
-            <p className="text-[15px] md:text-[1.3vw] text-slate-100 font-bold leading-relaxed break-words max-w-[90%]">
-              {phraseIA}
-            </p>
-          </div>
-          
-          <button 
-            onClick={escutarFraseMentora}
-            className="p-3 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 self-center"
-            title="Escutar"
-          >
-            <Volume2 size={18} />
-          </button>
+            {/* Frase da Mentora sempre visível para referência do estudante */}
+      <div className="flex-1 bg-[#050b14]/40 border border-white/[0.04] p-4 md:p-6 rounded-xl flex items-center justify-between gap-4 animate-fade-in min-h-0 w-full mb-2">
+        <div className="flex-1 flex items-center justify-center text-center py-2">
+          <p className="text-[14px] md:text-[1.2vw] text-slate-100 font-bold leading-relaxed break-words max-w-[95%]">
+            {phraseIA}
+          </p>
         </div>
-      )}
+        
+        <button 
+          onClick={escutarFraseMentora}
+          className="p-2.5 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 self-center"
+          title="Escutar"
+        >
+          <Volume2 size={16} />
+        </button>
+      </div>
 
-      {flowState === "DONE" && feedback ? (
-        <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-stretch gap-3 overflow-hidden animate-fade-in">
-          <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left flex-1">
-            <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
-              <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
-                <span className="font-bold text-[10px] md:text-[0.9vw] uppercase tracking-wider text-slate-400">
-                  Resultado
-                </span>
-                <div className="text-amber-400 font-semibold text-[10px] md:text-[0.9vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
-                  +{scoreFinal} PTS
-                </div>
-              </div>
+      {/* ÁREA DE INTERAÇÃO UNIFICADA (Substitui o microfone pelo feedback compacto) */}
+      <div className="w-full shrink-0 flex flex-col items-stretch gap-2.5">
+        
+        {/* Caso 1: Aguardando Gravação / Turno do Usuário (Exibe o Microfone) */}
+        {flowState === "USER_TURN" && (
+          <div className="flex flex-col items-center justify-center py-2">
+            <button
+              onClick={alternarEstadoMicrofone}
+              className="p-3.5 rounded-full border bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f] transition-all cursor-pointer shadow-lg active:scale-95"
+            >
+              <Mic size={18} />
+            </button>
+          </div>
+        )}
 
-              <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words">
-                {feedback.mensagem}
+        {/* Caso 2: Gravando */}
+        {flowState === "RECORDING" && (
+          <div className="flex flex-col items-center justify-center py-2 gap-2 animate-pulse">
+            <button
+              onClick={alternarEstadoMicrofone}
+              className="p-3.5 rounded-full border bg-rose-600 border-rose-500 text-white shadow-rose-950/40 transition-all cursor-pointer shadow-lg active:scale-95 animate-bounce"
+            >
+              <Mic size={18} />
+            </button>
+            {transcricaoAluno.trim() && (
+              <p className="text-[11px] md:text-[0.9vw] text-cyan-300 italic max-w-full font-medium break-words px-2 text-center">
+                "{transcricaoAluno}"
               </p>
-              
-              <div className="text-[12px] md:text-[1vw] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic font-semibold break-words">
-                {textInt.dica}: {feedback.sugestao}
+            )}
+          </div>
+        )}
+
+        {/* Caso 3: Analisando */}
+        {flowState === "ANALYZING" && (
+          <div className="flex flex-col items-center justify-center py-4 gap-2.5">
+            <Loader2 size={24} className="text-cyan-400 animate-spin" />
+            <span className="text-[10px] md:text-[0.8vw] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
+              {textInt.analisando}
+            </span>
+          </div>
+        )}
+
+        {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
+        {flowState === "DONE" && feedback && (
+          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-3.5 flex flex-col gap-2.5 animate-fade-in shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5">
+              <span className="font-bold text-[10px] md:text-[0.8vw] uppercase tracking-wider text-slate-400">
+                Resultado da Mentora
+              </span>
+              <div className="text-amber-400 font-semibold text-[10px] md:text-[0.8vw] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/30 tracking-wider">
+                +{scoreFinal} PTS
               </div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="h-4 flex flex-col items-center justify-center text-center animate-pulse">
-          {flowState === "RECORDING" && transcricaoAluno.trim() && (
-            <p className="text-[13px] md:text-[1.1vw] text-cyan-300 italic max-w-full font-medium break-words px-2">
-              "{transcricaoAluno}"
+
+            <p className="text-[12.5px] md:text-[1vw] text-slate-200 font-medium leading-relaxed break-words text-left">
+              {feedback.mensagem}
             </p>
-          )}
-          {flowState === "ANALYZING" && (
-            <div className="flex flex-col items-center justify-center gap-2.5">
-              <Loader2 size={28} className="text-cyan-400 animate-spin" />
-              <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
-                {textInt.analisando}
-              </span>
+            
+            <div className="text-[11.5px] md:text-[0.9vw] text-cyan-300/90 bg-cyan-950/40 p-2 rounded-lg border border-cyan-800/20 italic font-semibold break-words text-left">
+              {textInt.dica}: {feedback.sugestao}
             </div>
-          )}
-        </div>
-      )}
 
-      {flowState !== "ANALYZING" && flowState !== "DONE" && (
-        <div className="flex justify-center shrink-0 pt-0.5 pb-0.5">
-          <button
-            onClick={alternarEstadoMicrofone}
-            className={`p-3.5 rounded-full border transition-all cursor-pointer shadow-lg active:scale-95 ${
-              flowState === "RECORDING" 
-                ? "bg-rose-600 border-rose-500 text-white shadow-rose-950/40" 
-                : "bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f]"
-            }`}
-          >
-            <Mic size={18} />
-          </button>
-        </div>
-      )}
+            {/* Ações Rápidas integradas */}
+            <div className="flex items-center gap-2 mt-0.5">
+              <button
+                onClick={() => setFlowState("USER_TURN")}
+                className="flex-1 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-300 font-bold text-[11px] md:text-[0.9vw] hover:bg-white/[0.06] active:scale-[0.98] transition-all cursor-pointer"
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+        )}
 
+      </div>
     </div>
   );
 }
