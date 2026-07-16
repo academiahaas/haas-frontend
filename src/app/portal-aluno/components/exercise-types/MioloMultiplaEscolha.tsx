@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'luc
 
 interface MioloProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: "IDLE" | "CORRECT" | "WRONG";
   unidadeAtiva?: string;
 }
@@ -48,6 +48,8 @@ export default function MioloMultiplaEscolha({
   const [pergunta, setPergunta] = useState<string>("Carregando enunciado...");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
@@ -111,6 +113,8 @@ export default function MioloMultiplaEscolha({
           setCorrectOption(respostaCerta);
           setFeedbackCorretoBanco(exe.correct_feedback || "");
           setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+          setIncentivoCorretoBanco(exe.correct_incentive || "");
+          setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
 
           let bancoOpts: string[] = [];
           if (exe.alternative_options) {
@@ -200,12 +204,12 @@ export default function MioloMultiplaEscolha({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-      if (onValidateResult) onValidateResult(acertou);
+      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } finally {
       setAnalisando(false);
     }

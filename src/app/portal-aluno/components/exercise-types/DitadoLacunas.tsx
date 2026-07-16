@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 interface DitadoLacunasProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -50,6 +50,8 @@ export default function DitadoLacunas({
   const [targetWord, setTargetWord] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
@@ -119,6 +121,8 @@ export default function DitadoLacunas({
           const exe = dados[0];
           setFeedbackCorretoBanco(exe.correct_feedback || "");
           setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+          setIncentivoCorretoBanco(exe.correct_incentive || "");
+          setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
           let rawText = exe.reading_text || "";
           // Substitui dinamicamente [lacuna], [lacuna ] ou variantes para ___
           textoFinal = rawText.replace(/\[lacuna\]/gi, "___");
@@ -202,12 +206,12 @@ export default function DitadoLacunas({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } catch (e) {
       const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || `Desvio ortográfico detectado. O esperado era: ${targetWord}`));
-      if (onValidateResult) onValidateResult(acertou);
+      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } finally {
       setAnalisando(false);
     }
