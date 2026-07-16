@@ -40,6 +40,8 @@ const traducoes: Record<string, Record<string, string>> = {
 export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
   const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState('');
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState('');
   const [transcricaoAluno, setTranscricaoAluno] = useState('');
   const [scoreFinal, setScoreFinal] = useState(0);
   const [carregando, setCarregando] = useState(true);
@@ -150,6 +152,8 @@ Regras Estritas:
         if (exeDados && exeDados.length > 0) {
           const frase = exeDados[0].audio_transcript || exeDados[0].correct_answer || "";
           setReferencePhrase(frase);
+          setFeedbackCorretoBanco(exeDados[0].correct_feedback || "");
+          setFeedbackIncorretoBanco(exeDados[0].incorrect_feedback || "");
           console.log("📡 [CONEXÃO ATIVA] Shadowing carregado dinamicamente:", frase, "da unidade:", codigoUnidade);
         } else {
           // Fallback seguro de recuperação caso a linha esteja temporariamente vazia

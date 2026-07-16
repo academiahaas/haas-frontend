@@ -51,6 +51,8 @@ export default function MioloOrdenacao({
   const [indexAtual, setIndexAtual] = useState(0);
   
   const [referencePhrase, setReferencePhrase] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [textoParaFalar, setTextoParaFalar] = useState("");
   const [initialFragments, setInitialFragments] = useState<string[]>([]);
   const [bank, setBank] = useState<FragmentItem[]>([]);
@@ -139,6 +141,8 @@ export default function MioloOrdenacao({
     
     const respostaAlvo = exe.correct_answer || exe.audio_transcript || "";
     setReferencePhrase(respostaAlvo);
+    setFeedbackCorretoBanco(exe.correct_feedback || "");
+    setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
     setTextoParaFalar(exe.audio_transcript || exe.correct_answer || "");
     
     let frags: string[] = [];
@@ -253,7 +257,7 @@ export default function MioloOrdenacao({
       const acertou = fraseMontadaAlunoLimpa.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") === gabaritoOficial.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
       
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente ordenação sintática!" : "A ordem dos blocos possui desvios de concordância.");
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."));
       if (onValidateResult) onValidateResult(acertou);
     } finally {
       setAnalisando(false);

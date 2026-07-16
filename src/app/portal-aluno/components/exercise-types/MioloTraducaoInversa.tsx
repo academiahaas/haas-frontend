@@ -62,6 +62,8 @@ export default function MioloTraducaoInversa({
   const [listaExercicios, setListaExercicios] = useState<any[]>([]);
   const [fraseMatrizPT, setFraseMatrizPT] = useState("Carregando desafio...");
   const [stringAlvoCorreta, setStringAlvoCorreta] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [initialPieces, setInitialPieces] = useState<string[]>([]);
 
   const [bankPieces, setBankPieces] = useState<PieceItem[]>([]);
@@ -125,6 +127,8 @@ export default function MioloTraducaoInversa({
         
         setFraseMatrizPT(textoOriginal);
         setStringAlvoCorreta(respostaCerta);
+        setFeedbackCorretoBanco(dadoExercicio?.correct_feedback || "");
+        setFeedbackIncorretoBanco(dadoExercicio?.incorrect_feedback || "");
 
         const extrairPalavrasLimpas = (txt: string) => {
           if (!txt) return [];
@@ -224,11 +228,11 @@ export default function MioloTraducaoInversa({
     try {
       if (acertou) {
         setLocalStatus("CORRECT");
-        setFeedbackIA("Excelente! Tradução perfeita.");
+        setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
         if (onValidateResult) onValidateResult(true);
       } else {
         setLocalStatus("WRONG");
-        setFeedbackIA(`Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
+        setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
         if (onValidateResult) onValidateResult(false);
       }
     } catch (e) {
