@@ -28,6 +28,12 @@ interface ArenaProps {
 
 export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
   const currentLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
+  const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO">("EXERCICIO");
+  const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
+  const totalConteudosTrilha = Array.from({ length: 105 }, (_, i) => ({
+    id: i + 1,
+    unidadePertencente: Math.floor(i / 5) + 1
+  }));
 
 
 
@@ -794,7 +800,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <button 
                 type="button"
                 title={tArena.media || "Conteúdo Audiovisual"}
-                onClick={() => onAbrirPedagogo?.("VIDEO")} 
+                onClick={() => setVisualizacaoAtiva(visualizacaoAtiva === "TRILHA_VIDEOS" ? "EXERCICIO" : "TRILHA_VIDEOS")} 
                 className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#FF8A2B] hover:bg-[#FF8A2B]/10 hover:border-[#FF8A2B]/30 transition-all flex items-center justify-center shrink-0"
               >
                 <Video size={14} />
@@ -816,7 +822,94 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </div>
           </div>
 
-          <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0">
+          <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0 relative">
+            {/* TELA DA TRILHA HORIZONTAL GAMIFICADA (ESTEIRA LIMPA) */}
+            {visualizacaoAtiva === "TRILHA_VIDEOS" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col justify-center rounded-2xl select-none">
+                
+                {/* Botao Fechar minimalista com X */}
+                <button 
+                  type="button"
+                  onClick={() => setVisualizacaoAtiva("EXERCICIO")}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]"
+                >
+                  <X size={18} />
+                </button>
+
+                {/* Esteira de Rolagem Horizontal Pura sem barra de scroll visivel */}
+                <div 
+                  className="w-full overflow-x-auto flex items-center py-24 px-12" 
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {/* Sem linhas guia de fundo para manter o visual limpo */}
+                  <div className="flex items-center gap-16 pr-24">
+                    {totalConteudosTrilha.map((conteudo) => {
+                      const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
+                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      
+                      const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
+
+                      return (
+                        <div 
+                          key={conteudo.id} 
+                          style={{ transform: `translateY(${deslocamentoVertical}px)` }}
+                          className="transition-transform duration-300 shrink-0"
+                        >
+                          <button
+                            type="button"
+                            disabled={!desbloqueado}
+                            onClick={() => {
+                              setVideoSelecionado(conteudo);
+                              setVisualizacaoAtiva("PLAYER_VIDEO");
+                            }}
+                            className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${
+                              desbloqueado 
+                                ? "bg-gradient-to-br from-[#FF8A2B] to-[#FF5E0A] text-white border-2 border-[#FF8A2B]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(255,138,43,0.5)] animate-pulse" 
+                                : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"
+                            }`}
+                          >
+                            {desbloqueado ? (
+                              <span>{conteudo.id}</span>
+                            ) : (
+                              <span className="text-xs">🔒</span>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MONITOR PLAYER DE VIDEO COM X MINIMALISTA */}
+            {visualizacaoAtiva === "PLAYER_VIDEO" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[100] p-5 flex flex-col justify-between rounded-2xl select-none">
+                
+                <button 
+                  type="button"
+                  onClick={() => setVisualizacaoAtiva("TRILHA_VIDEOS")}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]"
+                >
+                  <X size={18} />
+                </button>
+
+                <div className="flex-1 my-8 bg-black rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+                  <div className="text-center p-4">
+                    <div className="w-14 h-14 bg-[#FF8A2B]/10 border border-[#FF8A2B]/20 rounded-full flex items-center justify-center mx-auto mb-3 text-[#FF8A2B] animate-pulse">
+                      <Video size={24} />
+                    </div>
+                    <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">TELA DO MONITOR</p>
+                    <p className="text-[10px] text-slate-500 font-mono mt-1">STREAMING DO CONTEÚDO {videoSelecionado?.id}</p>
+                  </div>
+                </div>
+
+                <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
+                  <span>STATUS: RUNNING</span>
+                  <span>HAAS ENGINE</span>
+                </div>
+              </div>
+            )}
             {false ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-4 select-none">
                 {false ? (
