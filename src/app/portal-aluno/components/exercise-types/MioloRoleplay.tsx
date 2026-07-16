@@ -22,21 +22,21 @@ const traducoesInterface: Record<string, Record<string, string>> = {
     instrucao: "RESPONDA A LA PREGUNTA DE LA MENTORA HAAS:",
     falaCapturada: "Tu habla capturada:",
     dica: "Consejo",
-    analisando: "Analizando pronunciación y gramática..."
+    analisando: "Analizando..."
   },
   en: {
     calibrando: "Calibrating lesson level...",
     instrucao: "ANSWER THE QUESTION FROM THE ARTIFICIAL INTELLIGENCE:",
     falaCapturada: "Your captured speech:",
     dica: "Tip",
-    analisando: "Analyzing pronunciation and grammar..."
+    analisando: "Analyzing..."
   },
   pt: {
     calibrando: "Calibrando o nível da lição...",
     instrucao: "RESPONDA À PERGUNTA DA MENTORA HAAS:",
     falaCapturada: "Sua fala capturada:",
     dica: "Dica",
-    analisando: "Analisando pronúncia e gramática..."
+    analisando: "Analisando..."
   }
 };
 
@@ -282,6 +282,9 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
     }
 
     try {
+      // Força a tela a segurar o estado de analisando por 1.5 segundos antes de processar
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias);
       
       setScoreFinal(resultado.score);
