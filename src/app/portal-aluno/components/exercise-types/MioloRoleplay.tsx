@@ -177,6 +177,8 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [keywordsObrigatorias, setKeywordsObrigatorias] = useState<string[]>([]);
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
+  const [feedbackCorretoReal, setFeedbackCorretoReal] = useState("");
+  const [feedbackIncorretoReal, setFeedbackIncorretoReal] = useState("");
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   const recognitionRef = useRef<any>(null);
@@ -209,6 +211,8 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
           falaPartida = exeDados[0].audio_transcript || falaPartida;
           setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(exeDados[0].incorrect_incentive || "");
+          setFeedbackCorretoReal(exeDados[0].correct_feedback || "");
+          setFeedbackIncorretoReal(exeDados[0].incorrect_feedback || "");
           
           // Captura os termos obrigatórios cadastrados na coluna correct_answer
           const rawKeywords = exeDados[0].correct_answer || "";
@@ -283,10 +287,10 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       setScoreFinal(resultado.score);
       
       const isCorrect = resultado.score >= 50;
-      const feedbackDoBanco = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
-      const mensagemExibida = (feedbackDoBanco && feedbackDoBanco.trim().length > 0) 
-        ? feedbackDoBanco 
-        : resultado.msg;
+      
+      // Card Local usa a coluna correct_feedback / incorrect_feedback
+      const fbTexto = isCorrect ? feedbackCorretoReal : feedbackIncorretoReal;
+      const mensagemExibida = (fbTexto && fbTexto.trim().length > 0) ? fbTexto : resultado.msg;
 
       setFeedback({
         status: resultado.status,
@@ -296,9 +300,10 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
       setFlowState("DONE");
       
+      // Mentora usa a coluna correct_incentive / incorrect_incentive
       if (onValidateResult) {
-        const incentivo = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
-        const feedbackFinalMentora = incentivo ? `${incentivo} \n\n📝 ${resultado.msg}` : resultado.msg;
+        const incTexto = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
+        const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : resultado.msg;
         onValidateResult(isCorrect, feedbackFinalMentora);
       }
       
