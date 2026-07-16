@@ -644,37 +644,29 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string) => {
-    // 1. Controle da fala da Mentora Haas para Shadowing e Roleplay
-    if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay') {
-      if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
-        setRespostaIA(feedbackTexto);
-      }
+    // Exclui completamente qualquer comportamento de tela externa para Shadowing e Roleplay
+    if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay' || feedbackTexto === "MANTER_MENTORA_INTACTA") {
+      return;
+    }
+    // Se o exercício solicitar o som mas exigir mentora intacta, não encostamos no estado dela
+    if (feedbackTexto === "MANTER_MENTORA_INTACTA") {
+      // Ignora completamente e não mexe na mentora
+    } else if (feedbackTexto) {
+      setRespostaIA(feedbackTexto);
     } else {
-      // Comportamento padrão dos outros jogos
-      if (feedbackTexto === "MANTER_MENTORA_INTACTA") {
-        // Mantém intacto
-      } else if (feedbackTexto) {
-        setRespostaIA(feedbackTexto);
-      } else {
-        setRespostaIA("");
-      }
+      setRespostaIA("");
     }
 
-    // 2. Consolidação de Pontuação e Progresso (Comum para todos, incluindo Shadowing e Roleplay)
     if (isCorrect) {
-      setGameStatus('CORRECT');
-      tocarSom('success');
+      setGameStatus('CORRECT'); tocarSom('success');
       setStreak(prev => prev + 1);
       const baseXP = 25;
       const xpGanho = Math.round(baseXP * getMultiplicador());
       setXpAcumulado(prev => prev + xpGanho);
       sincronizarXpUnidadeComBanco(xpUnidade + xpGanho);
-      
-      // Ativa a consolidação do progresso e atualiza os contadores na tela da Arena
       setIsCollectingReward(true);
     } else {
-      setGameStatus('WRONG');
-      tocarSom('error');
+      setGameStatus('WRONG'); tocarSom('error');
       setPrecision(prev => Math.max(prev - 4, 60));
       if (streak > 0) {
         setComboQuebrado(true);
