@@ -48,6 +48,8 @@ export default function MioloSpellingBee({
   const [targetWord, setTargetWord] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [userInput, setUserInput] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [status, setStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
@@ -154,6 +156,8 @@ export default function MioloSpellingBee({
           palavraAlvo = String(dados[0].correct_answer || dados[0].reading_text || "").toUpperCase().trim();
           setFeedbackCorretoBanco(dados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          setIncentivoCorretoBanco(dados[0].correct_incentive || "");
+          setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
         }
 
         if (!palavraAlvo || palavraAlvo.trim().length < 2) {
@@ -262,7 +266,7 @@ export default function MioloSpellingBee({
       setFeedbackIA(mensagemFeedback);
 
       if (onValidateResult) {
-        onValidateResult(acertou, "MANTER_MENTORA_INTACTA");
+        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
       }
 
       if (acertou) {
