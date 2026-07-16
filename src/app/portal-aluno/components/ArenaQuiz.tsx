@@ -1,4 +1,5 @@
 "use client";
+import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect, useRef } from 'react';
 import { translations } from '../idiomas';
 import { Mic, ArrowUp, Flame, Target, Award, Zap, Bot, Video, BookOpen, X, AlertCircle, Star, Trophy, CheckCircle2, TrendingUp, Gift, Sparkles } from 'lucide-react';
@@ -28,8 +29,35 @@ interface ArenaProps {
 
 export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
   const currentLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
-  const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO">("EXERCICIO");
+  const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
+    const [dadosLicaoEscrita, setDadosLicaoEscrita] = useState<any>(null);
+  const [carregandoTexto, setCarregandoTexto] = useState<boolean>(false);
+  const [textoSelecionadoId, setTextoSelecionadoId] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function carregarDadosLicao() {
+      if (!subUnidadeIndex) return;
+      setCarregandoTexto(true);
+      try {
+        const { data, error } = await supabase
+          .from("lessons")
+          .select("title, body_content, level, module, unit")
+          .eq("id", subUnidadeIndex)
+          .single();
+        
+        if (data) {
+          setDadosLicaoEscrita(data);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar licao escrita:", err);
+      } finally {
+        setCarregandoTexto(false);
+      }
+    }
+    carregarDadosLicao();
+  }, [subUnidadeIndex]);
+
   const totalConteudosTrilha = Array.from({ length: 105 }, (_, i) => ({
     id: i + 1,
     unidadePertencente: Math.floor(i / 5) + 1
@@ -792,7 +820,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <button 
                 type="button"
                 title={tArena.guide || "Diretrizes Textuais"}
-                onClick={() => onAbrirPedagogo?.("TEXTO")} 
+                onClick={() => setVisualizacaoAtiva(visualizacaoAtiva === "TRILHA_TEXTOS" ? "EXERCICIO" : "TRILHA_TEXTOS")} 
                 className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#38BDF8] hover:bg-[#38BDF8]/10 hover:border-[#38BDF8]/30 transition-all flex items-center justify-center shrink-0"
               >
                 <BookOpen size={14} />
@@ -823,6 +851,112 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           </div>
 
           <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0 relative">
+            {/* TELA DA TRILHA HORIZONTAL GAMIFICADA DE VÍDEOS (LARANJA) */}
+            {visualizacaoAtiva === "TRILHA_VIDEOS" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col justify-center rounded-2xl select-none">
+                <button type="button" onClick={() => setVisualizacaoAtiva("EXERCICIO")} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]">
+                  <X size={18} />
+                </button>
+                <div className="w-full overflow-x-auto flex items-center py-24 px-12" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div className="flex items-center gap-16 pr-24">
+                    {totalConteudosTrilha.map((conteudo) => {
+                      const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
+                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
+                      return (
+                        <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setVideoSelecionado(conteudo); setVisualizacaoAtiva("PLAYER_VIDEO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#FF8A2B] to-[#FF5E0A] text-white border-2 border-[#FF8A2B]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(255,138,43,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"}`}>
+                            {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TELA DA TRILHA HORIZONTAL GAMIFICADA DE TEXTOS (CIANO / AZUL-PISCINA) */}
+            {visualizacaoAtiva === "TRILHA_TEXTOS" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col justify-center rounded-2xl select-none">
+                <button type="button" onClick={() => setVisualizacaoAtiva("EXERCICIO")} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]">
+                  <X size={18} />
+                </button>
+                <div className="w-full overflow-x-auto flex items-center py-24 px-12" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div className="flex items-center gap-16 pr-24">
+                    {totalConteudosTrilha.map((conteudo) => {
+                      const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
+                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
+                      return (
+                        <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setTextoSelecionadoId(conteudo.id); setVisualizacaoAtiva("TEXTO_PEDAGOGO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-white border-2 border-[#00F0FF]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"}`}>
+                            {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* MONITOR PLAYER DE VIDEO COM X MINIMALISTA */}
+            {visualizacaoAtiva === "PLAYER_VIDEO" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[100] p-5 flex flex-col justify-between rounded-2xl select-none">
+                <button type="button" onClick={() => setVisualizacaoAtiva("TRILHA_VIDEOS")} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]">
+                  <X size={18} />
+                </button>
+                <div className="flex-1 my-8 bg-black rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+                  <div className="text-center p-4">
+                    <div className="w-14 h-14 bg-[#FF8A2B]/10 border border-[#FF8A2B]/20 rounded-full flex items-center justify-center mx-auto mb-3 text-[#FF8A2B] animate-pulse">
+                      <Video size={24} />
+                    </div>
+                    <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">TELA DO MONITOR</p>
+                    <p className="text-[10px] text-slate-500 font-mono mt-1">STREAMING DO CONTEÚDO {videoSelecionado?.id}</p>
+                  </div>
+                </div>
+                <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
+                  <span>STATUS: RUNNING</span>
+                  <span>HAAS ENGINE</span>
+                </div>
+              </div>
+            )}
+
+            {/* INTERFACE DE CONTEÚDO ESCRITO PEDAGÓGICO */}
+            {visualizacaoAtiva === "TEXTO_PEDAGOGO" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[98] p-8 flex flex-col justify-between rounded-2xl select-none overflow-y-auto custom-scrollbar">
+                <button type="button" onClick={() => setVisualizacaoAtiva("TRILHA_TEXTOS")} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]">
+                  <X size={18} />
+                </button>
+                {dadosLicaoEscrita ? (
+                  <div className="max-w-2xl mx-auto w-full flex flex-col gap-6 py-4 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className="px-2.5 py-0.5 rounded bg-[#00F0FF]/10 border border-[#00F0FF]/20 text-[#00F0FF] font-mono text-[10px] font-bold uppercase tracking-wider">
+                        {dadosLicaoEscrita.level || "A1"}
+                      </span>
+                      <span className="text-slate-500 text-[11px] font-medium font-mono uppercase tracking-wide">
+                        {dadosLicaoEscrita.unit}
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-black text-white tracking-tight leading-snug border-b border-white/5 pb-4">
+                      {dadosLicaoEscrita.title} (Texto {textoSelecionadoId})
+                    </h2>
+                    <div className="text-slate-300 text-sm leading-relaxed font-normal bg-white/[0.02] border border-white/[0.04] p-6 rounded-xl shadow-inner whitespace-pre-line">
+                      {dadosLicaoEscrita.body_content}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-slate-400 text-sm font-mono">
+                    {carregandoTexto ? "Carregando conteúdo..." : "Nenhum conteúdo pedagógico associado a esta lição."}
+                  </div>
+                )}
+                <div className="h-4 w-full bg-white/[0.01] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0 mt-6">
+                  <span>TEXTO DE IMERSÃO ATIVO</span>
+                  <span>HAAS ENGINE V2.5</span>
+                </div>
+              </div>
+            )}
             {/* TELA DA TRILHA HORIZONTAL GAMIFICADA (ESTEIRA LIMPA) */}
             {visualizacaoAtiva === "TRILHA_VIDEOS" && (
               <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col justify-center rounded-2xl select-none">
