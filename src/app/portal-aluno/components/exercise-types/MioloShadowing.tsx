@@ -1,7 +1,7 @@
 "use client";
 import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
+import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square , Sparkles } from 'lucide-react';
 
 interface MioloShadowingProps {
   onSelectCorrect?: () => void;
@@ -315,6 +315,9 @@ Regras Estritas:
     }
 
     try {
+      setFlowState("ANALYZING");
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const notaCalculada = calcularSimilaridadeShadowing(referencePhrase, transcricaoAluno);
       setScoreFinal(notaCalculada);
 
@@ -361,10 +364,10 @@ Regras Estritas:
       const aprovado = notaCalculada >= 50;
       if (aprovado) {
         if (onSelectCorrect) onSelectCorrect();
-        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || msgPersonalizada);
+        if (onValidateResult) onValidateResult(true, incentivoCorretoBanco || msgPersonalizada);
       } else {
         if (onSelectWrong) onSelectWrong();
-        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || msgPersonalizada);
+        if (onValidateResult) onValidateResult(false, incentivoIncorretoBanco || msgPersonalizada);
       }
 
     } catch (err) {
@@ -454,11 +457,9 @@ Regras Estritas:
             </span>
           )}
           {flowState === "ANALYZING" && (
-            <div className="flex items-center justify-center gap-2 animate-pulse">
-              <Loader2 size={16} className="text-cyan-400 animate-spin" />
-              <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
-                {t.avaliando}
-              </span>
+            <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 bg-cyan-950/10 border border-cyan-500/15 rounded-xl animate-pulse p-8 min-h-[110px] overflow-hidden text-[13px] md:text-[1.2vw] text-cyan-400 font-bold tracking-widest uppercase">
+              <Sparkles size={11} className="animate-spin text-cyan-400" />
+              <span>{t.avaliando}...</span>
             </div>
           )}
         </div>
