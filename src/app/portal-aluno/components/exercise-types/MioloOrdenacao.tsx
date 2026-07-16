@@ -11,7 +11,7 @@ interface FragmentItem {
 
 interface MioloOrdenacaoProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -53,6 +53,8 @@ export default function MioloOrdenacao({
   const [referencePhrase, setReferencePhrase] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [textoParaFalar, setTextoParaFalar] = useState("");
   const [initialFragments, setInitialFragments] = useState<string[]>([]);
   const [bank, setBank] = useState<FragmentItem[]>([]);
@@ -143,6 +145,8 @@ export default function MioloOrdenacao({
     setReferencePhrase(respostaAlvo);
     setFeedbackCorretoBanco(exe.correct_feedback || "");
     setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+    setIncentivoCorretoBanco(exe.correct_incentive || "");
+    setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
     setTextoParaFalar(exe.audio_transcript || exe.correct_answer || "");
     
     let frags: string[] = [];
@@ -250,7 +254,7 @@ export default function MioloOrdenacao({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } catch (e) {
       const fraseMontadaAlunoLimpa = deposit.map(d => d.text).join(" ").trim().toLowerCase();
       const gabaritoOficial = referencePhrase.trim().toLowerCase();
@@ -258,7 +262,7 @@ export default function MioloOrdenacao({
       
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."));
-      if (onValidateResult) onValidateResult(acertou);
+      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } finally {
       setAnalisando(false);
     }
