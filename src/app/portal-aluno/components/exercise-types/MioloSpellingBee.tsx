@@ -46,6 +46,8 @@ export default function MioloSpellingBee({
   onSelectionChange 
 }: MioloSpellingBeeProps) {
   const [targetWord, setTargetWord] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [userInput, setUserInput] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [status, setStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
@@ -150,6 +152,8 @@ export default function MioloSpellingBee({
         let palavraAlvo = "";
         if (dados && dados.length > 0) {
           palavraAlvo = String(dados[0].correct_answer || dados[0].reading_text || "").toUpperCase().trim();
+          setFeedbackCorretoBanco(dados[0].correct_feedback || "");
+          setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
         }
 
         if (!palavraAlvo || palavraAlvo.trim().length < 2) {
@@ -252,8 +256,8 @@ export default function MioloSpellingBee({
       setStatus(acertou ? "CORRECT" : "WRONG");
 
       const mensagemFeedback = acertou 
-        ? "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta." 
-        : "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.";
+        ? (feedbackCorretoBanco || "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta.") 
+        : (feedbackIncorretoBanco || "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.");
 
       setFeedbackIA(mensagemFeedback);
 
