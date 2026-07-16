@@ -7,7 +7,7 @@ interface MioloRoleplayProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number) => void;
 }
 
 interface FeedbackEstruturado {
@@ -277,7 +277,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       setScoreFinal(15);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
-      if (onValidateResult) onValidateResult(false, "No pude escuchar claramente tus palabras. Intenta de nuevo.");
+      if (onValidateResult) onValidateResult(false, "No pude escuchar claramente tus palabras. Intenta de nuevo.", 15);
       return;
     }
 
@@ -307,7 +307,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       if (onValidateResult) {
         const incTexto = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : resultado.msg;
-        onValidateResult(isCorrect, feedbackFinalMentora);
+        onValidateResult(isCorrect, feedbackFinalMentora, resultado.score);
       }
       
       if (isCorrect) {

@@ -643,7 +643,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setTimeout(() => setJogoSelecionado(todosOsJogos[proximoIdx].id), 10);
   };
 
-  const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string) => {
+  const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number) => {
     // 1. Controle da fala da Mentora Haas para Shadowing e Roleplay
     if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay') {
       if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
@@ -661,16 +661,18 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     }
 
     // 2. Consolidação de Pontuação e Progresso (Comum para todos, incluindo Shadowing e Roleplay)
+    const baseXP = pontosCustom || (isCorrect ? 25 : 0);
+    const xpGanho = Math.round(baseXP * getMultiplicador());
+    
+    if (xpGanho > 0) {
+      setXpAcumulado(prev => prev + xpGanho);
+      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho);
+    }
+
     if (isCorrect) {
       setGameStatus('CORRECT');
       tocarSom('success');
       setStreak(prev => prev + 1);
-      const baseXP = 25;
-      const xpGanho = Math.round(baseXP * getMultiplicador());
-      setXpAcumulado(prev => prev + xpGanho);
-      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho);
-      
-      // Ativa a consolidação do progresso e atualiza os contadores na tela da Arena
       setIsCollectingReward(true);
     } else {
       setGameStatus('WRONG');
