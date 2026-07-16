@@ -304,12 +304,6 @@ export default function MioloMultiplaEscolha({
               </div>
               <div className="flex flex-col items-center justify-center w-full gap-2.5">
                 <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words text-center w-full">"{feedbackIA}"</p>
-                <button 
-                  onClick={resetarExercicio}
-                  className="px-2.5 py-1 bg-slate-900 border border-white/[0.05] text-slate-200 text-[10px] uppercase font-black rounded-lg cursor-pointer shrink-0 hover:bg-slate-800 transition-colors"
-                >
-                  <RefreshCw size={10} />
-                </button>
               </div>
             </div>
           )}
