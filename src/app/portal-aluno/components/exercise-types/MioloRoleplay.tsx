@@ -399,15 +399,11 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
               <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
                 <span className="font-bold text-[10px] md:text-[0.9vw] uppercase tracking-wider text-slate-400">
-                  {textInt.falaCaptured || textInt.falaCapturada}
+                  Resultado
                 </span>
                 <div className="text-amber-400 font-semibold text-[10px] md:text-[0.9vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
                   +{scoreFinal} PTS
                 </div>
-              </div>
-
-              <div className="p-2.5 bg-black/20 rounded-lg border border-white/[0.02] text-[13px] md:text-[1.1vw] text-cyan-100 italic leading-relaxed font-semibold break-words">
-                "{transcricaoAluno}"
               </div>
 
               <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words">
