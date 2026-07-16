@@ -435,6 +435,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         )}
 
         {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
+                {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
         {flowState === "DONE" && feedback && (
           <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-3.5 flex flex-col gap-2.5 animate-fade-in shadow-xl">
             <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5">
@@ -449,20 +450,6 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
             <p className="text-[12.5px] md:text-[1vw] text-slate-200 font-medium leading-relaxed break-words text-left">
               {feedback.mensagem}
             </p>
-            
-            <div className="text-[11.5px] md:text-[0.9vw] text-cyan-300/90 bg-cyan-950/40 p-2 rounded-lg border border-cyan-800/20 italic font-semibold break-words text-left">
-              {textInt.dica}: {feedback.sugestao}
-            </div>
-
-            {/* Ações Rápidas integradas */}
-            <div className="flex items-center gap-2 mt-0.5">
-              <button
-                onClick={() => setFlowState("USER_TURN")}
-                className="flex-1 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-slate-300 font-bold text-[11px] md:text-[0.9vw] hover:bg-white/[0.06] active:scale-[0.98] transition-all cursor-pointer"
-              >
-                Tentar Novamente
-              </button>
-            </div>
           </div>
         )}
 
