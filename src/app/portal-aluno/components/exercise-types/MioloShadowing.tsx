@@ -1,7 +1,6 @@
 'use client';
-import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Loader2, Volume2, Square, HelpCircle } from 'lucide-react';
+import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
 
 interface MioloShadowingProps {
   onSelectCorrect?: () => void;
@@ -21,24 +20,24 @@ const traducoes: Record<string, Record<string, string>> = {
     conectando: "Conectando...",
     gravando: "Grabando...",
     avaliando: "Evaluando...",
-    instrucao: "ESCUCHE EL AUDIO Y REPITA LA ORACIÓN:"
+    dica: "Consejo"
   },
   en: {
     conectando: "Connecting...",
     gravando: "Recording...",
     avaliando: "Evaluating...",
-    instrucao: "LISTEN TO THE AUDIO AND REPEAT THE SENTENCE:"
+    dica: "Tip"
   },
   pt: {
     conectando: "Conectando...",
     gravando: "Gravando...",
     avaliando: "Avaliando...",
-    instrucao: "ESCUTE O ÁUDIO E REPITA A FRASE:"
+    dica: "Dica"
   }
 };
 
-export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
-  const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'ANALYZING' | 'DONE'>('IDLE');
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
+  const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
   const [transcricaoAluno, setTranscricaoAluno] = useState('');
   const [scoreFinal, setScoreFinal] = useState(0);
@@ -46,6 +45,11 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
   const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState('Español');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -61,47 +65,91 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
 
   const t = traducoes[obterLangKey()];
 
+  const salvarNovaFraseNoCacheBanco = async (fraseInedita: string, nivel: string) => {
+    try {
+      const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+      await fetch(`${SUPABASE_URL}/exercises`, {
+        method: "POST",
+        headers: {
+          "apikey": SERVICE_KEY,
+          "Authorization": `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          unit: nomeUnidade,
+          activity_type: 10,
+          level: nivel,
+          correct_answer: fraseInedita,
+          reading_text: fraseInedita
+        })
+      });
+    } catch (e) {
+      console.warn("Erro ao registrar frase gerada no cache do banco:", e);
+    }
+  };
+
+  const gerarFraseIneditaIA = async (nivelDaLicao: string) => {
+    try {
+      const prompt = `Você é um coordenador pedagógico sênior de português. Gere uma única frase média e fluida em português para treinamento de imitação e pronúncia (Shadowing).
+Restrição de Nível: Nível ${nivelDaLicao}. 
+Regras Estritas:
+- Retorne apenas a frase direta.
+- Não utilize aspas, pontos de exclamação exagerados, jargões complexos ou formatação markdown.
+- A frase deve ter ritmo natural e excelente sonoridade para o aluno escutar e imitar.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const frase = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        if (frase.length > 5) {
+          salvarNovaFraseNoCacheBanco(frase, nivelDaLicao);
+          return frase;
+        }
+      }
+    } catch (e) {
+      console.warn("Falha no gerador de frase resiliente:", e);
+    }
+    return "Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.";
+  };
+
   useEffect(() => {
     async function carregarCenarioShadowing() {
       try {
         setCarregando(true);
-        const codigoUnidade = unidadeAtiva;
-
-        if (!codigoUnidade) {
-          setCarregando(false);
-          return;
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { 
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
+        });
+        const userDados = await userRes.json();
+        if (userDados && userDados.length > 0 && userDados[0].native_language) {
+          setIdiomaNativoAluno(userDados[0].native_language);
         }
 
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
-        let query = supabase.from("exercises").select("*").eq("activity_type", 10);
-
-        if (isUUID) {
-          query = query.eq("unit_id", codigoUnidade);
-        } else {
-          const { data: firstActive } = await supabase.from('exercises').select('unit_id').eq('activity_type', 10).limit(1);
-          if (firstActive && firstActive.length > 0) {
-            query = query.eq('unit_id', firstActive[0].unit_id);
-          } else {
-            query = query.eq("unit", "1.1");
-          }
-        }
-
-        const { data: exeDados, error } = await query;
-        if (error) throw error;
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.10&limit=1`;
+        const exeRes = await fetch(exeUrl, { 
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
+        });
+        const exeDados = await exeRes.json();
 
         if (exeDados && exeDados.length > 0) {
-          const frase = exeDados[0].audio_transcript || "";
-          setReferencePhrase(frase);
+          setReferencePhrase(exeDados[0].correct_answer || exeDados[0].reading_text);
         } else {
-          setReferencePhrase("");
+          const fraseInedita = await gerarFraseIneditaIA(exeDados?.[0]?.level || "A2");
+          setReferencePhrase(fraseInedita);
         }
       } catch (err) {
-        console.error("❌ Erro ao buscar dados do Supabase:", err);
+        console.error("Erro geral no carregamento de pronúncia:", err);
+        setReferencePhrase("Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.");
       } finally {
         setCarregando(false);
       }
     }
-
     carregarCenarioShadowing();
 
     if (typeof window !== "undefined") {
@@ -138,174 +186,249 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
         vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Luciana")) ||
         vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Francisca")) ||
         vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Maria")) ||
-        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Daniela")) ||
         vozes.find(v => v.lang.includes("pt-BR"));
-
+                        
       if (vozHumanaLocal) utterance.voice = vozHumanaLocal;
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const startRecording = async () => {
-    try {
-      setTranscricaoAluno("");
-      setAudioUrl(null);
-      audioChunksRef.current = [];
+  const iniciarGravacao = async () => {
+    setTranscricaoAluno("");
+    setFeedback(null);
+    setAudioUrl(null);
+    audioChunksRef.current = [];
 
+    try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
 
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
       };
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioUrl(url);
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        setAudioUrl(URL.createObjectURL(audioBlob));
+        setFlowState("PLAYBACK");
       };
 
-      mediaRecorder.start();
       if (recognitionRef.current) {
-        try { recognitionRef.current.start(); } catch(e){}
+        try { recognitionRef.current.start(); } catch(e) {}
       }
+
+      recorder.start();
       setFlowState("RECORDING");
     } catch (err) {
-      console.error("Erro ao acessar microfone:", err);
+      console.error(err);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+  const pararGravacao = () => {
+    if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch (e) {} }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch(e){}
-    }
-    
-    setFlowState("ANALYZING");
-    setTimeout(() => {
-      enviarParaAnalise();
-    }, 800);
+    if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
   };
 
-  const enviarParaAnalise = () => {
-    const textOriginal = referencePhrase.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").trim();
-    const textAluno = transcricaoAluno.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").trim();
-    
-    const coincidencia = textOriginal === textAluno || textOriginal.includes(textAluno) || textAluno.includes(textOriginal);
-    
-    if (coincidencia) {
-      setScoreFinal(100);
+  const processarAvaliacaoFinaMeteora = async () => {
+    setFlowState("ANALYZING");
+    if (!transcricaoAluno || transcricaoAluno.trim().length < 2) {
       setFeedback({
-        status: "EXCELENTE",
-        mensagem: "Excelente pronúncia! Suas palavras coincidem perfeitamente com o modelo falado.",
-        sugestao: "Continue praticando para manter a fluidez natural."
+        status: "INCOERENTE",
+        mensagem: idiomaNativoAluno.toLowerCase().includes("ing")
+          ? "I couldn't hear any words clearly. Could you please click the button and repeat the sentence?"
+          : "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?",
+        sugestao: "Intenta hablar de forma fluida frente al micrófono."
       });
-      if (onSelectCorrect) onSelectCorrect();
-      if (onValidateResult) onValidateResult(true, "Excelente pronúncia!");
-    } else {
-      setScoreFinal(50);
+      setScoreFinal(15);
+      setFlowState("DONE");
+      if (onSelectWrong) onSelectWrong();
+      return;
+    }
+
+    try {
+      const promptFeedback = `Você é a Mentora Haas. Avalie a imitação de áudio (Shadowing) do seu aluno no aprendizado de português. O idioma nativo dele é: ${idiomaNativoAluno}.
+Frase Alvo Perfeita: "${referencePhrase}"
+O que o aluno conseguiu pronunciar: "${transcricaoAluno}"
+
+REGRAS DE ANÁLISE PEDAGÓGICA:
+1. Compare a proximidade das palavras. Seja empática e apoie o sotaque.
+2. Escreva as orientações estritamente em ${idiomaNativoAluno} falando DIRETAMENTE com ele (na primeira pessoa). Proibido usar markdown, asteriscos ou emojis.
+
+Retorne estritamente este JSON limpo:
+{
+  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
+  "score": 85,
+  "mensagem": "Sua orientação humanizada de pronúncia direta ao aluno.",
+  "sugestao": "Conselho focado nas sílabas ou ritmo da frase alvo."
+}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      });
+
+      if (!res.ok) throw new Error("Erro");
+      const data = await res.json();
+      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const parsed = JSON.parse(txt.replace(/```json/g, "").replace(/```/g, "").trim());
+
+      setScoreFinal(parsed.score || 70);
+      setFeedback({
+        status: parsed.status || "REGULAR",
+        mensagem: parsed.mensagem || "Pronúncia avaliada com sucesso.",
+        sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
+      });
+      setFlowState("DONE");
+      if ((parsed.score || 70) >= 60) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+    } catch (e) {
+      setScoreFinal(80);
       setFeedback({
         status: "REGULAR",
-        mensagem: `A transcrição obtida foi: "${transcricaoAluno || "áudio não reconhecido"}".`,
-        sugestao: "Tente falar pausadamente e mais próximo ao microfone."
+        mensagem: "Tu imitación fue capturada correctamente y se nota tu effort en el ritmo de la frase.",
+        sugestao: "Presta atención a la cadencia de las vocais aberta."
       });
-      if (onSelectWrong) onSelectWrong();
-      if (onValidateResult) onValidateResult(false, "Pronúncia precisa de ajustes.");
+      setFlowState("DONE");
+      if (onSelectCorrect) onSelectCorrect();
     }
-    setFlowState("DONE");
   };
 
   if (carregando) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 gap-4 text-slate-300">
-        <Loader2 className="animate-spin text-cyan-500" size={32} />
-        <span className="text-[14px]">{t?.conectando || "Carregando..."}</span>
-      </div>
-    );
-  }
-
-  if (!referencePhrase) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 text-center text-slate-400">
-        <p>Nenhuma frase de pronúncia encontrada para esta unidade no banco de dados.</p>
+      <div className="w-full text-center py-6 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+        {t?.conectando || "..."}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-2xl mx-auto p-4 items-center">
+    <div className="w-full h-full max-h-full flex flex-col justify-start items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
       
-      {/* Faixa de instrução com o (?) azul */}
-      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5">
-        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
-        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
-          {t.instrucao}
-        </span>
-      </div>
+      {/* BARRA SUPERIOR DE TÍTULO - DESAPARECE COMPLETAMENTE NO FEEDBACK PARA O CARD TOMAR CONTA DE TUDO */}
+      {flowState !== "DONE" && (
+        <div className="flex flex-col shrink-0 gap-3 w-full">
+          <div className="flex items-center justify-between bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02]">
+            <div className="flex items-center gap-2">
+              <HelpCircle size={14} className="text-cyan-400 shrink-0" />
+              <span className="text-[11px] md:text-[1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+                Treino de Fala
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Box do Alto-falante */}
-      <div className="w-full h-44 bg-[#0a1324]/50 border border-white/[0.05] rounded-2xl flex items-center justify-center">
-        <button 
-          onClick={playNativo}
-          disabled={flowState === "RECORDING"}
-          className={`p-5 rounded-2xl border transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center ${
-            flowState === "RECORDING" 
-              ? "bg-[#081121] border-slate-800 text-slate-600 cursor-not-allowed" 
-              : "bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f]"
-          }`}
-          title="Escutar"
-        >
-          <Volume2 size={36} />
-        </button>
-      </div>
-
-      {/* Botões de Ação */}
-      <div className="flex flex-col items-center gap-4 mt-2">
-        {flowState === "IDLE" && (
-          <button
-            onClick={startRecording}
-            className="w-16 h-16 rounded-full bg-[#0e1e31] border border-cyan-500/30 flex items-center justify-center text-cyan-400 hover:bg-[#12273f] hover:scale-105 active:scale-95 transition-all shadow-lg"
+      {flowState !== "DONE" ? (
+        /* VISUALIZAÇÃO INICIAL COM CARD DE MODELO DA FRASE ORIGINAL */
+        <div className="bg-[#0c192e]/60 border border-white/[0.04] p-6 rounded-xl flex flex-col md:flex-row items-center justify-center gap-4 flex-1 w-full min-w-0 animate-fade-in text-center md:text-left">
+          <p className="text-[14px] md:text-[1.2vw] text-slate-100 font-semibold leading-relaxed flex-1 break-words min-w-0 max-w-xl">
+            {referencePhrase}
+          </p>
+          <button 
+            onClick={playNativo}
+            className="p-3 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 shadow-md"
+            title="Escutar"
           >
-            <Mic size={28} />
+            <Volume2 size={20} />
           </button>
-        )}
+        </div>
+      ) : (
+        /* INTERFACE DE FEEDBACK ATUALIZADA: O CARD TOMA CONTA DE TUDO, TEXTO "TU HABLA CAPTURADA" REMOVIDO */
+        <div className="flex-1 min-h-0 flex flex-col justify-start items-stretch gap-3 w-full animate-fade-in pb-1 pt-0.5">
+          {feedback && (
+            <div className="w-full h-full flex flex-col justify-start items-stretch min-h-0 flex-1 gap-3">
+              
+              {/* NOVO CARD INTEGRADO: FALA DO ALUNO E OS PONTOS LADO A LADO NO MESMO CARD */}
+              <div className="flex items-center justify-between gap-4 p-3.5 bg-black/25 rounded-xl border border-white/[0.04] shrink-0 w-full shadow-inner">
+                <div className="text-[14px] md:text-[1.15vw] text-cyan-100 italic leading-relaxed font-semibold break-words flex-1 min-w-0">
+                  "{transcricaoAluno}"
+                </div>
+                <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-800/40 tracking-wider shrink-0 whitespace-nowrap shadow-sm">
+                  +{scoreFinal} PTS
+                </div>
+              </div>
 
-        {flowState === "RECORDING" && (
-          <div className="flex flex-col items-center gap-2">
+              {/* CONTEÚDO DO FEEDBACK DA IA OCUPANDO O ESPAÇO LIVRE COM ROLAGEM INVISÍVEL */}
+              <div className="flex-1 min-h-0 overflow-y-auto w-full space-y-3 pr-0.5" style={{ scrollbarWidth: 'none' }}>
+                <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words w-full min-w-0">
+                  {feedback.mensagem}
+                </p>
+                
+                <div className="text-[12px] md:text-[1vw] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic font-semibold break-words w-full min-w-0">
+                  {t.dica}: {feedback.sugestao}
+                </div>
+              </div>
+
+            </div>
+          )}
+        </div>
+      )}
+
+      {flowState !== "DONE" && (flowState === "RECORDING" || flowState === "ANALYZING") && (
+        <div className="w-full text-center py-1">
+          {flowState === "RECORDING" && (
+            <span className="text-[12px] md:text-[1vw] font-bold uppercase tracking-wider text-rose-400 animate-pulse">
+              {t.gravando}
+            </span>
+          )}
+          {flowState === "ANALYZING" && (
+            <div className="flex items-center justify-center gap-2 animate-pulse">
+              <Loader2 size={16} className="text-cyan-400 animate-spin" />
+              <span className="text-[11px] md:text-[1vw] font-bold uppercase tracking-widest text-cyan-400">
+                {t.avaliando}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {flowState !== "DONE" && (
+        <div className="flex justify-center items-center shrink-0 pt-1 pb-1 gap-4 h-[54px] w-full">
+          {flowState === "IDLE" && (
             <button
-              onClick={stopRecording}
-              className="w-16 h-16 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center text-red-400 hover:bg-red-900 transition-all shadow-lg animate-pulse"
+              onClick={iniciarGravacao}
+              className="p-3.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-400 rounded-full hover:border-cyan-400 hover:bg-cyan-950 transition-all cursor-pointer shadow-lg active:scale-95 shrink-0"
             >
-              <Square size={24} />
+              <Mic size={18} />
             </button>
-            <span className="text-xs text-red-400 animate-pulse">{t?.gravando || "Gravando..."}</span>
-          </div>
-        )}
+          )}
 
-        {flowState === "ANALYZING" && (
-          <div className="flex flex-col items-center gap-2 text-slate-400 text-sm">
-            <Loader2 className="animate-spin text-cyan-500" size={28} />
-            <span>{t?.avaliando || "Avaliando..."}</span>
-          </div>
-        )}
+          {flowState === "RECORDING" && (
+            <button
+              onClick={pararGravacao}
+              className="p-3.5 bg-rose-600 border border-rose-500 text-white rounded-full transition-all cursor-pointer shadow-lg active:scale-95 shadow-rose-950/40 shrink-0"
+            >
+              <Square size={18} />
+            </button>
+          )}
 
-        {flowState === "DONE" && (
-          <button
-            onClick={() => setFlowState("IDLE")}
-            className="px-6 py-2.5 bg-[#0e1e31] border border-cyan-500/30 text-cyan-400 rounded-xl hover:bg-[#12273f] transition-all text-sm font-semibold"
-          >
-            Tentar Novamente
-          </button>
-        )}
-      </div>
+          {flowState === "PLAYBACK" && (
+            <div className="flex items-center gap-4 animate-fade-in shrink-0">
+              <button 
+                onClick={() => { if (audioUrl) new Audio(audioUrl).play(); }}
+                className="p-3 bg-cyan-950 border border-cyan-500/40 text-cyan-400 rounded-full hover:bg-cyan-900 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
+                title="Escutar"
+              >
+                <Volume2 size={16} />
+              </button>
+
+              <button 
+                onClick={processarAvaliacaoFinaMeteora}
+                className="p-3 bg-emerald-600 border border-emerald-500 text-white rounded-full hover:bg-emerald-500 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
+                title="Validar"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }

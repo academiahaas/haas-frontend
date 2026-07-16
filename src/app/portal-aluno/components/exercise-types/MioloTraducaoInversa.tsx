@@ -2,7 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, RefreshCw, Sparkles, Send, Trophy, ArrowRight, BookOpen } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Sparkles, Send, Trophy, ArrowRight, HelpCircle } from 'lucide-react';
 
 interface PieceItem {
   id: number;
@@ -20,7 +20,7 @@ interface MioloProps {
 
 const traducoesAbas: Record<string, Record<string, string>> = {
   es: {
-    instrucao: "Traduce la frase seleccionando los bloques:",
+    instrucao: "TRADUCE LA FRASE SELECCIONANDO LOS BLOQUES:",
     validando: "Analizando...",
     validar: "Validar Respuesta",
     refazer: "Reiniciar",
@@ -30,7 +30,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
     avancar: "Avanzar a la Próxima Misión"
   },
   en: {
-    instrucao: "Translate the sentence by selecting the blocks:",
+    instrucao: "TRANSLATE THE SENTENCE BY SELECTING THE BLOCKS:",
     validando: "Analyzing...",
     validar: "Validate",
     refazer: "Reset",
@@ -40,7 +40,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
     avancar: "Advance Mission"
   },
   pt: {
-    instrucao: "Traduza a frase selecionando os blocos:",
+    instrucao: "TRADUZA A FRASE SELECIONANDO OS BLOCOS:",
     validando: "Analisando...",
     validar: "Validar Resposta",
     refazer: "Tentar de Novo",
@@ -67,7 +67,6 @@ export default function MioloTraducaoInversa({
   const [bankPieces, setBankPieces] = useState<PieceItem[]>([]);
   const [depositPieces, setDepositPieces] = useState<PieceItem[]>([]);
   
-  // Controle de estado local para travar a tela de feedback micro sem fechar o exercício
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [feedbackIA, setFeedbackIA] = useState("");
@@ -87,9 +86,6 @@ export default function MioloTraducaoInversa({
 
   const t = traducoesAbas[obterLangKey()] || traducoesAbas["es"];
 
-  const multiplicadorAtivo = typeof getMultiplicador === 'function' ? getMultiplicador() : (streak >= 3 ? 1.5 : 1);
-  const pontosGanhosCalculados = Math.round(25 * multiplicadorAtivo);
-
   useEffect(() => {
     async function carregarExerciciosDoBanco() {
       try {
@@ -107,7 +103,6 @@ export default function MioloTraducaoInversa({
         }
         const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.12&limit=1`;
         
-        console.log("📡 [CONEXÃO REAL TRADUÇÃO] Buscando no Supabase por:", nomeUnidade);
         const res = await fetch(url, {
           headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
         });
@@ -117,16 +112,13 @@ export default function MioloTraducaoInversa({
           const dados = await res.json();
           if (dados && dados.length > 0) {
             dadoExercicio = dados[0];
-            console.log("🔍 [RASTREAMENTO TRADUÇÃO INVERSA] Carregou Exercício ID:", dados[0]?.id, " | Unidade:", nomeUnidade);
           }
         }
 
         let textoOriginal = dadoExercicio?.reading_text || dadoExercicio?.texto || "";
         let respostaCerta = dadoExercicio?.correct_answer || dadoExercicio?.correta || "";
 
-        // Validação de Emergência Estática (Sem IA no frontend)
         if (!textoOriginal || !respostaCerta || textoOriginal.trim().length < 3) {
-          console.warn("⚠️ Dados de Tradução Inversa ausentes. Usando fallback estático.");
           textoOriginal = "Olá! Como você está?";
           respostaCerta = "Hello! How are you?";
         }
@@ -134,7 +126,6 @@ export default function MioloTraducaoInversa({
         setFraseMatrizPT(textoOriginal);
         setStringAlvoCorreta(respostaCerta);
 
-        // Função interna para limpar pontuações e extrair palavras estritas de qualquer string
         const extrairPalavrasLimpas = (txt: string) => {
           if (!txt) return [];
           return txt
@@ -168,7 +159,6 @@ export default function MioloTraducaoInversa({
           }
         }
         
-        // Junta tudo, padroniza minúsculas, remove duplicados e mistura os blocos de palavras unitárias
         const todas = [...puras, ...dists]
           .map(w => w.toLowerCase())
           .filter((v, i, a) => a.indexOf(v) === i)
@@ -217,14 +207,6 @@ export default function MioloTraducaoInversa({
     setBankPieces(prev => [...prev, piece]);
   };
 
-  const resetarJogo = () => {
-    const todas = [...depositPieces, ...bankPieces].sort(() => Math.random() - 0.5);
-    setBankPieces(todas);
-    setDepositPieces([]);
-    setLocalStatus('IDLE');
-    setFeedbackIA("");
-  };
-
   const executarValidacaoInterna = async () => {
     if (depositPieces.length === 0 || analisando || localStatus !== "IDLE") return;
     setAnalisando(true);
@@ -254,10 +236,9 @@ export default function MioloTraducaoInversa({
     } finally {
       setAnalisando(false);
     }
-  };;
+  };
 
-  // O pai só é acionado aqui, quando o aluno revisa e clica no botão "Avançar" ou "Tentar de Novo" final
-    useEffect(() => {
+  useEffect(() => {
     const escutarSubmitGlobal = () => {
       executarValidacaoInterna();
     };
@@ -265,40 +246,35 @@ export default function MioloTraducaoInversa({
     return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
   }, [depositPieces, bankPieces, localStatus, analisando, fraseMatrizPT, stringAlvoCorreta]);
 
-  const prosseguirParaProximoExercicio = () => {
-    if (onValidateResult) {
-      onValidateResult(localStatus === 'CORRECT');
-    }
-  };
-
-  const fraseMontadaAtual = depositPieces.map(p => p.text).join(" ");
-
   return (
-    <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-hidden select-none gap-3 p-1 flex-1 min-h-0">
+    <div className="w-full h-full flex flex-col justify-start text-left font-sans overflow-hidden select-none gap-4 p-1 flex-1 min-h-0">
       
-      {/* 1. CARD DA FRASE ORIGINAL (Fluido e Responsivo) */}
-      <div className="bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-3 shadow-sm shrink-0">
-        <div className="flex items-center gap-1.5 shrink-0 mb-1">
-          <BookOpen size={13} className="text-cyan-400 shrink-0" />
-          <span className="text-[clamp(13px,1.5vw,15px)] font-bold text-cyan-400 uppercase tracking-wider block">
-            {t.instrucao}
-          </span>
-        </div>
+      {/* BARRA SUPERIOR DE INSTRUÇÃO TOTALMENTE LIMPA E ISOLADA */}
+      <div className="flex items-center shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02] gap-2 w-full">
+        <HelpCircle size={14} className="text-cyan-400 shrink-0" />
+        <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+          {t.instrucao}
+        </span>
+      </div>
+
+      {/* CARD DO EXERCÍCIO COM A FRASE EM PORTUGUÊS CENTRALIZADA */}
+      <div className="bg-[#050b14]/40 border border-white/[0.04] rounded-2xl p-6 shadow-sm shrink-0 flex items-center justify-center min-h-[100px]">
         <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-slate-100 w-full break-words text-center">
           "{fraseMatrizPT}"
         </p>
       </div>
 
-      {/* 2. ÁREA DE DEPÓSITO DE BLOCOS (Crescimento orgânico e visível) */}
+      {/* ÁREA DE DEPÓSITO DE BLOCOS */}
       <div className={`w-full min-h-[72px] md:min-h-[96px] bg-[#030712]/60 border border-dashed border-slate-800/80 rounded-xl p-3 flex flex-wrap gap-2 items-center justify-center shadow-inner overflow-visible ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {depositPieces.length === 0 ? (
-          <span className="text-[clamp(10px,1.2vw,12px)] text-slate-600 uppercase font-black tracking-widest pointer-events-none">
+          <span className="text-[clamp(10px,1.2vw,12px)] text-slate-600 uppercase font-black tracking-widest pointer-events-none text-center">
             {t.aguardando}
           </span>
         ) : (
           depositPieces.map((piece) => (
             <button
               key={piece.id}
+              type="button"
               disabled={localStatus !== 'IDLE' || analisando}
               onClick={() => handlePullToBank(piece)}
               className="px-4 py-2 bg-gradient-to-b from-cyan-400 to-cyan-500 text-slate-950 font-black rounded-xl text-[clamp(14px,2vw,18px)] cursor-pointer shadow-sm transition-all active:scale-95 whitespace-nowrap"
@@ -309,11 +285,12 @@ export default function MioloTraducaoInversa({
         )}
       </div>
 
-      {/* 3. BANCO DE BLOCOS PARA SELECIONAR */}
+      {/* BANCO DE BLOCOS PARA SELECIONAR */}
       <div className={`w-full flex flex-wrap gap-2 py-1 items-center justify-center shrink-0 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {bankPieces.map((piece) => (
           <button
             key={piece.id}
+            type="button"
             disabled={localStatus !== 'IDLE' || analisando}
             onClick={() => handlePushToDeposit(piece)}
             className="px-4 py-2.5 bg-[#1C3B50]/20 hover:bg-[#1C3B50]/40 text-slate-200 font-bold border border-slate-800/60 rounded-xl text-[clamp(14px,2vw,18px)] cursor-pointer active:scale-95 transition-all whitespace-nowrap"
@@ -323,7 +300,7 @@ export default function MioloTraducaoInversa({
         ))}
       </div>
 
-      {/* 4. CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE FLUIDO TELA CHEIA */}
+      {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO */}
       {(localStatus !== 'IDLE' || analisando) && (
         <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           
@@ -351,7 +328,6 @@ export default function MioloTraducaoInversa({
 
         </div>
       )}
-
 
     </div>
   );
