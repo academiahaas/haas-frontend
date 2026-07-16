@@ -42,60 +42,99 @@ const traducoesInterface: Record<string, Record<string, string>> = {
 
 
 function validarConversacaoLocal(pergunta: string, resposta: string): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
-  const normalizar = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  const normalizar = (t: string) => {
+    const semAcentos = t.toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "");
+    
+    let limpo = "";
+    for (let i = 0; i < semAcentos.length; i++) {
+      const charCode = semAcentos.charCodeAt(i);
+      if ((charCode >= 97 && charCode <= 122) || (charCode >= 48 && charCode <= 57) || charCode === 32) {
+        limpo += semAcentos[i];
+      }
+    }
+    return limpo.trim();
+  };
+
   const r = normalizar(resposta);
-  const p = normalizar(pergunta);
+  const palavrasBrutas = r.split(" ").filter(w => w.length > 1);
 
-  const palavrasResposta = r.split(" ").filter(w => w.length > 1);
+  // Lista de ruídos ignorados no cálculo
+  const ruidos = ["bla", "blabla", "lalala", "lelele", "bababa", "tata", "gugu", "dummy", "test", "la"];
+  const palavrasResposta = palavrasBrutas.filter(w => !ruidos.includes(w));
 
-  // Regra 1: Frase muito curta indica resposta preguiçosa ou vazia
-  if (palavrasResposta.length < 2) {
+  // Se não sobrarem palavras válidas suficientes
+  if (palavrasResposta.length < 3) {
     return {
       score: 15,
       status: "INCOERENTE",
-      msg: "Tente elaborar uma resposta mais completa para praticar seu português real!",
-      sugestao: "Use estruturas com sujeito, verbo e o local para deixar a resposta natural."
+      msg: "Sua resposta parece muito curta ou contém palavras repetidas sem sentido em português.",
+      sugestao: "Tente responder de forma simples dizendo onde você esteve ou o que fez."
     };
   }
 
-  let pontos = 50; // Começa com média aceitável por tentar falar
+  // Contagem de repetições excessivas para evitar spams
+  const contagemPalavras = {};
+  let maxRepeticoes = 0;
+  for (const p of palavrasResposta) {
+    contagemPalavras[p] = (contagemPalavras[p] || 0) + 1;
+    if (contagemPalavras[p] > maxRepeticoes) {
+      maxRepeticoes = contagemPalavras[p];
+    }
+  }
 
-  // Regra 2: Incentiva tamanho e complexidade da frase
-  if (palavrasResposta.length >= 6) pontos += 15;
-  if (palavrasResposta.length >= 10) pontos += 15;
+  if (maxRepeticoes >= 2 && palavrasResposta.length <= 6) {
+    return {
+      score: 15,
+      status: "INCOERENTE",
+      msg: "Detectei repetição de palavras ou termos sem sentido na sua resposta.",
+      sugestao: "Construa uma frase contínua em português para que eu possa avaliar sua fluidez."
+    };
+  }
 
-  // Regra 3: Cruzamento de correspondência contextual de concordância e preposições locais em português
-  const termosEstruturais = ["fui", "estive", "ia", "trabalho", "escritorio", "reuniao", "casa", "ontem", "manha", "tarde", "noite", "com", "para", "em", "no", "na"];
-  let correspondencias = 0;
-  termosEstruturais.forEach(termo => {
-    if (r.includes(termo)) correspondencias++;
+  // Exigência gramatical rígida baseada em PALAVRA COMPLETA (não substring!)
+  const verbosPassado = ["fui", "estive", "ia", "fomos", "trabalhei", "participei", "visitei", "estava", "fiquei", "cheguei"];
+  const locaisContexto = ["escritorio", "reuniao", "casa", "trabalho", "empresa", "cliente", "projeto", "sala", "cozinha", "rua", "loja", "hotel", "restaurante", "almoco", "jantar"];
+
+  let temVerbo = false;
+  let temLocal = false;
+
+  palavrasResposta.forEach(p => {
+    if (verbosPassado.includes(p)) temVerbo = true;
+    if (locaisContexto.includes(p)) temLocal = true;
   });
 
-  pontos += Math.min(correspondencias * 8, 20);
+  // Se tentar burlar sem conter pelo menos um verbo e um local legítimos na frase
+  if (!temVerbo || !temLocal) {
+    return {
+      score: 15,
+      status: "INCOERENTE",
+      msg: "Sua resposta não responde de forma lógica à pergunta da mentora (onde você foi ontem de manhã).",
+      sugestao: "Sua frase deve incluir obrigatoriamente um verbo no passado (como 'fui' ou 'estive') e um local (como 'escritório' ou 'casa')."
+    };
+  }
 
-  // Limita o score final de 0 a 100
+  let pontos = 40;
+  if (palavrasResposta.length >= 4) pontos += 20;
+  if (palavrasResposta.length >= 6) pontos += 20;
+  if (palavrasResposta.length >= 10) pontos += 20;
+
   const scoreFinal = Math.min(Math.max(pontos, 15), 100);
   
   if (scoreFinal >= 80) {
     return {
       score: scoreFinal,
       status: "EXCELENTE",
-      msg: "¡Excelente respuesta! Has construido una frase muy completa y coherente para responder a la pregunta.",
-      sugestao: "¡Sigue así! Tu fluidez al formular respuestas largas es maravillosa."
-    };
-  } else if (scoreFinal >= 50) {
-    return {
-      score: scoreFinal,
-      status: "REGULAR",
-      msg: "¡Buen intento! Tu mensaje es comprensible y responde al estímulo de la mentora.",
-      sugestao: "Intenta conectar preposiciones más precisas de lugar como 'fui al' o 'estuve en'."
+      msg: "¡Excelente respuesta! Lograste formular una respuesta completa y muy coherente en português.",
+      sugestao: "¡Gran fluidez! Sigue estruturando tus ideas con este nivel de detalhe."
     };
   } else {
     return {
       score: scoreFinal,
-      status: "INCOERENTE",
-      msg: "Tu respuesta pareció un poco desconectada del contexto planteado por la pregunta.",
-      sugestao: "Revisa la pregunta y trata de usar un verbo de movimiento como 'ir' o 'estar' en pasado."
+      status: "REGULAR",
+      msg: "¡Buen intento! Tu respuesta es comprensible y responde lógicamente a la pregunta.",
+      sugestao: "Para obtener la puntuación máxima, intenta añadir un poco más de detalle sobre tus actividades."
     };
   }
 }
@@ -184,22 +223,20 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const dispararAnaliseGemini = async (fraseParaAnálise: string) => {
     setFlowState("ANALYZING");
     
-    if (!fraseParaAnálise || fraseParaAnálise.trim().length < 3) {
+    if (!fraseParaAnálise || fraseParaAnálise.trim().split(" ").filter(w => w.length > 0).length < 2) {
       setFeedback({
         status: "INCOERENTE",
-        mensagem: idiomaNativoAluno.toLowerCase().includes("ing")
-          ? "I couldn't hear clearly. Please try to speak again closer to the microphone."
-          : "No pude escuchar claramente tus palabras. ¿Podrías intentar hablar de nuevo frente al micrófono?",
-        sugestao: "Intenta responder con calma usando las palabras que practicamos hoy."
+        mensagem: "No pude escuchar claramente tus palabras. ¿Podrías intentar responder de nuevo con una frase más larga?",
+        sugestao: "Intenta hablar más cerca del micrófono elaborando una respuesta estruturada."
       });
       setScoreFinal(15);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
+      if (onValidateResult) onValidateResult(false, "No pude escuchar claramente tus palabras. Intenta de nuevo.");
       return;
     }
 
     try {
-      // Executa a avaliação semântica e contextual de graça e instantaneamente
       const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise);
       
       setScoreFinal(resultado.score);
@@ -224,10 +261,17 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         if (onSelectWrong) onSelectWrong();
       }
     } catch (e) {
-      console.error("Erro na validação de fala:", e);
-      setFlowState("USER_TURN");
+      console.error("Erro na validação local:", e);
+      setScoreFinal(15);
+      setFeedback({
+        status: "INCOERENTE",
+        mensagem: "No logré procesar tu respuesta correctamente. Por favor, inténtalo de nuevo.",
+        sugestao: "Intenta vocalizar bien y falar de forma continua frente al micrófono."
+      });
+      setFlowState("DONE");
+      if (onSelectWrong) onSelectWrong();
     }
-  };
+  };;
 
   const alternarEstadoMicrofone = () => {
     if (flowState === "USER_TURN" || flowState === "DONE") {
