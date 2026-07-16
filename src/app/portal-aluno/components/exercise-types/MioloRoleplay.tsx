@@ -48,6 +48,8 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [carregando, setCarregando] = useState(true);
   const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   const recognitionRef = useRef<any>(null);
@@ -78,6 +80,8 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         
         if (exeDados && exeDados.length > 0) {
           falaPartida = exeDados[0].audio_transcript || falaPartida;
+          setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
+          setIncentivoIncorretoBanco(exeDados[0].incorrect_incentive || "");
         }
 
         setPhraseIA(falaPartida);
@@ -175,7 +179,9 @@ Retorne estritamente este formato JSON limpo sem markdown:
       const isCorrect = (parsed.score || 70) >= 60;
       const textoMensagem = parsed.mensagem || "Análise de voz processada com sucesso.";
       if (onValidateResult) {
-        onValidateResult(isCorrect, textoMensagem);
+        const incentivo = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
+        const feedbackFinalMentora = incentivo ? `${incentivo} \n\n📝 ${textoMensagem}` : textoMensagem;
+        onValidateResult(isCorrect, feedbackFinalMentora);
       }
       if (isCorrect) {
         if (onSelectCorrect) onSelectCorrect();
@@ -193,7 +199,8 @@ Retorne estritamente este formato JSON limpo sem markdown:
       setFlowState("DONE");
       const msgCatch = `Tu resposta foi recebida com sucesso.`;
       if (onValidateResult) {
-        onValidateResult(true, msgCatch);
+        const feedbackFinalMentora = incentivoCorretoBanco ? `${incentivoCorretoBanco} \n\n📝 ${msgCatch}` : msgCatch;
+        onValidateResult(true, feedbackFinalMentora);
       }
       if (onSelectCorrect) onSelectCorrect();
     }
