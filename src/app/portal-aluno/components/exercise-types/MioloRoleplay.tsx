@@ -19,7 +19,7 @@ interface FeedbackEstruturado {
 const traducoesInterface: Record<string, Record<string, string>> = {
   es: {
     calibrando: "Calibrando el nivel de la lección...",
-    instrucao: "RESPONDA A LA PREGUNTA DE LA INTELIGENCIA ARTIFICIAL:",
+    instrucao: "RESPONDA A LA PREGUNTA DE LA MENTORA HAAS:",
     falaCapturada: "Tu habla capturada:",
     dica: "Consejo",
     analisando: "Analizando pronunciación y gramática..."
@@ -33,7 +33,7 @@ const traducoesInterface: Record<string, Record<string, string>> = {
   },
   pt: {
     calibrando: "Calibrando o nível da lição...",
-    instrucao: "RESPONDA À PERGUNTA DA INTELIGÊNCIA ARTIFICIAL:",
+    instrucao: "RESPONDA À PERGUNTA DA MENTORA HAAS:",
     falaCapturada: "Sua fala capturada:",
     dica: "Dica",
     analisando: "Analisando pronúncia e gramática..."

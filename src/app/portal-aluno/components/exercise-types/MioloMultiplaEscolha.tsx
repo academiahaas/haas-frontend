@@ -132,7 +132,7 @@ export default function MioloMultiplaEscolha({
           const erradasLimpas = bancoOpts.filter(op => op !== respostaCerta);
           let listaUnificada = Array.from(new Set([respostaCerta, ...erradasLimpas])).filter(Boolean);
 
-          // CUIDADO: SE TIVER EXATAMENTE 3 OPÇÕES, COMPLETA COM A IA PARA FICAR 4
+          // CUIDADO: SE TIVER EXATAMENTE 3 OPÇÕES, COMPLETA COM A MENTORA PARA FICAR 4
           if (listaUnificada.length === 3) {
             try {
               const promptGerador = `Com base no enunciado "${exe.reading_text}" e sabendo que a resposta correta é "${respostaCerta}", crie uma única alternativa incorreta adicional que seja plausível para compor uma questão de múltipla escolha. Retorne estritamente o texto da nova opção, sem aspas, explicações ou formatação markdown. Evite repetir estas opções existentes: ${listaUnificada.join(', ')}.`;
@@ -150,7 +150,7 @@ export default function MioloMultiplaEscolha({
                 }
               }
             } catch (errIA) {
-              console.error("Erro ao gerar alternativa complementar via IA:", errIA);
+              console.error("Erro ao gerar alternativa complementar via Mentora:", errIA);
             }
           }
 

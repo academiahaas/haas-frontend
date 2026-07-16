@@ -49,7 +49,7 @@ export default function ArenaQuizMobile({
       <div className="fixed inset-0 bg-[#040914] flex flex-col items-center justify-center p-6 text-center text-white z-[9999]">
         <AlertTriangle className="text-amber-500 mb-4 animate-bounce" size={48} />
         <h3 className="text-lg font-black tracking-wide uppercase">Nenhum exercício na Arena</h3>
-        <p className="text-slate-400 text-xs mt-2 max-w-xs">Aguardando a Inteligência Artificial carregar as cascas...</p>
+        <p className="text-slate-400 text-xs mt-2 max-w-xs">Aguardando a Mentora carregar as cascas...</p>
       </div>
     );
   }

@@ -802,7 +802,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     <div className="flex flex-col gap-1">
                       <h2 className="text-xl font-black text-white tracking-tight uppercase">{jogoAtual.label}</h2>
                       <p className="text-xs text-slate-400 leading-relaxed">
-                        {currentLang === 'PT' ? 'Um desafio focado na sua evolução foi selecionado pela IA. Prepare-se antes de iniciar o tempo.' : 
+                        {currentLang === 'PT' ? 'Um desafio focado na sua evolução foi selecionado pela Mentora. Prepare-se antes de iniciar o tempo.' : 
                          currentLang === 'ES' ? 'El sistema ha seleccionado un desafío enfocado en tu evolución. Prepárate antes de iniciar.' : 
                          'A challenge tailored to your progress has been selected. Get ready before the timer starts.'}
                       </p>

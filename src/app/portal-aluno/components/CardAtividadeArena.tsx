@@ -65,7 +65,7 @@ export default function CardAtividadeArena({
       <div className="flex-1 w-full flex flex-col justify-center py-2">
         {children || (
           <div className="text-center py-12 border border-dashed border-white/5 rounded-2xl bg-black/10">
-            <p className="text-xs font-mono text-slate-500">Aguardando injeção do bloco de exercício da IA...</p>
+            <p className="text-xs font-mono text-slate-500">Aguardando injeção do conteúdo do exercício...</p>
           </div>
         )}
       </div>

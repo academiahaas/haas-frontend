@@ -302,7 +302,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
             <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
               <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
                 <Sparkles size={12} className="animate-spin" />
-                <span>Inteligência Artificial</span>
+                <span>Mentora Haas</span>
               </div>
               <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
             </div>
