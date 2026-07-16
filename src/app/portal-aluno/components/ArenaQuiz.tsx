@@ -229,16 +229,17 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const tocarSom = (tipo) => { if (typeof window !== 'undefined' && (window as any).tocarSomNativoPremium) { (window as any).tocarSomNativoPremium(tipo); } };
   const [unidadesConcluidas, setUnidadesConcluidas] = useState(0);
   const [totalUnidadesModulo, setTotalUnidadesModulo] = useState(0);
+  const [numeroUnidadeReal, setNumeroUnidadeReal] = useState("");
 
   useEffect(() => {
     const puxarEstrelasDoBanco = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const currentUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
+        const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
         const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
         // 1. Pega as etiquetas da unidade atual na tabela cheia
-        const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level`, {
+        const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level,unit_number`, {
           headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
         });
         const dadosUnidade = await resUnidade.json();
@@ -246,6 +247,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         const modNum = dadosUnidade[0].module_number;
         const lvl = dadosUnidade[0].level;
+        if (dadosUnidade[0].unit_number !== undefined && dadosUnidade[0].unit_number !== null) {
+          setNumeroUnidadeReal(String(dadosUnidade[0].unit_number).padStart(2, "0"));
+        }
 
         // 2. Filtra o tabelão gigante pegando apenas o bloco correspondente (Descobre o total Y)
         const resFiltrado = await fetch(`${supabaseUrl}/rest/v1/units?module_number=eq.${modNum}&level=eq.${lvl}&select=id`, {
@@ -760,7 +764,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {String(subUnidadeIndex).includes("e9b8fc2c") ? "01" : String(subUnidadeIndex).includes("a4b95abc") ? "02" : String(subUnidadeIndex).includes("b2eaef02") ? "03" : String(subUnidadeIndex).includes("dda5ea8f") ? "04" : String(subUnidadeIndex).includes("936264d8") ? "05" : typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01"}</span>
+              <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {numeroUnidadeReal || (typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01")}</span>
               <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
             </div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
