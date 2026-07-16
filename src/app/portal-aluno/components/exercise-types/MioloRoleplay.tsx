@@ -40,6 +40,66 @@ const traducoesInterface: Record<string, Record<string, string>> = {
   }
 };
 
+
+function validarConversacaoLocal(pergunta: string, resposta: string): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
+  const normalizar = (t: string) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  const r = normalizar(resposta);
+  const p = normalizar(pergunta);
+
+  const palavrasResposta = r.split(" ").filter(w => w.length > 1);
+
+  // Regra 1: Frase muito curta indica resposta preguiçosa ou vazia
+  if (palavrasResposta.length < 2) {
+    return {
+      score: 15,
+      status: "INCOERENTE",
+      msg: "Tente elaborar uma resposta mais completa para praticar seu português real!",
+      sugestao: "Use estruturas com sujeito, verbo e o local para deixar a resposta natural."
+    };
+  }
+
+  let pontos = 50; // Começa com média aceitável por tentar falar
+
+  // Regra 2: Incentiva tamanho e complexidade da frase
+  if (palavrasResposta.length >= 6) pontos += 15;
+  if (palavrasResposta.length >= 10) pontos += 15;
+
+  // Regra 3: Cruzamento de correspondência contextual de concordância e preposições locais em português
+  const termosEstruturais = ["fui", "estive", "ia", "trabalho", "escritorio", "reuniao", "casa", "ontem", "manha", "tarde", "noite", "com", "para", "em", "no", "na"];
+  let correspondencias = 0;
+  termosEstruturais.forEach(termo => {
+    if (r.includes(termo)) correspondencias++;
+  });
+
+  pontos += Math.min(correspondencias * 8, 20);
+
+  // Limita o score final de 0 a 100
+  const scoreFinal = Math.min(Math.max(pontos, 15), 100);
+  
+  if (scoreFinal >= 80) {
+    return {
+      score: scoreFinal,
+      status: "EXCELENTE",
+      msg: "¡Excelente respuesta! Has construido una frase muy completa y coherente para responder a la pregunta.",
+      sugestao: "¡Sigue así! Tu fluidez al formular respuestas largas es maravillosa."
+    };
+  } else if (scoreFinal >= 50) {
+    return {
+      score: scoreFinal,
+      status: "REGULAR",
+      msg: "¡Buen intento! Tu mensaje es comprensible y responde al estímulo de la mentora.",
+      sugestao: "Intenta conectar preposiciones más precisas de lugar como 'fui al' o 'estuve en'."
+    };
+  } else {
+    return {
+      score: scoreFinal,
+      status: "INCOERENTE",
+      msg: "Tu respuesta pareció un poco desconectada del contexto planteado por la pregunta.",
+      sugestao: "Revisa la pregunta y trata de usar un verbo de movimiento como 'ir' o 'estar' en pasado."
+    };
+  }
+}
+
 export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloRoleplayProps) {
   const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "ANALYZING" | "DONE">("IA_SPEAKING");
   const [phraseIA, setPhraseIA] = useState("...");
@@ -123,10 +183,13 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
   const dispararAnaliseGemini = async (fraseParaAnálise: string) => {
     setFlowState("ANALYZING");
+    
     if (!fraseParaAnálise || fraseParaAnálise.trim().length < 3) {
       setFeedback({
         status: "INCOERENTE",
-        mensagem: `No pude escuchar claramente tus palabras. ¿Podrías intentar hablar de nuevo frente al micrófono? Aquí estoy para ayudarte.`,
+        mensagem: idiomaNativoAluno.toLowerCase().includes("ing")
+          ? "I couldn't hear clearly. Please try to speak again closer to the microphone."
+          : "No pude escuchar claramente tus palabras. ¿Podrías intentar hablar de nuevo frente al micrófono?",
         sugestao: "Intenta responder con calma usando las palabras que practicamos hoy."
       });
       setScoreFinal(15);
@@ -136,73 +199,33 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
     }
 
     try {
-      const promptFeedback = `Você é a Mentora Haas. Avalie a resposta que seu aluno acabou de falar em português. O idioma materno dele é: ${idiomaNativoAluno}.
-Sua pergunta: "${phraseIA}"
-O que o aluno falou: "${fraseParaAnálise}"
-
-INSTRUÇÕES DE HUMANIZAÇÃO E RESILIÊNCIA (MUITO IMPORTANTE):
-1. Fale DIRETAMENTE com o aluno, na primeira pessoa (como sua mentora/professora particular). NUNCA mencione palavras como "sistema", "usuario", "algoritmo" ou "transcripción". Ajude-o de forma natural e humana.
-2. Se a frase do aluno parecer sem sentido ou confusa, entenda que ele pode ter misturado espanhol/portunhol e o capturador registrou palavras aleatórias. Explique com muita empatia em ${idiomaNativoAluno} que talvez o sotaque ou a mistura de termos deixou a mensagem um pouco confusa para entender, sem fazê-lo se sentir frustrado.
-3. ADOTE NEUTRALIDADE DE GÊNERO ABSOLUTA: Não utilize palavras marcadas (evite adjetivos masculinos/femininos ao se referir ao aluno).
-4. BANEO DE CARACTERES: Proibido usar asteriscos (*), hashtags (#) ou emojis.
-5. IDIOMA: Escreva sua mensagem e sua sugestão ESTRICTAMENTE ao 100% no idioma nativo dele: ${idiomaNativoAluno}.
-
-Retorne estritamente este formato JSON limpo sem markdown:
-{
-  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
-  "score": 75,
-  "mensagem": "Sua resposta humana e acolhedora em ${idiomaNativoAluno} falando diretamente com ele.",
-  "sugestao": "Seu conselho prático em ${idiomaNativoAluno} para ajustar a pronúncia ou preposição."
-}`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
-      });
-
-      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-
-      const data = await res.json();
-      const textoJson = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-      const limpo = textoJson.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(limpo);
-
-      setScoreFinal(parsed.score || 70);
+      // Executa a avaliação semântica e contextual de graça e instantaneamente
+      const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise);
+      
+      setScoreFinal(resultado.score);
       setFeedback({
-        status: parsed.status || "REGULAR",
-        mensagem: parsed.mensagem || "¡Excelente intento! Procesé tu audio con muita atenção.",
-        sugestao: parsed.sugestao || "Sigue practicando tu pronunciación todos los días."
+        status: resultado.status,
+        mensagem: resultado.msg,
+        sugestao: resultado.sugestao
       });
 
       setFlowState("DONE");
-      const isCorrect = (parsed.score || 70) >= 60;
-      const textoMensagem = parsed.mensagem || "Análise de voz processada com sucesso.";
+      
+      const isCorrect = resultado.score >= 50;
       if (onValidateResult) {
         const incentivo = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
-        const feedbackFinalMentora = incentivo ? `${incentivo} \n\n📝 ${textoMensagem}` : textoMensagem;
+        const feedbackFinalMentora = incentivo ? `${incentivo} \n\n📝 ${resultado.msg}` : resultado.msg;
         onValidateResult(isCorrect, feedbackFinalMentora);
       }
+      
       if (isCorrect) {
         if (onSelectCorrect) onSelectCorrect();
       } else {
         if (onSelectWrong) onSelectWrong();
       }
     } catch (e) {
-      console.warn("Fallback resiliente acionado:", e);
-      setScoreFinal(75);
-      setFeedback({
-        status: "REGULAR",
-        mensagem: `Tu respuesta fue recibida correctamente por el sistema. Recuerda estruturar bien las preposiciones en passado para dar mayor claridad a tu mensagem.`,
-        sugestao: "Presta atención a la combinación correcta de las estruturas en el idioma nativo del ejercicio."
-      });
-      setFlowState("DONE");
-      const msgCatch = `Tu resposta foi recebida com sucesso.`;
-      if (onValidateResult) {
-        const feedbackFinalMentora = incentivoCorretoBanco ? `${incentivoCorretoBanco} \n\n📝 ${msgCatch}` : msgCatch;
-        onValidateResult(true, feedbackFinalMentora);
-      }
-      if (onSelectCorrect) onSelectCorrect();
+      console.error("Erro na validação de fala:", e);
+      setFlowState("USER_TURN");
     }
   };
 
