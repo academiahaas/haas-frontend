@@ -353,21 +353,24 @@ Regras Estritas:
           : "Intenta hablar un poco más despacio, vocalizando bien frente al micrófono.";
       }
 
+      const aprovado = notaCalculada >= 50;
+      const msgDoBanco = aprovado ? feedbackCorretoBanco : feedbackIncorretoBanco;
+      const textoMensagemFinal = msgDoBanco || msgPersonalizada;
+
       setFeedback({
         status: statusResult,
-        mensagem: msgPersonalizada,
+        mensagem: textoMensagemFinal,
         sugestao: sugestaoPersonalizada
       });
 
       setFlowState("DONE");
 
-      const aprovado = notaCalculada >= 50;
       if (aprovado) {
         if (onSelectCorrect) onSelectCorrect();
-        if (onValidateResult) onValidateResult(true, incentivoCorretoBanco || msgPersonalizada);
+        if (onValidateResult) onValidateResult(true, textoMensagemFinal);
       } else {
         if (onSelectWrong) onSelectWrong();
-        if (onValidateResult) onValidateResult(false, incentivoIncorretoBanco || msgPersonalizada);
+        if (onValidateResult) onValidateResult(false, textoMensagemFinal);
       }
 
     } catch (err) {
