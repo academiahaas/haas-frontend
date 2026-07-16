@@ -74,11 +74,15 @@ export async function registrarFeedbackEErro({
     Retorne apenas o JSON puro, sem markdown ou blocos de código.`;
 
     const textoIA = await chamarGeminiInteligente(prompt);
-    const jsonLimpo = textoIA.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
-    const resultado = JSON.parse(jsonLimpo);
-    
-    if (resultado.feedback) feedbackFinal = resultado.feedback;
-    if (resultado.conteudo_erro) conteudoErroDetectado = resultado.conteudo_erro;
+    try {
+      const jsonLimpo = textoIA.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
+      const resultado = JSON.parse(jsonLimpo);
+      if (resultado.feedback) feedbackFinal = resultado.feedback;
+      if (resultado.conteudo_erro) conteudoErroDetectado = resultado.conteudo_erro;
+    } catch (parseErr) {
+      console.warn("⚠️ Falha ao parsear JSON da IA, usando texto puro como feedback.");
+      feedbackFinal = textoIA.trim();
+    }
   } catch (errIA) {
     console.warn("Falha no feedback da IA, usando padrão.", errIA);
   }
