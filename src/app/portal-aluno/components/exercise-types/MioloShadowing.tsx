@@ -21,24 +21,21 @@ const traducoes: Record<string, Record<string, string>> = {
     conectando: "Conectando...",
     gravando: "Grabando...",
     avaliando: "Evaluando...",
-    dica: "Consejo"
   },
   en: {
     conectando: "Connecting...",
     gravando: "Recording...",
     avaliando: "Evaluating...",
-    dica: "Tip"
   },
   pt: {
     conectando: "Conectando...",
     gravando: "Gravando...",
     avaliando: "Avaliando...",
-    dica: "Dica"
   }
 };
 
 export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
-  const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
+  const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
   const [transcricaoAluno, setTranscricaoAluno] = useState('');
   const [scoreFinal, setScoreFinal] = useState(0);
@@ -67,8 +64,6 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
         setCarregando(true);
         const codigoUnidade = unidadeAtiva;
 
-        console.log("📣 [SHADOWING] Executando busca real para unidadeAtiva:", codigoUnidade);
-
         if (!codigoUnidade) {
           setCarregando(false);
           return;
@@ -80,21 +75,21 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
         if (isUUID) {
           query = query.eq("unit_id", codigoUnidade);
         } else {
-          const unitFallback = (codigoUnidade === "0" || codigoUnidade === "1") ? "1.1" : codigoUnidade;
-          query = query.eq("unit", unitFallback);
+          const { data: firstActive } = await supabase.from('exercises').select('unit_id').eq('activity_type', 10).limit(1);
+          if (firstActive && firstActive.length > 0) {
+            query = query.eq('unit_id', firstActive[0].unit_id);
+          } else {
+            query = query.eq("unit", "1.1");
+          }
         }
 
         const { data: exeDados, error } = await query;
-
         if (error) throw error;
 
         if (exeDados && exeDados.length > 0) {
-          // Busca estritamente a coluna audio_transcript sem mascaras ou fallbacks inventados
           const frase = exeDados[0].audio_transcript || "";
           setReferencePhrase(frase);
-          console.log("🟢 [SHADOWING] Sucesso! Frase real carregada do banco:", frase);
         } else {
-          console.warn("⚠️ Sem exercícios do tipo 10 para o código:", codigoUnidade);
           setReferencePhrase("");
         }
       } catch (err) {
@@ -190,39 +185,40 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch(e){}
     }
-    setFlowState("PLAYBACK");
+    
+    // Transiciona para analisando e executa processamento automático imediatamente
+    setFlowState("ANALYZING");
+    setTimeout(() => {
+      enviarParaAnalise();
+    }, 800);
   };
 
-  const enviarParaAnalise = async () => {
-    setFlowState("ANALYZING");
-    
+  const enviarParaAnalise = () => {
     const textOriginal = referencePhrase.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").trim();
     const textAluno = transcricaoAluno.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"").trim();
     
     const coincidencia = textOriginal === textAluno || textOriginal.includes(textAluno) || textAluno.includes(textOriginal);
     
-    setTimeout(() => {
-      if (coincidencia) {
-        setScoreFinal(100);
-        setFeedback({
-          status: "EXCELENTE",
-          mensagem: "Excelente pronúncia! Suas palavras coincidem perfeitamente com o modelo falado.",
-          sugestao: "Continue praticando para manter a fluidez natural."
-        });
-        if (onSelectCorrect) onSelectCorrect();
-        if (onValidateResult) onValidateResult(true, "Excelente pronúncia!");
-      } else {
-        setScoreFinal(50);
-        setFeedback({
-          status: "REGULAR",
-          mensagem: `A transcrição obtida foi: "${transcricaoAluno || "áudio não reconhecido"}".`,
-          sugestao: "Tente falar pausadamente e mais próximo ao microfone."
-        });
-        if (onSelectWrong) onSelectWrong();
-        if (onValidateResult) onValidateResult(false, "Pronúncia precisa de ajustes.");
-      }
-      setFlowState("DONE");
-    }, 1500);
+    if (coincidencia) {
+      setScoreFinal(100);
+      setFeedback({
+        status: "EXCELENTE",
+        mensagem: "Excelente pronúncia! Suas palavras coincidem perfeitamente com o modelo falado.",
+        sugestao: "Continue praticando para manter a fluidez natural."
+      });
+      if (onSelectCorrect) onSelectCorrect();
+      if (onValidateResult) onValidateResult(true, "Excelente pronúncia!");
+    } else {
+      setScoreFinal(50);
+      setFeedback({
+        status: "REGULAR",
+        mensagem: `A transcrição obtida foi: "${transcricaoAluno || "áudio não reconhecido"}".`,
+        sugestao: "Tente falar pausadamente e mais próximo ao microfone."
+      });
+      if (onSelectWrong) onSelectWrong();
+      if (onValidateResult) onValidateResult(false, "Pronúncia precisa de ajustes.");
+    }
+    setFlowState("DONE");
   };
 
   if (carregando) {
@@ -234,7 +230,6 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
     );
   }
 
-  // Se não houver frase carregada de verdade do banco, exibe um estado limpo sem inventar fallbacks falsos
   if (!referencePhrase) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center text-slate-400">
@@ -244,36 +239,33 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto p-4">
-      {flowState !== "DONE" ? (
-        <div className="bg-[#0c192e]/60 border border-white/[0.04] p-6 rounded-xl flex flex-col md:flex-row items-center justify-center gap-4 flex-1 w-full text-center md:text-left">
-          <p className="text-[16px] md:text-[1.1rem] text-slate-100 font-semibold leading-relaxed flex-1 break-words">
-            {referencePhrase}
-          </p>
-          <button 
-            onClick={playNativo}
-            className="p-3 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0"
-            title="Escutar"
-          >
-            <Volume2 size={24} />
-          </button>
-        </div>
-      ) : (
-        <div className="bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl text-center">
-          <h3 className="text-emerald-400 font-bold text-lg mb-2">Pontuação: {scoreFinal}/100</h3>
-          <p className="text-slate-300 text-sm mb-4">{feedback?.mensagem}</p>
-          <p className="text-slate-400 text-xs italic">{feedback?.sugestao}</p>
-        </div>
-      )}
+    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto p-4 items-center">
+      
+      {/* Box do Alto-falante centralizado */}
+      <div className="w-full h-48 bg-[#0a1324]/50 border border-white/[0.05] rounded-2xl flex items-center justify-center">
+        <button 
+          onClick={playNativo}
+          disabled={flowState === "RECORDING"}
+          className={`p-5 rounded-2xl border transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center ${
+            flowState === "RECORDING" 
+              ? "bg-[#081121] border-slate-800 text-slate-600 cursor-not-allowed" 
+              : "bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f]"
+          }`}
+          title="Escutar"
+        >
+          <Volume2 size={36} />
+        </button>
+      </div>
 
-      <div className="flex flex-col items-center gap-4 mt-4">
+      {/* Botões Inferiores padronizados */}
+      <div className="flex flex-col items-center gap-4 mt-2">
         {flowState === "IDLE" && (
           <button
             onClick={startRecording}
-            className="p-6 bg-cyan-600 text-white rounded-full hover:bg-cyan-500 transition-all shadow-lg hover:scale-105 active:scale-95"
+            className="w-16 h-16 rounded-full bg-[#0e1e31] border border-cyan-500/30 flex items-center justify-center text-cyan-400 hover:bg-[#12273f] hover:scale-105 active:scale-95 transition-all shadow-lg"
             title="Começar a Gravar"
           >
-            <Mic size={32} />
+            <Mic size={28} />
           </button>
         )}
 
@@ -281,37 +273,29 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
           <div className="flex flex-col items-center gap-2">
             <button
               onClick={stopRecording}
-              className="p-6 bg-red-600 text-white rounded-full hover:bg-red-500 transition-all shadow-lg animate-pulse"
+              className="w-16 h-16 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center text-red-400 hover:bg-red-900 transition-all shadow-lg animate-pulse"
               title="Parar Gravação"
             >
-              <Square size={32} />
+              <Square size={24} />
             </button>
             <span className="text-xs text-red-400 animate-pulse">{t?.gravando || "Gravando..."}</span>
           </div>
         )}
 
-        {flowState === "PLAYBACK" && (
-          <div className="flex gap-4">
-            <button
-              onClick={startRecording}
-              className="px-6 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-all text-sm font-semibold"
-            >
-              Gravar Novamente
-            </button>
-            <button
-              onClick={enviarParaAnalise}
-              className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition-all text-sm font-semibold shadow-md"
-            >
-              Analisar Pronúncia
-            </button>
+        {flowState === "ANALYZING" && (
+          <div className="flex flex-col items-center gap-2 text-slate-400 text-sm">
+            <Loader2 className="animate-spin text-cyan-500" size={28} />
+            <span>{t?.avaliando || "Avaliando..."}</span>
           </div>
         )}
 
-        {flowState === "ANALYZING" && (
-          <div className="flex flex-col items-center gap-2 text-slate-400 text-sm">
-            <Loader2 className="animate-spin text-cyan-500" size={24} />
-            <span>{t?.avaliando || "Avaliando..."}</span>
-          </div>
+        {flowState === "DONE" && (
+          <button
+            onClick={() => setFlowState("IDLE")}
+            className="px-6 py-2.5 bg-[#0e1e31] border border-cyan-500/30 text-cyan-400 rounded-xl hover:bg-[#12273f] transition-all text-sm font-semibold"
+          >
+            Tentar Novamente
+          </button>
         )}
       </div>
     </div>
