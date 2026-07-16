@@ -1,9 +1,7 @@
 'use client';
 import { supabase } from '@/lib/supabase';
-
-
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, Disc, Loader2, Volume2 } from "lucide-react";
+import { Mic, Loader2, Volume2, HelpCircle } from "lucide-react";
 
 interface MioloRoleplayProps {
   onSelectCorrect?: () => void;
@@ -21,30 +19,24 @@ interface FeedbackEstruturado {
 const traducoesInterface: Record<string, Record<string, string>> = {
   es: {
     calibrando: "Calibrando el nivel de la lección...",
-    cenarioAtivo: "Escenario de Fluidez Activo",
-    ouvindoVoz: "Escuchando tu voz... Toca abajo para finalizar.",
-    analisando: "Analizando pronunciación y gramática...",
-    instrucaoFale: "Toca el micrófono abajo y habla.",
+    instrucao: "RESPONDA A LA PREGUNTA DE LA INTELIGENCIA ARTIFICIAL:",
     falaCapturada: "Tu habla capturada:",
-    dica: "Consejo"
+    dica: "Consejo",
+    analisando: "Analizando pronunciación y gramática..."
   },
   en: {
     calibrando: "Calibrating lesson level...",
-    cenarioAtivo: "Fluency Scenario Active",
-    ouvindoVoz: "Listening to your voice... Tap below to finish.",
-    analisando: "Analyzing pronunciation and grammar...",
-    instrucaoFale: "Tap the microphone below and speak.",
+    instrucao: "ANSWER THE QUESTION FROM THE ARTIFICIAL INTELLIGENCE:",
     falaCapturada: "Your captured speech:",
-    dica: "Tip"
+    dica: "Tip",
+    analisando: "Analyzing pronunciation and grammar..."
   },
   pt: {
     calibrando: "Calibrando o nível da lição...",
-    cenarioAtivo: "Cenário de Fluência Ativo",
-    ouvindoVoz: "Ouvindo sua voz... Toque abaixo para finalizar.",
-    analisando: "Analisando pronúncia e gramática...",
-    instrucaoFale: "Toque no microfone abaixo e fale.",
+    instrucao: "RESPONDA À PERGUNTA DA INTELIGÊNCIA ARTIFICIAL:",
     falaCapturada: "Sua fala capturada:",
-    dica: "Dica"
+    dica: "Dica",
+    analisando: "Analisando pronúncia e gramática..."
   }
 };
 
@@ -57,11 +49,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
 
-  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
-  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
-
   const recognitionRef = useRef<any>(null);
 
   const obterLangKey = () => {
@@ -73,60 +61,10 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
   const textInt = traducoesInterface[obterLangKey()];
 
-  const obterRegrasDeNivel = (nivel: string) => {
-    switch(nivel?.toUpperCase()) {
-      case "A1":
-        return "Nível A1 (Iniciante Absoluto). Use frases curtíssimas, verbos simples no presente (ser, estar, ter, trabalhar). NÃO use passado complexo ou termos técnicos corporativos. Vocabulário ultra simples.";
-      case "A2":
-        return "Nível A2 (Básico Superior). Use estruturas simples de rotina, perguntas diretas combinando presente e passados simples (perfeito).";
-      case "B1":
-        return "Nível B1 (Intermediário). Permita perguntas sobre planos futuros ou experiências anteriores, vocabulário corporativo leve.";
-      case "B2":
-        return "Nível B2 (Usuário Independente). Apresente cenários de resolução de problemas e argumentação profissional.";
-      default:
-        return "Nível C1/C2 (Avançado/Fluente). Pode usar linguagem literária, jargões de negócios complexos, expressões idiomáticas.";
-    }
-  };
-
-  const gerarPerguntaIneditaIA = async (temaBase: string, motivacao: string, nivelDaLicao: string) => {
-    try {
-      const contextoMotivacao = motivacao === "work" ? "Ambiente de escritório, negócios e rotina de trabalho" : "Contexto de viagens, turismo e interações cotidianas";
-      const restricoesPedagogicas = obterRegrasDeNivel(nivelDaLicao);
-      
-      const prompt = `Você é a Mentora Haas, uma tutora de português extremamente humana, acolhedora e empática. Gere uma ÚNICA pergunta curta em português para fazer diretamente ao seu aluno.
-Contexto:
-1. Tema base: "${temaBase}"
-2. Interesse: "${contextoMotivacao}"
-3. RESTRIÇÃO PEDAGÓGICA: ${restricoesPedagogicas}
-
-REGRAS HUMANAS E CRUCIAIS:
-- Fale diretamente COM O ALUNO (use a segunda pessoa, crie conexão).
-- NEUTRALIDADE DE GÊNERO ABSOLUTA: Nunca use marcas de gênero que limitem a resposta.
-- Não use nenhum tipo de caractere especial como asteriscos (*), hashtags (#) ou emojis.
-Retorne OBRIGATORIAMENTE apenas a pergunta em português, sem aspas e sem formatações.`;
-
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-
-      if (!res.ok) throw new Error(`Status: ${res.status}`);
-      const data = await res.json();
-      const textoInedito = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-      if (textoInedito.length > 4) return textoInedito;
-    } catch (e) {
-      console.warn("Aviso de rede da IA:", e);
-    }
-    
-    return "Para onde você foi ontem de manhã antes de começar a trabalhar?";
-  };
-
   useEffect(() => {
     async function carregarCenarioHiperpersonalizado() {
       try {
         setCarregando(true);
-        
         const codigoUnidade = unidadeAtiva || "1.1";
         const { data: exeDados, error } = await supabase
           .from("exercises")
@@ -136,18 +74,12 @@ Retorne OBRIGATORIAMENTE apenas a pergunta em português, sem aspas e sem format
         
         if (error) throw error;
         
-        let cenarioTexto = "Cenário de Fluência Ativo";
         let falaPartida = "No seu trabalho, onde você foi ontem de manhã?";
         
         if (exeDados && exeDados.length > 0) {
-          // Escolhe o primeiro exercício disponível para a unidade
-          const exercicio = exeDados[0];
-          
-          cenarioTexto = exercicio.reading_text || cenarioTexto;
-          falaPartida = exercicio.audio_transcript || falaPartida;
+          falaPartida = exeDados[0].audio_transcript || falaPartida;
         }
 
-        // Definimos o cenário e a frase de partida vindas estritamente do banco de dados
         setPhraseIA(falaPartida);
         setFlowState("USER_TURN");
       } catch (err) {
@@ -259,7 +191,7 @@ Retorne estritamente este formato JSON limpo sem markdown:
         sugestao: "Presta atención a la combinación correcta de las estruturas en el idioma nativo del ejercicio."
       });
       setFlowState("DONE");
-      const msgCatch = `Tu respuesta fue recibida correctamente por el sistema. Recuerda estruturar bien las preposiciones en passado para dar mayor claridad a tu mensagem.`;
+      const msgCatch = `Tu resposta foi recebida com sucesso.`;
       if (onValidateResult) {
         onValidateResult(true, msgCatch);
       }
@@ -291,7 +223,6 @@ Retorne estritamente este formato JSON limpo sem markdown:
   const escutarFraseMentora = () => {
     if (typeof window !== "undefined" && phraseIA) {
       window.speechSynthesis.cancel();
-      
       const utterance = new SpeechSynthesisUtterance(phraseIA);
       utterance.lang = "pt-BR";
       utterance.rate = 1.08; 
@@ -305,10 +236,7 @@ Retorne estritamente este formato JSON limpo sem markdown:
         vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Maria")) ||
         vozes.find(v => v.lang.includes("pt-BR"));
                         
-      if (vozHumanaLocal) {
-        utterance.voice = vozHumanaLocal;
-      }
-      
+      if (vozHumanaLocal) utterance.voice = vozHumanaLocal;
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -322,9 +250,17 @@ Retorne estritamente este formato JSON limpo sem markdown:
   }
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+    <div className="w-full h-full max-h-full flex flex-col justify-start items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden p-0.5">
       
-            {flowState !== "DONE" && (
+      {/* Faixa de instrução padronizada com o (?) azul */}
+      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5">
+        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
+        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
+          {textInt.instrucao}
+        </span>
+      </div>
+
+      {flowState !== "DONE" && (
         <div className="flex-1 bg-[#050b14]/40 border border-white/[0.04] p-6 md:p-8 rounded-xl flex items-center justify-between gap-4 animate-fade-in min-h-0 w-full mb-2">
           <div className="flex-1 flex items-center justify-center text-center py-6">
             <p className="text-[15px] md:text-[1.3vw] text-slate-100 font-bold leading-relaxed break-words max-w-[90%]">
@@ -346,10 +282,9 @@ Retorne estritamente este formato JSON limpo sem markdown:
         <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-stretch gap-3 overflow-hidden animate-fade-in">
           <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left flex-1">
             <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
-              
               <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
                 <span className="font-bold text-[10px] md:text-[0.9vw] uppercase tracking-wider text-slate-400">
-                  {textInt.falaCapturada}
+                  {textInt.falaCaptured || textInt.falaCapturada}
                 </span>
                 <div className="text-amber-400 font-semibold text-[10px] md:text-[0.9vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
                   +{scoreFinal} PTS
@@ -367,7 +302,6 @@ Retorne estritamente este formato JSON limpo sem markdown:
               <div className="text-[12px] md:text-[1vw] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic font-semibold break-words">
                 {textInt.dica}: {feedback.sugestao}
               </div>
-              
             </div>
           </div>
         </div>
@@ -389,14 +323,14 @@ Retorne estritamente este formato JSON limpo sem markdown:
         </div>
       )}
 
-            {flowState !== "ANALYZING" && flowState !== "DONE" && (
+      {flowState !== "ANALYZING" && flowState !== "DONE" && (
         <div className="flex justify-center shrink-0 pt-0.5 pb-0.5">
           <button
             onClick={alternarEstadoMicrofone}
             className={`p-3.5 rounded-full border transition-all cursor-pointer shadow-lg active:scale-95 ${
               flowState === "RECORDING" 
                 ? "bg-rose-600 border-rose-500 text-white shadow-rose-950/40" 
-                : "bg-cyan-950/40 border-cyan-500/40 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-950"
+                : "bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f]"
             }`}
           >
             <Mic size={18} />

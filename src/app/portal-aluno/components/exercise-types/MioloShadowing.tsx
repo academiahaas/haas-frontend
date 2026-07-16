@@ -1,7 +1,7 @@
 'use client';
 import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Loader2, Volume2, Square } from 'lucide-react';
+import { Mic, Loader2, Volume2, Square, HelpCircle } from 'lucide-react';
 
 interface MioloShadowingProps {
   onSelectCorrect?: () => void;
@@ -21,16 +21,19 @@ const traducoes: Record<string, Record<string, string>> = {
     conectando: "Conectando...",
     gravando: "Grabando...",
     avaliando: "Evaluando...",
+    instrucao: "ESCUCHE EL AUDIO Y REPITA LA ORACIÓN:"
   },
   en: {
     conectando: "Connecting...",
     gravando: "Recording...",
     avaliando: "Evaluating...",
+    instrucao: "LISTEN TO THE AUDIO AND REPEAT THE SENTENCE:"
   },
   pt: {
     conectando: "Conectando...",
     gravando: "Gravando...",
     avaliando: "Avaliando...",
+    instrucao: "ESCUTE O ÁUDIO E REPITA A FRASE:"
   }
 };
 
@@ -186,7 +189,6 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
       try { recognitionRef.current.stop(); } catch(e){}
     }
     
-    // Transiciona para analisando e executa processamento automático imediatamente
     setFlowState("ANALYZING");
     setTimeout(() => {
       enviarParaAnalise();
@@ -239,10 +241,18 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto p-4 items-center">
+    <div className="flex flex-col gap-4 w-full max-w-2xl mx-auto p-4 items-center">
       
-      {/* Box do Alto-falante centralizado */}
-      <div className="w-full h-48 bg-[#0a1324]/50 border border-white/[0.05] rounded-2xl flex items-center justify-center">
+      {/* Faixa de instrução com o (?) azul */}
+      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5">
+        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
+        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
+          {t.instrucao}
+        </span>
+      </div>
+
+      {/* Box do Alto-falante */}
+      <div className="w-full h-44 bg-[#0a1324]/50 border border-white/[0.05] rounded-2xl flex items-center justify-center">
         <button 
           onClick={playNativo}
           disabled={flowState === "RECORDING"}
@@ -257,13 +267,12 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
         </button>
       </div>
 
-      {/* Botões Inferiores padronizados */}
+      {/* Botões de Ação */}
       <div className="flex flex-col items-center gap-4 mt-2">
         {flowState === "IDLE" && (
           <button
             onClick={startRecording}
             className="w-16 h-16 rounded-full bg-[#0e1e31] border border-cyan-500/30 flex items-center justify-center text-cyan-400 hover:bg-[#12273f] hover:scale-105 active:scale-95 transition-all shadow-lg"
-            title="Começar a Gravar"
           >
             <Mic size={28} />
           </button>
@@ -274,7 +283,6 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
             <button
               onClick={stopRecording}
               className="w-16 h-16 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center text-red-400 hover:bg-red-900 transition-all shadow-lg animate-pulse"
-              title="Parar Gravação"
             >
               <Square size={24} />
             </button>
