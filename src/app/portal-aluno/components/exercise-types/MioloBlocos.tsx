@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 interface MioloBlocosProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -50,6 +50,8 @@ export default function MioloBlocos({
   const [fraseOriginalGabarito, setFraseOriginalGabarito] = useState<string>("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [blocosDisponiveis, setBlocosDisponiveis] = useState<BlocoItem[]>([]);
   const [blocosMontados, setBlocosMontados] = useState<BlocoItem[]>([]);
   
@@ -117,6 +119,8 @@ export default function MioloBlocos({
         if (dados && dados.length > 0) {
           setFeedbackCorretoBanco(dados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          setIncentivoCorretoBanco(dados[0].correct_incentive || "");
+          setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
         }
         let altOptionsRaw = dados && dados.length > 0 ? dados[0].alternative_options : null;
 
@@ -215,13 +219,13 @@ export default function MioloBlocos({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
-      if (onValidateResult) onValidateResult(acertou);
+      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
     } finally {
       setAnalisando(false);
     }
