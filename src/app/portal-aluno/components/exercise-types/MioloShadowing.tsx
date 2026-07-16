@@ -428,25 +428,17 @@ Regras Estritas:
 
         {/* Caso Concluído (O Card de Feedback abre no mesmo lugar do "Analisando") */}
         {flowState === "DONE" && feedback && (
-          <div className="bg-[#0c192e]/60 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-3 animate-fade-in shadow-xl w-full min-h-[110px]">
-            <div className="flex items-center justify-between gap-4 shrink-0 w-full">
-              <div className="text-[13px] md:text-[1.1vw] text-cyan-100 italic leading-relaxed font-semibold break-words flex-1 min-w-0">
-                Pronúncia Avaliada
-              </div>
-              <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider shrink-0 whitespace-nowrap shadow-sm">
+          <div className="bg-[#0c192e]/60 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-2.5 animate-fade-in shadow-xl w-full min-h-[110px]">
+            <div className="flex justify-end w-full shrink-0">
+              <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider whitespace-nowrap shadow-sm">
                 +{scoreFinal} PTS
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto w-full space-y-2 pr-0.5" style={{ scrollbarWidth: 'none' }}>
-              <p className="text-[12.5px] md:text-[1vw] text-slate-200 font-medium leading-relaxed break-words w-full min-w-0 text-left">
+            <div className="flex-1 min-h-0 overflow-y-auto w-full pr-0.5" style={{ scrollbarWidth: 'none' }}>
+              <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words w-full min-w-0 text-left">
                 {feedback.mensagem}
               </p>
-              {feedback.sugestao && (
-                <div className="text-[11.5px] md:text-[0.95vw] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic font-semibold break-words w-full min-w-0 text-left">
-                  {t?.dica || "Dica"}: {feedback.sugestao}
-                </div>
-              )}
             </div>
           </div>
         )}
