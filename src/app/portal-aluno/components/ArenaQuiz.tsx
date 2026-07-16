@@ -1053,27 +1053,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </div>
           </div>
 
-          <div className="w-full shrink-0">
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <button 
-                type="button"
-                onClick={() => onAbrirPedagogo ? onAbrirPedagogo('TEXTO') : setModalPedagogo({ aberto: true, tipo: 'TEXTO' })}
-                className="w-full py-2.5 px-3 text-white border border-white/10 bg-[#0c1624] text-[10px] font-black rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-y-0.5 shadow-md uppercase tracking-wider"
-              >
-                <BookOpen size={11} className="text-[#00D4FF]" />
-                <span>{tArena.guide}</span>
-              </button>
 
-              <button 
-                type="button"
-                onClick={() => onAbrirPedagogo ? onAbrirPedagogo('VIDEO') : setModalPedagogo({ aberto: true, tipo: 'VIDEO' })}
-                className="w-full py-2.5 px-3 text-white border border-white/10 bg-[#0c1624] text-[10px] font-black rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-y-0.5 shadow-md uppercase tracking-wider"
-              >
-                <Video size={11} className="text-[#00D4FF]" />
-                <span>{tArena.media || (idiomaAtivo === 'EN' ? 'Audiovisual Content' : 'Conteúdo Audiovisual')}</span>
-              </button>
-            </div>
-          </div>
         </div>
 
       </div>
