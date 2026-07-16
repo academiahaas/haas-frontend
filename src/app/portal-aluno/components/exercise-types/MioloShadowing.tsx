@@ -39,6 +39,43 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
+
+function calcularSimilaridadeShadowing(target: string, spoken: string): number {
+  const limparTexto = (text: string) => {
+    const semAcentos = text.toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "");
+    
+    let limpo = "";
+    for (let i = 0; i < semAcentos.length; i++) {
+      const code = semAcentos.charCodeAt(i);
+      if ((code >= 97 && code <= 122) || (code >= 48 && code <= 57) || code === 32) {
+        limpo += semAcentos[i];
+      }
+    }
+    return limpo.split(" ").filter(palavra => palavra.length > 0);
+  };
+
+  const palavrasAlvo = limparTexto(target);
+  const palavrasAluno = limparTexto(spoken);
+
+  if (palavrasAlvo.length === 0) return 0;
+  if (palavrasAluno.length === 0) return 0;
+
+  let acertos = 0;
+  const copiaPalavrasAluno = [...palavrasAluno];
+
+  for (const palavra of palavrasAlvo) {
+    const idx = copiaPalavrasAluno.indexOf(palavra);
+    if (idx !== -1) {
+      acertos++;
+      copiaPalavrasAluno.splice(idx, 1);
+    }
+  }
+
+  return Math.round((acertos / palavrasAlvo.length) * 100);
+}
+
 export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
   const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
@@ -259,6 +296,7 @@ Regras Estritas:
 
   const processarAvaliacaoFinaMeteora = async () => {
     setFlowState("ANALYZING");
+    
     if (!transcricaoAluno || transcricaoAluno.trim().length < 2) {
       setFeedback({
         status: "INCOERENTE",
@@ -277,59 +315,61 @@ Regras Estritas:
     }
 
     try {
-      const promptFeedback = `Você é a Mentora Haas. Avalie a imitação de áudio (Shadowing) do seu aluno no aprendizado de português. O idioma nativo dele é: ${idiomaNativoAluno}.
-Frase Alvo Perfeita: "${referencePhrase}"
-O que o aluno conseguiu pronunciar: "${transcricaoAluno}"
+      const notaCalculada = calcularSimilaridadeShadowing(referencePhrase, transcricaoAluno);
+      setScoreFinal(notaCalculada);
 
-REGRAS DE ANÁLISE PEDAGÓGICA:
-1. Compare a proximidade das palavras. Seja empática e apoie o sotaque.
-2. Escreva as orientações estritamente em ${idiomaNativoAluno} falando DIRETAMENTE com ele (na primeira pessoa). Proibido usar markdown, asteriscos ou emojis.
+      let statusResult: "EXCELENTE" | "REGULAR" | "INCOERENTE" = "REGULAR";
+      let msgPersonalizada = "";
+      let sugestaoPersonalizada = "";
 
-Retorne estritamente este JSON limpo:
-{
-  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
-  "score": 85,
-  "mensagem": "Sua orientação humanizada de pronúncia direta ao aluno.",
-  "sugestao": "Conselho focado nas sílabas ou ritmo da frase alvo."
-}`;
+      const isEnglish = idiomaNativoAluno.toLowerCase().includes("ing");
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
-      });
-
-      if (!res.ok) throw new Error("Erro");
-      const data = await res.json();
-      const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-      const parsed = JSON.parse(txt.replace(/```json/g, "").replace(/```/g, "").trim());
-
-      setScoreFinal(parsed.score || 70);
-      setFeedback({
-        status: parsed.status || "REGULAR",
-        mensagem: parsed.mensagem || "Pronúncia avaliada com sucesso.",
-        sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
-      });
-      setFlowState("DONE");
-      const isCorrect = (parsed.score || 70) >= 60;
-      if (isCorrect) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
-      if (onValidateResult) {
-        const inc = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
-        const msg = parsed.mensagem || "Pronúncia avaliada com sucesso.";
-        onValidateResult(isCorrect, inc ? `${inc} \n\n📝 ${msg}` : msg);
+      if (notaCalculada >= 80) {
+        statusResult = "EXCELENTE";
+        msgPersonalizada = isEnglish 
+          ? "Fantastic! Your pronunciation is incredibly clear and very close to the target sentence." 
+          : "¡Fantástico! Tu pronunciación es increíblemente clara y muy cercana a la frase original.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Excellent rhythm and cadency. Keep up the great work!" 
+          : "Excelente ritmo y fluidez. ¡Sigue practicando así!";
+      } else if (notaCalculada >= 50) {
+        statusResult = "REGULAR";
+        msgPersonalizada = isEnglish 
+          ? "Good effort! I can understand what you said, but we can polish some sounds." 
+          : "¡Buen esfuerzo! Logro entender tu frase, pero podemos pulir algunos sonidos para sonar más natural.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Pay close attention to word connections and silent syllables." 
+          : "Presta atención a cómo se unen las palabras y al ritmo natural de la frase.";
+      } else {
+        statusResult = "INCOERENTE";
+        msgPersonalizada = isEnglish 
+          ? "Keep practicing! It seems some words weren't captured correctly in Portuguese." 
+          : "¡Sigue practicando! Parece que algunas palabras no foram pronunciadas o capturadas de forma inteligible en portugués.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Try speaking a bit slower and directly into the microphone." 
+          : "Intenta hablar un poco más despacio, vocalizando bien frente al micrófono.";
       }
-    } catch (e) {
-      setScoreFinal(80);
+
       setFeedback({
-        status: "REGULAR",
-        mensagem: "Tu imitación fue capturada correctamente y se nota tu effort en el ritmo de la frase.",
-        sugestao: "Presta atención a la cadencia de las vocais aberta."
+        status: statusResult,
+        mensagem: msgPersonalizada,
+        sugestao: sugestaoPersonalizada
       });
+
       setFlowState("DONE");
-      if (onSelectCorrect) onSelectCorrect();
-      if (onValidateResult) {
-        onValidateResult(true, incentivoCorretoBanco || "Tu imitación fue capturada correctamente y se nota tu effort en el ritmo de la frase.");
+
+      const aprovado = notaCalculada >= 50;
+      if (aprovado) {
+        if (onSelectCorrect) onSelectCorrect();
+        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || msgPersonalizada);
+      } else {
+        if (onSelectWrong) onSelectWrong();
+        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || msgPersonalizada);
       }
+
+    } catch (err) {
+      console.error("Erro na validação do exercício de fala:", err);
+      setFlowState("IDLE");
     }
   };
 
