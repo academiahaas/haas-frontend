@@ -781,6 +781,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
             </div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
+              gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
+              gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
+              streak >= 3 ? "bg-amber-500/20 text-amber-400 border-amber-500/50 scale-102" :
+              "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/20"
+            }`}>
+              <Bot size={20} />
+              {streak >= 3 && (
+                <span className="absolute -top-1 -right-1 bg-[#F97316] text-[7px] text-white font-mono font-black px-1 rounded-sm">
+                  STREAK
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0">
@@ -916,19 +929,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
           <div className="flex-1 w-full flex flex-col items-center justify-center gap-4 py-4 min-h-0 relative">
             
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-lg border z-10 ${
-              gameStatus === 'CORRECT' ? 'bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/30 scale-110' :
-              gameStatus === 'WRONG' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-              streak >= 3 ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 scale-105' :
-              'bg-[#38BDF8]/20 text-[#00D4FF] border-[#00D4FF]/40'
-            }`}>
-              <Bot size={32} />
-              {streak >= 3 && (
-                <span className="absolute -top-1 -right-2 bg-[#F97316] text-white border border-orange-400/30 font-mono font-black text-[8px] px-1.5 py-0.5 rounded-md">
-                  COMBO
-                </span>
-              )}
-            </div>
+
 
             <div className="w-full flex-1 bg-[#070d19] border border-white/[0.04] p-4 rounded-2xl relative text-left shadow-xl flex flex-col justify-between z-10 overflow-hidden">
               
