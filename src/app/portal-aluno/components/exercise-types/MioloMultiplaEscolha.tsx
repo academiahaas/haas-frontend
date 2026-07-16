@@ -46,6 +46,8 @@ export default function MioloMultiplaEscolha({
   const [options, setOptions] = useState<string[]>([]);
   const [correctOption, setCorrectOption] = useState<string>("");
   const [pergunta, setPergunta] = useState<string>("Carregando enunciado...");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
@@ -107,6 +109,8 @@ export default function MioloMultiplaEscolha({
           
           const respostaCerta = exe.correct_answer || "";
           setCorrectOption(respostaCerta);
+          setFeedbackCorretoBanco(exe.correct_feedback || "");
+          setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
 
           let bancoOpts: string[] = [];
           if (exe.alternative_options) {
@@ -195,7 +199,7 @@ export default function MioloMultiplaEscolha({
       });
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const acertou = selecionado === correctOption;
