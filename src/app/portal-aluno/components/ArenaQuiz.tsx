@@ -781,6 +781,27 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
             </div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
+            
+            {/* HUB DE RECURSOS DE APOIO DA UNIDADE */}
+            <div className="flex items-center gap-2 mr-3">
+              <button 
+                type="button"
+                onClick={() => onAbrirPedagogo?.("TEXTO")} 
+                className="px-2.5 py-1.5 bg-[#1E2E48]/40 border border-white/[0.06] rounded-lg text-[10px] font-black text-slate-300 hover:text-white hover:bg-[#1E2E48]/80 transition-all flex items-center gap-1"
+              >
+                <BookOpen size={11} className="text-[#38BDF8]" />
+                <span className="hidden sm:inline">{tArena.guide || "Diretrizes"}</span>
+              </button>
+              <button 
+                type="button"
+                onClick={() => onAbrirPedagogo?.("VIDEO")} 
+                className="px-2.5 py-1.5 bg-[#1E2E48]/40 border border-white/[0.06] rounded-lg text-[10px] font-black text-slate-300 hover:text-white hover:bg-[#1E2E48]/80 transition-all flex items-center gap-1"
+              >
+                <Video size={11} className="text-[#FF8A2B]" />
+                <span className="hidden sm:inline">{tArena.media || "Conteúdo"}</span>
+              </button>
+            </div>
+            
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
               gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
               gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
