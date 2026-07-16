@@ -37,11 +37,13 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloShadowingProps) {
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
   const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState('');
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState('');
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState('');
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState('');
   const [transcricaoAluno, setTranscricaoAluno] = useState('');
   const [scoreFinal, setScoreFinal] = useState(0);
   const [carregando, setCarregando] = useState(true);
@@ -154,6 +156,8 @@ Regras Estritas:
           setReferencePhrase(frase);
           setFeedbackCorretoBanco(exeDados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(exeDados[0].incorrect_feedback || "");
+          setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
+          setIncentivoIncorretoBanco(exeDados[0].incorrect_incentive || "");
           console.log("📡 [CONEXÃO ATIVA] Shadowing carregado dinamicamente:", frase, "da unidade:", codigoUnidade);
         } else {
           // Fallback seguro de recuperação caso a linha esteja temporariamente vazia
@@ -264,6 +268,9 @@ Regras Estritas:
       setScoreFinal(15);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
+      if (onValidateResult) {
+        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?");
+      }
       return;
     }
 
@@ -302,7 +309,13 @@ Retorne estritamente este JSON limpo:
         sugestao: parsed.sugestao || "Continue praticando o ritmo da frase."
       });
       setFlowState("DONE");
-      if ((parsed.score || 70) >= 60) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+      const isCorrect = (parsed.score || 70) >= 60;
+      if (isCorrect) { if (onSelectCorrect) onSelectCorrect(); } else { if (onSelectWrong) onSelectWrong(); }
+      if (onValidateResult) {
+        const inc = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
+        const msg = parsed.mensagem || "Pronúncia avaliada com sucesso.";
+        onValidateResult(isCorrect, inc ? `${inc} \n\n📝 ${msg}` : msg);
+      }
     } catch (e) {
       setScoreFinal(80);
       setFeedback({
@@ -312,6 +325,9 @@ Retorne estritamente este JSON limpo:
       });
       setFlowState("DONE");
       if (onSelectCorrect) onSelectCorrect();
+      if (onValidateResult) {
+        onValidateResult(true, incentivoCorretoBanco || "Tu imitación fue capturada correctamente y se nota tu effort en el ritmo de la frase.");
+      }
     }
   };
 
