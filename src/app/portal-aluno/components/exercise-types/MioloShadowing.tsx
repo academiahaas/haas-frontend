@@ -423,7 +423,7 @@ Regras Estritas:
               {/* NOVO CARD INTEGRADO: FALA DO ALUNO E OS PONTOS LADO A LADO NO MESMO CARD */}
               <div className="flex items-center justify-between gap-4 p-3.5 bg-black/25 rounded-xl border border-white/[0.04] shrink-0 w-full shadow-inner">
                 <div className="text-[14px] md:text-[1.15vw] text-cyan-100 italic leading-relaxed font-semibold break-words flex-1 min-w-0">
-                  "{transcricaoAluno}"
+                  Pronúncia Avaliada
                 </div>
                 <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1.5 rounded-lg border border-amber-800/40 tracking-wider shrink-0 whitespace-nowrap shadow-sm">
                   +{scoreFinal} PTS
