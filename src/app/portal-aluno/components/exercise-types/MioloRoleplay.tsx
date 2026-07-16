@@ -41,11 +41,11 @@ const traducoesInterface: Record<string, Record<string, string>> = {
 };
 
 
-function validarConversacaoLocal(pergunta: string, resposta: string): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
+function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBanco: string[]): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
   const normalizar = (t: string) => {
     const semAcentos = t.toLowerCase()
       .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "");
+      .replace(/[\u0300-\u036f]/g, "");
     
     let limpo = "";
     for (let i = 0; i < semAcentos.length; i++) {
@@ -60,7 +60,7 @@ function validarConversacaoLocal(pergunta: string, resposta: string): { score: n
   const r = normalizar(resposta);
   const palavrasBrutas = r.split(" ").filter(w => w.length > 1);
 
-  // Lista de ruídos ignorados no cálculo
+  // Lista de ruídos ignorados
   const ruidos = ["bla", "blabla", "lalala", "lelele", "bababa", "tata", "gugu", "dummy", "test", "la"];
   const palavrasResposta = palavrasBrutas.filter(w => !ruidos.includes(w));
 
@@ -70,12 +70,12 @@ function validarConversacaoLocal(pergunta: string, resposta: string): { score: n
       score: 15,
       status: "INCOERENTE",
       msg: "Sua resposta parece muito curta ou contém palavras repetidas sem sentido em português.",
-      sugestao: "Tente responder de forma simples dizendo onde você esteve ou o que fez."
+      sugestao: "Tente responder de forma simples e natural."
     };
   }
 
-  // Contagem de repetições excessivas para evitar spams
-  const contagemPalavras = {};
+  // Contagem de repetições excessivas
+  const contagemPalavras: Record<string, number> = {};
   let maxRepeticoes = 0;
   for (const p of palavrasResposta) {
     contagemPalavras[p] = (contagemPalavras[p] || 0) + 1;
@@ -93,32 +93,59 @@ function validarConversacaoLocal(pergunta: string, resposta: string): { score: n
     };
   }
 
-  // Exigência gramatical rígida baseada em PALAVRA COMPLETA (não substring!)
-  const verbosPassado = ["fui", "estive", "ia", "fomos", "trabalhei", "participei", "visitei", "estava", "fiquei", "cheguei"];
-  const locaisContexto = ["escritorio", "reuniao", "casa", "trabalho", "empresa", "cliente", "projeto", "sala", "cozinha", "rua", "loja", "hotel", "restaurante", "almoco", "jantar"];
+  // VERIFICAÇÃO DINÂMICA DAS PALAVRAS-CHAVE DO BANCO
+  let matchesDinamicos = 0;
+  
+  if (keywordsBanco && keywordsBanco.length > 0) {
+    // Caso existam keywords cadastradas na coluna correct_answer
+    palavrasResposta.forEach(p => {
+      if (keywordsBanco.includes(p)) {
+        matchesDinamicos++;
+      }
+    });
 
-  let temVerbo = false;
-  let temLocal = false;
+    // Se o aluno não falar pelo menos uma das palavras obrigatórias cadastradas, reprova na hora!
+    if (matchesDinamicos === 0) {
+      return {
+        score: 15,
+        status: "INCOERENTE",
+        msg: "Sua resposta não parece conter as palavras fundamentais necessárias para este contexto.",
+        sugestao: "Preste atenção na pergunta da mentora e certifique-se de responder ao assunto solicitado."
+      };
+    }
+  } else {
+    // FALLBACK GENÉRICO caso o administrador não tenha cadastrado keywords no correct_answer
+    const verbosPassado = ["fui", "estive", "ia", "fomos", "trabalhei", "participei", "visitei", "estava", "fiquei", "cheguei"];
+    const locaisContexto = ["escritorio", "reuniao", "casa", "trabalho", "empresa", "cliente", "projeto", "sala", "cozinha", "rua", "loja", "hotel", "restaurante", "almoco", "jantar"];
 
-  palavrasResposta.forEach(p => {
-    if (verbosPassado.includes(p)) temVerbo = true;
-    if (locaisContexto.includes(p)) temLocal = true;
-  });
+    let temVerbo = false;
+    let temLocal = false;
 
-  // Se tentar burlar sem conter pelo menos um verbo e um local legítimos na frase
-  if (!temVerbo || !temLocal) {
-    return {
-      score: 15,
-      status: "INCOERENTE",
-      msg: "Sua resposta não responde de forma lógica à pergunta da mentora (onde você foi ontem de manhã).",
-      sugestao: "Sua frase deve incluir obrigatoriamente um verbo no passado (como 'fui' ou 'estive') e um local (como 'escritório' ou 'casa')."
-    };
+    palavrasResposta.forEach(p => {
+      if (verbosPassado.includes(p)) temVerbo = true;
+      if (locaisContexto.includes(p)) temLocal = true;
+    });
+
+    if (!temVerbo || !temLocal) {
+      return {
+        score: 15,
+        status: "INCOERENTE",
+        msg: "Sua resposta não responde de forma lógica à pergunta da mentora.",
+        sugestao: "Tente estruturar uma frase simples contendo uma ação (verbo) e um contexto ou lugar correspondente."
+      };
+    }
   }
 
+  // Pontuação Base Justa
   let pontos = 40;
   if (palavrasResposta.length >= 4) pontos += 20;
   if (palavrasResposta.length >= 6) pontos += 20;
   if (palavrasResposta.length >= 10) pontos += 20;
+
+  // Recompensa matches se tiver lista do banco
+  if (keywordsBanco && keywordsBanco.length > 0) {
+    pontos += Math.min(matchesDinamicos * 15, 20);
+  }
 
   const scoreFinal = Math.min(Math.max(pontos, 15), 100);
   
@@ -147,6 +174,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [carregando, setCarregando] = useState(true);
   const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [keywordsObrigatorias, setKeywordsObrigatorias] = useState<string[]>([]);
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
 
@@ -181,6 +209,19 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
           falaPartida = exeDados[0].audio_transcript || falaPartida;
           setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(exeDados[0].incorrect_incentive || "");
+          
+          // Captura os termos obrigatórios cadastrados na coluna correct_answer
+          const rawKeywords = exeDados[0].correct_answer || "";
+          if (rawKeywords.trim().length > 0) {
+            const listaSaneada = rawKeywords.split(",")
+              .map((k: string) => k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim())
+              .filter((k: string) => k.length > 0);
+            setKeywordsObrigatorias(listaSaneada);
+            console.log("🎯 [CONVERSAÇÃO] Palavras-chave dinâmicas carregadas do banco:", listaSaneada);
+          } else {
+            setKeywordsObrigatorias([]);
+            console.log("⚠️ [CONVERSAÇÃO] Nenhuma palavra-chave cadastrada em correct_answer. Usando validador flexível.");
+          }
         }
 
         setPhraseIA(falaPartida);
@@ -237,7 +278,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
     }
 
     try {
-      const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise);
+      const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias);
       
       setScoreFinal(resultado.score);
       setFeedback({
