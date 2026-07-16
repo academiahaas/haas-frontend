@@ -782,23 +782,22 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
             
-            {/* HUB DE RECURSOS DE APOIO DA UNIDADE */}
-            <div className="flex items-center gap-2 mr-3">
+            <div className="flex items-center gap-2 ml-auto mr-1">
               <button 
                 type="button"
+                title={tArena.guide || "Diretrizes Textuais"}
                 onClick={() => onAbrirPedagogo?.("TEXTO")} 
-                className="px-2.5 py-1.5 bg-[#1E2E48]/40 border border-white/[0.06] rounded-lg text-[10px] font-black text-slate-300 hover:text-white hover:bg-[#1E2E48]/80 transition-all flex items-center gap-1"
+                className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#38BDF8] hover:bg-[#38BDF8]/10 hover:border-[#38BDF8]/30 transition-all flex items-center justify-center shrink-0"
               >
-                <BookOpen size={11} className="text-[#38BDF8]" />
-                <span className="hidden sm:inline">{tArena.guide || "Diretrizes"}</span>
+                <BookOpen size={14} />
               </button>
               <button 
                 type="button"
+                title={tArena.media || "Conteúdo Audiovisual"}
                 onClick={() => onAbrirPedagogo?.("VIDEO")} 
-                className="px-2.5 py-1.5 bg-[#1E2E48]/40 border border-white/[0.06] rounded-lg text-[10px] font-black text-slate-300 hover:text-white hover:bg-[#1E2E48]/80 transition-all flex items-center gap-1"
+                className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#FF8A2B] hover:bg-[#FF8A2B]/10 hover:border-[#FF8A2B]/30 transition-all flex items-center justify-center shrink-0"
               >
-                <Video size={11} className="text-[#FF8A2B]" />
-                <span className="hidden sm:inline">{tArena.media || "Conteúdo"}</span>
+                <Video size={14} />
               </button>
             </div>
             
