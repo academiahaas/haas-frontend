@@ -21,13 +21,15 @@ const traducoes: Record<string, Record<string, string>> = {
     conectando: "Conectando...",
     gravando: "Grabando...",
     avaliando: "Evaluando...",
-    dica: "Consejo"
+    dica: "Consejo",
+    instrucao: "Haz clic en el altavoz para escuchar la frase y luego presiona el micrófono para repetirla"
   },
   en: {
     conectando: "Connecting...",
     gravando: "Recording...",
     avaliando: "Evaluating...",
-    dica: "Tip"
+    dica: "Tip",
+    instrucao: "Click on the loudspeaker to listen to the sentence, then press the microphone to repeat it"
   },
   pt: {
     conectando: "Conectando...",
@@ -345,11 +347,11 @@ Retorne estritamente este JSON limpo:
       {/* BARRA SUPERIOR DE TÍTULO - DESAPARECE COMPLETAMENTE NO FEEDBACK PARA O CARD TOMAR CONTA DE TUDO */}
       {flowState !== "DONE" && (
         <div className="flex flex-col shrink-0 gap-3 w-full">
-          <div className="flex items-center justify-between bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <HelpCircle size={14} className="text-cyan-400 shrink-0" />
-              <span className="text-[11px] md:text-[1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
-                Treino de Fala
+          <div className="flex items-center justify-between bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02]">
+            <div className="flex items-start gap-2.5">
+              <HelpCircle size={16} className="text-cyan-400 shrink-0 mt-0.5" />
+              <span className="text-[12px] md:text-[0.9vw] font-medium text-slate-200 leading-relaxed text-left">
+                {t?.instrucao || "Haz clic en el altavoz para escuchar la frase y luego presiona el micrófono para repetirla"}
               </span>
             </div>
           </div>
@@ -357,18 +359,20 @@ Retorne estritamente este JSON limpo:
       )}
 
       {flowState !== "DONE" ? (
-        /* VISUALIZAÇÃO INICIAL COM CARD DE MODELO DA FRASE ORIGINAL */
-        <div className="bg-[#0c192e]/60 border border-white/[0.04] p-6 rounded-xl flex flex-col md:flex-row items-center justify-center gap-4 flex-1 w-full min-w-0 animate-fade-in text-center md:text-left">
-          <p className="text-[14px] md:text-[1.2vw] text-slate-100 font-semibold leading-relaxed flex-1 break-words min-w-0 max-w-xl">
-            {referencePhrase}
-          </p>
-          <button 
-            onClick={playNativo}
-            className="p-3 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 shadow-md"
-            title="Escutar"
-          >
-            <Volume2 size={20} />
-          </button>
+        /* INTERFACE PURA DE ÁUDIO (SHADOWING) - SEM FRASE VISÍVEL */
+        <div className="bg-[#0c192e]/40 border border-white/[0.03] p-8 rounded-2xl flex flex-col items-center justify-center gap-6 flex-1 w-full animate-fade-in text-center">
+          <div className="flex flex-col items-center gap-3">
+            <button 
+              onClick={playNativo}
+              className="p-6 bg-cyan-950/80 border-2 border-cyan-500/30 text-cyan-400 rounded-full hover:text-cyan-300 hover:border-cyan-400/50 hover:bg-cyan-950 active:scale-95 transition-all cursor-pointer shadow-lg hover:shadow-cyan-500/10"
+              title="Escutar áudio"
+            >
+              <Volume2 size={32} className="animate-pulse" />
+            </button>
+            <span className="text-xs md:text-[0.75vw] text-cyan-400/60 uppercase tracking-widest font-mono mt-1">
+              Escuchar Pronunciación
+            </span>
+          </div>
         </div>
       ) : (
         /* INTERFACE DE FEEDBACK ATUALIZADA: O CARD TOMA CONTA DE TUDO, TEXTO "TU HABLA CAPTURADA" REMOVIDO */
