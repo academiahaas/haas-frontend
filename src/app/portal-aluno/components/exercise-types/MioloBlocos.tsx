@@ -48,6 +48,8 @@ export default function MioloBlocos({
 }: MioloBlocosProps) {
   const [gabaritoFrase, setGabaritoFrase] = useState<string>("");
   const [fraseOriginalGabarito, setFraseOriginalGabarito] = useState<string>("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [blocosDisponiveis, setBlocosDisponiveis] = useState<BlocoItem[]>([]);
   const [blocosMontados, setBlocosMontados] = useState<BlocoItem[]>([]);
   
@@ -112,6 +114,10 @@ export default function MioloBlocos({
         if (error) throw error;
 
         let gabaritoBruto = dados && dados.length > 0 ? (dados[0].correct_answer || "") : "";
+        if (dados && dados.length > 0) {
+          setFeedbackCorretoBanco(dados[0].correct_feedback || "");
+          setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+        }
         let altOptionsRaw = dados && dados.length > 0 ? dados[0].alternative_options : null;
 
         // Validação de Emergência: String de resposta vazia ou curta demais
@@ -208,13 +214,13 @@ export default function MioloBlocos({
       });
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente ordenação de sintaxe!" : "A estrutura dos blocos possui desvios de ordem sintática.");
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
       if (onValidateResult) onValidateResult(acertou);
     } finally {
       setAnalisando(false);
