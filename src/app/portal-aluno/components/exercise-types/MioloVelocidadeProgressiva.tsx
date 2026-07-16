@@ -54,6 +54,8 @@ export default function MioloVelocidadeProgressiva({
 }: MioloProps) {
   const [readingText, setReadingText] = useState("Carregando desafio...");
   const [correctAnswer, setCorrectAnswer] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [options, setOptions] = useState<OptionItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [correctId, setCorrectId] = useState<number>(1);
@@ -126,6 +128,8 @@ export default function MioloVelocidadeProgressiva({
 
         setReadingText(textoLimpo);
         setCorrectAnswer(respostaLimpa);
+        setFeedbackCorretoBanco(exe.correct_feedback || "");
+        setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
         
         let rawOptions: string[] = [];
         const altOpts = exe.alternative_options || exe.alternativas;
@@ -221,7 +225,7 @@ export default function MioloVelocidadeProgressiva({
       });
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       
       if (onValidateResult) {
         onValidateResult(resultado.acertou);
@@ -231,7 +235,7 @@ export default function MioloVelocidadeProgressiva({
     } catch (e) {
       const acertou = selectedId === correctId;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
       if (onValidateResult) {
         onValidateResult(acertou);
       }
