@@ -1,4 +1,5 @@
-'use client';
+"use client";
+import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square } from 'lucide-react';
 
@@ -119,33 +120,45 @@ Regras Estritas:
   };
 
   useEffect(() => {
-    async function carregarCenarioShadowing() {
+        async function carregarCenarioShadowing() {
       try {
         setCarregando(true);
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { 
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
-        });
-        const userDados = await userRes.json();
-        if (userDados && userDados.length > 0 && userDados[0].native_language) {
-          setIdiomaNativoAluno(userDados[0].native_language);
+        let codigoUnidade = unidadeAtiva;
+
+        // Se a unidade não vier definida ou for inválida, busca a primeira ativa do banco
+        if (!codigoUnidade || codigoUnidade === "0" || codigoUnidade === "undefined") {
+          const { data: primeiraAtiva } = await supabase
+            .from("exercises")
+            .select("unit")
+            .eq("activity_type", 10)
+            .limit(1);
+          codigoUnidade = primeiraAtiva && primeiraAtiva.length > 0 ? primeiraAtiva[0].unit : "1.1";
         }
 
-        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
-        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.10&limit=1`;
-        const exeRes = await fetch(exeUrl, { 
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" }
-        });
-        const exeDados = await exeRes.json();
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
+        let query = supabase.from("exercises").select("*").eq("activity_type", 10);
+
+        if (isUUID) {
+          query = query.eq("unit_id", codigoUnidade);
+        } else {
+          query = query.eq("unit", codigoUnidade);
+        }
+
+        const { data: exeDados, error } = await query.limit(1);
+        if (error) throw error;
 
         if (exeDados && exeDados.length > 0) {
-          setReferencePhrase(exeDados[0].correct_answer || exeDados[0].reading_text);
+          const frase = exeDados[0].audio_transcript || exeDados[0].correct_answer || "";
+          setReferencePhrase(frase);
+          console.log("📡 [CONEXÃO ATIVA] Shadowing carregado dinamicamente:", frase, "da unidade:", codigoUnidade);
         } else {
-          const fraseInedita = await gerarFraseIneditaIA(exeDados?.[0]?.level || "A2");
-          setReferencePhrase(fraseInedita);
+          // Fallback seguro de recuperação caso a linha esteja temporariamente vazia
+          console.warn("⚠️ Sem registros de Shadowing para a unidade:", codigoUnidade);
+          setReferencePhrase("Não se preocupe, vamos praticar juntos.");
         }
       } catch (err) {
-        console.error("Erro geral no carregamento de pronúncia:", err);
-        setReferencePhrase("Com certeza nós podemos nos encontrar mais tarde para alinhar os detalhes.");
+        console.error("❌ Erro na sincronização dinâmica de Shadowing:", err);
+        setReferencePhrase("Não se preocupe, vamos praticar juntos.");
       } finally {
         setCarregando(false);
       }
