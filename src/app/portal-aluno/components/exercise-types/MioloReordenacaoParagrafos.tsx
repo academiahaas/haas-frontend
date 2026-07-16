@@ -77,7 +77,7 @@ export default function MioloReordenacaoParagrafos({
   useEffect(() => {
     async function carregarEFracionarTexto() {
       try {
-        setCarregando(true);
+        setCarregando(true); console.log("🔍 [REORDENACAO DEBUG] unidadeAtiva recebida:", unidadeAtiva);
         
         try {
           const { data: userDados } = await supabase
@@ -103,9 +103,13 @@ export default function MioloReordenacaoParagrafos({
         if (isUUID) {
           query = query.eq('unit_id', codigoUnidade);
         } else {
-          // Se for "0" ou "1" (valores de inicializacao temporarios), busca pela primeira unidade
-          const unitFallback = (codigoUnidade === "0" || codigoUnidade === "1") ? "1.1" : codigoUnidade;
-          query = query.eq('unit', unitFallback);
+          // Se receber 0 ou algo inválido, busca o primeiro exercício do tipo 8 disponível no banco para não quebrar a tela
+          const { data: firstActive } = await supabase.from('exercises').select('unit_id').eq('activity_type', 8).limit(1);
+          if (firstActive && firstActive.length > 0) {
+            query = query.eq('unit_id', firstActive[0].unit_id);
+          } else {
+            query = query.eq('unit', "1.1");
+          }
         }
         
         const { data: dados, error } = await query;
