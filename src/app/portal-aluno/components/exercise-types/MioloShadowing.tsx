@@ -350,7 +350,7 @@ Retorne estritamente este JSON limpo:
           <div className="flex items-center justify-between bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02]">
             <div className="flex items-start gap-2.5">
               <HelpCircle size={16} className="text-cyan-400 shrink-0 mt-0.5" />
-              <span className="text-[12px] md:text-[0.9vw] font-medium text-slate-200 leading-relaxed text-left">
+              <span className="text-[12px] md:text-[0.9vw] font-medium text-slate-200 leading-relaxed text-left uppercase tracking-wider">
                 {t?.instrucao || "Haz clic en el altavoz para escuchar la frase y luego presiona el micrófono para repetirla"}
               </span>
             </div>
