@@ -1,7 +1,7 @@
 "use client";
 import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square , Sparkles } from 'lucide-react';
+import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square, Sparkles, RotateCcw } from 'lucide-react';
 
 interface MioloShadowingProps {
   onSelectCorrect?: () => void;
@@ -486,6 +486,18 @@ Regras Estritas:
                     title="Escutar áudio gravado"
                   >
                     <Volume2 size={16} />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setFlowState("IDLE");
+                      setAudioUrl(null);
+                      setTranscricaoAluno("");
+                    }}
+                    className="p-3 bg-amber-950/40 border border-amber-500/40 text-amber-400 rounded-full hover:bg-amber-950 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
+                    title="Grabar de nuevo"
+                  >
+                    <RotateCcw size={16} />
                   </button>
 
                   <button 
