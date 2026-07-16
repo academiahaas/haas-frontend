@@ -425,24 +425,23 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         )}
 
         {/* Caso 3: Analisando */}
+                {/* Caso 3: Analisando */}
         {flowState === "ANALYZING" && (
-          <div className="flex flex-col items-center justify-center py-4 gap-2.5">
+          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-6 flex flex-col items-center justify-center gap-3 animate-fade-in shadow-xl w-full min-h-[110px]">
             <Loader2 size={24} className="text-cyan-400 animate-spin" />
-            <span className="text-[10px] md:text-[0.8vw] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
-              {textInt.analisando}
+            <span className="text-[11px] md:text-[0.9vw] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
+              {textInt.analisando}...
             </span>
           </div>
         )}
 
         {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
                 {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
+                {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
         {flowState === "DONE" && feedback && (
-          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-3.5 flex flex-col gap-2.5 animate-fade-in shadow-xl">
-            <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5">
-              <span className="font-bold text-[10px] md:text-[0.8vw] uppercase tracking-wider text-slate-400">
-                Resultado da Mentora
-              </span>
-              <div className="text-amber-400 font-semibold text-[10px] md:text-[0.8vw] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/30 tracking-wider">
+          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-3 animate-fade-in shadow-xl relative">
+            <div className="flex justify-end w-full">
+              <div className="text-amber-400 font-semibold text-[10px] md:text-[0.8vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
                 +{scoreFinal} PTS
               </div>
             </div>
