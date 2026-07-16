@@ -118,6 +118,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     carregarComboBanco();
   }, [userId]);
   const [precision, setPrecision] = useState(94);
+  const [nomeUsuarioReal, setNomeUsuarioReal] = useState("");
+  const [idiomaNativoReal, setIdiomaNativoReal] = useState("Portuguese");
 
   useEffect(() => {
     if (!userId) return;
@@ -130,7 +132,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         if (!supabaseUrl) return;
         
         // Faz o fetch direto via fetch clássico para evitar quebras de importação de arquivos internos
-        const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=clinical_precision`, {
+        const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=clinical_precision,name,native_language`, {
           headers: {
             "apikey": supabaseAnonKey,
             "Authorization": `Bearer ${supabaseAnonKey}`
@@ -140,6 +142,17 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         console.log("=== 📊 RETORNO SUPABASE XP UNIDADE ===>", dados);
         if (dados && dados[0] && dados[0].clinical_precision !== undefined) {
           setPrecision(dados[0].clinical_precision);
+        }
+        if (dados && dados[0]) {
+          if (dados[0].name) {
+            const primeiroNome = dados[0].name.split(" ")[0];
+            setNomeUsuarioReal(primeiroNome);
+          } else {
+            setNomeUsuarioReal("Estudante");
+          }
+          if (dados[0].native_language) {
+            setIdiomaNativoReal(dados[0].native_language);
+          }
         }
       } catch (err) {
         console.error("Erro ao sincronizar precisão da Arena:", err);
@@ -938,13 +951,35 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       ) : (
                         <>
                           {gameStatus === 'CORRECT' && "Incrível! O loot da missão foi liberado. Clique na caixa de suprimentos para resgatar seus bônus de PTS multiplicados!"}
-                          {gameStatus === 'WRONG' && "Atenção à ordem das orações subordinadas, Bruna. Ajuste a posição dos conectores e valide novamente."}
+                          {gameStatus === 'WRONG' && (
+                            (() => {
+                              const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
+                              if (rawLang.includes("spanish") || rawLang === "es") {
+                                return `¡Atención al desafío, ${nomeUsuarioReal || "Estudante"}! Analiza el ejercicio con calma, haz el ajuste necesario y vuelve a validar para sumar puntos.`;
+                              } else if (rawLang.includes("english") || rawLang === "en") {
+                                return `Attention to the challenge, ${nomeUsuarioReal || "Estudante"}! Analyze the exercise carefully, make the necessary adjustment, and validate again to score.`;
+                              } else {
+                                return `Atenção ao desafio, ${nomeUsuarioReal || "Estudante"}! Analise o exercício com calma, faça o ajuste necessário e valide novamente para pontuar.`;
+                              }
+                            })()
+                          )}
                           {gameStatus === 'IDLE' && streak >= 3 && (
                           <span className="inline-block transition-all duration-1000 ease-out animate-[fadeIn_1s_ease-out] blur-none opacity-100 filter-none">
                             {tArena.mentorFire.replace("multiplicador", "multiplicador x" + getMultiplicador())}
                           </span>
                         )}
-                          {gameStatus === 'IDLE' && streak < 3 && "Excelente progresso estrutural nesta unidade, Bruna. Mantenha os olhos fixos nos conectores lógicos antes de submeter a resposta final!"}
+                          {gameStatus === 'IDLE' && streak < 3 && (
+                            (() => {
+                              const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
+                              if (rawLang.includes("spanish") || rawLang === "es") {
+                                return `¡Hola, ${nomeUsuarioReal || "Estudante"}! Si tienes alguna duda sobre este ejercicio, no dudes en preguntarme por texto o audio aquí en el chat. (Ten en cuenta que el uso interactivo consume créditos de IA, en caso de que tu cuenta tenga un límite).`;
+                              } else if (rawLang.includes("english") || rawLang === "en") {
+                                return `Hello, ${nomeUsuarioReal || "Estudante"}! If you have any questions about this exercise, feel free to ask me via text or audio here in the chat. (Please note that interactive use consumes AI credits, if your account has a limit).`;
+                              } else {
+                                return `Olá, ${nomeUsuarioReal || "Estudante"}! Caso tenha alguma dúvida sobre este exercício, sinta-se à vontade para me perguntar por texto ou áudio aqui no chat. (Lembre-se de que o uso interativo consome créditos de IA, caso sua conta possua um limite).`;
+                              }
+                            })()
+                          )}
                         </>
                       )}
                     </div>
