@@ -48,6 +48,8 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [isShortText, setIsShortText] = useState(true);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [correctOption, setCorrectOption] = useState<string>("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
 
   useEffect(() => {
     const escutarSubmitGlobal = () => {
@@ -115,6 +117,8 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
           // No Caça Erro (Tipo 2), "correct_answer" guarda o gabarito (frase errada que o aluno deve caçar)
           const fraseComErro = exe.correct_answer || "";
           setCorrectOption(fraseComErro);
+          setFeedbackCorretoBanco(exe.correct_feedback || "");
+          setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
           
           let distratoresFinais: string[] = [];
           if (exe.alternative_options) {
@@ -229,7 +233,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
       });
 
       setLocalStatus(resultado.acertou ? "CORRECT" : "WRONG");
-      setFeedbackIA(resultado.feedback);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const acertou = selecionado === correctOption;
