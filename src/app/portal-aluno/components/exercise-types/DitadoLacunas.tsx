@@ -48,6 +48,8 @@ export default function DitadoLacunas({
   const [fraseEstruturada, setFraseEstruturada] = useState<string>("");
   const [textoParaFalar, setTextoParaFalar] = useState("");
   const [targetWord, setTargetWord] = useState("");
+  const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
+  const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
@@ -115,6 +117,8 @@ export default function DitadoLacunas({
 
         if (dados && dados.length > 0) {
           const exe = dados[0];
+          setFeedbackCorretoBanco(exe.correct_feedback || "");
+          setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
           let rawText = exe.reading_text || "";
           // Substitui dinamicamente [lacuna], [lacuna ] ou variantes para ___
           textoFinal = rawText.replace(/\[lacuna\]/gi, "___");
@@ -197,12 +201,12 @@ export default function DitadoLacunas({
       });
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(resultado.feedback);
+      setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) onValidateResult(resultado.acertou);
     } catch (e) {
       const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente!" : `Desvio ortográfico detectado. O esperado era: ${targetWord}`);
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || `Desvio ortográfico detectado. O esperado era: ${targetWord}`));
       if (onValidateResult) onValidateResult(acertou);
     } finally {
       setAnalisando(false);
