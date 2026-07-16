@@ -281,15 +281,21 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias);
       
       setScoreFinal(resultado.score);
+      
+      const isCorrect = resultado.score >= 50;
+      const feedbackDoBanco = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
+      const mensagemExibida = (feedbackDoBanco && feedbackDoBanco.trim().length > 0) 
+        ? feedbackDoBanco 
+        : resultado.msg;
+
       setFeedback({
         status: resultado.status,
-        mensagem: resultado.msg,
+        mensagem: mensagemExibida,
         sugestao: resultado.sugestao
       });
 
       setFlowState("DONE");
       
-      const isCorrect = resultado.score >= 50;
       if (onValidateResult) {
         const incentivo = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = incentivo ? `${incentivo} \n\n📝 ${resultado.msg}` : resultado.msg;
