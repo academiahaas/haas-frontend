@@ -365,12 +365,16 @@ Regras Estritas:
 
       setFlowState("DONE");
 
+      if (onValidateResult) {
+        const incTexto = aprovado ? incentivoCorretoBanco : incentivoIncorretoBanco;
+        const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : msgPersonalizada;
+        onValidateResult(aprovado, feedbackFinalMentora);
+      }
+
       if (aprovado) {
         if (onSelectCorrect) onSelectCorrect();
-        if (onValidateResult) onValidateResult(true, textoMensagemFinal);
       } else {
         if (onSelectWrong) onSelectWrong();
-        if (onValidateResult) onValidateResult(false, textoMensagemFinal);
       }
 
     } catch (err) {
