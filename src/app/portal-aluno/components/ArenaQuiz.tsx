@@ -868,7 +868,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
             <div className="flex flex-col">
               <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {numeroUnidadeReal || (typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01")}</span>
-              <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
+              {visualizacaoAtiva === "EXERCICIO" && (
+                <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
+              )}
             </div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
             
