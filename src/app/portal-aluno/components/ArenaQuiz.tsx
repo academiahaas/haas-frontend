@@ -31,6 +31,61 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const currentLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
   const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
+  const [urlEmbedAtiva, setUrlEmbedAtiva] = useState<string>("");
+  const [carregandoVideo, setCarregandoVideo] = useState(false);
+
+  const obterEmbedYoutube = (url: string) => {
+    if (!url) return "";
+    try {
+      let videoId = "";
+      if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
+      else if (url.includes("v=")) videoId = url.split("v=")[1].split("&")[0];
+      else if (url.includes("embed/")) videoId = url.split("embed/")[1].split("?")[0];
+      else return url;
+      return "https://www.youtube.com/embed/" + videoId;
+    } catch (e) { return url; }
+  };
+
+  useEffect(() => {
+    if (!videoSelecionado?.id) {
+      setUrlEmbedAtiva("");
+      return;
+    }
+
+    async function buscarVideoBanco() {
+      try {
+        setCarregandoVideo(true);
+        console.log("🟦 [HAAS MOTOR] Buscando index correspondente para a etapa:", videoSelecionado.id);
+        
+        const { data, error } = await supabase
+          .from("video_lessons")
+          .select("video_url")
+          .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        const indexAlvo = videoSelecionado.id - 1;
+        const videoCorrespondente = data && data[indexAlvo];
+
+        if (videoCorrespondente?.video_url) {
+          const urlConvertida = obterEmbedYoutube(videoCorrespondente.video_url);
+          console.log("🟩 [HAAS MOTOR] URL vinculada:", urlConvertida);
+          setUrlEmbedAtiva(urlConvertida);
+        } else {
+          console.warn("⚠️ [HAAS MOTOR] Nenhum vídeo para o index:", videoSelecionado.id);
+          setUrlEmbedAtiva("");
+        }
+      } catch (err) {
+        console.error("❌ [HAAS MOTOR] Erro:", err);
+        setUrlEmbedAtiva("");
+      } finally {
+        setCarregandoVideo(false);
+      }
+    }
+
+    buscarVideoBanco();
+  }, [videoSelecionado]);
+
     const [dadosLicaoEscrita, setDadosLicaoEscrita] = useState<any>(null);
   const [carregandoTexto, setCarregandoTexto] = useState<boolean>(false);
   const [textoSelecionadoId, setTextoSelecionadoId] = useState<number | null>(null);
@@ -907,14 +962,29 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 <button type="button" onClick={() => setVisualizacaoAtiva("TRILHA_VIDEOS")} className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]">
                   <X size={18} />
                 </button>
-                <div className="flex-1 my-8 bg-black rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
-                  <div className="text-center p-4">
-                    <div className="w-14 h-14 bg-[#FF8A2B]/10 border border-[#FF8A2B]/20 rounded-full flex items-center justify-center mx-auto mb-3 text-[#FF8A2B] animate-pulse">
-                      <Video size={24} />
+                <div className="flex-1 my-8 bg-[#030712] rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+                  {carregandoVideo ? (
+                    <div className="text-center p-4 flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-[#FF8A2B] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-xs text-slate-400 font-mono">CARREGANDO TRANSMISSÃO...</p>
                     </div>
-                    <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">TELA DO MONITOR</p>
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">STREAMING DO CONTEÚDO {videoSelecionado?.id}</p>
-                  </div>
+                  ) : urlEmbedAtiva ? (
+                    <iframe
+                      className="w-full h-full border-0 rounded-2xl"
+                      src={urlEmbedAtiva}
+                      title="Haas Streaming"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <div className="text-center p-4">
+                      <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3 text-red-500">
+                        <AlertCircle size={24} />
+                      </div>
+                      <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">MÍDIA NÃO DISPONÍVEL</p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-1">NENHUM LINK VINCULADO AO ID {videoSelecionado?.id}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
                   <span>STATUS: RUNNING</span>
@@ -1028,14 +1098,29 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <X size={18} />
                 </button>
 
-                <div className="flex-1 my-8 bg-black rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
-                  <div className="text-center p-4">
-                    <div className="w-14 h-14 bg-[#FF8A2B]/10 border border-[#FF8A2B]/20 rounded-full flex items-center justify-center mx-auto mb-3 text-[#FF8A2B] animate-pulse">
-                      <Video size={24} />
+                <div className="flex-1 my-8 bg-[#030712] rounded-2xl border border-white/10 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+                  {carregandoVideo ? (
+                    <div className="text-center p-4 flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-[#FF8A2B] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-xs text-slate-400 font-mono">CARREGANDO TRANSMISSÃO...</p>
                     </div>
-                    <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">TELA DO MONITOR</p>
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">STREAMING DO CONTEÚDO {videoSelecionado?.id}</p>
-                  </div>
+                  ) : urlEmbedAtiva ? (
+                    <iframe
+                      className="w-full h-full border-0 rounded-2xl"
+                      src={urlEmbedAtiva}
+                      title="Haas Streaming"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <div className="text-center p-4">
+                      <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3 text-red-500">
+                        <AlertCircle size={24} />
+                      </div>
+                      <p className="text-xs text-slate-200 font-bold uppercase tracking-wider">MÍDIA NÃO DISPONÍVEL</p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-1">NENHUM LINK VINCULADO AO ID {videoSelecionado?.id}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
