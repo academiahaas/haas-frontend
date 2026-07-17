@@ -1426,29 +1426,71 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                             {tArena.mentorFire.replace("multiplicador", "multiplicador x" + getMultiplicador())}
                           </span>
                         )}
-                          {gameStatus === 'IDLE' && streak < 3 && (
+                                                    {gameStatus === 'IDLE' && streak < 3 && (
                             (() => {
                               const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
                               const nivelTxt = alunoNivel || "A1";
-                              const unidadeTxt = dadosLicaoEscrita?.unit || subUnidadeIndex || "";
+                              const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
                               
-                              // Dispara a chamada de background uma única vez para trazer o complemento da IA
-                              if (!respostaIA && isThinking === false) {
-                                setTimeout(() => {
-                                  // Força o gatilho da IA enviando um prompt invisível de aquecimento/boas-vindas personalizado
-                                  const promptBoasVindas = `Gerar uma mensagem curta de incentivo pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} no nível ${nivelTxt}, unidade ${unidadeTxt}. Foque em motivá-lo a praticar e superar os pequenos desafios do aprendizado sem soar genérico. Responda estritamente no idioma ${rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português"}.`;
-                                  // Aqui fazemos a simulação chamando sua função interna de envio passando esse contexto de inicialização
-                                  // Para não quebrar o fluxo, deixamos os pontinhos ativos processando o gancho humano
-                                }, 500);
+                              if (typeof window !== 'undefined' && userId && !respostaIA && !isThinking) {
+                                globalThis._hasTriggeredInit = globalThis._hasTriggeredInit || false;
+                                if (!globalThis._hasTriggeredInit) {
+                                  globalThis._hasTriggeredInit = true;
+                                  setTimeout(() => {
+                                    // Monta o prompt dinâmico usando o nome real do aluno logado
+                                    const promptBoasVindas = `Gerar uma mensagem curta de incentivo pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} no nível ${nivelTxt}, unidade ${unidadeTxt}. Foque em motivá-lo a praticar e superar os pequenos desafios do aprendizado sem soar genérico. Responda estritamente no idioma ${rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português"}.`;
+                                    
+                                    // Dispara o fetch local diretamente usando as credenciais e variáveis do escopo local
+                                    setIsThinking(true);
+                                    setRespostaIA('');
+                                    
+                                    fetch("/api/ai/mentor", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({
+                                        prompt: promptBoasVindas,
+                                        userId: userId
+                                      })
+                                    }).then(async (res) => {
+                                      if (!res.body) return;
+                                      const reader = res.body.getReader();
+                                      const decoder = new TextDecoder("utf-8");
+                                      let acumulado = "";
+                                      while (true) {
+                                        const { done, value } = await reader.read();
+                                        if (done) break;
+                                        acumulado += decoder.decode(value, { stream: true });
+                                        setRespostaIA(acumulado);
+                                      }
+                                    }).catch(err => console.error(err))
+                                      .finally(() => setIsThinking(false));
+                                  }, 400);
+                                }
                               }
 
+                              let textoBase = "";
                               if (rawLang.includes("spanish") || rawLang === "es") {
-                                return `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estoy preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte ahora mismo...`;
+                                textoBase = `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estoy preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte agora mesmo...`;
                               } else if (rawLang.includes("english") || rawLang === "en") {
-                                return `Hello, ${nomeUsuarioReal || "Estudante"}! Great to have you here at level ${nivelTxt}. I am mapping out your key focal points for unit ${unidadeTxt} to guide you right now...`;
+                                textoBase = `Hello, ${nomeUsuarioReal || "Estudante"}! Great to have you here at level ${nivelTxt}. I am mapping out your key focal points for unit ${unidadeTxt} to guide you right now...`;
                               } else {
-                                return `Olá, ${nomeUsuarioReal || "Estudante"}! Que excelente ter você aqui no seu nível ${nivelTxt}. Estou mapeando os seus pontos de atenção na unidade ${unidadeTxt} para te guiar agora mesmo...`;
+                                textoBase = `Olá, ${nomeUsuarioReal || "Estudante"}! Que excelente ter você aqui no seu nível ${nivelTxt}. Estou mapeando os seus pontos de atenção na unidade ${unidadeTxt} para te guiar agora mesmo...`;
                               }
+
+                              return (
+                                <div className="flex flex-col gap-2 w-full">
+                                  <div className="text-slate-100 text-[13px] font-sans font-medium leading-relaxed">
+                                    {textoBase}
+                                  </div>
+                                  {isThinking && (
+                                    <div className="flex items-center gap-2 pl-1 h-6 mt-1">
+                                      <div className="w-2.5 h-2.5 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '-0.3s' }}></div>
+                                      <div className="w-2.5 h-2.5 bg-gradient-to-tr from-cyan-400 to-indigo-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '-0.15s' }}></div>
+                                      <div className="w-2.5 h-2.5 bg-gradient-to-tr from-teal-300 to-cyan-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s' }}></div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
                             })()
                           )}
                         </>
