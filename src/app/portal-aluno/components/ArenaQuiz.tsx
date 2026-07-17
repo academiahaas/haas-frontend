@@ -28,7 +28,9 @@ interface ArenaProps {
 }
 
 export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
-  const currentLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
+  let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
+  if (baseLang.includes('PORTUGU')) baseLang = 'PT';
+  const currentLang = baseLang;
   const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
   const [urlEmbedAtiva, setUrlEmbedAtiva] = useState<string>("");
@@ -696,15 +698,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           "Content-Type": "application/json",
           "Prefer": "return=minimal"
         },
-        body: JSON.stringify({ chat_credits: novosCreditos })
+        body: JSON.stringify({ usage_credits: novosCreditos })
       });
       setCreditosPlano(novosCreditos);
 
-      // 3. SELEÇÃO DE CHAVE DA GEMINI
+      // 3. ENTRADA NA API DA MENTORA
       let respostaTexto = "";
-      const promptFinal = audioBase64 
-        ? (textoParaEnviar || "")
-        : textoParaEnviar;
+      const promptFinal = audioBase64 ? (textoParaEnviar || "") : textoParaEnviar;
 
       try {
         const resInterna = await fetch("/api/ai/mentor", {
@@ -712,7 +712,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt: promptFinal,
-            idiomaCurso: currentLang
+            userId: userId
           })
         });
 
