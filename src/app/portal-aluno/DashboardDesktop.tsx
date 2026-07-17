@@ -148,6 +148,7 @@ export default function DashboardDesktop() {
   const [abaProgAtiva, setAbaProgAtiva] = useState(false);
   const tocarSom = (tipo) => { if (typeof window !== 'undefined' && (window as any).tocarSomNativoPremium) { (window as any).tocarSomNativoPremium(tipo); } };
   const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [unidadeExpandida, setUnidadeExpandida] = useState<number | null>(null);
   const [arenaModo, setArenaModo] = useState({ tipo: null, idx: null });
 
   // <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />TRAVA DE SCROLL AUTOMÁTICA DA ARENA
@@ -645,37 +646,46 @@ export default function DashboardDesktop() {
                 <div className="flex flex-col xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[12.5px] xl:text-[13.5px] mt-1">
                   <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.04]">
                     {(listaUnidades.length > 0 ? listaUnidades : [
-                      { unit_title: 'O Primeiro Impacto e as Vogais Fracas' },
-                      { unit_title: 'Identidade e os Sons' },
-                      { unit_title: 'De Onde Você É? O Labirinto do R e do J' },
-                      { unit_title: 'Educação e Sobrevivência' },
-                      { unit_title: 'Despedidas Corporativas/Sociais e as Nasais' }
+                      { unit_title: 'O Primeiro Impacto e as Vogais Fracas', objectives: 'Compreender a redução vocálica e a estrutura das sílabas átonas.' },
+                      { unit_title: 'Identidade e os Sons', objectives: 'Dominar a fonética básica de apresentação e saudações iniciais.' },
+                      { unit_title: 'De Onde Você É? O Labirinto do R e do J', objectives: 'Diferenciar a articulação e som das consoantes de origem geográfica.' },
+                      { unit_title: 'Educação e Sobrevivência', objectives: 'Vocabulário prático para situações cotidianas de sala de aula e emergências.' },
+                      { unit_title: 'Despedidas Corporativas/Sociais e as Nasais', objectives: 'Aplicar regras de nasalização em contextos formais de encerramento.' }
                     ]).map((unit, idx) => {
                       const currentTitle = unit.unit_title;
-                      const currentId = unit.id || null;
+                      const isOpen = unidadeExpandida === idx;
+                      const objetivos = unit.objectives || unit.description || unit.learning_goals || (idioma === 'ES' ? 'Objetivos no mapeados' : 'Objetivos não mapeados');
                       
                       return (
-                        <div 
-                          key={idx} 
-                          onClick={() => { 
-                            setArenaModo({ tipo: 'unidade', idx: currentId || idx }); 
-                            setIsArenaOpen(true); 
-                          }} 
-                          className="group h-[38px] flex items-center justify-between cursor-pointer transition-all duration-150 select-none hover:bg-white/[0.015] px-2 rounded-lg"
-                        >
-                          <div className="flex items-center gap-4 min-w-0 flex-1">
-                            <span className="font-mono text-[9px] text-amber-500/80 font-black bg-amber-500/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
-                            <span className="group-hover:text-amber-400 group-hover:translate-x-1 transition-transform duration-150 tracking-wide font-medium text-white/90 whitespace-nowrap">
-                              {currentTitle}
-                            </span>
+                        <div key={idx} className="flex flex-col border-b border-white/[0.02] py-1">
+                          <div 
+                            onClick={() => setUnidadeExpandida(isOpen ? null : idx)} 
+                            className="group h-[38px] flex items-center justify-between cursor-pointer transition-all duration-150 select-none hover:bg-white/[0.015] px-2 rounded-lg"
+                          >
+                            <div className="flex items-center gap-4 min-w-0 flex-1">
+                              <span className="font-mono text-[9px] text-amber-500/80 font-black bg-amber-500/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
+                              <span className={`transition-colors duration-150 tracking-wide font-medium ${isOpen ? 'text-amber-400' : 'text-white/90 group-hover:text-amber-400'}`}>
+                                {currentTitle}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={`text-slate-500 font-sans text-xs transition-transform duration-200 ${isOpen ? 'rotate-90 text-amber-400' : 'group-hover:text-amber-400'}`}>
+                                ➔
+                              </span>
+                            </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-[9.5px] font-mono text-slate-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-150 group-hover:text-amber-400">
-                              {idioma === 'ES' ? 'Acceder a la Arena' : idioma === 'EN' ? 'Access Arena' : 'Acessar Arena'}
-                            </span>
-                            <span className="text-slate-600 group-hover:text-amber-400 transition-colors duration-150 font-sans text-sm font-light">➔</span>
-                          </div>
+                          {isOpen && (
+                            <div className="px-2 pb-3 pt-1 text-[11.5px] xl:text-[12.5px] text-slate-400 font-sans leading-relaxed transition-all animate-fadeIn pl-[38px]">
+                              <div className="bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-lg text-amber-100/80">
+                                <strong className="text-amber-500/90 font-mono text-[10px] block uppercase tracking-wider mb-1">
+                                  {idioma === 'ES' ? 'OBJETIVOS DE LA UNIDAD:' : idioma === 'EN' ? 'UNIT OBJECTIVES:' : 'OBJETIVOS DA UNIDADE:'}
+                                </strong>
+                                {objetivos}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
