@@ -1138,6 +1138,16 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
   const [modalidade, setModalidade] = React.useState(null); // 'grupo', 'vip_std', 'vip_pro', 'avulsa'
   const [creditosMensais, setCreditosMensais] = React.useState(null); // 8, 12, 20
   const [qtdAvulsas, setQtdAvulsas] = React.useState(0);
+  const [masterPlans, setMasterPlans] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const carregarBanco = async () => {
+      const { data } = await supabase.from("master_plans").select("*");
+      if (data) setMasterPlans(data);
+    };
+    carregarBanco();
+  }, [isOpen]);
 
   useEffect(() => {
     
@@ -1161,9 +1171,18 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
   let descricaoItem = "";
 
   if (modalidade === "grupo" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 300000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 8 Créditos Mensais" : idioma === "EN" ? "Group Plan: 8 Monthly Credits" : "Plan Colectivo: 8 Créditos Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 420000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 12 Créditos Mensais" : idioma === "EN" ? "Group Plan: 12 Monthly Credits" : "Plan Colectivo: 12 Créditos Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 650000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 20 Créditos Mensais (Imersão)" : idioma === "EN" ? "Group Plan: 20 Monthly Credits (Immersion)" : "Plan Colectivo: 20 Créditos Mensuales (Inmersión)"; }
+    // Procura o registro correspondente na coluna plan_category
+    const planoGrupo = masterPlans.find(p => p.plan_category === "Group");
+    
+    // Pega o objeto JSON puro da coluna pricing_matrix
+    const matriz = planoGrupo ? (typeof planoGrupo.pricing_matrix === "string" ? JSON.parse(planoGrupo.pricing_matrix) : planoGrupo.pricing_matrix) : {};
+    
+    // Atribui o valor total lido da chave correspondente (8, 12, 20) de dentro da matriz do banco
+    valorTotal = matriz[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 8 Créditos Mensais" : idioma === "EN" ? "Group Plan: 8 Monthly Credits" : "Plan Colectivo: 8 Créditos Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 12 Créditos Mensais" : idioma === "EN" ? "Group Plan: 12 Monthly Credits" : "Plan Colectivo: 12 Créditos Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 20 Créditos Mensais (Imersão)" : idioma === "EN" ? "Group Plan: 20 Monthly Credits (Immersion)" : "Plan Colectivo: 20 Créditos Mensuales (Inmersión)"; }
   } else if (modalidade === "vip_std" && creditosMensais) {
     if (creditosMensais === 8) { valorTotal = 400000; descricaoItem = idioma === "PT" ? "VIP Standard: 8 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 8 Monthly Classes" : "VIP Standard: 8 Clases Mensuales"; }
     if (creditosMensais === 12) { valorTotal = 540000; descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
