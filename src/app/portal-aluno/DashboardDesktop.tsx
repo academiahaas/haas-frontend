@@ -1210,9 +1210,14 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
     if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 20 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 20 Monthly Classes" : "VIP Pro Corporativo: 20 Clases Mensuales"; }
   } else if (modalidade === "avulsa") {
-    // Tabela Flex / Corporativa - Inicia em 75k e rebate nos marcos de 8 (560k), 12 (780k) e 20 (1.2M)
-    const tabelaFlex = { 1: 75000, 2: 145000, 3: 215000, 4: 285000, 5: 355000, 6: 425000, 7: 495000, 8: 560000, 9: 615000, 10: 670000, 11: 725000, 12: 780000, 13: 835000, 14: 890000, 15: 945000, 16: 1000000, 17: 1055000, 18: 1110000, 19: 1155000, 20: 1200000 };
-    valorTotal = tabelaFlex[qtdAvulsas] || (qtdAvulsas * 75000);
+    // Busca a linha "Pack VIP Pro" dentro do banco master_plans
+    const planoPackPro = masterPlans.find(p => p.plan_category === "Pack VIP Pro");
+    
+    // Extrai o objeto JSON da pricing_matrix
+    const matrizPackPro = planoPackPro ? (typeof planoPackPro.pricing_matrix === "string" ? JSON.parse(planoPackPro.pricing_matrix) : planoPackPro.pricing_matrix) : {};
+    
+    // Associa o preço final à quantidade de créditos selecionada pelo controle (qtdAvulsas)
+    valorTotal = matrizPackPro[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack VIP Pro: ${qtdAvulsas} Créditos` : idioma === "EN" ? `VIP Pro Pack: ${qtdAvulsas} Credits` : `Pack VIP Pro: ${qtdAvulsas} Créditos`;
   } else if (modalidade === "acumulador_grupo") {
     const tabela = { 1: 40000, 2: 75000, 3: 110000, 4: 145000, 5: 180000, 6: 220000, 7: 260000, 8: 300000, 9: 330000, 10: 360000, 11: 390000, 12: 420000, 13: 450000, 14: 480000, 15: 510000, 16: 540000, 17: 570000, 18: 600000, 19: 625000, 20: 650000 };
