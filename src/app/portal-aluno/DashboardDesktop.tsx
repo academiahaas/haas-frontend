@@ -1220,8 +1220,14 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     valorTotal = matrizPackPro[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack VIP Pro: ${qtdAvulsas} Créditos` : idioma === "EN" ? `VIP Pro Pack: ${qtdAvulsas} Credits` : `Pack VIP Pro: ${qtdAvulsas} Créditos`;
   } else if (modalidade === "acumulador_grupo") {
-    const tabela = { 1: 40000, 2: 75000, 3: 110000, 4: 145000, 5: 180000, 6: 220000, 7: 260000, 8: 300000, 9: 330000, 10: 360000, 11: 390000, 12: 420000, 13: 450000, 14: 480000, 15: 510000, 16: 540000, 17: 570000, 18: 600000, 19: 625000, 20: 650000 };
-    valorTotal = tabela[qtdAvulsas] || (qtdAvulsas * 40000);
+    // Busca a linha do Pack Grupo na tabela master_plans
+    const planoPackGrupo = masterPlans.find(p => p.plan_category === "Pack Group");
+    
+    // Extrai a matriz real de preços
+    const matrizPackGrupo = planoPackGrupo ? (typeof planoPackGrupo.pricing_matrix === "string" ? JSON.parse(planoPackGrupo.pricing_matrix) : planoPackGrupo.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à quantidade de aulas (qtdAvulsas)
+    valorTotal = matrizPackGrupo[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack Acumulativo: ${qtdAvulsas} Aulas em Grupo` : idioma === "EN" ? `Accumulative Pack: ${qtdAvulsas} Group Classes` : `Pack Acumulativo: ${qtdAvulsas} Aulas en Grupo`;
   } else if (modalidade === "acumulador_vip_std") {
     // Busca o registro do Pack VIP Std na tabela master_plans
