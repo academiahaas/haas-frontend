@@ -917,7 +917,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
@@ -942,7 +942,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
@@ -1050,7 +1050,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.unidadePertencente === unidadeAtualDoAluno;
+                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
                       
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
 
