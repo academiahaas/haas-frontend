@@ -92,17 +92,18 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   useEffect(() => {
     async function carregarDadosLicao() {
-      if (!subUnidadeIndex) return;
       setCarregandoTexto(true);
       try {
-        const { data, error } = await supabase
-          .from("lessons")
+        const { data: todasLicoes, error } = await supabase
+          .from("reading_lesson")
           .select("title, body_content, level, module, unit")
-          .eq("id", subUnidadeIndex)
-          .single();
+          .order("id", { ascending: true });
         
-        if (data) {
-          setDadosLicaoEscrita(data);
+        if (todasLicoes && todasLicoes.length > 0) {
+          const numIdx = typeof subUnidadeIndex === "number" ? subUnidadeIndex : 0;
+          const licaoSelecionada = todasLicoes[numIdx] || todasLicoes[0];
+          setDadosLicaoEscrita(licaoSelecionada);
+          console.log("🟩 [HAAS MOTOR - TEXTO] Texto carregado para o índice:", numIdx);
         }
       } catch (err) {
         console.error("Erro ao buscar licao escrita:", err);
