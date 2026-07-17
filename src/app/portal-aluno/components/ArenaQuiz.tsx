@@ -399,6 +399,26 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [isCollectingReward, setIsCollectingReward] = useState(false);
   const [comboQuebrado, setComboQuebrado] = useState(false);
   const [caixaAberta, setCaixaAberta] = useState(false);
+  const [creditosPlano, setCreditosPlano] = useState(null);
+
+  useEffect(() => {
+    const buscarCreditosIniciais = async () => {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
+          headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
+        });
+        const dados = await resUser.json();
+        if (dados && dados[0]) {
+          setCreditosPlano(dados[0].chat_credits ?? 50);
+        }
+      } catch (err) { console.error("Erro ao buscar creditos:", err); }
+    };
+    buscarCreditosIniciais();
+  }, [userId]);
+
   const [chatInput, setChatInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -634,7 +654,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setIsThinking(false);
   };
 
-  // EXECUÇÃO DO PLAYER DE ÁUDIO VIA BASE64 DIRETO DO JSON
+  // NOVO MOTOR ULTRA VELOZ COM VOZ NATIVA E VALIDAÇÃO DE CRÉDITOS NO SUPABASE
   const perguntarAoMentor = async (e: any, audioBase64 = null) => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
     abortControllerRef.current = new AbortController();
@@ -649,43 +669,90 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setRespostaIA('');
 
     try {
-      const response = await fetch('/api/mascote-ia', {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+
+      // 1. FASE DE VERIFICAÇÃO DE CRÉDITOS
+      const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
+        headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
+      });
+      const dadosUser = await resUser.json();
+      const creditosAtuais = (dadosUser && dadosUser[0]) ? (dadosUser[0].chat_credits ?? 50) : 50;
+
+      if (creditosAtuais <= 0) {
+        setRespostaIA("Você atingiu o limite de consultas do seu plano atual.");
+        setIsThinking(false);
+        return;
+      }
+
+      // 2. FASE DE CONSUMO (ATUALIZA NO SUPABASE)
+      const novosCreditos = creditosAtuais - 1;
+      await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
+        method: 'PATCH',
+        headers: { 
+          "apikey": cm, 
+          "Authorization": `Bearer ${cm}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({ chat_credits: novosCreditos })
+      });
+      setCreditosPlano(novosCreditos);
+
+      // 3. SELEÇÃO DE CHAVE DA GEMINI (RODÍZIO)
+      const chavesEnv = process.env.NEXT_PUBLIC_GEMINI_API_KEYS || "";
+      const listaChaves = chavesEnv.split(",").map(k => k.trim()).filter(Boolean);
+      const chaveEscolhida = listaChaves.length > 0 
+        ? listaChaves[Math.floor(Math.random() * listaChaves.length)] 
+        : "";
+
+      if (!chaveEscolhida) {
+        throw new Error("Nenhuma chave Gemini configurada no .env");
+      }
+
+      // 4. ENVIO PARA O GEMINI
+      const promptFinal = audioBase64 
+        ? "O aluno enviou uma mensagem de áudio. Responda de forma curta, natural e conversacional como um mentor de idiomas. Texto do aluno: " + (textoParaEnviar || "Mensagem de voz recebida")
+        : textoParaEnviar;
+
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${chaveEscolhida}`;
+      const resGemini = await fetch(geminiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: audioBase64 ? "" : textoParaEnviar,
-          audio: audioBase64,
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: promptFinal }] }]
         })
       });
+
+      const dataGemini = await resGemini.json();
+      const respostaTexto = dataGemini?.candidates?.[0]?.content?.parts?.[0]?.text || "Não consegui processar sua resposta no momento.";
       
-      const data = await response.json();
-      
-      if (data && data.text) {
-        setRespostaIA(data.text);
-        
-        // TOCAR O ÁUDIO EM BASE64 SE ELE EXISTIR NA RESPOSTA
-        if (data.audio && audioBase64) {
-          if (currentAudioRef.current) {
-            try { currentAudioRef.current.pause(); } catch(e){}
-          }
-          const audioPlay = new Audio("data:audio/mp3;base64," + data.audio);
-          currentAudioRef.current = audioPlay;
+      setRespostaIA(respostaTexto);
+
+      // 5. DISPARO DA FALA NATIVA DO NAVEGADOR
+      if (audioBase64) {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); // Para qualquer fala anterior
+          const utterance = new SpeechSynthesisUtterance(respostaTexto);
+          
+          // Tenta pegar uma voz nativa em espanhol/inglês conforme o contexto ou a primeira disponível
+          const voices = window.speechSynthesis.getVoices();
+          const nativeVoice = voices.find(v => v.lang.includes("es") || v.lang.includes("en")) || voices[0];
+          if (nativeVoice) utterance.voice = nativeVoice;
+
           setIsSpeaking(true);
-          audioPlay.onended = () => setIsSpeaking(false);
-          audioPlay.play().catch(err => {
-            console.error("Erro ao rodar áudio Base64:", err);
-            setIsSpeaking(false);
-          });
+          utterance.onend = () => setIsSpeaking(false);
+          utterance.onerror = () => setIsSpeaking(false);
+          window.speechSynthesis.speak(utterance);
+        } else {
+          console.warn("SpeechSynthesis não suportado neste navegador.");
         }
-      } else if (data && data.error) {
-        setRespostaIA("Tive um problema: " + data.error);
-      } else {
-        setRespostaIA("Desculpe, não consegui processar a resposta estruturada.");
       }
 
     } catch (err) {
-      console.error("Erro ao conectar com a IA do Core:", err);
-      setRespostaIA("Desculpe. Tive um problema de conexão. Pode tentar novamente?");
+      console.error("Erro no novo motor de IA:", err);
+      setRespostaIA("Desculpe, tive um problema ao processar seu pedido. Tente novamente.");
     } finally {
       setIsThinking(false);
     }
@@ -1252,6 +1319,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <span className="flex items-center gap-1"><TrendingUp size={12} className="text-[#A855F7]" /> {alunoNivel} • {proficienciaMedia}%</span>
             <span className="text-white/10">|</span>
             <span className="flex items-center gap-1 text-[#22C55E]"><Trophy size={12} /> +{xpUnidade} PTS</span>
+            <span className="text-white/10">|</span>
+            <span className="flex items-center gap-1 text-amber-400 font-mono">
+              <Zap size={12} className="fill-amber-400 stroke-amber-400" /> {creditosPlano !== null ? `${creditosPlano} REQS` : "..."}
+            </span>
           </div>
 
           <div className="flex-1 w-full flex flex-col items-center justify-center gap-4 py-4 min-h-0 relative">
