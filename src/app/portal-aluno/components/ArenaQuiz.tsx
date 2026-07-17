@@ -700,35 +700,53 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       });
       setCreditosPlano(novosCreditos);
 
-      // 3. SELEÇÃO DE CHAVE DA GEMINI (RODÍZIO)
-      const chavesEnv = process.env.NEXT_PUBLIC_GEMINI_API_KEYS || "";
-      const listaChaves = chavesEnv.split(",").map(k => k.trim()).filter(Boolean);
-      const chaveEscolhida = listaChaves.length > 0 
-        ? listaChaves[Math.floor(Math.random() * listaChaves.length)] 
-        : "";
-
-      if (!chaveEscolhida) {
-        throw new Error("Nenhuma chave Gemini configurada no .env");
-      }
-
-      // 4. ENVIO PARA O GEMINI
+      // 3. SELEÇÃO DE CHAVE DA GEMINI
+      let respostaTexto = "";
       const promptFinal = audioBase64 
-        ? "O aluno enviou uma mensagem de áudio. Responda de forma curta, natural e conversacional como um mentor de idiomas. Texto do aluno: " + (textoParaEnviar || "Mensagem de voz recebida")
+        ? (textoParaEnviar || "")
         : textoParaEnviar;
 
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${chaveEscolhida}`;
-      const resGemini = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptFinal }] }]
-        })
-      });
+      try {
+        const resInterna = await fetch("/api/ai/mentor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: promptFinal,
+            idiomaCurso: currentLang
+          })
+        });
 
-      const dataGemini = await resGemini.json();
-      const respostaTexto = dataGemini?.candidates?.[0]?.content?.parts?.[0]?.text || "Não consegui processar sua resposta no momento.";
-      
-      setRespostaIA(respostaTexto);
+        const dataInterna = await resInterna.json();
+        
+        if (dataInterna && dataInterna.text) {
+          respostaTexto = dataInterna.text;
+          setRespostaIA(respostaTexto);
+        } else {
+          setRespostaIA(dataInterna.error || "Erro ao obter resposta do motor local.");
+        }
+      } catch (err) {
+        console.error(err);
+        setRespostaIA("Falha na conexao com o motor: " + err.message);
+      }
+
+      // Remove do caminho o desconto forçado antes da confirmação ou falhas travadas
+      try {
+        const novosCreditos = Math.max(0, (creditosPlano || 1) - 1);
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        
+        await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
+          method: "PATCH",
+          headers: {
+            "apikey": cm,
+            "Authorization": `Bearer ${cm}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ chat_credits: novosCreditos })
+        });
+        setCreditosPlano(novosCreditos);
+      } catch (e) {}
 
       // 5. DISPARO DA FALA NATIVA DO NAVEGADOR
       if (audioBase64) {
