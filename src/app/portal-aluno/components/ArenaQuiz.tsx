@@ -592,47 +592,17 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   }, [isThinking]);
 
         const getThinkingMessage = () => {
-      if (tipoEnvio === "texto") {
-        const frasesTexto = {
-          PT: ["Analisando sua mensagem...", "Preparando uma explicação clara...", "Lapidando os detalhes da resposta..."],
-          EN: ["Analyzing your message...", "Preparing a clear explanation...", "Polishing the response details..."],
-          ES: ["Analizando tu mensaje...", "Preparando una explicación clara...", "Puliendo los detalles de la respuesta..."]
-        };
-        const lista = frasesTexto[currentLang as 'PT' | 'EN' | 'ES'] || frasesTexto.PT;
-        return lista[thinkingTime % lista.length];
+      let posicao = 1;
+      if (respostaIA && respostaIA.startsWith("QUEUE:")) {
+        posicao = parseInt(respostaIA.split(":")[1], 10) || 1;
       }
-
-      const blocosPT = [
-        ["Recebi seu áudio! Já estou estruturando sua resposta...", "Excelente pergunta! Deixe-me organizar a melhor explicação para você."],
-        ["Analisando sua pronúncia e o contexto linguístico de perto...", "Revisando a estrutura gramatical para trazer os melhores insights."],
-        ["Buscando exemplos práticos e claros para ilustrar a regra...", "Formatando dicas exclusivas para facilitar seu aprendizado agora."],
-        ["Aprofundando a análise teórica para blindar sua dúvida...", "Lapidando os detalhes finais do seu feedback de conversação."],
-        ["Quase pronto! Gerando seu arquivo de áudio explicativo...", "Sintetizando nossa resposta em formato de voz nativa..."]
-      ];
-
-      const blocosEN = [
-        ["Got your audio! Structuring your response now...", "Great question! Let me arrange the best explanation for you."],
-        ["Analyzing your pronunciation and linguistic context closely...", "Reviewing the grammatical structure to bring you the best insights."],
-        ["Finding clear, practical examples to illustrate the rule...", "Formatting exclusive tips to power up your learning right now."],
-        ["Deepening theoretical analysis to clear up any doubts...", "Polishing the final details of your conversational feedback."],
-        ["Almost ready! Generating your explanatory audio file...", "Synthesizing our response into native voice format..."]
-      ];
-
-      const blocosES = [
-        ["¡Recibí tu audio! Ya estoy estructurando tu respuesta...", "¡Excelente pregunta! Déjame organizar la mejor explicación para ti."],
-        ["Analizando tu pronunciación y contexto lingüístico de cerca...", "Revisando la estructura gramatical para darte los mejores insights."],
-        ["Buscando ejemplos prácticos y claros para ilustrar la regla...", "Preparando consejos exclusivos para facilitar tu aprendizaje ahora."],
-        ["Profundizando en el análisis teórico para resolver tu duda...", "Puliendo los detalles finales de tu feedback de conversación."],
-        ["¡Casi listo! Generando tu archivo de audio explicativo...", "Sintetizando nuestra respuesta en formato de voz nativa..."]
-      ];
-
-      const blocos = currentLang === "EN" ? blocosEN : currentLang === "ES" ? blocosES : blocosPT;
-      let indiceBloco = Math.floor(thinkingTime / 2);
-      if (indiceBloco > 4) indiceBloco = 4;
-
-      const blocoAtual = blocos[indiceBloco];
-      const hash = (thinkingTime + 7) % blocoAtual.length;
-      return blocoAtual[hash];
+      const mensagens = {
+        PT: `Organizando o seu atendimento com a Mentora... Você está na posição ${posicao} da fila.`,
+        EN: `Arranging your session with the Mentor... You are at position ${posicao} in the queue.`,
+        ES: `Organizando tu atención con la Mentora... Estás en la posición ${posicao} de la fila.`
+      };
+      const langKey = (typeof currentLang !== 'undefined' ? currentLang : 'PT').toUpperCase();
+      return mensagens[langKey] || mensagens.PT;
     };
 
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -727,12 +697,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         let textoAcumulado = "";
 
         if (reader) {
+          const lang = (typeof baseLang !== 'undefined' ? baseLang : 'PT').toUpperCase();
+          
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = decoder.decode(value, { stream: true });
-            textoAcumulado += chunk;
-            setRespostaIA(textoAcumulado);
+            
+            if (chunk.startsWith("QUEUE:")) {
+              continue;
+            }
+            
+            if (textoAcumulado === "" && !chunk.startsWith("QUEUE:")) {
+              setRespostaIA("");
+            }
+            
+            if (!chunk.startsWith("QUEUE:")) {
+              textoAcumulado += chunk;
+              setRespostaIA(textoAcumulado);
+            }
           }
         }
       } catch (err) {
@@ -1365,8 +1348,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <div className="flex flex-col flex-1 overflow-y-auto mb-3 pr-1 max-h-[320px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div className="text-[13px] font-sans font-medium leading-relaxed text-slate-100 mt-1">
                   {(isThinking && tipoEnvio === "audio") ? (
-                    <div className="text-cyan-400 font-sans italic text-xs leading-relaxed">
-                      {getThinkingMessage()}
+                                        <div className="flex flex-col gap-3 py-2 animate-pulse">
+                      <div className="text-slate-300 font-sans text-sm font-medium tracking-wide opacity-90">
+                        {getThinkingMessage()}
+                      </div>
+                      <div className="flex items-center gap-2 pl-1 h-6">
+                        <div className="w-2.5 h-2.5 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '-0.3s' }}></div>
+                        <div className="w-2.5 h-2.5 bg-gradient-to-tr from-cyan-400 to-indigo-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '-0.15s' }}></div>
+                        <div className="w-2.5 h-2.5 bg-gradient-to-tr from-teal-300 to-cyan-400 rounded-full animate-bounce" style={{ animationDuration: '0.8s' }}></div>
+                      </div>
                     </div>
                   ) : respostaIA ? (
                     <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words efeito-fumaca font-medium">
