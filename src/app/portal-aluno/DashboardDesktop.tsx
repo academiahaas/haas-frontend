@@ -1197,9 +1197,18 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
     if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Standard: 20 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 20 Monthly Classes" : "VIP Standard: 20 Clases Mensuales"; }
   } else if (modalidade === "vip_pro" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 560000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 8 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 8 Monthly Classes" : "VIP Pro Corporativo: 8 Clases Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 780000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 1200000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 20 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 20 Monthly Classes" : "VIP Pro Corporativo: 20 Clases Mensuales"; }
+    // Procura o registro do VIP Pro vindo do banco master_plans
+    const planoVipPro = masterPlans.find(p => p.plan_category === "VIP Pro");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizVipPro = planoVipPro ? (typeof planoVipPro.pricing_matrix === "string" ? JSON.parse(planoVipPro.pricing_matrix) : planoVipPro.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à chave vinda do banco
+    valorTotal = matrizVipPro[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 8 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 8 Monthly Classes" : "VIP Pro Corporativo: 8 Clases Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 20 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 20 Monthly Classes" : "VIP Pro Corporativo: 20 Clases Mensuales"; }
   } else if (modalidade === "avulsa") {
     // Tabela Flex / Corporativa - Inicia em 75k e rebate nos marcos de 8 (560k), 12 (780k) e 20 (1.2M)
     const tabelaFlex = { 1: 75000, 2: 145000, 3: 215000, 4: 285000, 5: 355000, 6: 425000, 7: 495000, 8: 560000, 9: 615000, 10: 670000, 11: 725000, 12: 780000, 13: 835000, 14: 890000, 15: 945000, 16: 1000000, 17: 1055000, 18: 1110000, 19: 1155000, 20: 1200000 };
