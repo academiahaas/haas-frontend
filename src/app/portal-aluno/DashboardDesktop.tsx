@@ -103,7 +103,7 @@ export default function DashboardDesktop() {
           const nivelResolvido = (dUser && dUser[0]) ? (dUser[0].current_level || "A1") : "A1";
           const moduloAlvo = (dUser && dUser[0]) ? (dUser[0].current_module_number || 1) : 1;
           
-          const rUnit = await fetch(urlBase + "/rest/v1/units?select=id,unit_title,module_number,level,required_xp&module_number=eq." + moduloAlvo + "&level=eq." + nivelResolvido + "&order=unit_number.asc&limit=5", { headers });
+          const rUnit = await fetch(urlBase + "/rest/v1/units?select=id,unit_title,module_number,level,required_xp,pedagogical_objective&module_number=eq." + moduloAlvo + "&level=eq." + nivelResolvido + "&order=unit_number.asc&limit=5", { headers });
           const dUnit = await rUnit.json();
           if (dUnit && dUnit.length > 0) {
             setListaUnidades(dUnit);
@@ -654,7 +654,7 @@ export default function DashboardDesktop() {
                     ]).map((unit, idx) => {
                       const currentTitle = unit.unit_title;
                       const isOpen = unidadeExpandida === idx;
-                      const objetivos = unit.objectives || unit.description || unit.learning_goals || (idioma === 'ES' ? 'Objetivos no mapeados' : 'Objetivos não mapeados');
+                      const objetivos = unit.pedagogical_objective || unit.objectives || unit.description || unit.learning_goals || (idioma === 'ES' ? 'Objetivos no mapeados' : 'Objetivos não mapeados');
                       
                       return (
                         <div key={idx} className="flex flex-col border-b border-white/[0.02] py-1">
