@@ -626,6 +626,46 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setIsThinking(false);
   };
 
+  const dispararAnaliseInicialBackground = async (idioma, nivel, unidade) => {
+    if (isThinking) return;
+    setIsThinking(true);
+    setRespostaIA('');
+
+    try {
+      const promptBoasVindas = `Gerar uma mensagem curta e objetiva de incentivo pedagógico e mentoria para o(a) aluno(a) ${nomeUsuarioReal || "Estudante"} que está no nível ${nivel} da unidade "${unidade}". Faça uma análise amigável incentivando-o a focar nos estudos práticos. Escreva a resposta estritamente no idioma ${idioma.includes("spanish") || idioma === "es" ? "Espanhol" : idioma.includes("english") || idioma === "en" ? "Inglês" : "Português"}.`;
+
+      const response = await fetch("/api/ai/mentor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: promptBoasVindas,
+          userId: userId
+        })
+      });
+
+      if (!response.body) {
+        setIsThinking(false);
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let acumulado = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        acumulado += chunk;
+        setRespostaIA(acumulado);
+      }
+    } catch (err) {
+      console.error("Erro na análise inicial:", err);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
   // NOVO MOTOR ULTRA VELOZ COM VOZ NATIVA E VALIDAÇÃO DE CRÉDITOS NO SUPABASE
   const perguntarAoMentor = async (e: any, audioBase64 = null) => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
