@@ -716,13 +716,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           })
         });
 
-        const dataInterna = await resInterna.json();
-        
-        if (dataInterna && dataInterna.text) {
-          respostaTexto = dataInterna.text;
-          setRespostaIA(respostaTexto);
-        } else {
-          setRespostaIA(dataInterna.error || "Erro ao obter resposta do motor local.");
+        if (!resInterna.ok) {
+          setRespostaIA("Erro ao obter resposta do motor local.");
+          return;
+        }
+
+        setRespostaIA("");
+        const reader = resInterna.body?.getReader();
+        const decoder = new TextDecoder();
+        let textoAcumulado = "";
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            textoAcumulado += chunk;
+            setRespostaIA(textoAcumulado);
+          }
         }
       } catch (err) {
         console.error(err);
