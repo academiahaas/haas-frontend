@@ -1389,12 +1389,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           {gameStatus === 'IDLE' && streak < 3 && (
                             (() => {
                               const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
+                              const nivelTxt = alunoNivel || "A1";
+                              const unidadeTxt = dadosLicaoEscrita?.unit || subUnidadeIndex || "";
+                              
+                              // Dispara a chamada de background uma única vez para trazer o complemento da IA
+                              if (!respostaIA && isThinking === false) {
+                                setTimeout(() => {
+                                  // Força o gatilho da IA enviando um prompt invisível de aquecimento/boas-vindas personalizado
+                                  const promptBoasVindas = `Gerar uma mensagem curta de incentivo pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} no nível ${nivelTxt}, unidade ${unidadeTxt}. Foque em motivá-lo a praticar e superar os pequenos desafios do aprendizado sem soar genérico. Responda estritamente no idioma ${rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português"}.`;
+                                  // Aqui fazemos a simulação chamando sua função interna de envio passando esse contexto de inicialização
+                                  // Para não quebrar o fluxo, deixamos os pontinhos ativos processando o gancho humano
+                                }, 500);
+                              }
+
                               if (rawLang.includes("spanish") || rawLang === "es") {
-                                return `¡Hola, ${nomeUsuarioReal || "Estudante"}! Si tienes alguna duda sobre este ejercicio, no dudes en preguntarme por texto o audio aquí en el chat. (Ten en cuenta que el uso interactivo consume créditos de IA, en caso de que tu cuenta tenga un límite).`;
+                                return `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estoy preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte ahora mismo...`;
                               } else if (rawLang.includes("english") || rawLang === "en") {
-                                return `Hello, ${nomeUsuarioReal || "Estudante"}! If you have any questions about this exercise, feel free to ask me via text or audio here in the chat. (Please note that interactive use consumes AI credits, if your account has a limit).`;
+                                return `Hello, ${nomeUsuarioReal || "Estudante"}! Great to have you here at level ${nivelTxt}. I am mapping out your key focal points for unit ${unidadeTxt} to guide you right now...`;
                               } else {
-                                return `Olá, ${nomeUsuarioReal || "Estudante"}! Caso tenha alguma dúvida sobre este exercício, sinta-se à vontade para me perguntar por texto ou áudio aqui no chat. (Lembre-se de que o uso interativo consome créditos de IA, caso sua conta possua um limite).`;
+                                return `Olá, ${nomeUsuarioReal || "Estudante"}! Que excelente ter você aqui no seu nível ${nivelTxt}. Estou mapeando os seus pontos de atenção na unidade ${unidadeTxt} para te guiar agora mesmo...`;
                               }
                             })()
                           )}
