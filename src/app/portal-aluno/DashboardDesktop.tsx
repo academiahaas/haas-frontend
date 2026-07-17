@@ -1224,9 +1224,14 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     valorTotal = tabela[qtdAvulsas] || (qtdAvulsas * 40000);
     descricaoItem = idioma === "PT" ? `Pack Acumulativo: ${qtdAvulsas} Aulas em Grupo` : idioma === "EN" ? `Accumulative Pack: ${qtdAvulsas} Group Classes` : `Pack Acumulativo: ${qtdAvulsas} Aulas en Grupo`;
   } else if (modalidade === "acumulador_vip_std") {
-    // Tabela VIP Standard - Inicia em 55k e rebate nos marcos de 8 (400k), 12 (540k) e 20 (800k)
-    const tabelaStd = { 1: 55000, 2: 105000, 3: 155000, 4: 205000, 5: 255000, 6: 305000, 7: 355000, 8: 400000, 9: 435000, 10: 470000, 11: 505000, 12: 540000, 13: 575000, 14: 610000, 15: 645000, 16: 680000, 17: 715000, 18: 750000, 19: 775000, 20: 800000 };
-    valorTotal = tabelaStd[qtdAvulsas] || (qtdAvulsas * 55000);
+    // Busca o registro do Pack VIP Std na tabela master_plans
+    const planoPackStd = masterPlans.find(p => p.plan_category === "Pack VIP Std");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizPackStd = planoPackStd ? (typeof planoPackStd.pricing_matrix === "string" ? JSON.parse(planoPackStd.pricing_matrix) : planoPackStd.pricing_matrix) : {};
+    
+    // Vincula o valor total à quantidade selecionada no seletor (qtdAvulsas)
+    valorTotal = matrizPackStd[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack VIP Standard Acumulativo: ${qtdAvulsas} Aulas` : idioma === "EN" ? `Accumulative VIP Standard Pack: ${qtdAvulsas} Classes` : `Pack VIP Standard Acumulativo: ${qtdAvulsas} Clases`;
   }
 
