@@ -1184,9 +1184,18 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
     if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 12 Créditos Mensais" : idioma === "EN" ? "Group Plan: 12 Monthly Credits" : "Plan Colectivo: 12 Créditos Mensuales"; }
     if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 20 Créditos Mensais (Imersão)" : idioma === "EN" ? "Group Plan: 20 Monthly Credits (Immersion)" : "Plan Colectivo: 20 Créditos Mensuales (Inmersión)"; }
   } else if (modalidade === "vip_std" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 400000; descricaoItem = idioma === "PT" ? "VIP Standard: 8 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 8 Monthly Classes" : "VIP Standard: 8 Clases Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 540000; descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 800000; descricaoItem = idioma === "PT" ? "VIP Standard: 20 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 20 Monthly Classes" : "VIP Standard: 20 Clases Mensuales"; }
+    // Procura o registro do VIP Standard vindo do banco master_plans
+    const planoVipStd = masterPlans.find(p => p.plan_category === "VIP Standard");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizVipStd = planoVipStd ? (typeof planoVipStd.pricing_matrix === "string" ? JSON.parse(planoVipStd.pricing_matrix) : planoVipStd.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à chave (8, 12, 20) vinda do banco
+    valorTotal = matrizVipStd[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "VIP Standard: 8 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 8 Monthly Classes" : "VIP Standard: 8 Clases Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Standard: 20 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 20 Monthly Classes" : "VIP Standard: 20 Clases Mensuales"; }
   } else if (modalidade === "vip_pro" && creditosMensais) {
     if (creditosMensais === 8) { valorTotal = 560000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 8 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 8 Monthly Classes" : "VIP Pro Corporativo: 8 Clases Mensuales"; }
     if (creditosMensais === 12) { valorTotal = 780000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
