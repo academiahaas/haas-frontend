@@ -989,10 +989,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     </div>
                   )}
                 </div>
-                <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
-                  <span>STATUS: RUNNING</span>
-                  <span>HAAS ENGINE</span>
-                </div>
+                
               </div>
             )}
 
@@ -1024,10 +1021,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     {carregandoTexto ? "Carregando conteúdo..." : "Nenhum conteúdo pedagógico associado a esta lição."}
                   </div>
                 )}
-                <div className="h-4 w-full bg-white/[0.01] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0 mt-6">
-                  <span>TEXTO DE IMERSÃO ATIVO</span>
-                  <span>HAAS ENGINE V2.5</span>
-                </div>
+                
               </div>
             )}
             {/* TELA DA TRILHA HORIZONTAL GAMIFICADA (ESTEIRA LIMPA) */}
@@ -1126,10 +1120,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   )}
                 </div>
 
-                <div className="h-4 w-full bg-white/[0.02] border border-white/5 rounded px-2 flex items-center justify-between text-[8px] font-mono text-slate-500 shrink-0">
-                  <span>STATUS: RUNNING</span>
-                  <span>HAAS ENGINE</span>
-                </div>
+                
               </div>
             )}
             {false ? (
@@ -1374,13 +1365,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       </div>
 
-      <div className="w-full px-8 py-3 flex justify-between items-center border-t border-amber-500/15 bg-[#0B1528] text-[10px] font-mono text-slate-500 flex-shrink-0 select-none">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 bg-[#22C55E] rounded-full" />
-          <span>HAAS ENGINE V2.5.0 • SECURE REWARD SYSTEM GAMEPLAY</span>
-        </div>
-        <span>© 2026 HAAS LANGUAGE ACADEMY • PREMIUM GAMIFIED PLATFORM</span>
-      </div>
+      
 
     </div>
   );
