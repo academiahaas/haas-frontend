@@ -100,7 +100,21 @@ export async function POST(request: Request) {
 
     let instrucaoSistema = "";
     let promptFinalOllama = prompt;
+    const esDuvidaDireta = !!(prompt && prompt.trim().length > 0 && !prompt.toLowerCase().includes("feedback") && !prompt.toLowerCase().includes("analiza"));
+    if (!esDuvidaDireta) { promptFinalOllama = ""; }
 
+        // ==========================================
+    // ADIÇÃO: MODO PROFESSORA ATIVA (DÚVIDAS)
+    // ==========================================
+    if (esDuvidaDireta) {
+      if (langKey === "SPANISH") {
+        instrucaoSistema = "Eres la Mentora Haas, profesora experta de " + idiomaLecionadoES + ". El alumno está aprendiendo EXCLUSIVAMENTE el idioma " + idiomaLecionadoES + " y te hace una pregunta en este contexto. Comunícate 100% en ESPAÑOL. Responde con prioridad absoluta explicando su duda gramatical o de vocabulario sobre " + idiomaLecionadoES + ". Jamás confundas esto con estructuras de otros idiomas. Para explicarlo de forma redonda, conecta de manera sutil e integrada el contenido de sus errores o debilidades recientes en el curso (" + (fracos || "gramática") + ") junto con la nueva duda que te acaba de plantear. Escribe en prosa fluida, sin viñetas ni listas. Máximo 600 caracteres.";
+      } else if (langKey === "ENGLISH") {
+        instrucaoSistema = "You are Mentora Haas, an expert teacher of " + idiomaLecionadoEN + ". The student is EXCLUSIVELY learning " + idiomaLecionadoEN + " and is asking a question within this context. Respond 100% in ENGLISH. Directly explain their grammatical or vocabulary doubt regarding " + idiomaLecionadoEN + ", never confusing it with other languages. To make the explanation powerful, seamlessly weave into your response parts of their recent mistakes or language weaknesses (" + (fracos || "grammar") + "), explaining them together with this new doubt. Write in smooth paragraphs without bullet points. Maximum 600 caracteres.";
+      } else {
+        instrucaoSistema = "Você é a Mentora Haas, professora especialista em " + idiomaLecionadoPT + ". O aluno está aprendendo EXCLUSIVAMENTE o idioma " + idiomaLecionadoPT + " e está te fazendo uma pergunta dentro desse contexto. Responda 100% em PORTUGUÊS com prioridade absoluta. Explique a dúvida gramatical ou de vocabulário sobre " + idiomaLecionadoPT + ", sem jamais confundir com regras de outros idiomas. Para enriquecer a explicação, conecte de forma sutil e orgânica elementos dos erros e pontos fracos recentes dele (" + (fracos || "sintaxe") + ") junto com a nova dúvida apresentada. Escreva em fluxo de texto corrido, sem tópicos ou listas. Máximo 600 caracteres.";
+      }
+    } else {
     if (langKey === "SPANISH") {
       if (!promptFinalOllama) {
         promptFinalOllama = `Analiza mi rendimiento y guíame en mi aprendizaje de ${idiomaLecionadoES}.`;
@@ -158,6 +172,8 @@ export async function POST(request: Request) {
       5. LIMITE: Máximo de 500 caracteres totais.`;
     }
 
+    }
+
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -172,7 +188,7 @@ export async function POST(request: Request) {
             system: instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
-            options: { temperature: 0.6, num_predict: 180 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
+            options: { temperature: esDuvidaDireta ? 0.55 : 0.7, num_predict: esDuvidaDireta ? 200 : 350 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
           })
         });
 
