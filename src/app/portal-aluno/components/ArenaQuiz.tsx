@@ -31,6 +31,21 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
   if (baseLang.includes('PORTUGU')) baseLang = 'PT';
   const currentLang = baseLang;
+  
+  // Gatilho Automático Direto
+  useEffect(() => {
+    if (!userId || respostaIA || isThinking || (chatHistory && chatHistory.length > 0)) return;
+    let processado = false;
+    const timer = setTimeout(() => {
+      if (processado) return;
+      processado = true;
+      if (typeof perguntarAoMentor === "function") {
+        perguntarAoMentor(null, null, "feedback pedagógico atual");
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [userId]);
+
   const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
   const [urlEmbedAtiva, setUrlEmbedAtiva] = useState<string>("");
@@ -638,10 +653,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const response = await fetch("/api/ai/mentor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: promptBoasVindas,
-          userId: userId
-        })
+        body: JSON.stringify({ prompt: promptBoasVindas, userId: userId, idiomaTela: currentLang })
       });
 
       if (!response.body) {
@@ -668,15 +680,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   // NOVO MOTOR ULTRA VELOZ COM VOZ NATIVA E VALIDAÇÃO DE CRÉDITOS NO SUPABASE
-  const perguntarAoMentor = async (e: any, audioBase64 = null) => {
+  const perguntarAoMentor = async (e: any, audioBase64 = null, textoForcado = null) => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
     abortControllerRef.current = new AbortController();
     if (e) e.preventDefault();
     
-    const textoParaEnviar = chatInput ? chatInput.trim() : "";
+    const textoParaEnviar = textoForcado ? textoForcado : (chatInput ? chatInput.trim() : "");
     if (!audioBase64 && !textoParaEnviar) return;
 
-    if (textoParaEnviar) {
+    if (textoParaEnviar && textoParaEnviar !== "feedback pedagógico atual") {
       setChatHistory(prev => [...prev, { tipo: 'user', texto: textoParaEnviar }]);
     }
     setChatInput('');
@@ -724,10 +736,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const resInterna = await fetch("/api/ai/mentor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: promptFinal,
-            userId: userId
-          })
+          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: currentLang })
         });
 
         if (!resInterna.ok) {
@@ -1419,7 +1428,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                         const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
                         let textoBase = "";
                         if (rawLang.includes("spanish") || rawLang === "es") {
-                          textoBase = `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estou preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte agora mesmo...\n\n`;
+                          textoBase = `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estoy preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte ahora mismo...\n\n`;
                         } else if (rawLang.includes("english") || rawLang === "en") {
                           textoBase = `Hello, ${nomeUsuarioReal || "Estudante"}! Great to have you here at level ${nivelTxt}. I am mapping out your key focal points for unit ${unidadeTxt} to guide you right now...\n\n`;
                         } else {
@@ -1487,10 +1496,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                     fetch("/api/ai/mentor", {
                                       method: "POST",
                                       headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({
-                                        prompt: promptBoasVindas,
-                                        userId: userId
-                                      })
+                                      body: JSON.stringify({ prompt: promptBoasVindas, userId: userId, idiomaTela: currentLang })
                                     }).then(async (res) => {
                                       if (!res.body) return;
                                       const reader = res.body.getReader();
