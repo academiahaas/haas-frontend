@@ -617,7 +617,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         EN: `Arranging your session with the Mentor... You are at position ${posicao} in the queue.`,
         ES: `Organizando tu atención con la Mentora... Estás en la posición ${posicao} de la fila.`
       };
-      const langKey = (typeof currentLang !== 'undefined' ? currentLang : 'PT').toUpperCase();
+      let rawLang = (typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : (typeof currentLang !== "undefined" ? currentLang : "PT")).toLowerCase();
+      let langKey = "PT";
+      if (rawLang.includes("spanish") || rawLang.includes("es")) langKey = "ES";
+      else if (rawLang.includes("english") || rawLang.includes("en")) langKey = "EN";
       return mensagens[langKey] || mensagens.PT;
     };
 
@@ -1429,7 +1432,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       {/* Animação e feedback visual de digitação */}
                       {isThinking && (
                         <div className="flex flex-col gap-2 py-1 mt-1 w-max">
-                          <span className="text-cyan-400 text-xs italic animate-pulse">{getThinkingMessage()}</span>
+                          <span className="text-slate-400 text-xs italic">{getThinkingMessage()}</span>
                           <div className="flex items-center space-x-1.5 pl-0.5">
                             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-bounce [animation-delay:-0.3s]"></div>
                             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-bounce [animation-delay:-0.15s]"></div>
@@ -1483,7 +1486,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   ) : (
                     <div>
                       {(isThinking && tipoEnvio === "texto") ? (
-                        <span className="text-cyan-400 font-sans italic animate-pulse">{getThinkingMessage()}</span>
+                        <span className="text-slate-400 font-sans italic">{getThinkingMessage()}</span>
                       ) : (
                         <>
                           {gameStatus === 'CORRECT' && "Incrível! O loot da missão foi liberado. Clique na caixa de suprimentos para resgatar seus bônus de PTS multiplicados!"}
