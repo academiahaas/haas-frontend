@@ -99,6 +99,7 @@ export async function POST(request: Request) {
     }
 
     let instrucaoSistema = "";
+    const prefixoTrava = "[REGLA CRÍTICA DE LONGITUD: Responde de forma extremadamente directa y concisa. Está PROHIBIDO extenderse. Tu respuesta completa DEBE tener menos de 80 palabras totales. Corta el texto de inmediato al cumplir el objetivo. No uses introducciones largas.] ";
     let promptFinalOllama = prompt;
     const esDuvidaDireta = !!(prompt && prompt.trim().length > 0 && !prompt.toLowerCase().includes("feedback") && !prompt.toLowerCase().includes("analiza"));
     if (!esDuvidaDireta) { promptFinalOllama = ""; }
@@ -185,10 +186,10 @@ export async function POST(request: Request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "qwen2.5:7b",
-            system: instrucaoSistema,
+            system: prefixoTrava + instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
-            options: { temperature: esDuvidaDireta ? 0.55 : 0.7, num_predict: esDuvidaDireta ? 200 : 350 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
+            options: { temperature: esDuvidaDireta ? 0.55 : 0.7, num_predict: esDuvidaDireta ? 130 : 180 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
           })
         });
 
