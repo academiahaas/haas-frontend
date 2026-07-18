@@ -265,7 +265,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         // Puxa o progresso de unidade associado ao aluno ordenando pelo mais recente
         const targetUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
-        const res = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1&unit_id=eq.${targetUnitId}&select=unit_xp`, {
+        const res = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userId}&unit_id=eq.${targetUnitId}&select=unit_xp`, {
           headers: {
             "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"
@@ -341,7 +341,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
-        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
         // 1. Pega as etiquetas da unidade atual na tabela cheia
         const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level,unit_number`, {
@@ -383,7 +383,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const puxarProficienciaDoBanco = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=current_level`, { headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } });
         const dadosUser = await resUser.json();
@@ -407,7 +407,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const buscarCreditosIniciais = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
           headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
@@ -682,7 +682,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
       const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
 
       // 1. FASE DE VERIFICAÇÃO DE CRÉDITOS
@@ -767,7 +767,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       try {
         const novosCreditos = Math.max(0, (creditosPlano || 1) - 1);
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         
         await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
@@ -1399,8 +1399,28 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       </div>
                     </div>
                   ) : respostaIA ? (
-                    <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words efeito-fumaca font-medium">
-                      {respostaIA}
+                    <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words font-medium">
+                      {(() => {
+                        const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
+                        const nivelTxt = alunoNivel || "A1";
+                        const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
+                        let textoBase = "";
+                        if (rawLang.includes("spanish") || rawLang === "es") {
+                          textoBase = `¡Hola, ${nomeUsuarioReal || "Estudante"}! Qué excelente tenerte aquí en tu nivel ${nivelTxt}. Estou preparando un análisis de tus puntos clave en la unidad ${unidadeTxt} para guiarte agora mesmo...\n\n`;
+                        } else if (rawLang.includes("english") || rawLang === "en") {
+                          textoBase = `Hello, ${nomeUsuarioReal || "Estudante"}! Great to have you here at level ${nivelTxt}. I am mapping out your key focal points for unit ${unidadeTxt} to guide you right now...\n\n`;
+                        } else {
+                          textoBase = `Olá, ${nomeUsuarioReal || "Estudante"}! Que excelente ter você aqui no seu nível ${nivelTxt}. Estou mapeando os seus pontos de atenção na unidade ${unidadeTxt} para te guiar agora mesmo...\n\n`;
+                        }
+                        return (
+                          <div className="efeito-fumaca">
+                            <span>{textoBase}</span>
+                            <span>
+                              {respostaIA.startsWith("QUEUE:") ? respostaIA.replace(/^QUEUE:\d+/, "").trim() : respostaIA}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   ) : (
                     <div>
