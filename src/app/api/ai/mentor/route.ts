@@ -184,7 +184,7 @@ export async function POST(request: Request) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "qwen2.5:3b",
+            model: "qwen2.5:7b",
             system: instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
