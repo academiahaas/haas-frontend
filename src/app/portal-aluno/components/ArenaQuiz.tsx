@@ -468,6 +468,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           return;
         }
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const urlCriada = URL.createObjectURL(audioBlob);
+        (globalThis as any).lastAudioUrl = urlCriada;
         if (audioBlob.size < 1000) return;
         
         const reader = new FileReader();
@@ -523,7 +525,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
     const cancelVoiceRecording = () => {
-    isCancelledRef.current = true;
+    // isCancelledRef.current = true; (desativado cancelamento)
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
@@ -554,7 +556,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [respostaIA, setRespostaIA] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
-  const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string}[]>([]);
+  const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>([]);
   const [msgEscritaAleatoria, setMsgEscritaAleatoria] = useState("");
   const [tipoEnvio, setTipoEnvio] = useState("");
   
@@ -691,8 +693,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const textoParaEnviar = textoForcado ? textoForcado : (chatInput ? chatInput.trim() : "");
     if (!audioBase64 && !textoParaEnviar) return;
 
-    if (textoParaEnviar && textoParaEnviar !== "feedback pedagógico atual") {
-      setChatHistory(prev => [...prev, { tipo: 'user', texto: textoParaEnviar }]);
+    if ((textoParaEnviar && textoParaEnviar !== "feedback pedagógico atual") || audioBase64) {
+      setChatHistory(prev => [...prev, { tipo: "user", texto: textoParaEnviar || "", audioUrl: (globalThis as any).lastAudioUrl || undefined }]);
     }
     setChatInput('');
     setTipoEnvio(audioBase64 ? "audio" : "texto");
@@ -1419,7 +1421,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       {chatHistory.map((msg, i) => (
                         <div key={i} className={msg.tipo === "user" ? "text-right" : "text-left text-slate-100"}>
                           <span className={msg.tipo === "user" ? "inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30" : ""}>
-                            {msg.texto}
+                            {(msg as any).audioUrl ? (
+                              <div className="py-1">
+                                <audio controls src={(msg as any).audioUrl} className="w-48 h-8 accent-cyan-500 rounded-lg" />
+                              </div>
+                            ) : msg.texto}
                           </span>
                         </div>
                       ))}
