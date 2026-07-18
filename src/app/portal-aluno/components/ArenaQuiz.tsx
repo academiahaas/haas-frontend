@@ -1468,7 +1468,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
                       {/* Stream de Resposta Ativa */}
                       {respostaIA && !chatHistory.some(m => m.texto === respostaIA) && (
-                        <div className="text-left text-slate-100">{respostaIA}</div>
+                         <div style={{ display: "none" }}>{(() => { console.log("=== BASTIDORES RESPOSTA IA ===", respostaIA); return respostaIA; })()}</div>
                       )}
 
                       {/* Animação e feedback visual de digitação */}
