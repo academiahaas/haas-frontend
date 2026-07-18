@@ -195,12 +195,11 @@ export async function POST(request: Request) {
 
         if (!resOllama.ok) {
           writer.write(encoder.encode("Erro no motor local"));
-          writer.close();
           return;
         }
 
         const reader = resOllama.body?.getReader();
-        if (!reader) { writer.close(); return; }
+        if (!reader) { return; }
 
         let buffer = "";
         while (true) {

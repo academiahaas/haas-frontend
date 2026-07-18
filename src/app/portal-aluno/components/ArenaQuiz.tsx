@@ -455,32 +455,59 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       audioChunksRef.current = [];
       isCancelledRef.current = false;
       const mediaRecorder = new MediaRecorder(stream);
+       
+       // INICIALIZAÇÃO DA TRANSCRIÇÃO NATIVA ATRÁS DAS CORTINAS
+       if (typeof window !== "undefined") {
+         (window as any).lastRecognizedText = "";
+         const SpeechClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+         if (SpeechClass) {
+           const rec = new SpeechClass();
+           rec.continuous = true;
+           rec.interimResults = false;
+           // Detecta o idioma da interface dinamicamente para maior precisão
+           rec.lang = (typeof currentLang !== "undefined" && currentLang) ? currentLang : "pt-BR";
+           
+           rec.onresult = (event) => {
+             let txt = "";
+             for (let i = event.resultIndex; i < event.results.length; i++) {
+               if (event.results[i].isFinal) txt += event.results[i][0].transcript;
+             }
+             if (txt) (window as any).lastRecognizedText = ((window as any).lastRecognizedText || "") + " " + txt;
+           };
+           
+           (window as any).globalSpeechRecInstance = rec;
+           rec.start();
+         }
+       }
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
 
-      mediaRecorder.onstop = async () => {
-        if (isCancelledRef.current) {
-          audioChunksRef.current = [];
-          stream.getTracks().forEach(track => track.stop());
-          return;
-        }
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const urlCriada = URL.createObjectURL(audioBlob);
-        (globalThis as any).lastAudioUrl = urlCriada;
-        if (audioBlob.size < 1000) return;
-        
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = async () => {
-          const base64Audio = reader.result?.toString().split(',')[1];
-          if (!base64Audio) return;
-          perguntarAoMentor(null, base64Audio);
-        };
-        stream.getTracks().forEach(track => track.stop());
-      };
+       mediaRecorder.onstop = async () => {
+         if (typeof window !== "undefined" && (window as any).globalSpeechRecInstance) {
+           try { (window as any).globalSpeechRecInstance.stop(); } catch(e){}
+         }
+         stream.getTracks().forEach(track => track.stop());
+         if (isCancelledRef.current) {
+           audioChunksRef.current = [];
+           return;
+         }
+         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+         const urlCriada = URL.createObjectURL(audioBlob);
+         (globalThis as any).lastAudioUrl = urlCriada;
+         if (audioBlob.size < 1000) return;
+         
+         const reader = new FileReader();
+         reader.readAsDataURL(audioBlob);
+         reader.onloadend = async () => {
+           const base64Audio = reader.result?.toString().split(",")[1];
+           if (!base64Audio) return;
+           perguntarAoMentor(null, base64Audio);
+         };
+       };
+       // Linha limpa
 
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       audioContextRef.current = audioCtx;
@@ -690,7 +717,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     abortControllerRef.current = new AbortController();
     if (e) e.preventDefault();
     
-    const textoParaEnviar = textoForcado ? textoForcado : (chatInput ? chatInput.trim() : "");
+    const textoParaEnviar = textoForcado ? textoForcado : (chatInput ? chatInput.trim() : (audioBase64 && typeof window !== "undefined" ? ((window as any).lastRecognizedText || "").trim() : ""));
+     if (audioBase64 && !textoParaEnviar) {
+       // Fallback se o motor nativo nao transcrever a tempo
+       // Mantem o fluxo ativo sem quebrar as variaveis
+     }
+      console.log("=== DEBUG MENTORA AUDIO ===", { textoCapturado: textoParaEnviar, bufferGlobal: typeof window !== "undefined" ? (window as any).lastRecognizedText : "fora do window" });
+     // Linha limpa
     if (!audioBase64 && !textoParaEnviar) return;
 
     if ((textoParaEnviar && textoParaEnviar !== "feedback pedagógico atual") || audioBase64) {
@@ -735,7 +768,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       // 3. ENTRADA NA API DA MENTORA
       let respostaTexto = "";
-      const promptFinal = audioBase64 ? (textoParaEnviar || "") : textoParaEnviar;
+      let promptFinal = audioBase64 ? (textoParaEnviar || "") : textoParaEnviar;
+      if (audioBase64 && textoParaEnviar) {
+        promptFinal = textoParaEnviar;
+      }
 
       try {
         const resInterna = await fetch("/api/ai/mentor", {
