@@ -52,12 +52,35 @@ export async function POST(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const { data: userData } = await supabase.from('users').select('course_language, learning_motivation').eq('id', userId).single();
     const { data: errorLogs } = await supabase.from('user_error_logs').select('conteudo').eq('user_id', userId).order('id', { ascending: false }).limit(3);
+    
+    // 1. Busca a tabela de snapshot pedagógico criada para o feedback personalizado
+    const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais, foco_erros_recentes').eq('user_id', userId).single();
+    let dadosPedagogicosPrompt = "";
+    
+    if (snapshot && snapshot.competencias_atuais) {
+      const competencias = Object.entries(snapshot.competencias_atuais)
+        .map(([key, val]) => ({ nome: key, nota: Number(val) }))
+        .sort((a, b) => b.nota - a.nota);
+        
+      if (competencias.length >= 4) {
+        const forte1 = competencias[0].nome.toUpperCase();
+        const forte2 = competencias[1].nome.toUpperCase();
+        const fraco1 = competencias[competencias.length - 1].nome.toUpperCase();
+        const fraco2 = competencias[competencias.length - 2].nome.toUpperCase();
+        
+        const errosLista = snapshot.foco_erros_recentes 
+          ? Object.entries(snapshot.foco_erros_recentes).map(([k, v]) => `${k} (${v} erros)`).join(', ')
+          : '';
+          
+        dadosPedagogicosPrompt = ` Perfil dinâmico do aluno: 2 maiores pontos fortes dele são ${forte1} e ${forte2}. Os 2 pontos críticos que ele precisa melhorar e focar agora são ${fraco1} e ${fraco2}. Erros específicos cometidos: ${errosLista}.`;
+      }
+    }
 
     const idiomaRealCurso = userData?.course_language?.trim() || "PORTUGUESE";
     const motivacaoAluno = userData?.learning_motivation?.trim() || "Geral";
     const errosRecentesTexto = errorLogs ? errorLogs.map((e: any) => e.conteudo).join(', ') : "";
 
-    const instrucaoSistema = `Você é a Mentora Haas, uma IA coach de idiomas da Academia Haas. Responda estritamente no idioma em que o aluno falar com você. Curso: ${idiomaRealCurso}. Motivação: ${motivacaoAluno}. Erros do aluno para você corrigir sutilmente em seus exemplos: ${errosRecentesTexto}. Responda em no máximo 2 frases curtas.`;
+    const instrucaoSistema = `Você é a Mentora Haas, uma IA coach de idiomas da Academia Haas. Responda estritamente no idioma em que o aluno falar com você. Curso: ${idiomaRealCurso}. Motivação: ${motivacaoAluno}.${dadosPedagogicosPrompt} Erros gerais do aluno para corrigir sutilmente: ${errosRecentesTexto}. Com base nas forças e fraquezas citadas, crie um feedback estruturado e contínuo, elogiando sutilmente os 2 pontos fortes e trazendo uma orientação prática sobre os 2 pontos a melhorar. Seja extremamente concisa e direta. Sua resposta inteira não pode ultrapassar o limite máximo de 300 caracteres de jeito nenhum.`;
 
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
