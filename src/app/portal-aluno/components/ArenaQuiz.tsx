@@ -539,6 +539,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [respostaIA, setRespostaIA] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
+  const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string}[]>([]);
   const [msgEscritaAleatoria, setMsgEscritaAleatoria] = useState("");
   const [tipoEnvio, setTipoEnvio] = useState("");
   
@@ -675,6 +676,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const textoParaEnviar = chatInput ? chatInput.trim() : "";
     if (!audioBase64 && !textoParaEnviar) return;
 
+    if (textoParaEnviar) {
+      setChatHistory(prev => [...prev, { tipo: 'user', texto: textoParaEnviar }]);
+    }
     setChatInput('');
     setTipoEnvio(audioBase64 ? "audio" : "texto");
     setIsThinking(true);
@@ -755,6 +759,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             if (!chunk.startsWith("QUEUE:")) {
               textoAcumulado += chunk;
               setRespostaIA(textoAcumulado);
+              setChatHistory(prev => {
+                const filtered = prev.filter(m => m.texto !== "...");
+                const last = filtered[filtered.length - 1];
+                if (last && last.tipo === 'ai') {
+                  return [...filtered.slice(0, -1), { tipo: 'ai', texto: textoAcumulado }];
+                } else {
+                  return [...filtered, { tipo: 'ai', texto: textoAcumulado }];
+                }
+              });
             }
           }
         }
@@ -1413,11 +1426,18 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           textoBase = `Olá, ${nomeUsuarioReal || "Estudante"}! Que excelente ter você aqui no seu nível ${nivelTxt}. Estou mapeando os seus pontos de atenção na unidade ${unidadeTxt} para te guiar agora mesmo...\n\n`;
                         }
                         return (
-                          <div className="efeito-fumaca">
-                            <span>{textoBase}</span>
-                            <span>
-                              {respostaIA.startsWith("QUEUE:") ? respostaIA.replace(/^QUEUE:\d+/, "").trim() : respostaIA}
-                            </span>
+                          <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words font-medium flex flex-col gap-4">
+                            <div>{textoBase}</div>
+                            {chatHistory.map((msg, i) => (
+                              <div key={i} className={msg.tipo === 'user' ? 'text-right' : 'text-left text-slate-100'}>
+                                <span className={msg.tipo === 'user' ? 'inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30' : ''}>
+                                  {msg.texto}
+                                </span>
+                              </div>
+                            ))}
+                            {isThinking && !respostaIA && (
+                              <div className="text-left text-cyan-400 italic animate-pulse">Digitando...</div>
+                            )}
                           </div>
                         );
                       })()}
