@@ -1409,7 +1409,36 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               
               <div className="flex flex-col flex-1 overflow-y-auto mb-3 pr-1 max-h-[320px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div className="text-[13px] font-sans font-medium leading-relaxed text-slate-100 mt-1">
-                  {(isThinking && tipoEnvio === "audio") ? (
+                  {(chatHistory.length >= 0 || isThinking || respostaIA) ? (
+                    <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words font-medium flex flex-col gap-4 w-full">
+                      
+                      {/* Histórico Consolidado */}
+                      {chatHistory.map((msg, i) => (
+                        <div key={i} className={msg.tipo === "user" ? "text-right" : "text-left text-slate-100"}>
+                          <span className={msg.tipo === "user" ? "inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30" : ""}>
+                            {msg.texto}
+                          </span>
+                        </div>
+                      ))}
+
+                      {/* Stream de Resposta Ativa */}
+                      {respostaIA && !chatHistory.some(m => m.texto === respostaIA) && (
+                        <div className="text-left text-slate-100">{respostaIA}</div>
+                      )}
+
+                      {/* Animação e feedback visual de digitação */}
+                      {isThinking && (
+                        <div className="flex flex-col gap-2 py-1 mt-1 w-max">
+                          <span className="text-cyan-400 text-xs italic animate-pulse">{getThinkingMessage()}</span>
+                          <div className="flex items-center space-x-1.5 pl-0.5">
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-bounce [animation-delay:-0.3s]"></div>
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-bounce [animation-delay:-0.15s]"></div>
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-bounce"></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (isThinking && tipoEnvio === "audio") ? (
                                         <div className="flex flex-col gap-3 py-2 animate-pulse">
                       <div className="text-slate-300 font-sans text-sm font-medium tracking-wide opacity-90">
                         {getThinkingMessage()}

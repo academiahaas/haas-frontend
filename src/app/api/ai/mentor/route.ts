@@ -7,6 +7,7 @@ class RequestQueue {
   private maxConcurrent = 1;
 
   async enqueue(fn: () => Promise<void>, onPositionCalculated: (pos: number) => void): Promise<void> {
+    // A posição real na fila leva em conta quem já está esperando + o processo ativo
     let position = this.queue.length + (this.activeCount > 0 ? 1 : 0);
     if (position === 0) position = 1;
     onPositionCalculated(position);
@@ -39,26 +40,12 @@ class RequestQueue {
   }
 }
 
-const globalQueue = ((global as any)._mentorQueue) || (((global as any)._mentorQueue) = new RequestQueue());
-
-function traduzirTermo(termo: string, idioma: string): string {
-  const t = termo.toUpperCase().trim();
-  if (idioma === "SPANISH") {
-    if (t === "ESCUTAR" || t === "LISTEN" || t === "LISTENING") return "Comprensión auditiva";
-    if (t === "LER" || t === "READ" || t === "READING") return "Lectura";
-    if (t === "ESCRITAR" || t === "ESCRITA" || t === "WRITE" || t === "WRITING") return "Escritura";
-    if (t === "GRAMÁTICA" || t === "GRAMATICA" || t === "GRAMMAR") return "Gramática";
-    if (t === "FALAR" || t === "SPEAK" || t === "SPEAKING") return "Expresión oral";
-  }
-  if (idioma === "ENGLISH") {
-    if (t === "ESCUTAR") return "Listening";
-    if (t === "LER") return "Reading";
-    if (t === "ESCRITAR" || t === "ESCRITA") return "Writing";
-    if (t === "GRAMÁTICA" || t === "GRAMATICA") return "Grammar";
-    if (t === "FALAR") return "Speaking";
-  }
-  return termo;
+// Vinculação absoluta no escopo global para o Next.js não resetar a fila entre requisições
+const globalSymbol = Symbol.for('haas.mentor.queue');
+if (!(globalThis as any)[globalSymbol]) {
+  (globalThis as any)[globalSymbol] = new RequestQueue();
 }
+const globalQueue = (globalThis as any)[globalSymbol];
 
 export async function POST(request: Request) {
   try {
@@ -70,69 +57,74 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // EXATAMENTE AQUI: Buscando a coluna native_language da tabela users do Supabase
-    const { data: userData } = await supabase.from('users').select('native_language').eq('id', userId).single();
+    const { data: userData } = await supabase.from('users').select('name, native_language').eq('id', userId).single();
     const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais').eq('user_id', userId).single();
-    
-    // Normalização baseada estritamente no dado original do banco de dados do aluno
-    let langKey = "PORTUGUESE";
-    if (userData && userData.native_language) {
-      const dbLang = userData.native_language.toUpperCase().trim();
-      if (dbLang === "SPANISH" || dbLang === "ESPAÑOL" || dbLang === "ES") langKey = "SPANISH";
-      else if (dbLang === "ENGLISH" || dbLang === "EN") langKey = "ENGLISH";
-    }
 
-    let dadosPedagogicosPrompt = "";
+    const nomeAluno = userData?.name?.split(' ')[0] || "";
+    
+    const dbLang = (userData?.native_language || "").toUpperCase().trim();
+    let langKey = "PORTUGUESE";
+    if (dbLang === "SPANISH" || dbLang === "ESPAÑOL" || dbLang === "ES") langKey = "SPANISH";
+    else if (dbLang === "ENGLISH" || dbLang === "EN") langKey = "ENGLISH";
+
+    let dadosPedagogicosContexto = "";
     if (snapshot && snapshot.competencias_atuais) {
       const competencies = Object.entries(snapshot.competencias_atuais)
         .map(([key, val]) => ({ nome: key, nota: Number(val) }))
         .sort((a, b) => b.nota - a.nota);
         
-      if (competencies.length >= 4) {
-        const forte1 = traduzirTermo(competencies[0].nome, langKey);
-        const forte2 = traduzirTermo(competencies[1].nome, langKey);
-        const fraco1 = traduzirTermo(competencies[competencies.length - 1].nome, langKey);
-        const fraco2 = traduzirTermo(competencies[competencies.length - 2].nome, langKey);
+      if (competencies.length >= 2) {
+        const fortes = [competencies[0].nome, competencies[1].nome].join(', ');
+        const fracos = competencies.length >= 4 
+          ? [competencies[competencies.length - 1].nome, competencies[competencies.length - 2].nome].join(', ')
+          : "";
         
         if (langKey === "SPANISH") {
-          dadosPedagogicosPrompt = ` Datos del perfil: Puntos fuertes actuales: ${forte1} y ${forte2}. Áreas críticas a mejorar: ${fraco1} y ${fraco2}.`;
+          dadosPedagogicosContexto = `Perfil pedagógico del alumno - Puntos fuertes: ${fortes}. Áreas de oportunidad: ${fracos}.`;
         } else if (langKey === "ENGLISH") {
-          dadosPedagogicosPrompt = ` Profile data: Current strengths: ${forte1} and ${forte2}. Critical areas to improve: ${fraco1} and ${fraco2}.`;
+          dadosPedagogicosContexto = `Pedagogical profile - Strengths: ${fortes}. Growth areas: ${fracos}.`;
         } else {
-          dadosPedagogicosPrompt = ` Perfil: Pontos fortes: ${forte1} e ${forte2}. Pontos a melhorar: ${fraco1} e ${fraco2}.`;
+          dadosPedagogicosContexto = `Perfil pedagógico - Pontos fortes: ${fortes}. Áreas de oportunidade: ${fracos}.`;
         }
       }
     }
 
-    let promptFinalOllama = "";
     let instrucaoSistema = "";
+    let promptFinalOllama = prompt;
 
     if (langKey === "SPANISH") {
-      promptFinalOllama = `Analiza mi perfil pedagógico de forma cualitativa y continua en español nativo.`;
-      instrucaoSistema = `Eres la Mentora Haas, una coach de idiomas experta. Tu objetivo es dar feedback pedagógico.
-      REGLAS DE IDIOMA Y FORMATO EXTREMAS:
-      - Responde COMPLETAMENTE en español nativo. No uses palabras en portugués como "fortes" ou "parabéns". Usa "fuertes" o "felicidades".
-      - NUNCA uses números, porcentajes o listas de errores.
-      - NO saludes ni des la bienvenida. Inicia directamente con la frase: "He revisado tu perfil..." o "Analizando tus avances...".
-      - Menciona de forma fluida y cualitativa los dos puntos fortes y los dos puntos a mejorar que recibes aquí:${dadosPedagogicosPrompt}
-      - Sé extremadamente breve, máximo 240 caracteres.`;
+      if (!promptFinalOllama) {
+        promptFinalOllama = `Analiza mi rendimiento pedagógico actual basándote en mi perfil de forma directa.`;
+      }
+      instrucaoSistema = `Eres la Mentora Haas, una coach psicopedagógica experta en idiomas de la Academia Haas. Responde obligatoria y exclusivamente en ESPAÑOL nativo.
+      
+      REGLAS DE RESPUESTA:
+      1. Si el alumno hace una pregunta o interacción directa, respóndela con prioridad absoluta en español.
+      2. Utiliza los siguientes datos reales del alumno como contexto estratégico: Nombre del alumno: ${nomeAluno}. ${dadosPedagogicosContexto}
+      3. Prohibido saludar formalmente, presentarte o usar listas y viñetas. Escribe en prosa fluida, continua y profesional.
+      4. REGLA DE ORO: La respuesta completa no puede superar los 500 caracteres bajo ninguna circunstancia. Sé directa y concisa.`;
     } else if (langKey === "ENGLISH") {
-      promptFinalOllama = `Please analyze my pedagogical profile and give me direct qualitative feedback in native English.`;
-      instrucaoSistema = `You are Mentora Haas, an expert language coach. Your goal is to provide pedagogical feedback.
-      LANGUAGE AND FORMAT RULES:
-      - Respond COMPLETELY in native English. Do not use Portuguese words.
-      - NEVER use numbers, percentages, or error logs.
-      - DO NOT greet or welcome at the beginning. Start directly with: "I have reviewed your profile..." or "Analyzing your progress...".
-      - Mention the two strengths and two areas to improve qualitatively from the data here:${dadosPedagogicosPrompt}
-      - Be extremely brief, maximum 240 characters.`;
+      if (!promptFinalOllama) {
+        promptFinalOllama = `Analyze my current pedagogical performance based on my profile directly.`;
+      }
+      instrucaoSistema = `You are Mentora Haas, an expert language coach from Academia Haas. You must respond strictly and exclusively in NATIVE ENGLISH.
+      
+      RESPONSE RULES:
+      1. If the student asks a direct question, prioritize answering it clearly in English.
+      2. Use the following real data as context: Student Name: ${nomeAluno}. ${dadosPedagogicosContexto}
+      3. Do NOT greet, introduce yourself, or use bullet points. Write in smooth, continuous prose.
+      4. GOLDEN RULE: The entire response must not exceed 500 characters under any circumstances. Be direct and concise.`;
     } else {
-      promptFinalOllama = `Por favor, analise meu perfil pedagógico de forma qualitativa e direta.`;
-      instrucaoSistema = `Você é a Mentora Haas, uma coach de idiomas experta. Escreva a sua resposta inteiramente em português.
-      REGRAS:
-      - Não use números, contadores de erros ou porcentagens.
-      - Mencione de forma sutil e qualitativa os 2 pontos fortes e os 2 pontos a melhorar trazidos aqui:${dadosPedagogicosPrompt}
-      - Não use saudações no início. Comece diretamente com a análise de forma contínua (ex: "Revisei seu perfil...", "Analisando seu desempenho...").
-      - Máximo de 240 caracteres.`;
+      if (!promptFinalOllama) {
+        promptFinalOllama = `Analise meu desempenho pedagógico atual com base no meu perfil de forma direta.`;
+      }
+      instrucaoSistema = `Você é a Mentora Haas, coach psicopedagógica de idiomas da Academia Haas. Responda estritamente em PORTUGUÊS.
+      
+      REGRAS DE RESPOSTA:
+      1. Se o aluno interagir ou perguntar algo diretamente, responda com prioridade absoluta.
+      2. Use os dados reais como contexto: Nome do aluno: ${nomeAluno}. ${dadosPedagogicosContexto}
+      3. Não use saudações formais, não se apresente e não use listas. Escreva em fluxo contínuo de texto.
+      4. REGRA DE OURO: A resposta inteira não pode ultrapassar 500 caracteres de jeito nenhum.`;
     }
 
     const { readable, writable } = new TransformStream();
@@ -149,7 +141,7 @@ export async function POST(request: Request) {
             system: instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
-            options: { temperature: 0.1, num_predict: 65 }
+            options: { temperature: 0.6, num_predict: 160 }
           })
         });
 
