@@ -1579,7 +1579,23 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               </div>
 
               <form onSubmit={perguntarAoMentor} className="flex items-center bg-[#0c192e] border border-white/5 rounded-xl px-3 py-1.5 mt-auto w-full relative">
-                <input 
+                 {isRecording ? (
+                  <div className="flex-1 flex items-center justify-start gap-1.5 h-[32px] pl-2">
+                    <div className="w-1.5 h-3 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full animate-[bounce_0.6s_infinite_alternate]" />
+                    <div className="w-1.5 h-5 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full animate-[bounce_0.4s_infinite_alternate_0.1s]" />
+                    <div className="w-1.5 h-6 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-full animate-[bounce_0.7s_infinite_alternate_0.2s]" />
+                    <div className="w-1.5 h-4.5 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full animate-[bounce_0.5s_infinite_alternate_0.15s]" />
+                    <div className="w-1.5 h-3 bg-gradient-to-t from-blue-500 to-indigo-400 rounded-full animate-[bounce_0.35s_infinite_alternate_0.3s]" />
+                    <div className="w-1.5 h-4 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-full animate-[bounce_0.65s_infinite_alternate_0.05s]" />
+                    <div className="w-1.5 h-5.5 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-full animate-[bounce_0.45s_infinite_alternate_0.2s]" />
+                    <div className="w-1.5 h-4 bg-gradient-to-t from-blue-500 to-indigo-400 rounded-full animate-[bounce_0.55s_infinite_alternate_0.4s]" />
+                    <div className="w-1.5 h-3 bg-gradient-to-t from-pink-500 to-purple-400 rounded-full animate-[bounce_0.5s_infinite_alternate_0.1s]" />
+                    <div className="w-1.5 h-6 bg-gradient-to-t from-pink-600 to-purple-400 rounded-full animate-[bounce_0.4s_infinite_alternate_0.2s]" />
+                    <div className="w-1.5 h-6.5 bg-gradient-to-t from-pink-500 to-purple-300 rounded-full animate-[bounce_0.75s_infinite_alternate_0.12s]" />
+                    <div className="w-1.5 h-4 bg-gradient-to-t from-pink-500 to-purple-400 rounded-full animate-[bounce_0.5s_infinite_alternate_0.3s]" />
+                  </div>
+                ) : (
+                  <input 
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
@@ -1587,6 +1603,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-500 focus:outline-none font-mono pr-16"
                   disabled={isRecording}
                 />
+                )}
                 <div className="absolute right-2 flex items-center gap-1.5">
                   <button
                     type="button"
