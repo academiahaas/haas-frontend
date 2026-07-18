@@ -55,53 +55,46 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Captura native_language (como ela fala) e course_language (o que ela estuda/ensina)
     const { data: userData } = await supabase.from('users').select('name, native_language, course_language').eq('id', userId).single();
     const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais').eq('user_id', userId).single();
 
-    const nomeAluno = userData?.name?.split(' ')[0] || "";
+    const nomeAluno = userData?.name?.split(' ')[0] || "Estudante";
     
-    // Idioma nativo/resposta
+    // Idioma de Comunicação (Native Language)
     const dbLang = (userData?.native_language || "").toUpperCase().trim();
     let langKey = "PORTUGUESE";
     if (dbLang === "SPANISH" || dbLang === "ESPAÑOL" || dbLang === "ES") langKey = "SPANISH";
     else if (dbLang === "ENGLISH" || dbLang === "EN") langKey = "ENGLISH";
 
-    // Mapeamento do Idioma que a IA está ensinando (Course Language)
+    // Idioma de Ensino (Course Language)
     const targetLangRaw = (userData?.course_language || "").toUpperCase().trim();
-    let idiomaLecionado = "Inglês";
+    let idiomaLecionadoPT = "Inglês";
     let idiomaLecionadoES = "Inglés";
     let idiomaLecionadoEN = "English";
 
     if (targetLangRaw === "PORTUGUESE" || targetLangRaw === "PT" || targetLangRaw === "PORTUGUÊS") {
-      idiomaLecionado = "Português";
+      idiomaLecionadoPT = "Português";
       idiomaLecionadoES = "Portugués";
       idiomaLecionadoEN = "Portuguese";
     } else if (targetLangRaw === "SPANISH" || targetLangRaw === "ES" || targetLangRaw === "ESPAÑOL") {
-      idiomaLecionado = "Espanhol";
+      idiomaLecionadoPT = "Espanhol";
       idiomaLecionadoES = "Español";
       idiomaLecionadoEN = "Spanish";
     }
 
-    let dadosPedagogicosContexto = "";
+    // Extração estritamente dinâmica das competências
+    let fortes = "";
+    let fracos = "";
     if (snapshot && snapshot.competencias_atuais) {
       const competencies = Object.entries(snapshot.competencias_atuais)
         .map(([key, val]) => ({ nome: key, nota: Number(val) }))
         .sort((a, b) => b.nota - a.nota);
         
       if (competencies.length >= 2) {
-        const fortes = [competencies[0].nome, competencies[1].nome].join(', ');
-        const fracos = competencies.length >= 4 
+        fortes = [competencies[0].nome, competencies[1].nome].join(', ');
+        fracos = competencies.length >= 4 
           ? [competencies[competencies.length - 1].nome, competencies[competencies.length - 2].nome].join(', ')
           : "";
-        
-        if (langKey === "SPANISH") {
-          dadosPedagogicosContexto = `Perfil pedagógico del alumno - Puntos fuertes: ${fortes}. Áreas de oportunidad: ${fracos}.`;
-        } else if (langKey === "ENGLISH") {
-          dadosPedagogicosContexto = `Pedagogical profile - Strengths: ${fortes}. Growth areas: ${fracos}.`;
-        } else {
-          dadosPedagogicosContexto = `Perfil pedagógico - Pontos fortes: ${fortes}. Áreas de oportunidade: ${fracos}.`;
-        }
       }
     }
 
@@ -110,37 +103,59 @@ export async function POST(request: Request) {
 
     if (langKey === "SPANISH") {
       if (!promptFinalOllama) {
-        promptFinalOllama = `Analiza mi rendimiento pedagógico actual basándote en mi perfil de forma directa.`;
+        promptFinalOllama = `Analiza mi rendimiento y guíame en mi aprendizaje de ${idiomaLecionadoES}.`;
       }
-      instrucaoSistema = `Eres la Mentora Haas, una profesora de idiomas experta y coach psicopedagógica de la Academia Haas. Tu rol absoluto es actuar y responder como especialista e instructora en la enseñanza de ${idiomaLecionadoES}. Responde obligatoria y exclusivamente en ESPAÑOL nativo.
+      instrucaoSistema = `Eres la Mentora Haas, una profesora experta nativa del idioma ${idiomaLecionadoES} y coach psicopedagógica de la Academia Haas. Tu objetivo absoluto es dar consejos tácticos para que el alumno aprenda y domine el ${idiomaLecionadoES}, comunicándote en ESPAÑOL. No te confundas: el idioma que enseñas es ${idiomaLecionadoES}.
       
-      REGLAS DE RESPUESTA:
-      1. Si el alumno hace una pregunta o interacción directa, respóndela con prioridad absoluta enfocada en su aprendizaje de ${idiomaLecionadoES}.
-      2. Utiliza los siguientes datos reales del alumno como contexto estratégico: Nombre del alumno: ${nomeAluno}. ${dadosPedagogicosContexto}
-      3. Prohibido saludar formalmente, presentarte o usar listas y viñetas. Escribe en prosa fluida, continua y profesional.
-      4. REGLA DE ORO: La respuesta completa no puede superar los 500 caracteres bajo ninguna circunstancia. Sé directa y concisa.`;
+      MATRIZ DE EJERCICIOS HAAS DISPONIBLES (Debes recomendar los adecuados para sus debilidades):
+      - Si falla en Gramática/Sintaxis/Errores: Recomienda usar "Corrección Sintática", "Bloques de Gramática" o "Ordenación de Frases".
+      - Si falla en Comprensión/Lectura: Recomienda usar "Análisis de Contexto", "Lectura Veloz" o "Lectura Progressiva".
+      - Si falla en Escritura/Vocabulario/Escucha: Recomienda usar "Dictado Práctico", "Spelling Bee" o "Traducción Inversa".
+      - Si falla en Habla/Fluidez: Recomienda usar "Conversación IA" o "Lab. de Pronunciación".
+
+      REGLAS DE MENTORÍA:
+      1. Da un saludo humano y natural a ${nomeAluno}.
+      2. Basándote en sus debilidades (${fracos || 'progreso general'}), recomiéndale imperativamente entrenar usando los nomes exactos de los ejercicios Haas listados arriba. Eres libre de complementar con consejos del mundo real (libros, series, inmersión), pero los ejercicios de la plataforma son la base obligatoria.
+      3. Contexto: Alumno: ${nomeAluno}. Puntos fuertes: ${fortes}. Áreas débiles: ${fracos}.
+      4. Redacta en prosa corrida y fluida. Prohibido usar listas, viñetas o guiones.
+      5. LÍMITE: Máximo 500 caracteres totales. Sé precisa y concisa.`;
     } else if (langKey === "ENGLISH") {
       if (!promptFinalOllama) {
-        promptFinalOllama = `Analyze my current pedagogical performance based on my profile directly.`;
+        promptFinalOllama = `Analyze my performance and guide me in my learning journey of ${idiomaLecionadoEN}.`;
       }
-      instrucaoSistema = `You are Mentora Haas, an expert language teacher and pedagogical coach from Academia Haas. Your definitive role is to act and respond as a specialist instructor teaching ${idiomaLecionadoEN}. You must respond strictly and exclusively in NATIVE ENGLISH.
+      instrucaoSistema = `You are Mentora Haas, an expert language teacher and coach specializing in teaching ${idiomaLecionadoEN}. Your sole purpose is to instruct the student to excel in ${idiomaLecionadoEN}, communicating strictly in ENGLISH. Remember: the target language you are teaching is ${idiomaLecionadoEN}.
       
-      RESPONSE RULES:
-      1. If the student asks a direct question, prioritize answering it clearly in English, focused on their development in ${idiomaLecionadoEN}.
-      2. Use the following real data as context: Student Name: ${nomeAluno}. ${dadosPedagogicosContexto}
-      3. Do NOT greet, introduce yourself, or use bullet points. Write in smooth, continuous prose.
-      4. GOLDEN RULE: The entire response must not exceed 500 characters under any circumstances. Be direct and concise.`;
+      HAAS AVAILABLE EXERCISES MATRIX (You must prescribe the right ones based on weaknesses):
+      - For Grammar/Syntax/Errors: Prescribe "Syntactic Correction", "Grammar Blocks", or "Sentence Ordering".
+      - For Reading/Context: Prescribe "Context Analysis", "Speed Reading", or "Progressive Reading".
+      - For Listening/Vocabulary/Writing: Prescribe "Practical Dictation", "Spelling Bee", or "Reverse Translation".
+      - For Speaking/Fluency: Prescribe "AI Conversation" or "Pronunciation Lab".
+
+      COACHING RULES:
+      1. Greet ${nomeAluno} warmly and naturally.
+      2. Target their growth areas (${fracos || 'general course metrics'}) by explicitly telling them to use the specific Haas platform exercises listed above. You can mention external immersive habits (reading, media) as complementary tips, but always anchoring them to our system modules.
+      3. Context: Student: ${nomeAluno}. Strengths: ${fortes}. Growth Areas: ${fracos}.
+      4. Write in continuous, smooth paragraphs. Do not use bullets or markdown lists.
+      5. LIMIT: Maximum 500 characters. Keep it brief and high-impact.`;
     } else {
+      // Bloco nativo em Português ensinando o idioma-alvo (Ex: Inglês/Espanhol)
       if (!promptFinalOllama) {
-        promptFinalOllama = `Analise meu desempenho pedagógico atual com base no meu perfil de forma direta.`;
+        promptFinalOllama = `Analise meu desempenho e me guie no aprendizado de ${idiomaLecionadoPT}.`;
       }
-      instrucaoSistema = `Você é a Mentora Haas, professora de idiomas e coach psicopedagógica da Academia Haas. Seu papel fundamental é agir e responder como instrutora especialista no ensino de ${idiomaLecionado}. Responda estritamente em PORTUGUÊS.
+      instrucaoSistema = `Você é a Mentora Haas, professora de idiomas e coach psicopedagógica especialista no ensino de ${idiomaLecionadoPT}. Seu papel principal é instruir o aluno a evoluir no ${idiomaLecionadoPT}, comunicando-se em PORTUGUÊS. Lembre-se: o idioma que você ensina é o ${idiomaLecionadoPT}.
       
-      REGRAS DE RESPOSTA:
-      1. Se o aluno interagir ou perguntar algo diretamente, responda com prioridade absoluta focada no domínio de ${idiomaLecionado}.
-      2. Use os dados reais como contexto: Nome do aluno: ${nomeAluno}. ${dadosPedagogicosContexto}
-      3. Não use saudações formais, não se apresente e não use listas. Escreva em fluxo contínuo de texto.
-      4. REGRA DE OURO: A resposta inteira não pode ultrapassar 500 caracteres de jeito nenhum.`;
+      MATRIZ DE EXERCÍCIOS HAAS (Você deve recomendar os ideais para corrigir as fraquezas dele):
+      - Se a falha for em Gramática/Sintaxe/Erros: Recomende "Caça Erro", "Blocos de Gramática", "Ordenação de Frases" ou "Reordenação de Parágrafos".
+      - Se a falha for em Compreensão/Leitura: Recomende "Múltipla Escolha", "Leitura Veloz" ou "Marchas de Áudio".
+      - Se a falha for em Escrita/Vocabulário/Escuta: Recomende "Palavra Oculta", "Spelling Bee" ou "Tradução Inversa".
+      - Se a falha for em Fala/Fluidez: Recomende "Prática de Conversação" ou "Treino de Fala".
+
+      REGRAS DE MENTORIA:
+      1. Cumprimente ${nomeAluno} de forma calorosa e humana no início.
+      2. Aponte os pontos fortes (${fortes || 'desempenho geral'}) e áreas de oportunidade (${fracos || 'desempenho geral'}), direcionando o aluno explicitamente para os exercícios correspondentes na nossa plataforma usando os nomes exatos mapeados acima. Sinta-se livre para somar dicas do cotidiano (músicas, livros, rotina), mas os treinos do Haas devem ser citados como prioridade de evolução.
+      3. Contexto real: Aluno: ${nomeAluno}. Fortes: ${fortes}. Áreas de oportunidade: ${fracos}.
+      4. Escreva em fluxo de texto corrido e amigável. Não use listas ou tópicos.
+      5. LIMITE: Máximo de 500 caracteres totais.`;
     }
 
     const { readable, writable } = new TransformStream();
@@ -157,7 +172,7 @@ export async function POST(request: Request) {
             system: instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
-            options: { temperature: 0.6, num_predict: 160 }
+            options: { temperature: 0.6, num_predict: 180 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
           })
         });
 
