@@ -7,7 +7,6 @@ class RequestQueue {
   private maxConcurrent = 1;
 
   async enqueue(fn: () => Promise<void>, onPositionCalculated: (pos: number) => void): Promise<void> {
-    // A posição real na fila leva em conta quem já está esperando + o processo ativo
     let position = this.queue.length + (this.activeCount > 0 ? 1 : 0);
     if (position === 0) position = 1;
     onPositionCalculated(position);
@@ -40,7 +39,6 @@ class RequestQueue {
   }
 }
 
-// Vinculação absoluta no escopo global para o Next.js não resetar a fila entre requisições
 const globalSymbol = Symbol.for('haas.mentor.queue');
 if (!(globalThis as any)[globalSymbol]) {
   (globalThis as any)[globalSymbol] = new RequestQueue();
@@ -57,15 +55,33 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    const { data: userData } = await supabase.from('users').select('name, native_language').eq('id', userId).single();
+    // Captura native_language (como ela fala) e course_language (o que ela estuda/ensina)
+    const { data: userData } = await supabase.from('users').select('name, native_language, course_language').eq('id', userId).single();
     const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais').eq('user_id', userId).single();
 
     const nomeAluno = userData?.name?.split(' ')[0] || "";
     
+    // Idioma nativo/resposta
     const dbLang = (userData?.native_language || "").toUpperCase().trim();
     let langKey = "PORTUGUESE";
     if (dbLang === "SPANISH" || dbLang === "ESPAÑOL" || dbLang === "ES") langKey = "SPANISH";
     else if (dbLang === "ENGLISH" || dbLang === "EN") langKey = "ENGLISH";
+
+    // Mapeamento do Idioma que a IA está ensinando (Course Language)
+    const targetLangRaw = (userData?.course_language || "").toUpperCase().trim();
+    let idiomaLecionado = "Inglês";
+    let idiomaLecionadoES = "Inglés";
+    let idiomaLecionadoEN = "English";
+
+    if (targetLangRaw === "PORTUGUESE" || targetLangRaw === "PT" || targetLangRaw === "PORTUGUÊS") {
+      idiomaLecionado = "Português";
+      idiomaLecionadoES = "Portugués";
+      idiomaLecionadoEN = "Portuguese";
+    } else if (targetLangRaw === "SPANISH" || targetLangRaw === "ES" || targetLangRaw === "ESPAÑOL") {
+      idiomaLecionado = "Espanhol";
+      idiomaLecionadoES = "Español";
+      idiomaLecionadoEN = "Spanish";
+    }
 
     let dadosPedagogicosContexto = "";
     if (snapshot && snapshot.competencias_atuais) {
@@ -96,10 +112,10 @@ export async function POST(request: Request) {
       if (!promptFinalOllama) {
         promptFinalOllama = `Analiza mi rendimiento pedagógico actual basándote en mi perfil de forma directa.`;
       }
-      instrucaoSistema = `Eres la Mentora Haas, una coach psicopedagógica experta en idiomas de la Academia Haas. Responde obligatoria y exclusivamente en ESPAÑOL nativo.
+      instrucaoSistema = `Eres la Mentora Haas, una profesora de idiomas experta y coach psicopedagógica de la Academia Haas. Tu rol absoluto es actuar y responder como especialista e instructora en la enseñanza de ${idiomaLecionadoES}. Responde obligatoria y exclusivamente en ESPAÑOL nativo.
       
       REGLAS DE RESPUESTA:
-      1. Si el alumno hace una pregunta o interacción directa, respóndela con prioridad absoluta en español.
+      1. Si el alumno hace una pregunta o interacción directa, respóndela con prioridad absoluta enfocada en su aprendizaje de ${idiomaLecionadoES}.
       2. Utiliza los siguientes datos reales del alumno como contexto estratégico: Nombre del alumno: ${nomeAluno}. ${dadosPedagogicosContexto}
       3. Prohibido saludar formalmente, presentarte o usar listas y viñetas. Escribe en prosa fluida, continua y profesional.
       4. REGLA DE ORO: La respuesta completa no puede superar los 500 caracteres bajo ninguna circunstancia. Sé directa y concisa.`;
@@ -107,10 +123,10 @@ export async function POST(request: Request) {
       if (!promptFinalOllama) {
         promptFinalOllama = `Analyze my current pedagogical performance based on my profile directly.`;
       }
-      instrucaoSistema = `You are Mentora Haas, an expert language coach from Academia Haas. You must respond strictly and exclusively in NATIVE ENGLISH.
+      instrucaoSistema = `You are Mentora Haas, an expert language teacher and pedagogical coach from Academia Haas. Your definitive role is to act and respond as a specialist instructor teaching ${idiomaLecionadoEN}. You must respond strictly and exclusively in NATIVE ENGLISH.
       
       RESPONSE RULES:
-      1. If the student asks a direct question, prioritize answering it clearly in English.
+      1. If the student asks a direct question, prioritize answering it clearly in English, focused on their development in ${idiomaLecionadoEN}.
       2. Use the following real data as context: Student Name: ${nomeAluno}. ${dadosPedagogicosContexto}
       3. Do NOT greet, introduce yourself, or use bullet points. Write in smooth, continuous prose.
       4. GOLDEN RULE: The entire response must not exceed 500 characters under any circumstances. Be direct and concise.`;
@@ -118,10 +134,10 @@ export async function POST(request: Request) {
       if (!promptFinalOllama) {
         promptFinalOllama = `Analise meu desempenho pedagógico atual com base no meu perfil de forma direta.`;
       }
-      instrucaoSistema = `Você é a Mentora Haas, coach psicopedagógica de idiomas da Academia Haas. Responda estritamente em PORTUGUÊS.
+      instrucaoSistema = `Você é a Mentora Haas, professora de idiomas e coach psicopedagógica da Academia Haas. Seu papel fundamental é agir e responder como instrutora especialista no ensino de ${idiomaLecionado}. Responda estritamente em PORTUGUÊS.
       
       REGRAS DE RESPOSTA:
-      1. Se o aluno interagir ou perguntar algo diretamente, responda com prioridade absoluta.
+      1. Se o aluno interagir ou perguntar algo diretamente, responda com prioridade absoluta focada no domínio de ${idiomaLecionado}.
       2. Use os dados reais como contexto: Nome do aluno: ${nomeAluno}. ${dadosPedagogicosContexto}
       3. Não use saudações formais, não se apresente e não use listas. Escreva em fluxo contínuo de texto.
       4. REGRA DE OURO: A resposta inteira não pode ultrapassar 500 caracteres de jeito nenhum.`;
