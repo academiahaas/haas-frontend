@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const traduzirIdioma = (sigla: string): string => {
-  if (!sigla) return "Portugués";
+  if (!sigla) return "Português";
   const s = sigla.toLowerCase().trim();
-  if (s === 'es' || s === 'espanhol' || s === 'español') return "Español";
-  if (s === 'pt' || s === 'portugues' || s === 'português') return "Portugués";
-  if (s === 'en' || s === 'ingles' || s === 'inglês' || s === 'english') return "Inglés";
+  if (s === 'es' || s === 'espanhol' || s === 'español') return "Espanhol";
+  if (s === 'pt' || s === 'portugues' || s === 'português') return "Português";
+  if (s === 'en' || s === 'ingles' || s === 'inglês' || s === 'english') return "Inglês";
   return sigla;
 };
 
@@ -40,34 +40,39 @@ export async function POST(request: Request) {
         focoErrosTexto = snapshot.foco_erros_recentes;
       }
     }
-    const DEBILIDADES_SEMANA = focoErrosTexto.trim() || "Revisión general de estructuras de conversación";
+    const DEBILIDADES_SEMANA = focoErrosTexto.trim() || "Revisão geral de estruturas de conversação";
 
     const textoPrompt = prompt ? prompt.toString() : "";
     const temHistorico = Array.isArray(chatHistory) && chatHistory.length > 0;
 
     const instrucaoSistema = `
-Eres la Mentora Haas. Tu alumno habla ${IDIOMA_NATIVO} y está aprendiendo ${IDIOMA_ALVO}. Debilidades: ${DEBILIDADES_SEMANA}.
+Você é a Mentora Haas. O idioma nativo do seu aluno é ${IDIOMA_NATIVO} e ele está aprendendo ${IDIOMA_ALVO}. Fraquezas da semana: ${DEBILIDADES_SEMANA}.
 
-[REGLAS CRÍTICAS DE SALIDA - SÉ ESTRICTO]
-Tu respuesta en pantalla debe contener única y exclusivamente dos párrafos limpios sin etiquetas, separados por una línea en blanco:
+[REGRA DE OURO - HISTÓRICO VAZIO]
+Se o histórico estiver vazio (primeira mensagem do chat), saude o aluno cordialmente em ${IDIOMA_NATIVO}, apresente-se como Mentora Haas e mencione que hoje focarão em: "${DEBILIDADES_SEMANA}". Não adicione mais nada.
 
-PÁRRAFO 1 (100% en ${IDIOMA_NATIVO}):
-- SI EL HISTORIAL ESTÁ VACÍO: Saluda cordialmente al alumno, dile que eres la Mentora Haas y menciona de forma motivadora que hoy van a enfocarse en practicar y mejorar: "${DEBILIDADES_SEMANA}". No agregues nada más.
-- SI EL HISTORIAL YA TIENE MENSAJES: Prohibido saludar o dar la bienvenida. Comenta de forma muy fluida sobre lo que dijo el alumno o corrige constructivamente sus errores gramaticales.
+[REGRA DE IDIOMA NAS INTERAÇÕES SEGUINTES]
+Se o histórico já possuir mensagens anteriores, você deve analisar o "Último mensagem recebido" do aluno e responder OBRIGATORIAMENTE no MESMO IDIOMA em que ele se comunicou com você nessa última frase (se ele falar em português, responda em português; se ele falar em inglês, responda em inglês). 
 
-PÁRRAFO 2 (100% en ${IDIOMA_ALVO}):
-- Escribe una única pregunta directa, corta y muy natural formulada exclusivamente en ${IDIOMA_ALVO} para que el alumno continúe la práctica. 
-- PROHIBIDO repetir saludos como "Olá", "Bienvenido" o frases introductorias en este segundo párrafo. Ve directo a la pregunta de práctica.
+[REGRAS CRÍTICAS DE SAÍDA - SEJA ESTRITO]
+Sua resposta na tela deve conter única e exclusivamente dois parágrafos limpos, sem qualquer tipo de tag, separados por uma linha em branco:
+
+PARÁGRAFO 1:
+- Comente de forma muito fluida sobre o que o aluno acabou de dizer, ou corrija de forma simples eventuais erros de gramática. Lembre-se de usar o mesmo idioma que o aluno usou para falar com você. Proibido saudar ou dar boas-vindas se o histórico já tiver mensagens.
+
+PARÁGRAFO 2:
+- Faça uma única pergunta direta, curta e natural formulada no idioma alvo (${IDIOMA_ALVO}) para manter o aluno praticando o curso.
+- PROIBIDO repetir saudações ou frases introdutórias neste segundo parágrafo. Vá direto para a pergunta.
 `;
 
     let stringHistorico = "";
     if (temHistorico) {
-      stringHistorico = "\n\n[HISTORIAL RECIENTE DEL CHAT]\n" + chatHistory.slice(-5).map((h: any) => {
-        const remitente = h.tipo === 'user' ? 'Alumno' : 'Mentora Haas';
+      stringHistorico = "\n\n[HISTÓRICO RECENTE DO CHAT]\n" + chatHistory.slice(-5).map((h: any) => {
+        const remitente = h.tipo === 'user' ? 'Aluno' : 'Mentora Haas';
         return `${remitente}: ${h.texto || h.content || ""}`;
       }).join("\n");
     } else {
-      stringHistorico = "\n\n[HISTORIAL RECIENTE DEL CHAT]\n(Historial vacío. Esta es la primera interacción del alumno. Genera obligatoriamente el saludo pedagógico inicial mencionando las debilidades).";
+      stringHistorico = "\n\n[HISTÓRICO RECENTE DO CHAT]\n(Histórico vazio. Primeira interação do aluno).";
     }
 
     const apiKeyGemini = "AQ.Ab8RN6I6ttBs87ZZMIvY2YAtDLXTz8UKzbgLq9UrwVQYzEtPhQ";
@@ -81,12 +86,12 @@ PÁRRAFO 2 (100% en ${IDIOMA_ALVO}):
           {
             role: "user",
             parts: [
-              { text: `${instrucaoSistema}\n\n${stringHistorico}\n\nÚltimo mensaje recibido: "${textoPrompt}"\n\nGenera la respuesta perfecta de 2 párrafos:` }
+              { text: `${instrucaoSistema}\n\n${stringHistorico}\n\nÚltimo mensagem recebido: "${textoPrompt}"\n\nGerar resposta seguindo rigidamente os 2 parágrafos:` }
             ]
           }
         ],
         generationConfig: {
-          temperature: 0.1, // Temperatura baixa fixa a IA nas regras exatas
+          temperature: 0.1,
           topP: 0.8,
           maxOutputTokens: 800
         }
