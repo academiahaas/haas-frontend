@@ -1610,7 +1610,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             window.speechSynthesis.speak(utterance);
           };
           falarSequencial();
-        }} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>
+        }} className="hidden" title="Ouvir"></button>
       )}
       {msg.texto}
     </>
@@ -1795,7 +1795,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             window.speechSynthesis.speak(utterance);
           };
           falarSequencial();
-        }} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>
+        }} className="hidden" title="Ouvir"></button>
       )}
       {msg.texto}
     </>
