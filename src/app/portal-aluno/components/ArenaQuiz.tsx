@@ -777,7 +777,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const resInterna = await fetch("/api/ai/mentor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: currentLang })
+          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: currentLang, chatHistory })
         });
 
         if (!resInterna.ok) {

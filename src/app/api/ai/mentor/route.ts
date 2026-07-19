@@ -1,64 +1,22 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-class RequestQueue {
-  private queue: (() => Promise<void>)[] = [];
-  private activeCount = 0;
-  private maxConcurrent = 1;
-
-  async enqueue(fn: () => Promise<void>, onPositionCalculated: (pos: number) => void): Promise<void> {
-    let position = this.queue.length + (this.activeCount > 0 ? 1 : 0);
-    if (position === 0) position = 1;
-    onPositionCalculated(position);
-
-    return new Promise((resolve, reject) => {
-      this.queue.push(async () => {
-        try {
-          await fn();
-          resolve();
-        } catch (err) {
-          reject(err);
-        }
-      });
-      this.next();
-    });
-  }
-
-  private async next() {
-    if (this.activeCount >= this.maxConcurrent || this.queue.length === 0) return;
-    this.activeCount++;
-    const nextFn = this.queue.shift();
-    if (nextFn) {
-      try {
-        await nextFn();
-      } finally {
-        this.activeCount--;
-        this.next();
-      }
-    }
-  }
-}
-
-const globalSymbol = Symbol.for('haas.mentor.queue');
-if (!(globalThis as any)[globalSymbol]) {
-  (globalThis as any)[globalSymbol] = new RequestQueue();
-}
-const globalQueue = (globalThis as any)[globalSymbol];
-
 const traduzirIdioma = (sigla: string): string => {
   if (!sigla) return "Portugués";
   const s = sigla.toLowerCase().trim();
   if (s === 'es' || s === 'espanhol' || s === 'español') return "Español";
   if (s === 'pt' || s === 'portugues' || s === 'português') return "Portugués";
   if (s === 'en' || s === 'ingles' || s === 'inglês' || s === 'english') return "Inglés";
-  if (s === 'fr' || s === 'frances' || s === 'francês') return "Francés";
-  if (s === 'it' || s === 'italiano') return "Italiano";
   return sigla;
 };
 
 export async function POST(request: Request) {
   try {
-    const { prompt, userId } = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const prompt = body?.prompt;
+    const userId = body?.userId;
+    const chatHistory = body?.chatHistory;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"; 
 
@@ -67,91 +25,83 @@ export async function POST(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: userData } = await supabase.from('users').select('name, native_language, course_language').eq('id', userId).single();
-    const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais, foco_erros_recentes').eq('user_id', userId).single();
+    const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('foco_erros_recentes').eq('user_id', userId).single();
 
     const IDIOMA_NATIVO = traduzirIdioma(userData?.native_language);
     const IDIOMA_ALVO = traduzirIdioma(userData?.course_language);
-    const DEBILIDADES_SEMANA = snapshot?.foco_erros_recentes || "Revisão geral";
+    
+    let focoErrosTexto = "";
+    if (snapshot?.foco_erros_recentes) {
+      if (typeof snapshot.foco_erros_recentes === 'object' && !Array.isArray(snapshot.foco_erros_recentes)) {
+        focoErrosTexto = Object.keys(snapshot.foco_erros_recentes).slice(0, 2).join(" e ");
+      } else if (Array.isArray(snapshot.foco_erros_recentes)) {
+        focoErrosTexto = snapshot.foco_erros_recentes.slice(0, 2).join(" e ");
+      } else if (typeof snapshot.foco_erros_recentes === 'string') {
+        focoErrosTexto = snapshot.foco_erros_recentes;
+      }
+    }
+    const DEBILIDADES_SEMANA = focoErrosTexto.trim() || "Revisión general de estructuras de conversación";
+
+    const textoPrompt = prompt ? prompt.toString() : "";
+    const temHistorico = Array.isArray(chatHistory) && chatHistory.length > 0;
 
     const instrucaoSistema = `
-[ROL Y OBJETIVO]
-Eres un tutor de idiomas de IA altamente pedagógico, paciente y amigable. Tu objetivo es ayudar al usuario a practicar el "Idioma de Aprendizaje" (${IDIOMA_ALVO}), teniendo en cuenta que su idioma nativo es ${IDIOMA_NATIVO}.
+Eres la Mentora Haas. Tu alumno habla ${IDIOMA_NATIVO} y está aprendiendo ${IDIOMA_ALVO}. Debilidades: ${DEBILIDADES_SEMANA}.
 
-[DATOS REALES DEL ALUMNO]
-- native_language (Idioma Nativo): ${IDIOMA_NATIVO}
-- course_language (Idioma que está Aprendiendo): ${IDIOMA_ALVO}
-- Historial de debilidades de la semana: ${DEBILIDADES_SEMANA}
+[REGLAS CRÍTICAS DE SALIDA - SÉ ESTRICTO]
+Tu respuesta en pantalla debe contener única y exclusivamente dos párrafos limpios sin etiquetas, separados por una línea en blanco:
 
-[REGLAS ESTRICTAS DE COMPORTAMIENTO]
-1. Mensaje de Bienvenida: Tu saludo cordial y el comentario sobre sus debilidades (${DEBILIDADES_SEMANA}) DEBEN escribirse en ${IDIOMA_NATIVO}. Inmediatamente después de ese saludo, debes formular una pregunta sencilla de práctica redactada enteramente en ${IDIOMA_ALVO}. No mezcles palabras de ${IDIOMA_NATIVO} en la pregunta.
-2. Tono General: Sé muy motivador y amigable. Usa frases de apoyo en ${IDIOMA_NATIVO}.
+PÁRRAFO 1 (100% en ${IDIOMA_NATIVO}):
+- SI EL HISTORIAL ESTÁ VACÍO: Saluda cordialmente al alumno, dile que eres la Mentora Haas y menciona de forma motivadora que hoy van a enfocarse en practicar y mejorar: "${DEBILIDADES_SEMANA}". No agregues nada más.
+- SI EL HISTORIAL YA TIENE MENSAJES: Prohibido saludar o dar la bienvenida. Comenta de forma muy fluida sobre lo que dijo el alumno o corrige constructivamente sus errores gramaticales.
 
-[CONTROL DE FLUJO]
-- ESCENARIO A (El alumno responde bien en ${IDIOMA_ALVO}): Continúa en ${IDIOMA_ALVO} de forma natural y haz una única pregunta corta de seguimiento en ${IDIOMA_ALVO}.
-- ESCENARIO B (El alumno comete un error gramatical en ${IDIOMA_ALVO}): Explícale el error amigablemente en ${IDIOMA_NATIVO}. Muéstrale la corrección en ${IDIOMA_ALVO}. Luego, hazle una pregunta en ${IDIOMA_ALVO} para que intente usar la forma correcta.
-- ESCENARIO C (El alumno hace una duda directa en ${IDIOMA_NATIVO}): Pausa la práctica. Responde la duda detalladamente en ${IDIOMA_NATIVO}. Cierra con una pregunta en ${IDIOMA_ALVO}.
-
-[REGLA DE ORO DE SALIDA - MANDATORIA]
-Cualquiera que sea el escenario, tu última frase en pantalla DEBE ser única y exclusivamente una pregunta clara formulada al 100% en el idioma que está aprendiendo (${IDIOMA_ALVO}). Queda prohibido usar palabras de ${IDIOMA_NATIVO} dentro de la pregunta final.
+PÁRRAFO 2 (100% en ${IDIOMA_ALVO}):
+- Escribe una única pregunta directa, corta y muy natural formulada exclusivamente en ${IDIOMA_ALVO} para que el alumno continúe la práctica. 
+- PROHIBIDO repetir saludos como "Olá", "Bienvenido" o frases introductorias en este segundo párrafo. Ve directo a la pregunta de práctica.
 `;
 
-    const promptFinalOllama = prompt && prompt.trim().length > 0 ? prompt : "Hola";
+    let stringHistorico = "";
+    if (temHistorico) {
+      stringHistorico = "\n\n[HISTORIAL RECIENTE DEL CHAT]\n" + chatHistory.slice(-5).map((h: any) => {
+        const remitente = h.tipo === 'user' ? 'Alumno' : 'Mentora Haas';
+        return `${remitente}: ${h.texto || h.content || ""}`;
+      }).join("\n");
+    } else {
+      stringHistorico = "\n\n[HISTORIAL RECIENTE DEL CHAT]\n(Historial vacío. Esta es la primera interacción del alumno. Genera obligatoriamente el saludo pedagógico inicial mencionando las debilidades).";
+    }
 
-    const { readable, writable } = new TransformStream();
-    const writer = writable.getWriter();
-    const encoder = new TextEncoder();
+    const apiKeyGemini = "AQ.Ab8RN6I6ttBs87ZZMIvY2YAtDLXTz8UKzbgLq9UrwVQYzEtPhQ";
+    const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKeyGemini}`;
 
-    globalQueue.enqueue(async () => {
-      try {
-        const resOllama = await fetch("http://127.0.0.1:11434/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "qwen2.5:7b",
-            system: instrucaoSistema,
-            prompt: promptFinalOllama,
-            stream: true,
-            options: { temperature: 0.5 }
-          })
-        });
-
-        if (!resOllama.ok) {
-          try { await writer.write(encoder.encode("Erro no motor local")); } catch (e) {}
-          return;
-        }
-
-        const reader = resOllama.body?.getReader();
-        if (!reader) return;
-
-        let buffer = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += new TextDecoder().decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
-
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try {
-              const parsed = JSON.parse(line);
-              if (parsed.response) {
-                try { await writer.write(encoder.encode(parsed.response)); } catch (e) {}
-              }
-            } catch (e) {}
+    const resGemini = await fetch(urlGemini, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: `${instrucaoSistema}\n\n${stringHistorico}\n\nÚltimo mensaje recibido: "${textoPrompt}"\n\nGenera la respuesta perfecta de 2 párrafos:` }
+            ]
           }
+        ],
+        generationConfig: {
+          temperature: 0.1, // Temperatura baixa fixa a IA nas regras exatas
+          topP: 0.8,
+          maxOutputTokens: 800
         }
-      } catch (err) {
-        try { await writer.write(encoder.encode("Instabilidade no processamento.")); } catch (e) {}
-      } finally {
-        try { await writer.close(); } catch (e) {}
-      }
-    }, async (position) => {
-      try { await writer.write(encoder.encode(`QUEUE:${position}`)); } catch (e) {}
-    }).catch(() => {});
+      })
+    });
 
-    return new Response(readable, {
+    if (!resGemini.ok) {
+      const errTexto = await resGemini.text();
+      return new Response(`Erro na API do Gemini: ${errTexto}`, { status: 500 });
+    }
+
+    const resultadoJson = await resGemini.json();
+    const textoResposta = resultadoJson?.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, tive um problema ao gerar a resposta.";
+
+    return new Response(textoResposta, {
       headers: { "Content-Type": "text/plain; charset=utf-8" }
     });
 
