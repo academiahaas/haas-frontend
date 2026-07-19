@@ -34,11 +34,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   
   // Gatilho Automático Direto
   useEffect(() => {
-    if (!userId || respostaIA || isThinking || (chatHistory && chatHistory.length > 0)) return;
-    let processado = false;
+    if (!userId || (globalThis as any).analiseJaFeita) return;
+    (globalThis as any).analiseJaFeita = true;
+    
     const timer = setTimeout(() => {
-      if (processado) return;
-      processado = true;
       if (typeof perguntarAoMentor === "function") {
         perguntarAoMentor(null, null, "feedback pedagógico atual");
       }
@@ -239,7 +238,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         if (!supabaseUrl) return;
         
         // Faz o fetch direto via fetch clássico para evitar quebras de importação de arquivos internos
-        const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=clinical_precision,name,native_language`, {
+        const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=clinical_precision,name,native_language,course_language`, {
           headers: {
             "apikey": supabaseAnonKey,
             "Authorization": `Bearer ${supabaseAnonKey}`
@@ -259,6 +258,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
           if (dados[0].native_language) {
             setIdiomaNativoReal(dados[0].native_language);
+          }
+          if (dados[0].course_language) {
+            (window as any).__supabaseCourseLanguage = dados[0].course_language;
           }
         }
       } catch (err) {
@@ -465,7 +467,20 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
            rec.continuous = true;
            rec.interimResults = false;
            // Detecta o idioma da interface dinamicamente para maior precisão
-           rec.lang = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? (idiomaNativoReal.toLowerCase().includes("es") ? "es-ES" : idiomaNativoReal.toLowerCase().includes("en") ? "en-US" : "pt-BR") : "pt-BR";
+                                   const mapearIdiomaPratica = () => {
+              const cursoRaw = (window as any).__supabaseCourseLanguage || "";
+              const curso = cursoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+              
+              if (curso.includes("portugues") || curso.includes("pt")) return "pt-BR";
+              if (curso.includes("espanol") || curso.includes("es")) return "es-ES";
+              if (curso.includes("ingles") || curso.includes("english") || curso.includes("en")) return "en-US";
+              
+              const tela = (typeof currentLang !== "undefined" ? currentLang : "PT").toUpperCase();
+              if (tela.includes("ES")) return "es-ES";
+              if (tela.includes("EN")) return "en-US";
+              return "pt-BR";
+            };
+            rec.lang = mapearIdiomaPratica();
            
            rec.onresult = (event) => {
              let txt = "";
@@ -731,6 +746,12 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       setChatHistory(prev => [...prev, { tipo: "user", texto: textoParaEnviar || "", audioUrl: (globalThis as any).lastAudioUrl || undefined }]);
     }
     setChatInput('');
+    if (typeof window !== 'undefined') { 
+      (window as any).lastRecognizedText = ''; 
+    }
+    setTimeout(() => {
+      (globalThis as any).lastAudioUrl = undefined;
+    }, 100);
     setTipoEnvio(audioBase64 ? "audio" : "texto");
     setIsThinking(true);
     setRespostaIA('');
@@ -778,7 +799,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const resInterna = await fetch("/api/ai/mentor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: currentLang, chatHistory })
+          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: (textoParaEnviar && (textoParaEnviar.toLowerCase().includes("bom dia") || textoParaEnviar.toLowerCase().includes("tudo bem") || textoParaEnviar.toLowerCase().includes("obrigado") || textoParaEnviar.length > 3)) ? "PT" : currentLang, chatHistory })
         });
 
         if (!resInterna.ok) {
@@ -1479,12 +1500,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
         const mapearLang = (sigla) => {
-          if (!sigla) return "pt-BR";
-          const s = sigla.toLowerCase().trim();
-          if (s.includes("span") || s === "es") return "es-ES";
-          if (s.includes("engl") || s === "en") return "en-US";
-          if (s.includes("port") || s === "pt") return "pt-BR";
-          return "pt-BR";
+          // Determina se estamos tentando mapear o idioma Alvo (Curso) ou Nativo do Aluno
+          const isAlvo = sigla === (typeof currentLang !== "undefined" ? currentLang : "PT");
+          
+          if (isAlvo) {
+            const cursoRaw = (window as any).__supabaseCourseLanguage || "";
+            const curso = cursoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (curso.includes("portugues") || curso.includes("pt")) return "pt-BR";
+            if (curso.includes("espanol") || curso.includes("es")) return "es-ES";
+            if (curso.includes("ingles") || curso.includes("english") || curso.includes("en")) return "en-US";
+            return "pt-BR";
+          } else {
+            const nativoRaw = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? idiomaNativoReal : "";
+            const nativo = nativoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (nativo.includes("portugues") || nativo.includes("pt")) return "pt-BR";
+            if (nativo.includes("espanol") || nativo.includes("es")) return "es-ES";
+            if (nativo.includes("ingles") || nativo.includes("english") || nativo.includes("en")) return "en-US";
+            return "pt-BR";
+          }
         };
 
         const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
@@ -1530,13 +1563,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           
           const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
           const mapearLang = (sigla) => {
-            if (!sigla) return "pt-BR";
-            const s = sigla.toLowerCase().trim();
-            if (s.includes("span") || s === "es") return "es-ES";
-            if (s.includes("engl") || s === "en") return "en-US";
-            if (s.includes("port") || s === "pt") return "pt-BR";
+          // Determina se estamos tentando mapear o idioma Alvo (Curso) ou Nativo do Aluno
+          const isAlvo = sigla === (typeof currentLang !== "undefined" ? currentLang : "PT");
+          
+          if (isAlvo) {
+            const cursoRaw = (window as any).__supabaseCourseLanguage || "";
+            const curso = cursoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (curso.includes("portugues") || curso.includes("pt")) return "pt-BR";
+            if (curso.includes("espanol") || curso.includes("es")) return "es-ES";
+            if (curso.includes("ingles") || curso.includes("english") || curso.includes("en")) return "en-US";
             return "pt-BR";
-          };
+          } else {
+            const nativoRaw = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? idiomaNativoReal : "";
+            const nativo = nativoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (nativo.includes("portugues") || nativo.includes("pt")) return "pt-BR";
+            if (nativo.includes("espanol") || nativo.includes("es")) return "es-ES";
+            if (nativo.includes("ingles") || nativo.includes("english") || nativo.includes("en")) return "en-US";
+            return "pt-BR";
+          }
+        };
 
           const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
@@ -1640,12 +1685,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
         const mapearLang = (sigla) => {
-          if (!sigla) return "pt-BR";
-          const s = sigla.toLowerCase().trim();
-          if (s.includes("span") || s === "es") return "es-ES";
-          if (s.includes("engl") || s === "en") return "en-US";
-          if (s.includes("port") || s === "pt") return "pt-BR";
-          return "pt-BR";
+          // Determina se estamos tentando mapear o idioma Alvo (Curso) ou Nativo do Aluno
+          const isAlvo = sigla === (typeof currentLang !== "undefined" ? currentLang : "PT");
+          
+          if (isAlvo) {
+            const cursoRaw = (window as any).__supabaseCourseLanguage || "";
+            const curso = cursoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (curso.includes("portugues") || curso.includes("pt")) return "pt-BR";
+            if (curso.includes("espanol") || curso.includes("es")) return "es-ES";
+            if (curso.includes("ingles") || curso.includes("english") || curso.includes("en")) return "en-US";
+            return "pt-BR";
+          } else {
+            const nativoRaw = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? idiomaNativoReal : "";
+            const nativo = nativoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (nativo.includes("portugues") || nativo.includes("pt")) return "pt-BR";
+            if (nativo.includes("espanol") || nativo.includes("es")) return "es-ES";
+            if (nativo.includes("ingles") || nativo.includes("english") || nativo.includes("en")) return "en-US";
+            return "pt-BR";
+          }
         };
 
         const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
@@ -1691,13 +1748,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           
           const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
           const mapearLang = (sigla) => {
-            if (!sigla) return "pt-BR";
-            const s = sigla.toLowerCase().trim();
-            if (s.includes("span") || s === "es") return "es-ES";
-            if (s.includes("engl") || s === "en") return "en-US";
-            if (s.includes("port") || s === "pt") return "pt-BR";
+          // Determina se estamos tentando mapear o idioma Alvo (Curso) ou Nativo do Aluno
+          const isAlvo = sigla === (typeof currentLang !== "undefined" ? currentLang : "PT");
+          
+          if (isAlvo) {
+            const cursoRaw = (window as any).__supabaseCourseLanguage || "";
+            const curso = cursoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (curso.includes("portugues") || curso.includes("pt")) return "pt-BR";
+            if (curso.includes("espanol") || curso.includes("es")) return "es-ES";
+            if (curso.includes("ingles") || curso.includes("english") || curso.includes("en")) return "en-US";
             return "pt-BR";
-          };
+          } else {
+            const nativoRaw = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? idiomaNativoReal : "";
+            const nativo = nativoRaw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+            if (nativo.includes("portugues") || nativo.includes("pt")) return "pt-BR";
+            if (nativo.includes("espanol") || nativo.includes("es")) return "es-ES";
+            if (nativo.includes("ingles") || nativo.includes("english") || nativo.includes("en")) return "en-US";
+            return "pt-BR";
+          }
+        };
 
           const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
