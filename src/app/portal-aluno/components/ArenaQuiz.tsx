@@ -813,9 +813,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 const filtered = prev.filter(m => m.texto !== "...");
                 const last = filtered[filtered.length - 1];
                 if (last && last.tipo === 'ai') {
-                  return [...filtered.slice(0, -1), { tipo: 'ai', texto: textoAcumulado }];
+                  return [...filtered.slice(0, -1), { tipo: 'ai', texto: textoAcumulado, isAudioMode: !!audioBase64 }];
                 } else {
-                  return [...filtered, { tipo: 'ai', texto: textoAcumulado }];
+                  return [...filtered, { tipo: 'ai', texto: textoAcumulado, isAudioMode: !!audioBase64 }];
                 }
               });
             }
@@ -1461,18 +1461,115 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               <div className="py-1">
                                 <audio controls src={(msg as any).audioUrl} className="w-48 h-8 accent-cyan-500 rounded-lg" />
                               </div>
-                              ) : <span className="inline-flex items-center">{msg.tipo !== "user" && <button onClick={(e) => {
-  e.stopPropagation();
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
-  const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
-  if (!t) return;
-  const u = new SpeechSynthesisUtterance(t);
-  u.lang = t.match(/[¡¿áéíóúÑñ]/) ? "es-ES" : "pt-BR";
-  const v = window.speechSynthesis.getVoices().find(x => (x.lang.includes("pt") || x.lang.includes("es")) && (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("zira") || x.name.toLowerCase().includes("google")));
-  if (v) u.voice = v;
-  window.speechSynthesis.speak(u);
-}} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>}{msg.texto}</span>}
+                              ) : 
+<span className="inline-flex items-center w-full">
+  {msg.tipo !== "user" && (msg as any).isAudioMode ? (
+    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 rounded-xl p-3 my-1 flex items-center justify-between gap-4 w-full max-w-xs shadow-md shadow-cyan-950/20 transition-all hover:border-cyan-500/50">
+      <div className="flex items-center gap-2.5">
+        <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></div>
+        <span className="text-xs font-sans tracking-wide text-slate-300 font-medium">Resposta em Áudio</span>
+      </div>
+      <button onClick={(e) => {
+        e.stopPropagation();
+        if (typeof window === "undefined" || !window.speechSynthesis) return;
+        if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
+        const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
+        if (!t) return;
+        
+        const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
+        const mapearLang = (sigla) => {
+          if (!sigla) return "pt-BR";
+          const s = sigla.toLowerCase().trim();
+          if (s.includes("span") || s === "es") return "es-ES";
+          if (s.includes("engl") || s === "en") return "en-US";
+          if (s.includes("port") || s === "pt") return "pt-BR";
+          return "pt-BR";
+        };
+
+        const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
+        const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
+
+        let indexBloco = 0;
+        const falarSequencial = () => {
+          if (indexBloco >= blocos.length) return;
+          const textoBloco = blocos[indexBloco];
+          const utterance = new SpeechSynthesisUtterance(textoBloco);
+          
+          if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
+            utterance.lang = langAlvo;
+          } else {
+            utterance.lang = langNativo;
+          }
+
+          const voices = window.speechSynthesis.getVoices();
+          const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
+            (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
+          
+          if (v) utterance.voice = v;
+          utterance.onend = () => {
+            indexBloco++;
+            falarSequencial();
+          };
+          window.speechSynthesis.speak(utterance);
+        };
+        falarSequencial();
+      }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
+        <span>▶</span> Ouvir Mentora
+      </button>
+    </div>
+  ) : (
+    <>
+      {msg.tipo !== "user" && (
+        <button onClick={(e) => {
+          e.stopPropagation();
+          if (typeof window === "undefined" || !window.speechSynthesis) return;
+          if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
+          const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
+          if (!t) return;
+          
+          const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
+          const mapearLang = (sigla) => {
+            if (!sigla) return "pt-BR";
+            const s = sigla.toLowerCase().trim();
+            if (s.includes("span") || s === "es") return "es-ES";
+            if (s.includes("engl") || s === "en") return "en-US";
+            if (s.includes("port") || s === "pt") return "pt-BR";
+            return "pt-BR";
+          };
+
+          const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
+          const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
+
+          let indexBloco = 0;
+          const falarSequencial = () => {
+            if (indexBloco >= blocos.length) return;
+            const textoBloco = blocos[indexBloco];
+            const utterance = new SpeechSynthesisUtterance(textoBloco);
+            
+            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
+              utterance.lang = langAlvo;
+            } else {
+              utterance.lang = langNativo;
+            }
+
+            const voices = window.speechSynthesis.getVoices();
+            const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
+              (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
+            
+            if (v) utterance.voice = v;
+            utterance.onend = () => {
+              indexBloco++;
+              falarSequencial();
+            };
+            window.speechSynthesis.speak(utterance);
+          };
+          falarSequencial();
+        }} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>
+      )}
+      {msg.texto}
+    </>
+  )}
+</span>}
                           </span>
                         </div>
                       ))}
@@ -1525,18 +1622,115 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                             {chatHistory.map((msg, i) => (
                               <div key={i} className={msg.tipo === 'user' ? 'text-right' : 'text-left text-slate-100'}>
                                 <span className={msg.tipo === 'user' ? 'inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30' : ''}>
-                                  <span className="inline-flex items-center">{msg.tipo !== "user" && <button onClick={(e) => {
-  e.stopPropagation();
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
-  const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
-  if (!t) return;
-  const u = new SpeechSynthesisUtterance(t);
-  u.lang = t.match(/[¡¿áéíóúÑñ]/) ? "es-ES" : "pt-BR";
-  const v = window.speechSynthesis.getVoices().find(x => (x.lang.includes("pt") || x.lang.includes("es")) && (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("zira") || x.name.toLowerCase().includes("google")));
-  if (v) u.voice = v;
-  window.speechSynthesis.speak(u);
-}} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>}{msg.texto}</span>
+                                  
+<span className="inline-flex items-center w-full">
+  {msg.tipo !== "user" && (msg as any).isAudioMode ? (
+    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 rounded-xl p-3 my-1 flex items-center justify-between gap-4 w-full max-w-xs shadow-md shadow-cyan-950/20 transition-all hover:border-cyan-500/50">
+      <div className="flex items-center gap-2.5">
+        <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></div>
+        <span className="text-xs font-sans tracking-wide text-slate-300 font-medium">Resposta em Áudio</span>
+      </div>
+      <button onClick={(e) => {
+        e.stopPropagation();
+        if (typeof window === "undefined" || !window.speechSynthesis) return;
+        if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
+        const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
+        if (!t) return;
+        
+        const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
+        const mapearLang = (sigla) => {
+          if (!sigla) return "pt-BR";
+          const s = sigla.toLowerCase().trim();
+          if (s.includes("span") || s === "es") return "es-ES";
+          if (s.includes("engl") || s === "en") return "en-US";
+          if (s.includes("port") || s === "pt") return "pt-BR";
+          return "pt-BR";
+        };
+
+        const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
+        const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
+
+        let indexBloco = 0;
+        const falarSequencial = () => {
+          if (indexBloco >= blocos.length) return;
+          const textoBloco = blocos[indexBloco];
+          const utterance = new SpeechSynthesisUtterance(textoBloco);
+          
+          if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
+            utterance.lang = langAlvo;
+          } else {
+            utterance.lang = langNativo;
+          }
+
+          const voices = window.speechSynthesis.getVoices();
+          const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
+            (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
+          
+          if (v) utterance.voice = v;
+          utterance.onend = () => {
+            indexBloco++;
+            falarSequencial();
+          };
+          window.speechSynthesis.speak(utterance);
+        };
+        falarSequencial();
+      }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
+        <span>▶</span> Ouvir Mentora
+      </button>
+    </div>
+  ) : (
+    <>
+      {msg.tipo !== "user" && (
+        <button onClick={(e) => {
+          e.stopPropagation();
+          if (typeof window === "undefined" || !window.speechSynthesis) return;
+          if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); return; }
+          const t = msg.texto.replace(/QUEUE:\d+/g, "").trim();
+          if (!t) return;
+          
+          const blocos = t.split("\n").map(b => b.trim()).filter(Boolean);
+          const mapearLang = (sigla) => {
+            if (!sigla) return "pt-BR";
+            const s = sigla.toLowerCase().trim();
+            if (s.includes("span") || s === "es") return "es-ES";
+            if (s.includes("engl") || s === "en") return "en-US";
+            if (s.includes("port") || s === "pt") return "pt-BR";
+            return "pt-BR";
+          };
+
+          const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
+          const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
+
+          let indexBloco = 0;
+          const falarSequencial = () => {
+            if (indexBloco >= blocos.length) return;
+            const textoBloco = blocos[indexBloco];
+            const utterance = new SpeechSynthesisUtterance(textoBloco);
+            
+            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
+              utterance.lang = langAlvo;
+            } else {
+              utterance.lang = langNativo;
+            }
+
+            const voices = window.speechSynthesis.getVoices();
+            const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
+              (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
+            
+            if (v) utterance.voice = v;
+            utterance.onend = () => {
+              indexBloco++;
+              falarSequencial();
+            };
+            window.speechSynthesis.speak(utterance);
+          };
+          falarSequencial();
+        }} className="inline-flex items-center justify-center w-5 h-5 mr-1.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 rounded-full text-[11px] transition-all active:scale-90" title="Ouvir">🔊</button>
+      )}
+      {msg.texto}
+    </>
+  )}
+</span>
                                 </span>
                               </div>
                             ))}
