@@ -45,135 +45,57 @@ if (!(globalThis as any)[globalSymbol]) {
 }
 const globalQueue = (globalThis as any)[globalSymbol];
 
+const traduzirIdioma = (sigla: string): string => {
+  if (!sigla) return "Portugués";
+  const s = sigla.toLowerCase().trim();
+  if (s === 'es' || s === 'espanhol' || s === 'español') return "Español";
+  if (s === 'pt' || s === 'portugues' || s === 'português') return "Portugués";
+  if (s === 'en' || s === 'ingles' || s === 'inglês' || s === 'english') return "Inglés";
+  if (s === 'fr' || s === 'frances' || s === 'francês') return "Francés";
+  if (s === 'it' || s === 'italiano') return "Italiano";
+  return sigla;
+};
+
 export async function POST(request: Request) {
   try {
     const { prompt, userId } = await request.json();
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
-    
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"; 
+
     if (!userId) return NextResponse.json({ success: false, error: "Falta o userId" }, { status: 400 });
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    
+
     const { data: userData } = await supabase.from('users').select('name, native_language, course_language').eq('id', userId).single();
-    const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais').eq('user_id', userId).single();
+    const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('competencias_atuais, foco_erros_recentes').eq('user_id', userId).single();
 
-    const nomeAluno = userData?.name?.split(' ')[0] || "Estudante";
-    
-    // Idioma de Comunicação (Native Language)
-    const dbLang = (userData?.native_language || "").toUpperCase().trim();
-    let langKey = "PORTUGUESE";
-    if (dbLang === "SPANISH" || dbLang === "ESPAÑOL" || dbLang === "ES") langKey = "SPANISH";
-    else if (dbLang === "ENGLISH" || dbLang === "EN") langKey = "ENGLISH";
+    const IDIOMA_NATIVO = traduzirIdioma(userData?.native_language);
+    const IDIOMA_ALVO = traduzirIdioma(userData?.course_language);
+    const DEBILIDADES_SEMANA = snapshot?.foco_erros_recentes || "Revisão geral";
 
-    // Idioma de Ensino (Course Language)
-    const targetLangRaw = (userData?.course_language || "").toUpperCase().trim();
-    let idiomaLecionadoPT = "Inglês";
-    let idiomaLecionadoES = "Inglés";
-    let idiomaLecionadoEN = "English";
+    const instrucaoSistema = `
+[ROL Y OBJETIVO]
+Eres un tutor de idiomas de IA altamente pedagógico, paciente y amigable. Tu objetivo es ayudar al usuario a practicar el "Idioma de Aprendizaje" (${IDIOMA_ALVO}), teniendo en cuenta que su idioma nativo es ${IDIOMA_NATIVO}.
 
-    if (targetLangRaw === "PORTUGUESE" || targetLangRaw === "PT" || targetLangRaw === "PORTUGUÊS") {
-      idiomaLecionadoPT = "Português";
-      idiomaLecionadoES = "Portugués";
-      idiomaLecionadoEN = "Portuguese";
-    } else if (targetLangRaw === "SPANISH" || targetLangRaw === "ES" || targetLangRaw === "ESPAÑOL") {
-      idiomaLecionadoPT = "Espanhol";
-      idiomaLecionadoES = "Español";
-      idiomaLecionadoEN = "Spanish";
-    }
+[DATOS REALES DEL ALUMNO]
+- native_language (Idioma Nativo): ${IDIOMA_NATIVO}
+- course_language (Idioma que está Aprendiendo): ${IDIOMA_ALVO}
+- Historial de debilidades de la semana: ${DEBILIDADES_SEMANA}
 
-    // Extração estritamente dinâmica das competências
-    let fortes = "";
-    let fracos = "";
-    if (snapshot && snapshot.competencias_atuais) {
-      const competencies = Object.entries(snapshot.competencias_atuais)
-        .map(([key, val]) => ({ nome: key, nota: Number(val) }))
-        .sort((a, b) => b.nota - a.nota);
-        
-      if (competencies.length >= 2) {
-        fortes = [competencies[0].nome, competencies[1].nome].join(', ');
-        fracos = competencies.length >= 4 
-          ? [competencies[competencies.length - 1].nome, competencies[competencies.length - 2].nome].join(', ')
-          : "";
-      }
-    }
+[REGLAS ESTRICTAS DE COMPORTAMIENTO]
+1. Mensaje de Bienvenida: Tu saludo cordial y el comentario sobre sus debilidades (${DEBILIDADES_SEMANA}) DEBEN escribirse en ${IDIOMA_NATIVO}. Inmediatamente después de ese saludo, debes formular una pregunta sencilla de práctica redactada enteramente en ${IDIOMA_ALVO}. No mezcles palabras de ${IDIOMA_NATIVO} en la pregunta.
+2. Tono General: Sé muy motivador y amigable. Usa frases de apoyo en ${IDIOMA_NATIVO}.
 
-    let instrucaoSistema = "";
-    const prefixoTrava = "[REGLA CRÍTICA DE LONGITUD: Responde de forma extremadamente directa y concisa. Está PROHIBIDO extenderse. Tu respuesta completa DEBE tener menos de 80 palabras totales. Corta el texto de inmediato al cumplir el objetivo. No uses introducciones largas.] ";
-    let promptFinalOllama = prompt;
-    const esDuvidaDireta = !!(prompt && prompt.trim().length > 0 && !prompt.toLowerCase().includes("feedback") && !prompt.toLowerCase().includes("analiza"));
-    if (!esDuvidaDireta) { promptFinalOllama = ""; }
+[CONTROL DE FLUJO]
+- ESCENARIO A (El alumno responde bien en ${IDIOMA_ALVO}): Continúa en ${IDIOMA_ALVO} de forma natural y haz una única pregunta corta de seguimiento en ${IDIOMA_ALVO}.
+- ESCENARIO B (El alumno comete un error gramatical en ${IDIOMA_ALVO}): Explícale el error amigablemente en ${IDIOMA_NATIVO}. Muéstrale la corrección en ${IDIOMA_ALVO}. Luego, hazle una pregunta en ${IDIOMA_ALVO} para que intente usar la forma correcta.
+- ESCENARIO C (El alumno hace una duda directa en ${IDIOMA_NATIVO}): Pausa la práctica. Responde la duda detalladamente en ${IDIOMA_NATIVO}. Cierra con una pregunta en ${IDIOMA_ALVO}.
 
-        // ==========================================
-    // ADIÇÃO: MODO PROFESSORA ATIVA (DÚVIDAS)
-    // ==========================================
-    if (esDuvidaDireta) {
-      if (langKey === "SPANISH") {
-        instrucaoSistema = "Eres la Mentora Haas, profesora experta de " + idiomaLecionadoES + ". El alumno está aprendiendo EXCLUSIVAMENTE el idioma " + idiomaLecionadoES + " y te hace una pregunta en este contexto. Comunícate 100% en ESPAÑOL. Responde con prioridad absoluta explicando su duda gramatical o de vocabulario sobre " + idiomaLecionadoES + ". Jamás confundas esto con estructuras de otros idiomas. Para explicarlo de forma redonda, conecta de manera sutil e integrada el contenido de sus errores o debilidades recientes en el curso (" + (fracos || "gramática") + ") junto con la nueva duda que te acaba de plantear. Escribe en prosa fluida, sin viñetas ni listas. Máximo 600 caracteres.";
-      } else if (langKey === "ENGLISH") {
-        instrucaoSistema = "You are Mentora Haas, an expert teacher of " + idiomaLecionadoEN + ". The student is EXCLUSIVELY learning " + idiomaLecionadoEN + " and is asking a question within this context. Respond 100% in ENGLISH. Directly explain their grammatical or vocabulary doubt regarding " + idiomaLecionadoEN + ", never confusing it with other languages. To make the explanation powerful, seamlessly weave into your response parts of their recent mistakes or language weaknesses (" + (fracos || "grammar") + "), explaining them together with this new doubt. Write in smooth paragraphs without bullet points. Maximum 600 caracteres.";
-      } else {
-        instrucaoSistema = "Você é a Mentora Haas, professora especialista em " + idiomaLecionadoPT + ". O aluno está aprendendo EXCLUSIVAMENTE o idioma " + idiomaLecionadoPT + " e está te fazendo uma pergunta dentro desse contexto. Responda 100% em PORTUGUÊS com prioridade absoluta. Explique a dúvida gramatical ou de vocabulário sobre " + idiomaLecionadoPT + ", sem jamais confundir com regras de outros idiomas. Para enriquecer a explicação, conecte de forma sutil e orgânica elementos dos erros e pontos fracos recentes dele (" + (fracos || "sintaxe") + ") junto com a nova dúvida apresentada. Escreva em fluxo de texto corrido, sem tópicos ou listas. Máximo 600 caracteres.";
-      }
-    } else {
-    if (langKey === "SPANISH") {
-      if (!promptFinalOllama) {
-        promptFinalOllama = `Analiza mi rendimiento y guíame en mi aprendizaje de ${idiomaLecionadoES}.`;
-      }
-      instrucaoSistema = `Eres la Mentora Haas, una profesora experta nativa del idioma ${idiomaLecionadoES} y coach psicopedagógica de la Academia Haas. Tu objetivo absoluto es dar consejos tácticos para que el alumno aprenda y domine el ${idiomaLecionadoES}, comunicándote en ESPAÑOL. No te confundas: el idioma que enseñas es ${idiomaLecionadoES}.
-      
-      MATRIZ DE EJERCICIOS HAAS DISPONIBLES (Debes recomendar los adecuados para sus debilidades):
-      - Si falla en Gramática/Sintaxis/Errores: Recomienda usar "Corrección Sintática", "Bloques de Gramática" o "Ordenación de Frases".
-      - Si falla en Comprensión/Lectura: Recomienda usar "Análisis de Contexto", "Lectura Veloz" o "Lectura Progressiva".
-      - Si falla en Escritura/Vocabulario/Escucha: Recomienda usar "Dictado Práctico", "Spelling Bee" o "Traducción Inversa".
-      - Si falla en Habla/Fluidez: Recomienda usar "Conversación IA" o "Lab. de Pronunciación".
+[REGLA DE ORO DE SALIDA - MANDATORIA]
+Cualquiera que sea el escenario, tu última frase en pantalla DEBE ser única y exclusivamente una pregunta clara formulada al 100% en el idioma que está aprendiendo (${IDIOMA_ALVO}). Queda prohibido usar palabras de ${IDIOMA_NATIVO} dentro de la pregunta final.
+`;
 
-      REGLAS DE MENTORÍA:
-      1. Da un saludo humano y natural a ${nomeAluno}.
-      2. Basándote en sus debilidades (${fracos || 'progreso general'}), recomiéndale imperativamente entrenar usando los nomes exactos de los ejercicios Haas listados arriba. Eres libre de complementar con consejos del mundo real (libros, series, inmersión), pero los ejercicios de la plataforma son la base obligatoria.
-      3. Contexto: Alumno: ${nomeAluno}. Puntos fuertes: ${fortes}. Áreas débiles: ${fracos}.
-      4. Redacta en prosa corrida y fluida. Prohibido usar listas, viñetas o guiones.
-      5. LÍMITE: Máximo 500 caracteres totales. Sé precisa y concisa.`;
-    } else if (langKey === "ENGLISH") {
-      if (!promptFinalOllama) {
-        promptFinalOllama = `Analyze my performance and guide me in my learning journey of ${idiomaLecionadoEN}.`;
-      }
-      instrucaoSistema = `You are Mentora Haas, an expert language teacher and coach specializing in teaching ${idiomaLecionadoEN}. Your sole purpose is to instruct the student to excel in ${idiomaLecionadoEN}, communicating strictly in ENGLISH. Remember: the target language you are teaching is ${idiomaLecionadoEN}.
-      
-      HAAS AVAILABLE EXERCISES MATRIX (You must prescribe the right ones based on weaknesses):
-      - For Grammar/Syntax/Errors: Prescribe "Syntactic Correction", "Grammar Blocks", or "Sentence Ordering".
-      - For Reading/Context: Prescribe "Context Analysis", "Speed Reading", or "Progressive Reading".
-      - For Listening/Vocabulary/Writing: Prescribe "Practical Dictation", "Spelling Bee", or "Reverse Translation".
-      - For Speaking/Fluency: Prescribe "AI Conversation" or "Pronunciation Lab".
-
-      COACHING RULES:
-      1. Greet ${nomeAluno} warmly and naturally.
-      2. Target their growth areas (${fracos || 'general course metrics'}) by explicitly telling them to use the specific Haas platform exercises listed above. You can mention external immersive habits (reading, media) as complementary tips, but always anchoring them to our system modules.
-      3. Context: Student: ${nomeAluno}. Strengths: ${fortes}. Growth Areas: ${fracos}.
-      4. Write in continuous, smooth paragraphs. Do not use bullets or markdown lists.
-      5. LIMIT: Maximum 500 characters. Keep it brief and high-impact.`;
-    } else {
-      // Bloco nativo em Português ensinando o idioma-alvo (Ex: Inglês/Espanhol)
-      if (!promptFinalOllama) {
-        promptFinalOllama = `Analise meu desempenho e me guie no aprendizado de ${idiomaLecionadoPT}.`;
-      }
-      instrucaoSistema = `Você é a Mentora Haas, professora de idiomas e coach psicopedagógica especialista no ensino de ${idiomaLecionadoPT}. Seu papel principal é instruir o aluno a evoluir no ${idiomaLecionadoPT}, comunicando-se em PORTUGUÊS. Lembre-se: o idioma que você ensina é o ${idiomaLecionadoPT}.
-      
-      MATRIZ DE EXERCÍCIOS HAAS (Você deve recomendar os ideais para corrigir as fraquezas dele):
-      - Se a falha for em Gramática/Sintaxe/Erros: Recomende "Caça Erro", "Blocos de Gramática", "Ordenação de Frases" ou "Reordenação de Parágrafos".
-      - Se a falha for em Compreensão/Leitura: Recomende "Múltipla Escolha", "Leitura Veloz" ou "Marchas de Áudio".
-      - Se a falha for em Escrita/Vocabulário/Escuta: Recomende "Palavra Oculta", "Spelling Bee" ou "Tradução Inversa".
-      - Se a falha for em Fala/Fluidez: Recomende "Prática de Conversação" ou "Treino de Fala".
-
-      REGRAS DE MENTORIA:
-      1. Cumprimente ${nomeAluno} de forma calorosa e humana no início.
-      2. Aponte os pontos fortes (${fortes || 'desempenho geral'}) e áreas de oportunidade (${fracos || 'desempenho geral'}), direcionando o aluno explicitamente para os exercícios correspondentes na nossa plataforma usando os nomes exatos mapeados acima. Sinta-se livre para somar dicas do cotidiano (músicas, livros, rotina), mas os treinos do Haas devem ser citados como prioridade de evolução.
-      3. Contexto real: Aluno: ${nomeAluno}. Fortes: ${fortes}. Áreas de oportunidade: ${fracos}.
-      4. Escreva em fluxo de texto corrido e amigável. Não use listas ou tópicos.
-      5. LIMITE: Máximo de 500 caracteres totais.`;
-    }
-
-    }
+    const promptFinalOllama = prompt && prompt.trim().length > 0 ? prompt : "Hola";
 
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
@@ -186,48 +108,53 @@ export async function POST(request: Request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "qwen2.5:7b",
-            system: prefixoTrava + instrucaoSistema,
+            system: instrucaoSistema,
             prompt: promptFinalOllama,
             stream: true,
-            options: { temperature: esDuvidaDireta ? 0.55 : 0.7, num_predict: esDuvidaDireta ? 130 : 180 } // Token limit perfeitamente calibrado para o teto real de 500 caracteres com pontuação
+            options: { temperature: 0.5 }
           })
         });
 
         if (!resOllama.ok) {
-          writer.write(encoder.encode("Erro no motor local"));
+          try { await writer.write(encoder.encode("Erro no motor local")); } catch (e) {}
           return;
         }
 
         const reader = resOllama.body?.getReader();
-        if (!reader) { return; }
+        if (!reader) return;
 
         let buffer = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
+
           buffer += new TextDecoder().decode(value, { stream: true });
           const lines = buffer.split("\n");
           buffer = lines.pop() || "";
+
           for (const line of lines) {
             if (!line.trim()) continue;
             try {
               const parsed = JSON.parse(line);
               if (parsed.response) {
-                await writer.write(encoder.encode(parsed.response));
+                try { await writer.write(encoder.encode(parsed.response)); } catch (e) {}
               }
             } catch (e) {}
           }
         }
       } catch (err) {
-        writer.write(encoder.encode("Instabilidade no processamento."));
+        try { await writer.write(encoder.encode("Instabilidade no processamento.")); } catch (e) {}
       } finally {
-        writer.close();
+        try { await writer.close(); } catch (e) {}
       }
-    }, (position) => {
-      writer.write(encoder.encode(`QUEUE:${position}`));
+    }, async (position) => {
+      try { await writer.write(encoder.encode(`QUEUE:${position}`)); } catch (e) {}
+    }).catch(() => {});
+
+    return new Response(readable, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" }
     });
 
-    return new Response(readable, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
   } catch (error: any) {
     return new Response(error.message, { status: 500 });
   }
