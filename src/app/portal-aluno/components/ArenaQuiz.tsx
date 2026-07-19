@@ -465,7 +465,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
            rec.continuous = true;
            rec.interimResults = false;
            // Detecta o idioma da interface dinamicamente para maior precisão
-           rec.lang = (typeof currentLang !== "undefined" && currentLang) ? currentLang : "pt-BR";
+           rec.lang = (typeof idiomaNativoReal !== "undefined" && idiomaNativoReal) ? (idiomaNativoReal.toLowerCase().includes("es") ? "es-ES" : idiomaNativoReal.toLowerCase().includes("en") ? "en-US" : "pt-BR") : "pt-BR";
            
            rec.onresult = (event) => {
              let txt = "";
