@@ -706,6 +706,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       }
     } catch (err) {
       console.error("Erro na análise inicial:", err);
+      setRespostaIA("Erro ao carregar mentoria.");
     } finally {
       setIsThinking(false);
     }

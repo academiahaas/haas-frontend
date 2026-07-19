@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const chatHistory = body?.chatHistory;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"; 
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""; 
 
     if (!userId) return NextResponse.json({ success: false, error: "Falta o userId" }, { status: 400 });
 
@@ -75,7 +75,7 @@ PARÁGRAFO 2:
       stringHistorico = "\n\n[HISTÓRICO RECENTE DO CHAT]\n(Histórico vazio. Primeira interação do aluno).";
     }
 
-    const apiKeyGemini = "AQ.Ab8RN6I6ttBs87ZZMIvY2YAtDLXTz8UKzbgLq9UrwVQYzEtPhQ";
+    const apiKeyGemini = process.env.GEMINI_API_KEY || "";
     const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKeyGemini}`;
 
     const resGemini = await fetch(urlGemini, {
