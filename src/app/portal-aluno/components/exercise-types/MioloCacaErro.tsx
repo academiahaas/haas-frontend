@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from "lucide-react";
 
 interface MioloProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: "IDLE" | "CORRECT" | "WRONG";
   unidadeAtiva?: string;
 }
@@ -50,6 +50,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [correctOption, setCorrectOption] = useState<string>("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
 
@@ -121,6 +122,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
           setCorrectOption(fraseComErro);
           setFeedbackCorretoBanco(exe.correct_feedback || "");
           setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+          if (exe?.id) setExerciseId(String(exe.id));
           setIncentivoCorretoBanco(exe.correct_incentive || "");
           setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
           
@@ -238,12 +240,12 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
       setLocalStatus(resultado.acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.", acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
