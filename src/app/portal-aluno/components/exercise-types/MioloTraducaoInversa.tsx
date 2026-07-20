@@ -65,6 +65,7 @@ export default function MioloTraducaoInversa({
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [initialPieces, setInitialPieces] = useState<string[]>([]);
+  const [exerciseId, setExerciseId] = useState("");
 
   const [bankPieces, setBankPieces] = useState<PieceItem[]>([]);
   const [depositPieces, setDepositPieces] = useState<PieceItem[]>([]);
@@ -129,6 +130,7 @@ export default function MioloTraducaoInversa({
         setStringAlvoCorreta(respostaCerta);
         setFeedbackCorretoBanco(dadoExercicio?.correct_feedback || "");
         setFeedbackIncorretoBanco(dadoExercicio?.incorrect_feedback || "");
+        if (dadoExercicio?.id) setExerciseId(String(dadoExercicio.id));
 
         const extrairPalavrasLimpas = (txt: string) => {
           if (!txt) return [];
@@ -229,11 +231,11 @@ export default function MioloTraducaoInversa({
       if (acertou) {
         setLocalStatus("CORRECT");
         setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
-        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", 100, unidadeAtiva);
+        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", 100, exerciseId || unidadeAtiva);
       } else {
         setLocalStatus("WRONG");
         setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
-        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, 20, unidadeAtiva);
+        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, 20, exerciseId || unidadeAtiva);
       }
     } catch (e) {
       console.error("Erro na validação:", e);
