@@ -57,6 +57,7 @@ export default function MioloSpellingBee({
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [analisando, setAnalisando] = useState(false);
   const [feedbackIA, setFeedbackIA] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
 
   const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
   const accentRow = ["Á", "É", "Í", "Ó", "Ú", "Â", "Ê", "Ô", "Ã", "Õ", "Ç"];
@@ -158,6 +159,7 @@ export default function MioloSpellingBee({
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
           setIncentivoCorretoBanco(dados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
+          if (dados[0].id) setExerciseId(String(dados[0].id));
         }
 
         if (!palavraAlvo || palavraAlvo.trim().length < 2) {
@@ -266,7 +268,7 @@ export default function MioloSpellingBee({
       setFeedbackIA(mensagemFeedback);
 
       if (onValidateResult) {
-        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco, acertou ? 100 : 20, unidadeAtiva);
+        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco, acertou ? 100 : 20, exerciseId || unidadeAtiva);
       }
 
       if (acertou) {
