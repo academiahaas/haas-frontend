@@ -48,6 +48,7 @@ export default function MioloMultiplaEscolha({
   const [pergunta, setPergunta] = useState<string>("Carregando enunciado...");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   
@@ -113,6 +114,7 @@ export default function MioloMultiplaEscolha({
           setCorrectOption(respostaCerta);
           setFeedbackCorretoBanco(exe.correct_feedback || "");
           setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+          if (exe?.id) setExerciseId(String(exe.id));
           setIncentivoCorretoBanco(exe.correct_incentive || "");
           setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
 
@@ -204,12 +206,12 @@ export default function MioloMultiplaEscolha({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 100 : 20, unidadeAtiva);
+      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
