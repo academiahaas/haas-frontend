@@ -9,7 +9,7 @@ interface MioloBlitzChallengeProps {
   onSelectWrong?: () => void;
   triggerGlow?: boolean;
   unidadeAtiva?: string;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
 interface BlitzQuestion {
@@ -35,7 +35,7 @@ export default function MioloBlitzChallenge({
   useEffect(() => {
     if (gameOver && onValidateResult && !validadoRef.current) {
       validadoRef.current = true; // Trava para nunca mais disparar nesta montagem
-      onValidateResult(true);
+      onValidateResult(true, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, unidadeAtiva);
     }
   }, [gameOver, onValidateResult]);
   const [totalXp, setTotalXp] = useState<number>(0);
