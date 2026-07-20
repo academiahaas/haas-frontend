@@ -11,7 +11,7 @@ interface PieceItem {
 
 interface MioloProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
   streak?: number;
@@ -229,11 +229,11 @@ export default function MioloTraducaoInversa({
       if (acertou) {
         setLocalStatus("CORRECT");
         setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
-        if (onValidateResult) onValidateResult(true);
+        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", 100, unidadeAtiva);
       } else {
         setLocalStatus("WRONG");
         setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
-        if (onValidateResult) onValidateResult(false);
+        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, 20, unidadeAtiva);
       }
     } catch (e) {
       console.error("Erro na validação:", e);
