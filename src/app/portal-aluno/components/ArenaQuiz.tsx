@@ -600,7 +600,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [thinkingTime, setThinkingTime] = useState(0);
   const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('arena_chat_history');
+      const saved = localStorage.getItem('arena_chat_history');
       return saved ? JSON.parse(saved) : [];
     }
     return [];
@@ -608,7 +608,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('arena_chat_history', JSON.stringify(chatHistory));
+      localStorage.setItem('arena_chat_history', JSON.stringify(chatHistory));
     }
   }, [chatHistory]);
   const [msgEscritaAleatoria, setMsgEscritaAleatoria] = useState("");
@@ -879,23 +879,42 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         setCreditosPlano(novosCreditos);
       } catch (e) {}
 
-      // 5. DISPARO DA FALA NATIVA DO NAVEGADOR
-      if (audioBase64) {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel(); // Para qualquer fala anterior
-          const utterance = new SpeechSynthesisUtterance(respostaTexto);
+      // 5. GERAÇÃO ÚNICA E ARMAZENAMENTO PERMANENTE EM BASE64 NO HISTÓRICO
+      if (audioBase64 && respostaTexto) {
+        try {
+          const ttsRes = await fetch("/api/ai/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: respostaTexto.replace(/QUEUE:\d+/g, "").trim() })
+          });
           
-          // Tenta pegar uma voz nativa em espanhol/inglês conforme o contexto ou a primeira disponível
-          const voices = window.speechSynthesis.getVoices();
-          const nativeVoice = voices.find(v => v.lang.includes("es") || v.lang.includes("en")) || voices[0];
-          if (nativeVoice) utterance.voice = nativeVoice;
+          if (ttsRes.ok) {
+            const audioBlob = await ttsRes.blob();
+            const readerBase64 = new FileReader();
+            readerBase64.readAsDataURL(audioBlob);
+            readerBase64.onloadend = () => {
+              const base64String = readerBase64.result;
+              
+              setChatHistory(prev => {
+                const lastAiIdx = prev.map(m => m.tipo).lastIndexOf('ai');
+                if (lastAiIdx !== -1) {
+                  const novoHist = [...prev];
+                  novoHist[lastAiIdx] = { 
+                    ...novoHist[lastAiIdx], 
+                    audioUrl: base64String as string,
+                    isAudioMode: true 
+                  } as any;
+                  return novoHist;
+                }
+                return prev;
+              });
 
-          setIsSpeaking(true);
-          utterance.onend = () => setIsSpeaking(false);
-          utterance.onerror = () => setIsSpeaking(false);
-          window.speechSynthesis.speak(utterance);
-        } else {
-          console.warn("SpeechSynthesis não suportado neste navegador.");
+              const somLocal = new Audio(base64String as string);
+              somLocal.play().catch(e => console.log("Player automático aguardando interação:", e));
+            };
+          }
+        } catch (errTts) {
+          console.error("Erro ao gerar/salvar áudio Base64:", errTts);
         }
       }
 
@@ -1493,7 +1512,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           <span className={msg.tipo === "user" ? ((msg as any).audioUrl ? "inline-block" : "inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30") : "block w-full"}>
                             {(msg as any).audioUrl ? (
                               <div className="py-1">
-<div className="flex items-center gap-3 bg-violet-950/40 rounded-xl px-4 py-2.5 border border-violet-500/20"><button onClick={(e) => { const audio = (e.currentTarget.nextSibling as HTMLAudioElement); if (audio.paused) { audio.play(); } else { audio.pause(); } }} className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-violet-900/30" title="Ouvir mensagem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg></button><audio src={(msg as any).audioUrl} className="hidden" /></div>
+<div className="flex items-center gap-3 bg-violet-950/40 rounded-xl px-4 py-2.5 border border-violet-500/20">
+                                  <button onClick={(e) => {
+                                    const p = e.currentTarget.parentElement;
+                                    if (p) {
+                                      const tagAudio = p.querySelector('audio');
+                                      if (tagAudio) {
+                                        if (tagAudio.paused) {
+                                          tagAudio.play().catch(err => console.log("Erro ao reproduzir áudio local:", err));
+                                        } else {
+                                          tagAudio.pause();
+                                        }
+                                      }
+                                    }
+                                  }} className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-violet-900/30" title="Ouvir mensagem">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
+                                  </button>
+                                  <audio src={(msg as any).audioUrl} className="hidden" />
+                                </div>
                               </div>
                               ) : 
 <span className="block w-full">
