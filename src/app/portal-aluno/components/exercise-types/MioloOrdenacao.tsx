@@ -11,7 +11,7 @@ interface FragmentItem {
 
 interface MioloOrdenacaoProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -254,7 +254,7 @@ export default function MioloOrdenacao({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
     } catch (e) {
       const fraseMontadaAlunoLimpa = deposit.map(d => d.text).join(" ").trim().toLowerCase();
       const gabaritoOficial = referencePhrase.trim().toLowerCase();
@@ -262,7 +262,7 @@ export default function MioloOrdenacao({
       
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."));
-      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."), acertou ? 100 : 20, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
