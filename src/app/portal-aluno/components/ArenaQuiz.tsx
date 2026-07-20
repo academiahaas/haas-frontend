@@ -1012,7 +1012,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     if (xpGanho > 0) {
       setXpAcumulado(prev => prev + xpGanho);
     }
-    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado, xpGanho, exerciseId);
+    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado === "roleplay" ? "9" : jogoSelecionado, xpGanho, jogoSelecionado === "roleplay" ? (typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0") : (exerciseId && exerciseId !== "roleplay" ? exerciseId : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0"));
     // Notifica conclusão do exercício no Supabase para Reordenação e outros módulos
     if (isCorrect) {
       console.log("🚀 [ARENA QUIZ] Notificando Supabase sobre conclusão do jogo:", jogoSelecionado);
