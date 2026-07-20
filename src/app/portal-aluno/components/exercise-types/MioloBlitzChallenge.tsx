@@ -25,26 +25,28 @@ export default function MioloBlitzChallenge({
   unidadeAtiva,
   onValidateResult
 }: MioloBlitzChallengeProps) {
+  const [exerciseId, setExerciseId] = useState("");
   const [questions, setQuestions] = useState<BlitzQuestion[]>([
-    { word: 'CARREGANDO...', correct: 'Carregando...', options: ['Carregando...', '...', '...', '...'] }
+    { word: "CARREGANDO...", correct: "Carregando...", options: ["Carregando...", "...", "...", "..."] }
   ]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [totalXp, setTotalXp] = useState<number>(0);
+  const [feedback, setFeedback] = useState<{ id: string; text: string; color: string } | null>(null);
+  const [clickedOption, setClickedOption] = useState<string | null>(null);
+
+  const timerRef = useRef<any>(null);
+  const validadoRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (gameOver && onValidateResult && !validadoRef.current) {
-      validadoRef.current = true; // Trava para nunca mais disparar nesta montagem
-      onValidateResult(true, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, unidadeAtiva);
+      validadoRef.current = true;
+      onValidateResult(true, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, exerciseId || unidadeAtiva);
     }
-  }, [gameOver, onValidateResult]);
-  const [totalXp, setTotalXp] = useState<number>(0);
+  }, [gameOver, onValidateResult, totalXp, exerciseId, unidadeAtiva]);
+
   
-  const [feedback, setFeedback] = useState<{ id: string; text: string; color: string } | null>(null);
-  const [clickedOption, setClickedOption] = useState<string | null>(null);
-  
-  const timerRef = useRef<any>(null);
-  const validadoRef = useRef<boolean>(false);
 
     useEffect(() => {
     async function carregarBlitzDoBanco() {
@@ -95,6 +97,7 @@ export default function MioloBlitzChallenge({
 
           console.log("=== ⚡ MIOLO: FORMATADO E APLICADO NO ESTADO ===", formatadas);
           setQuestions(formatadas);
+            if (dados[0]?.id) setExerciseId(String(dados[0].id));
         }
       } catch (err) {
         console.error("Erro ao processar dados da central cliente no Blitz:", err);
