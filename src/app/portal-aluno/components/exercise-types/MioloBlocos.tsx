@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 interface MioloBlocosProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -219,13 +219,13 @@ export default function MioloBlocos({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
-      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), acertou ? 100 : 20, unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
