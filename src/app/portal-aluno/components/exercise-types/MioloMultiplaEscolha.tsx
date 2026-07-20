@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'luc
 
 interface MioloProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: "IDLE" | "CORRECT" | "WRONG";
   unidadeAtiva?: string;
 }
@@ -204,12 +204,12 @@ export default function MioloMultiplaEscolha({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 100 : 20, unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
