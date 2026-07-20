@@ -56,6 +56,7 @@ export default function MioloVelocidadeProgressiva({
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [options, setOptions] = useState<OptionItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [correctId, setCorrectId] = useState<number>(1);
@@ -130,6 +131,7 @@ export default function MioloVelocidadeProgressiva({
         setCorrectAnswer(respostaLimpa);
         setFeedbackCorretoBanco(exe.correct_feedback || "");
         setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+          if (exe?.id) setExerciseId(String(exe.id));
         
         let rawOptions: string[] = [];
         const altOpts = exe.alternative_options || exe.alternativas;
@@ -228,7 +230,7 @@ export default function MioloVelocidadeProgressiva({
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       
       if (onValidateResult) {
-        onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
+        onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
       }
       if (resultado.acertou && onSelectCorrect) onSelectCorrect();
       if (!resultado.acertou && onSelectWrong) onSelectWrong();
@@ -237,7 +239,7 @@ export default function MioloVelocidadeProgressiva({
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
       if (onValidateResult) {
-        onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."), acertou ? 100 : 20, unidadeAtiva);
+        onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."), acertou ? 100 : 20, exerciseId || unidadeAtiva);
       }
       if (acertou && onSelectCorrect) onSelectCorrect();
       if (!acertou && onSelectWrong) onSelectWrong();
