@@ -1486,11 +1486,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="inline-flex items-center w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 rounded-xl p-3 my-1 flex items-center justify-between gap-4 w-full max-w-xs shadow-md shadow-cyan-950/20 transition-all hover:border-cyan-500/50">
-      <div className="flex items-center gap-2.5">
-        <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></div>
-        <span className="text-xs font-sans tracking-wide text-slate-300 font-medium">Resposta em Áudio</span>
-      </div>
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
+      
       <button onClick={(e) => {
         e.stopPropagation();
         if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -1544,8 +1541,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
-        <span>▶</span> Ouvir Mentora
+      }} className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30 animate-pulse" title="Ouvir mensagem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>
   ) : (
@@ -1665,11 +1662,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="inline-flex items-center w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-cyan-500/30 rounded-xl p-3 my-1 flex items-center justify-between gap-4 w-full max-w-xs shadow-md shadow-cyan-950/20 transition-all hover:border-cyan-500/50">
-      <div className="flex items-center gap-2.5">
-        <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></div>
-        <span className="text-xs font-sans tracking-wide text-slate-300 font-medium">Resposta em Áudio</span>
-      </div>
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
+      
       <button onClick={(e) => {
         e.stopPropagation();
         if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -1723,8 +1717,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
-        <span>▶</span> Ouvir Mentora
+      }} className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30 animate-pulse" title="Ouvir mensagem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>
   ) : (
