@@ -50,6 +50,7 @@ export default function MioloBlocos({
   const [fraseOriginalGabarito, setFraseOriginalGabarito] = useState<string>("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [blocosDisponiveis, setBlocosDisponiveis] = useState<BlocoItem[]>([]);
@@ -119,6 +120,7 @@ export default function MioloBlocos({
         if (dados && dados.length > 0) {
           setFeedbackCorretoBanco(dados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          if (dados[0]?.id) setExerciseId(String(dados[0].id));
           setIncentivoCorretoBanco(dados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
         }
@@ -219,13 +221,13 @@ export default function MioloBlocos({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
-      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), acertou ? 100 : 20, unidadeAtiva);
+      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
