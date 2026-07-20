@@ -9,7 +9,7 @@ interface MioloSpellingBeeProps {
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   onSelectionChange?: (hasItems: boolean) => void;
 }
 
@@ -266,7 +266,7 @@ export default function MioloSpellingBee({
       setFeedbackIA(mensagemFeedback);
 
       if (onValidateResult) {
-        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco, acertou ? 100 : 20, unidadeAtiva);
       }
 
       if (acertou) {

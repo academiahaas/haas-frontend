@@ -963,8 +963,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           user_id: "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
           unit_id: targetUnitId,
           unit_xp: novoXpTotalDaUnidade,
-          activity_type: (activityType || jogoSelecionado) === 'paragrafos' ? '8' : ((activityType || jogoSelecionado) === 'shadowing' ? '10' : (activityType || jogoSelecionado || 'geral')),
-          exercise_id: (activityType || jogoSelecionado) === 'shadowing' ? String(dynamicExerciseId || typeof subUnidadeIndex === 'string' ? subUnidadeIndex : '09adf4ff-71ed-4b2b-982e-07c22fcd2cf0') : (dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || '8')),
+          activity_type: (activityType || jogoSelecionado) === 'paragrafos' ? '8' : ((activityType || jogoSelecionado) === 'shadowing' ? '10' : ((activityType || jogoSelecionado) === 'spelling' ? '11' : (activityType || jogoSelecionado || 'geral'))),
+          exercise_id: (activityType || jogoSelecionado) === 'shadowing' || (activityType || jogoSelecionado) === 'spelling' ? String(dynamicExerciseId || typeof subUnidadeIndex === 'string' ? subUnidadeIndex : '09adf4ff-71ed-4b2b-982e-07c22fcd2cf0') : (dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || '8')),
           score: scoreObtido ?? 0,
           completed_at: new Date().toISOString()
         })
