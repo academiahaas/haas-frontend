@@ -42,7 +42,7 @@ export default function MioloBlitzChallenge({
   useEffect(() => {
     if (gameOver && onValidateResult && !validadoRef.current) {
       validadoRef.current = true;
-      onValidateResult(true, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, exerciseId || unidadeAtiva);
+      onValidateResult(totalXp > 0, `Desafio Concluído! Você conquistou ${totalXp} PTS no Blitz.`, totalXp, exerciseId || unidadeAtiva);
     }
   }, [gameOver, onValidateResult, totalXp, exerciseId, unidadeAtiva]);
 
@@ -130,7 +130,7 @@ export default function MioloBlitzChallenge({
     
     if (acertou) {
       setTotalXp((v) => v + 10);
-      setFeedback({ id: String(Date.now()), text: '+10 XP • EXTRAORDINÁRIO!', color: 'text-emerald-400' });
+      setFeedback({ id: String(Date.now()), text: '+10 PTS • EXTRAORDINÁRIO!', color: 'text-emerald-400' });
       if (onSelectCorrect) onSelectCorrect();
     } else {
       setFeedback({ id: String(Date.now()), text: 'SINTAXE INCORRETA!', color: 'text-rose-400' });
@@ -168,7 +168,7 @@ export default function MioloBlitzChallenge({
         <h3 className='text-[clamp(16px,2vw,22px)] font-black text-[#F8FAFC] tracking-wider uppercase mb-1'>Desafio Concluído</h3>
         <p className='text-[clamp(12px,1.4vw,15px)] text-slate-400 mb-4 font-medium'>Sua performance gerou rendimento</p>
         <div className='text-[clamp(22px,2.8vw,32px)] font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-8 py-2.5 rounded-xl border border-[#FF8A2B]/20 shadow-[0_0_20px_rgba(255,138,43,0.1)]'>
-          +{totalXp} XP
+          +{totalXp} PTS
         </div>
       </div>
     );
