@@ -939,7 +939,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
     // Sincroniza o ganho de XP da unidade com o Supabase usando UPSERT
-  const sincronizarXpUnidadeComBanco = async (novoXpTotalDaUnidade: number) => {
+  const sincronizarXpUnidadeComBanco = async (novoXpTotalDaUnidade: number, activityType?: string, scoreObtido?: number, dynamicExerciseId?: string) => {
     // Atualiza imediatamente o estado visual local para dar fluidez e não travar as próximas questões
     setXpUnidade(novoXpTotalDaUnidade);
     try {
@@ -963,6 +963,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           user_id: "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
           unit_id: targetUnitId,
           unit_xp: novoXpTotalDaUnidade,
+          activity_type: (activityType || jogoSelecionado) === 'paragrafos' ? '8' : (activityType || jogoSelecionado || 'geral'),
+          exercise_id: dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || '8'),
+          score: scoreObtido || 0,
           completed_at: new Date().toISOString()
         })
       });
@@ -985,7 +988,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setTimeout(() => setJogoSelecionado(todosOsJogos[proximoIdx].id), 10);
   };
 
-  const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number) => {
+  const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
     // 1. Controle da fala da Mentora Haas para Shadowing e Roleplay
     if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay') {
       if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
@@ -1008,7 +1011,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     
     if (xpGanho > 0) {
       setXpAcumulado(prev => prev + xpGanho);
-      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho);
+      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado, xpGanho, exerciseId);
+    }
+    // Notifica conclusão do exercício no Supabase para Reordenação e outros módulos
+    if (isCorrect) {
+      console.log("🚀 [ARENA QUIZ] Notificando Supabase sobre conclusão do jogo:", jogoSelecionado);
     }
 
     if (isCorrect) {

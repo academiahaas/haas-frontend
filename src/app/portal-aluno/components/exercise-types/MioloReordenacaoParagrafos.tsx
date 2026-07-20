@@ -11,7 +11,7 @@ interface ParagrafoItem {
 
 interface MioloReordenacaoProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -206,14 +206,14 @@ export default function MioloReordenacaoParagrafos({
       
       setFeedbackIA(feedbackTecnico);
       // Passa o incentivo da Mentora Haas se houver, caso contrario o feedback tecnico
-      if (onValidateResult) onValidateResult(true, incentivoMentora || feedbackTecnico);
+      if (onValidateResult) onValidateResult(true, incentivoMentora || feedbackTecnico, 25, dadosExercicio?.id);
     } else {
       setLocalStatus("WRONG");
       const feedbackTecnico = dadosExercicio?.incorrect_feedback || "La secuencia lógica posee detalles de cohesión por corregir.";
       const incentivoMentora = dadosExercicio?.incorrect_incentive || "";
       
       setFeedbackIA(feedbackTecnico);
-      if (onValidateResult) onValidateResult(false, incentivoMentora || feedbackTecnico);
+      if (onValidateResult) onValidateResult(false, incentivoMentora || feedbackTecnico, 0, dadosExercicio?.id);
     }
 
     setAnalisando(false);
