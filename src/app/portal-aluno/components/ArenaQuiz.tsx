@@ -1484,7 +1484,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 <div className="flex items-center gap-3 bg-violet-950/40 rounded-xl px-4 py-2.5 border border-violet-500/20"><button onClick={(e) => { const audio = (e.currentTarget.nextSibling as HTMLAudioElement); if (audio.paused) { audio.play(); } else { audio.pause(); } }} className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-violet-900/30" title="Ouvir mensagem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg></button><audio src={(msg as any).audioUrl} className="hidden" /></div>
                               </div>
                               ) : 
-<span className="inline-flex items-center w-full">
+<span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
     <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
       
@@ -1660,7 +1660,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               <div key={i} className={msg.tipo === 'user' ? 'text-right' : 'text-left text-slate-100'}>
                                 <span className={msg.tipo === 'user' ? 'inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30' : ''}>
                                   
-<span className="inline-flex items-center w-full">
+<span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
     <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
       
