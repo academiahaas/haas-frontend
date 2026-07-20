@@ -965,7 +965,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           unit_xp: novoXpTotalDaUnidade,
           activity_type: (activityType || jogoSelecionado) === 'paragrafos' ? '8' : (activityType || jogoSelecionado || 'geral'),
           exercise_id: dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || '8'),
-          score: scoreObtido || 0,
+          score: scoreObtido ?? 0,
           completed_at: new Date().toISOString()
         })
       });
@@ -1011,8 +1011,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     
     if (xpGanho > 0) {
       setXpAcumulado(prev => prev + xpGanho);
-      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado, xpGanho, exerciseId);
     }
+    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado, xpGanho, exerciseId);
     // Notifica conclusão do exercício no Supabase para Reordenação e outros módulos
     if (isCorrect) {
       console.log("🚀 [ARENA QUIZ] Notificando Supabase sobre conclusão do jogo:", jogoSelecionado);
