@@ -1470,7 +1470,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               
               <span className="w-full text-[9px] font-black text-[#38BDF8] tracking-widest uppercase block border-b border-white/5 pb-1 select-none shrink-0 mb-2">{tArena.mentorName}</span>
               
-              <div className="flex flex-col flex-1 overflow-y-auto mb-3 pr-1 max-h-[320px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              <div className="flex flex-col flex-1 overflow-y-auto mb-3 pr-1 max-h-[460px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div className="text-[13px] font-sans font-medium leading-relaxed text-slate-100 mt-1">
                   {(chatHistory.length >= 0 || isThinking || respostaIA) ? (
                     <div className="text-slate-100 text-[14px] leading-relaxed whitespace-pre-wrap break-words font-medium flex flex-col gap-4 w-full">
