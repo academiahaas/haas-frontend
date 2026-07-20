@@ -1524,26 +1524,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
         let indexBloco = 0;
-        const falarSequencial = () => {
+        const falarSequencial = async () => {
           if (indexBloco >= blocos.length) return;
           const textoBloco = blocos[indexBloco];
-          const utterance = new SpeechSynthesisUtterance(textoBloco);
-          
-          if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
-            utterance.lang = langAlvo;
-          } else {
-            utterance.lang = "pt-BR";
-          }
-          const vozes = window.speechSynthesis.getVoices();
-          const vozEscolhida = vozes.find(v => v.lang.includes(utterance.lang) && (v.name.includes("Google") || v.name.includes("Luciana") || v.name.includes("Francisca") || v.name.includes("Maria"))) || vozes.find(v => v.lang.toLowerCase().includes(utterance.lang.toLowerCase()));
-          if (vozEscolhida) utterance.voice = vozEscolhida;
-          utterance.rate = 1.08;
-          utterance.pitch = 1.02;
-          utterance.onend = () => {
+          try {
+            const res = await fetch("/api/ai/tts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+            });
+            if (!res.ok) throw new Error();
+            const blob = await res.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.onended = () => { indexBloco++; falarSequencial(); };
+            await audio.play();
+          } catch (e) {
             indexBloco++;
             falarSequencial();
-          };
-          window.speechSynthesis.speak(utterance);
+          }
         };
         falarSequencial();
       }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
@@ -1586,34 +1584,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
           let indexBloco = 0;
-          const falarSequencial = () => {
-            if (indexBloco >= blocos.length) return;
-            const textoBloco = blocos[indexBloco];
-            const utterance = new SpeechSynthesisUtterance(textoBloco);
-            
-            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
-              utterance.lang = langAlvo;
-            } else {
-              utterance.lang = langNativo;
-            }
-
-            const voices = window.speechSynthesis.getVoices();
-            const v = voices.find(x => {
-              const langLower = x.lang.toLowerCase();
-              if (utterance.lang.toLowerCase().includes("pt") && langLower.includes("es")) {
-                return false;
-              }
-              return langLower.replace('_', '-').includes(utterance.lang.toLowerCase().replace('_', '-'));
-            }) || voices.find(x => x.lang.toLowerCase().includes("pt-br"));
-            
-            if (v) utterance.voice = v;
-            
-            utterance.onend = () => {
-              indexBloco++;
-              falarSequencial();
-            };
-            if (utterance.lang.includes("pt")) window.speechSynthesis.speak(utterance);
-          };
+          const falarSequencial = async () => {
+          if (indexBloco >= blocos.length) return;
+          const textoBloco = blocos[indexBloco];
+          try {
+            const res = await fetch("/api/ai/tts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+            });
+            if (!res.ok) throw new Error();
+            const blob = await res.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.onended = () => { indexBloco++; falarSequencial(); };
+            await audio.play();
+          } catch (e) {
+            indexBloco++;
+            falarSequencial();
+          }
+        };
           falarSequencial();
         }} className="hidden" title="Ouvir"></button>
       )}
@@ -1714,27 +1703,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
         let indexBloco = 0;
-        const falarSequencial = () => {
+        const falarSequencial = async () => {
           if (indexBloco >= blocos.length) return;
           const textoBloco = blocos[indexBloco];
-          const utterance = new SpeechSynthesisUtterance(textoBloco);
-          
-          if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
-            utterance.lang = langAlvo;
-          } else {
-            utterance.lang = langNativo;
-          }
-
-          const voices = window.speechSynthesis.getVoices();
-          const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
-            (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
-          
-          if (v) utterance.voice = v;
-          utterance.onend = () => {
+          try {
+            const res = await fetch("/api/ai/tts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+            });
+            if (!res.ok) throw new Error();
+            const blob = await res.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.onended = () => { indexBloco++; falarSequencial(); };
+            await audio.play();
+          } catch (e) {
             indexBloco++;
             falarSequencial();
-          };
-          window.speechSynthesis.speak(utterance);
+          }
         };
         falarSequencial();
       }} className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-sm shadow-cyan-400/20 flex items-center gap-1.5">
@@ -1777,27 +1763,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
           let indexBloco = 0;
-          const falarSequencial = () => {
-            if (indexBloco >= blocos.length) return;
-            const textoBloco = blocos[indexBloco];
-            const utterance = new SpeechSynthesisUtterance(textoBloco);
-            
-            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
-            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
-              utterance.lang = langAlvo;
-            } else {
-              utterance.lang = "pt-BR";
-            }
-            const vozes = window.speechSynthesis.getVoices();
-            const vozEscolhida = vozes.find(v => v.lang.includes(utterance.lang) && (v.name.includes("Google") || v.name.includes("Luciana") || v.name.includes("Francisca") || v.name.includes("Maria"))) || vozes.find(v => v.lang.toLowerCase().includes(utterance.lang.toLowerCase()));
-            if (vozEscolhida) utterance.voice = vozEscolhida;
-            utterance.rate = 1.08;
-            utterance.pitch = 1.02;
-              indexBloco++;
-              falarSequencial();
-            };
-            window.speechSynthesis.speak(utterance);
-          };
+          const falarSequencial = async () => {
+          if (indexBloco >= blocos.length) return;
+          const textoBloco = blocos[indexBloco];
+          try {
+            const res = await fetch("/api/ai/tts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+            });
+            if (!res.ok) throw new Error();
+            const blob = await res.blob();
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.onended = () => { indexBloco++; falarSequencial(); };
+            await audio.play();
+          } catch (e) {
+            indexBloco++;
+            falarSequencial();
+          }
+        };
           falarSequencial();
         }} className="hidden" title="Ouvir"></button>
       )}
