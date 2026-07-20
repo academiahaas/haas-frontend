@@ -13,7 +13,7 @@ interface MioloProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
-  onValidateResult?: (acertou: boolean) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -228,7 +228,7 @@ export default function MioloVelocidadeProgressiva({
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       
       if (onValidateResult) {
-        onValidateResult(resultado.acertou);
+        onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, unidadeAtiva);
       }
       if (resultado.acertou && onSelectCorrect) onSelectCorrect();
       if (!resultado.acertou && onSelectWrong) onSelectWrong();
@@ -237,7 +237,7 @@ export default function MioloVelocidadeProgressiva({
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
       if (onValidateResult) {
-        onValidateResult(acertou);
+        onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."), acertou ? 100 : 20, unidadeAtiva);
       }
       if (acertou && onSelectCorrect) onSelectCorrect();
       if (!acertou && onSelectWrong) onSelectWrong();
