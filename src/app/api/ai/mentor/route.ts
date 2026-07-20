@@ -52,17 +52,16 @@ Você é a Mentora Haas. O idioma nativo do seu aluno é ${IDIOMA_NATIVO} e ele 
 Se o histórico estiver vazio (primeira mensagem do chat), saude o aluno cordialmente em ${IDIOMA_NATIVO}, apresente-se como Mentora Haas e mencione que hoje focarão em: "${DEBILIDADES_SEMANA}". Não adicione mais nada.
 
 [REGRA DE IDIOMA NAS INTERAÇÕES SEGUINTES]
-Se o histórico já possuir mensagens anteriores, você deve analisar o "Último mensagem recebido" do aluno e responder OBRIGATORIAMENTE no MESMO IDIOMA em que ele se comunicou com você nessa última frase (se ele falar em português, responda em português; se ele falar em inglês, responda em inglês). 
+Se o histórico já possuir mensagens anteriores, você deve analisar o "Último mensagem recebido" do aluno e responder OBRIGATORIAMENTE no MESMO IDIOMA em que ele se comunicou com você nessa última frase.
 
 [REGRAS CRÍTICAS DE SAÍDA - SEJA ESTRITO]
-Sua resposta na tela deve conter única e exclusivamente dois parágrafos limpos, sem qualquer tipo de tag, separados por uma linha em branco:
+Sua resposta na tela deve conter única e exclusivamente dois parágrafos limpos, sem qualquer tipo de tag markdown ou saudações, separados por uma linha em branco. Cada parágrafo DEVE iniciar obrigatoriamente com a sigla do idioma correspondente entre colchetes ([pt-BR], [es-ES] ou [en-US]), pois o sistema precisa disso para calibrar a voz.
 
 PARÁGRAFO 1:
-- Comente de forma muito fluida sobre o que o aluno acabou de dizer, ou corrija de forma simples eventuais erros de gramática, menos de pontuação como vírgulas, pontos finais, ponto e vírgula, dois pontos e reticências. Lembre-se de usar o mesmo idioma que o aluno usou para falar com você. Proibido saudar ou dar boas-vindas se o histórico já tiver mensagens. Lembre-se de usar o mesmo idioma que o aluno usou para falar com você. Proibido saudar ou dar boas-vindas se o histórico já tiver mensagens.
+- Inicie obrigatoriamente com a tag do idioma em que o aluno falou (ex: [pt-BR]). Comente de forma muito fluida sobre o que ele disse, ou corrija apenas erros reais de vocabulário e concordância. Despreze totalmente a falta de pontos, vírgulas ou interrogações na fala dele. Proibido usar saudações se o histórico já tiver mensagens.
 
 PARÁGRAFO 2:
-- Faça uma única pergunta direta, curta e natural formulada no idioma alvo (${IDIOMA_ALVO}) para manter o aluno praticando o curso.
-- PROIBIDO repetir saudações ou frases introdutórias neste segundo parágrafo. Vá direto para a pergunta.
+- Inicie obrigatoriamente com a tag do idioma alvo (ex: [es-ES] ou [en-US]). Faça uma única pergunta direta, curta e natural formulada estritamente no idioma alvo (${IDIOMA_ALVO}) para manter o aluno praticando o curso. Proibido repetir saudações ou frases introdutórias.
 `;
 
     let stringHistorico = "";
@@ -104,7 +103,10 @@ PARÁGRAFO 2:
     }
 
     const resultadoJson = await resGemini.json();
-    const textoResposta = resultadoJson?.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, tive um problema ao gerar a resposta.";
+    let textoResposta = resultadoJson?.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, tive um problema ao gerar a resposta.";
+
+    // Remove as tags de idioma que confundem o leitor de voz do navegador
+    textoResposta = textoResposta.replace(/\[pt-BR\]/gi, '').replace(/\[es-ES\]/gi, '').replace(/\[en-US\]/gi, '').trim();
 
     return new Response(textoResposta, {
       headers: { "Content-Type": "text/plain; charset=utf-8" }

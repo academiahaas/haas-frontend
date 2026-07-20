@@ -1532,14 +1532,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
             utterance.lang = langAlvo;
           } else {
-            utterance.lang = langNativo;
+            utterance.lang = "pt-BR";
           }
-
-          const voices = window.speechSynthesis.getVoices();
-          const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
-            (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
-          
-          if (v) utterance.voice = v;
+          const vozes = window.speechSynthesis.getVoices();
+          const vozEscolhida = vozes.find(v => v.lang.includes(utterance.lang) && (v.name.includes("Google") || v.name.includes("Luciana") || v.name.includes("Francisca") || v.name.includes("Maria"))) || vozes.find(v => v.lang.toLowerCase().includes(utterance.lang.toLowerCase()));
+          if (vozEscolhida) utterance.voice = vozEscolhida;
+          utterance.rate = 1.08;
+          utterance.pitch = 1.02;
           utterance.onend = () => {
             indexBloco++;
             falarSequencial();
@@ -1599,15 +1598,21 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             }
 
             const voices = window.speechSynthesis.getVoices();
-            const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
-              (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
+            const v = voices.find(x => {
+              const langLower = x.lang.toLowerCase();
+              if (utterance.lang.toLowerCase().includes("pt") && langLower.includes("es")) {
+                return false;
+              }
+              return langLower.replace('_', '-').includes(utterance.lang.toLowerCase().replace('_', '-'));
+            }) || voices.find(x => x.lang.toLowerCase().includes("pt-br"));
             
             if (v) utterance.voice = v;
+            
             utterance.onend = () => {
               indexBloco++;
               falarSequencial();
             };
-            window.speechSynthesis.speak(utterance);
+            if (utterance.lang.includes("pt")) window.speechSynthesis.speak(utterance);
           };
           falarSequencial();
         }} className="hidden" title="Ouvir"></button>
@@ -1778,17 +1783,16 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             const utterance = new SpeechSynthesisUtterance(textoBloco);
             
             if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
+            if (indexBloco === blocos.length - 1 || textoBloco.includes("?")) {
               utterance.lang = langAlvo;
             } else {
-              utterance.lang = langNativo;
+              utterance.lang = "pt-BR";
             }
-
-            const voices = window.speechSynthesis.getVoices();
-            const v = voices.find(x => x.lang.toLowerCase().includes(utterance.lang.toLowerCase()) && 
-              (x.name.toLowerCase().includes("female") || x.name.toLowerCase().includes("maria") || x.name.toLowerCase().includes("google") || x.name.toLowerCase().includes("microsoft")));
-            
-            if (v) utterance.voice = v;
-            utterance.onend = () => {
+            const vozes = window.speechSynthesis.getVoices();
+            const vozEscolhida = vozes.find(v => v.lang.includes(utterance.lang) && (v.name.includes("Google") || v.name.includes("Luciana") || v.name.includes("Francisca") || v.name.includes("Maria"))) || vozes.find(v => v.lang.toLowerCase().includes(utterance.lang.toLowerCase()));
+            if (vozEscolhida) utterance.voice = vozEscolhida;
+            utterance.rate = 1.08;
+            utterance.pitch = 1.02;
               indexBloco++;
               falarSequencial();
             };
