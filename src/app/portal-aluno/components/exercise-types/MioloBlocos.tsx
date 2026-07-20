@@ -221,13 +221,37 @@ export default function MioloBlocos({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) {
+          const blocosEsperados = (fraseOriginalGabarito || gabaritoFrase).trim().split(/\s+/).filter(Boolean);
+          const blocosAluno = blocosMontados.map(b => b.texto.trim()).filter(Boolean);
+          let acertos = 0;
+          blocosEsperados.forEach((blocoEsp, idx) => {
+            if (blocosAluno[idx] && blocosAluno[idx].toLowerCase() === blocoEsp.toLowerCase()) {
+              acertos++;
+            }
+          });
+          const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
+          const aprovado = nota >= 6;
+          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), nota, exerciseId || unidadeAtiva);
+        }
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
-      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) {
+          const blocosEsperados = (fraseOriginalGabarito || gabaritoFrase).trim().split(/\s+/).filter(Boolean);
+          const blocosAluno = blocosMontados.map(b => b.texto.trim()).filter(Boolean);
+          let acertos = 0;
+          blocosEsperados.forEach((blocoEsp, idx) => {
+            if (blocosAluno[idx] && blocosAluno[idx].toLowerCase() === blocoEsp.toLowerCase()) {
+              acertos++;
+            }
+          });
+          const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
+          const aprovado = nota >= 6;
+          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), nota, exerciseId || unidadeAtiva);
+        }
     } finally {
       setAnalisando(false);
     }
