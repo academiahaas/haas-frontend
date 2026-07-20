@@ -7,7 +7,7 @@ interface MioloShadowingProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
 interface FeedbackEstruturado {
@@ -309,7 +309,7 @@ Regras Estritas:
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
       if (onValidateResult) {
-        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?");
+        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 15, unidadeAtiva);
       }
       return;
     }
@@ -368,7 +368,7 @@ Regras Estritas:
       if (onValidateResult) {
         const incTexto = aprovado ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : msgPersonalizada;
-        onValidateResult(aprovado, feedbackFinalMentora);
+        onValidateResult(aprovado, feedbackFinalMentora, aprovado ? 100 : 20, unidadeAtiva);
       }
 
       if (aprovado) {
