@@ -598,7 +598,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [respostaIA, setRespostaIA] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
-  const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>([]);
+  const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('arena_chat_history');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('arena_chat_history', JSON.stringify(chatHistory));
+    }
+  }, [chatHistory]);
   const [msgEscritaAleatoria, setMsgEscritaAleatoria] = useState("");
   const [tipoEnvio, setTipoEnvio] = useState("");
   
