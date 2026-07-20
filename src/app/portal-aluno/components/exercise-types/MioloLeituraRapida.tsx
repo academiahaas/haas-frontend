@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 interface MioloLeituraRapidaProps {
   onSelectionChange?: (hasItems: boolean) => void;
-  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string) => void;
+  onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
 }
@@ -46,6 +46,7 @@ export default function MioloLeituraRapida({
   const [textoGabarito, setTextoGabarito] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [exerciseId, setExerciseId] = useState("");
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -124,6 +125,7 @@ export default function MioloLeituraRapida({
         if (dados && dados.length > 0) {
           setFeedbackCorretoBanco(dados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          if (dados[0]?.id) setExerciseId(String(dados[0].id));
           setIncentivoCorretoBanco(dados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
         }
@@ -251,7 +253,7 @@ export default function MioloLeituraRapida({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
     } catch (e) {
       const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
       const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
@@ -259,7 +261,7 @@ export default function MioloLeituraRapida({
       
       setLocalStatus(possuiMinimo ? 'CORRECT' : 'WRONG');
       setFeedbackIA(possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."));
-      if (onValidateResult) onValidateResult(possuiMinimo, possuiMinimo ? incentivoCorretoBanco : incentivoIncorretoBanco);
+      if (onValidateResult) onValidateResult(possuiMinimo, possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."), possuiMinimo ? 100 : 20, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
