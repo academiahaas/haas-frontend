@@ -253,7 +253,19 @@ export default function MioloLeituraRapida({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) {
+          const palavrasGabarito = textoGabarito.trim().split(/\s+/).filter(Boolean);
+          const palavrasAluno = inputValue.trim().split(/\s+/).filter(Boolean);
+          let acertos = 0;
+          palavrasGabarito.forEach((palavra, idx) => {
+            if (palavrasAluno[idx] && palavrasAluno[idx].toLowerCase().replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, "") === palavra.toLowerCase().replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, "")) {
+              acertos++;
+            }
+          });
+          const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
+          const aprovado = nota >= 6;
+          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), nota, exerciseId || unidadeAtiva);
+        }
     } catch (e) {
       const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
       const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
@@ -261,7 +273,19 @@ export default function MioloLeituraRapida({
       
       setLocalStatus(possuiMinimo ? 'CORRECT' : 'WRONG');
       setFeedbackIA(possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."));
-      if (onValidateResult) onValidateResult(possuiMinimo, possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."), possuiMinimo ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) {
+          const palavrasGabarito = textoGabarito.trim().split(/\s+/).filter(Boolean);
+          const palavrasAluno = inputValue.trim().split(/\s+/).filter(Boolean);
+          let acertos = 0;
+          palavrasGabarito.forEach((palavra, idx) => {
+            if (palavrasAluno[idx] && palavrasAluno[idx].toLowerCase().replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, "") === palavra.toLowerCase().replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, "")) {
+              acertos++;
+            }
+          });
+          const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (possuiMinimo ? 10 : 0);
+          const aprovado = nota >= 6;
+          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."), nota, exerciseId || unidadeAtiva);
+        }
     } finally {
       setAnalisando(false);
     }
