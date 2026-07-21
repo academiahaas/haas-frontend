@@ -125,6 +125,8 @@ export default function MioloLeituraRapida({
         if (dados && dados.length > 0) {
           setFeedbackCorretoBanco(dados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
+          setIncentivoCorretoBanco(dados[0].incentivo_correto || "");
+          setIncentivoIncorretoBanco(dados[0].incentivo_incorreto || "");
           if (dados[0]?.id) setExerciseId(String(dados[0].id));
           setIncentivoCorretoBanco(dados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
@@ -264,7 +266,8 @@ export default function MioloLeituraRapida({
           });
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), nota, exerciseId || unidadeAtiva);
+          const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
+          onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
         }
     } catch (e) {
       const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
@@ -284,7 +287,8 @@ export default function MioloLeituraRapida({
           });
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (possuiMinimo ? 10 : 0);
           const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."), nota, exerciseId || unidadeAtiva);
+          const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
+          onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
         }
     } finally {
       setAnalisando(false);
