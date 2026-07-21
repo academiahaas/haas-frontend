@@ -183,26 +183,25 @@ export default function MioloVelocidadeProgressiva({
       window.speechSynthesis.cancel();
       
       let cleanText = readingText;
-      if (correctAnswer.includes('/')) {
-        const parts = correctAnswer.split('/');
-        parts.forEach(part => { cleanText = cleanText.replace(/______/, part.trim()); });
-      } else {
-        cleanText = cleanText.replace(/___+/g, correctAnswer || "lacuna");
-      }
+    const textoAudio = (correctAnswer || "").split(/[,/]/);
+    textoAudio.forEach(part => {
+      cleanText = cleanText.replace(/___+/, part.trim());
+    });
+    cleanText = cleanText.replace(/___+/g, "lacuna");
 
-      const utterance = new SpeechSynthesisUtterance(cleanText.toLowerCase());
-      utterance.lang = 'pt-BR';
-      utterance.rate = rate; 
-      utterance.pitch = 1.02; 
+    const utterance = new SpeechSynthesisUtterance(cleanText.toLowerCase());
+    utterance.lang = 'pt-BR';
+    utterance.rate = rate; 
+    utterance.pitch = 1.02; 
 
-      const vozes = window.speechSynthesis.getVoices();
-      const vozFeminina = 
-        vozes.find(v => v.lang.includes("pt-BR") && (v.name.includes("Luciana") || v.name.includes("Francisca"))) ||
-        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Google português do Brasil")) ||
-        vozes.find(v => v.lang.includes("pt-BR"));
+    const vozes = window.speechSynthesis.getVoices();
+    const vozFeminina = 
+      vozes.find(v => v.lang.includes("pt-BR") && (v.name.includes("Luciana") || v.name.includes("Francisca"))) ||
+      vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Google português do Brasil")) ||
+      vozes.find(v => v.lang.includes("pt-BR"));
 
-      if (vozFeminina) utterance.voice = vozFeminina;
-      window.speechSynthesis.speak(utterance);
+    if (vozFeminina) utterance.voice = vozFeminina;
+    window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -258,24 +257,33 @@ export default function MioloVelocidadeProgressiva({
     const parts = readingText.split(/___+/g);
     if (parts.length < 2) return <span>{readingText}</span>;
 
-    let wordToShow = "______";
-    let isSelectedStyle = false;
-
+    let selectedText = "";
     if ((localStatus as any) === 'CORRECT') {
-      wordToShow = correctAnswer.toUpperCase();
-      isSelectedStyle = true;
+      selectedText = correctAnswer;
     } else if (selectedId !== null) {
-      wordToShow = (options.find(o => o.id === selectedId)?.text || "").toUpperCase();
-      isSelectedStyle = true;
+      selectedText = options.find(o => o.id === selectedId)?.text || "";
     }
+
+    // Se o texto tiver vírgula ou barra, separa em lista para cada lacuna
+    const palabras = selectedText ? selectedText.split(/[,/]/).map(p => p.trim().toUpperCase()) : [];
 
     return (
       <span>
-        {parts[0]}
-        <span className={isSelectedStyle ? "text-cyan-400 font-black px-1 transition-all duration-150" : "text-slate-400 font-bold"}>
-          {wordToShow}
-        </span>
-        {parts[1]}
+        {parts.map((part, index) => {
+          const valorLacuna = palabras[index] || (selectedText ? selectedText.toUpperCase() : "______");
+          const temSelecao = Boolean(selectedText);
+
+          return (
+            <React.Fragment key={index}>
+              {part}
+              {index < parts.length - 1 && (
+                <span className={temSelecao ? "text-cyan-400 font-black px-1 transition-all duration-150" : "text-slate-400 font-bold"}>
+                  {valorLacuna}
+                </span>
+              )}
+            </React.Fragment>
+          );
+        })}
       </span>
     );
   };
