@@ -225,17 +225,24 @@ export default function MioloTraducaoInversa({
     const respostaMontadaLimpa = limpar(fraseMontada);
     const respostaCorretaLimpa = limpar(respostaCorretaPadrao);
 
-    const acertou = respostaMontadaLimpa === respostaCorretaLimpa;
+    const palavrasGabarito = respostaCorretaLimpa.split(/\s+/).filter(Boolean);
+      const palavrasAluno = depositPieces.map(p => limpar(p.text.toLowerCase().trim())).filter(Boolean);
+      let acertos = 0;
+      palavrasGabarito.forEach((palavra, idx) => {
+        if (palavrasAluno[idx] && palavrasAluno[idx] === palavra) acertos++;
+      });
+      const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : 0;
+      const acertou = nota >= 6;
 
     try {
       if (acertou) {
         setLocalStatus("CORRECT");
         setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
-        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", 100, exerciseId || unidadeAtiva);
+        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", nota, exerciseId || unidadeAtiva);
       } else {
         setLocalStatus("WRONG");
         setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
-        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, 20, exerciseId || unidadeAtiva);
+        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, nota, exerciseId || unidadeAtiva);
       }
     } catch (e) {
       console.error("Erro na validação:", e);
