@@ -64,6 +64,8 @@ export default function MioloTraducaoInversa({
   const [stringAlvoCorreta, setStringAlvoCorreta] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [initialPieces, setInitialPieces] = useState<string[]>([]);
   const [exerciseId, setExerciseId] = useState("");
 
@@ -130,6 +132,8 @@ export default function MioloTraducaoInversa({
         setStringAlvoCorreta(respostaCerta);
         setFeedbackCorretoBanco(dadoExercicio?.correct_feedback || "");
         setFeedbackIncorretoBanco(dadoExercicio?.incorrect_feedback || "");
+        setIncentivoCorretoBanco(dadoExercicio?.correct_incentive || "");
+        setIncentivoIncorretoBanco(dadoExercicio?.incorrect_incentive || "");
         if (dadoExercicio?.id) setExerciseId(String(dadoExercicio.id));
 
         const extrairPalavrasLimpas = (txt: string) => {
@@ -238,11 +242,13 @@ export default function MioloTraducaoInversa({
       if (acertou) {
         setLocalStatus("CORRECT");
         setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
-        if (onValidateResult) onValidateResult(true, feedbackCorretoBanco || "Excelente! Tradução perfeita.", nota, exerciseId || unidadeAtiva);
+        const textoMentora = incentivoCorretoBanco || "Excelente! Tradução perfeita.";
+        if (onValidateResult) onValidateResult(true, textoMentora, nota, exerciseId || unidadeAtiva);
       } else {
         setLocalStatus("WRONG");
         setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
-        if (onValidateResult) onValidateResult(false, feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`, nota, exerciseId || unidadeAtiva);
+        const textoMentora = incentivoIncorretoBanco || "Quase lá! Atenção aos detalhes na tradução.";
+        if (onValidateResult) onValidateResult(false, textoMentora, nota, exerciseId || unidadeAtiva);
       }
     } catch (e) {
       console.error("Erro na validação:", e);

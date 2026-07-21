@@ -240,12 +240,14 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
       setLocalStatus(resultado.acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
+      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || "Excelente visão! Erro identificado.") : (incentivoIncorretoBanco || "Atenção à estrutura da frase.");
+      if (onValidateResult) onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? "CORRECT" : "WRONG");
-      setFeedbackIA(acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.", acertou ? 10 : 0, exerciseId || unidadeAtiva);
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente escolha!") : (feedbackIncorretoBanco || "Esta opção contém um desvio estrutural."));
+      const textoMentora2 = acertou ? (incentivoCorretoBanco || "Excelente visão! Erro identificado.") : (incentivoIncorretoBanco || "Quase lá! Analise os trechos com cuidado.");
+      if (onValidateResult) onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }

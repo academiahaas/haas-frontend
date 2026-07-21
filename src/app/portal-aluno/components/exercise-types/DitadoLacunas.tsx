@@ -209,35 +209,37 @@ export default function DitadoLacunas({
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) {
-          const respostasEsperadas = targetWord.split(/[,\s]+/).filter(Boolean);
-          const respostasEnviadas = inputValue.trim().split(/[,\s]+/).filter(Boolean);
-          let acertos = 0;
-          respostasEsperadas.forEach((resp, idx) => {
-            if (respostasEnviadas[idx] && respostasEnviadas[idx].toLowerCase() === resp.toLowerCase()) {
-              acertos++;
-            }
-          });
-          const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
-          const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), nota, exerciseId || unidadeAtiva);
-        }
+        const respostasEsperadas = targetWord.split(/[,\s]+/).filter(Boolean);
+        const respostasEnviadas = inputValue.trim().split(/[,\s]+/).filter(Boolean);
+        let acertos = 0;
+        respostasEsperadas.forEach((resp, idx) => {
+          if (respostasEnviadas[idx] && respostasEnviadas[idx].toLowerCase() === resp.toLowerCase()) {
+            acertos++;
+          }
+        });
+        const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
+        const aprovado = nota >= 6;
+        const textoMentora1 = aprovado ? (incentivoCorretoBanco || "Excelente preenchimento!") : (incentivoIncorretoBanco || "Atenção à grafia e ao contexto.");
+        onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
+      }
     } catch (e) {
       const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
-      setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+      setLocalStatus(acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || `Desvio ortográfico detectado. O esperado era: ${targetWord}`));
       if (onValidateResult) {
-          const respostasEsperadas = targetWord.split(/[,\s]+/).filter(Boolean);
-          const respostasEnviadas = inputValue.trim().split(/[,\s]+/).filter(Boolean);
-          let acertos = 0;
-          respostasEsperadas.forEach((resp, idx) => {
-            if (respostasEnviadas[idx] && respostasEnviadas[idx].toLowerCase() === resp.toLowerCase()) {
-              acertos++;
-            }
-          });
-          const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
-          const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."), nota, exerciseId || unidadeAtiva);
-        }
+        const respostasEsperadas = targetWord.split(/[,\s]+/).filter(Boolean);
+        const respostasEnviadas = inputValue.trim().split(/[,\s]+/).filter(Boolean);
+        let acertos = 0;
+        respostasEsperadas.forEach((resp, idx) => {
+          if (respostasEnviadas[idx] && respostasEnviadas[idx].toLowerCase() === resp.toLowerCase()) {
+            acertos++;
+          }
+        });
+        const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
+        const aprovado = nota >= 6;
+        const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente preenchimento!") : (incentivoIncorretoBanco || "Quase lá! Confira a palavra novamente.");
+        onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
+      }
     } finally {
       setAnalisando(false);
     }

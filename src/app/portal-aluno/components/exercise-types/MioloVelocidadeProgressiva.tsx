@@ -56,6 +56,8 @@ export default function MioloVelocidadeProgressiva({
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
+  const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
+  const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [exerciseId, setExerciseId] = useState("");
   const [options, setOptions] = useState<OptionItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -131,6 +133,8 @@ export default function MioloVelocidadeProgressiva({
         setCorrectAnswer(respostaLimpa);
         setFeedbackCorretoBanco(exe.correct_feedback || "");
         setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+        setIncentivoCorretoBanco(exe.correct_incentive || "");
+        setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
           if (exe?.id) setExerciseId(String(exe.id));
         
         let rawOptions: string[] = [];
@@ -229,8 +233,9 @@ export default function MioloVelocidadeProgressiva({
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       
+      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || "Excelente! Ótima escuta.") : (incentivoIncorretoBanco || "Atenção aos detalhes do áudio.");
       if (onValidateResult) {
-        onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
+        onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
       }
       if (resultado.acertou && onSelectCorrect) onSelectCorrect();
       if (!resultado.acertou && onSelectWrong) onSelectWrong();
@@ -238,8 +243,9 @@ export default function MioloVelocidadeProgressiva({
       const acertou = selectedId === correctId;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
+      const textoMentora2 = acertou ? (incentivoCorretoBanco || "Excelente! Ótima escuta.") : (incentivoIncorretoBanco || "Quase lá! Ouça com atenção novamente.");
       if (onValidateResult) {
-        onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."), acertou ? 10 : 0, exerciseId || unidadeAtiva);
+        onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, exerciseId || unidadeAtiva);
       }
       if (acertou && onSelectCorrect) onSelectCorrect();
       if (!acertou && onSelectWrong) onSelectWrong();

@@ -206,12 +206,14 @@ export default function MioloMultiplaEscolha({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
+      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || "Excelente! Opção correta.") : (incentivoIncorretoBanco || "Atenção aos detalhes da pergunta.");
+      if (onValidateResult) onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 10 : 0, exerciseId || unidadeAtiva);
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
+      const textoMentora2 = acertou ? (incentivoCorretoBanco || "Excelente! Opção correta.") : (incentivoIncorretoBanco || "Quase lá! Revise as opções com atenção.");
+      if (onValidateResult) onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
