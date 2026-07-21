@@ -990,10 +990,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
     // 1. Controle da fala da Mentora Haas para Shadowing e Roleplay
-    if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
-      setRespostaIA(feedbackTexto);
-    } else if (!feedbackTexto) {
-      setRespostaIA(tArena.mentorFire);
+    if (jogoSelecionado === 'shadowing' || jogoSelecionado === 'roleplay') {
+      if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
+        setRespostaIA(feedbackTexto);
+      }
+    } else {
+      // Comportamento padrão dos outros jogos
+      if (feedbackTexto === "MANTER_MENTORA_INTACTA") {
+        // Mantém intacto
+      } else if (feedbackTexto) {
+        setRespostaIA(feedbackTexto);
+      } else {
+        setRespostaIA("");
+      }
     }
 
     // 2. Consolidação de Pontuação e Progresso (Comum para todos, incluindo Shadowing e Roleplay)
@@ -1659,9 +1668,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
                       {/* Stream de Resposta Ativa */}
                       {respostaIA && !chatHistory.some(m => m.texto === respostaIA) && (
-                         <div className="text-left text-slate-100 block w-full">
-                           <span className="block w-full">{respostaIA}</span>
-                         </div>
+                         <div style={{ display: "none" }}>{(() => { console.log("=== BASTIDORES RESPOSTA IA ===", respostaIA); return respostaIA; })()}</div>
                       )}
 
                       {/* Animação e feedback visual de digitação */}
@@ -1872,11 +1879,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
                               
                               if (typeof window !== 'undefined' && userId && !respostaIA && !isThinking) {
-                                globalThis._hasTriggeredInit = true;
-                                if (!respostaIA && chatHistory.length === 0) {
-                                  setRespostaIA(tArena.mentorFire);
-                                }
-                                if (false) {
+                                globalThis._hasTriggeredInit = globalThis._hasTriggeredInit || false;
+                                if (!globalThis._hasTriggeredInit) {
+                                  globalThis._hasTriggeredInit = true;
                                   setTimeout(() => {
                                     // Monta o prompt dinâmico usando o nome real do aluno logado
                                     const promptBoasVindas = `Gerar uma mensagem curta de incentivo pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} no nível ${nivelTxt}, unidade ${unidadeTxt}. Foque em motivá-lo a praticar e superar os pequenos desafios do aprendizado sem soar genérico. Responda estritamente no idioma ${rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português"}.`;
