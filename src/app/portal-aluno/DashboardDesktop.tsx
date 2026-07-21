@@ -1057,7 +1057,7 @@ export default function DashboardDesktop() {
 
           <div className="flex flex-col gap-2 bg-[#071324]/60 p-2.5 rounded-2xl border border-white/[0.03] w-full min-h-0">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">AL<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
+              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">H<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
               <span className="text-white font-black text-sm tracking-wide">{aluno1}</span>
               <div className="flex justify-between items-center gap-2 text-[9px] font-mono font-black text-amber-500 uppercase tracking-widest mt-0.5 w-full min-w-0">
