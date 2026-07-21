@@ -197,23 +197,32 @@ export default function MioloReordenacaoParagrafos({
     setFeedbackIA("");
 
     const ordemAtualIds = items.map(it => it.id);
-    const acertou = JSON.stringify(ordemAtualIds) === JSON.stringify(gabaritoIds);
+    let acertos = 0;
+    const totalItems = gabaritoIds.length || 1;
 
-    if (acertou) {
+    gabaritoIds.forEach((idEsperado, idx) => {
+      if (ordemAtualIds[idx] && String(ordemAtualIds[idx]) === String(idEsperado)) {
+        acertos++;
+      }
+    });
+
+    const nota = Number(((acertos / totalItems) * 10).toFixed(1));
+    const aprovado = nota >= 6;
+
+    if (aprovado) {
       setLocalStatus("CORRECT");
       const feedbackTecnico = dadosExercicio?.correct_feedback || "¡Orden lógico validado con éxito!";
       const incentivoMentora = dadosExercicio?.correct_incentive || "";
       
       setFeedbackIA(feedbackTecnico);
-      // Passa o incentivo da Mentora Haas se houver, caso contrario o feedback tecnico
-      if (onValidateResult) onValidateResult(true, incentivoMentora || feedbackTecnico, 25, dadosExercicio?.id);
+      if (onValidateResult) onValidateResult(true, incentivoMentora || feedbackTecnico, nota, dadosExercicio?.id);
     } else {
       setLocalStatus("WRONG");
       const feedbackTecnico = dadosExercicio?.incorrect_feedback || "La secuencia lógica posee detalles de cohesión por corregir.";
       const incentivoMentora = dadosExercicio?.incorrect_incentive || "";
       
       setFeedbackIA(feedbackTecnico);
-      if (onValidateResult) onValidateResult(false, incentivoMentora || feedbackTecnico, 0, dadosExercicio?.id);
+      if (onValidateResult) onValidateResult(false, incentivoMentora || feedbackTecnico, nota, dadosExercicio?.id);
     }
 
     setAnalisando(false);
