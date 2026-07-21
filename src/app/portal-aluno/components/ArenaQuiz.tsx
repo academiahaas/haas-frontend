@@ -33,7 +33,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const currentLang = baseLang;
   
   // Gatilho Automático Direto
-  useEffect(() => {
+  useEffect(() => { return; // IA automatica desativada
     if (!userId || (globalThis as any).analiseJaFeita) return;
     (globalThis as any).analiseJaFeita = true;
     
