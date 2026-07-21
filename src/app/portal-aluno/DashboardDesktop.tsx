@@ -267,27 +267,65 @@ export default function DashboardDesktop() {
       if (err === 'Phrasal Verbs') return { PT: 'Phrasal Verbs', EN: 'Phrasal Verbs', ES: 'Phrasal Verbs' }[idioma];
       return err;
     };
-    const erroTraduzido = typeof erro1 !== 'undefined' ? traduzirErro(erro1) : 'Preposições';
+    // Calculo dinâmico do Ponto Fraco Real do Aluno
+      let pontoFracoDetectado = "";
+
+      // 1. Tenta pegar dos logs de erros reais se existirem
+      if (typeof errorLogs !== 'undefined' && Array.isArray(errorLogs) && errorLogs.length > 0) {
+        const contadorErros: Record<string, number> = {};
+        errorLogs.forEach((item: any) => {
+          const topico = item.topic || item.error_type || item.category;
+          if (topico) contadorErros[topico] = (contadorErros[topico] || 0) + 1;
+        });
+        const ordenados = Object.entries(contadorErros).sort((a, b) => b[1] - a[1]);
+        if (ordenados.length > 0) pontoFracoDetectado = ordenados[0][0];
+      }
+
+      // 2. Se nao houver logs de erro específicos, calcula pela menor competencia (0-100)
+      if (!pontoFracoDetectado) {
+        const compValores = [
+          { nome: { PT: 'Pronúncia / Fala', EN: 'Speaking / Pronunciation', ES: 'Pronunciación / Habla' }, val: typeof cHabla !== 'undefined' ? cHabla : 70 },
+          { nome: { PT: 'Compreensão Auditiva', EN: 'Listening Comprehension', ES: 'Comprensión Auditiva' }, val: typeof cEscucha !== 'undefined' ? cEscucha : 70 },
+          { nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' }, val: typeof cGramatica !== 'undefined' ? cGramatica : 70 },
+          { nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' }, val: typeof cEscritura !== 'undefined' ? cEscritura : 70 },
+          { nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' }, val: typeof cLectura !== 'undefined' ? cLectura : 70 }
+        ];
+        compValores.sort((a, b) => a.val - b.val);
+        const menorComp = compValores[0];
+        pontoFracoDetectado = menorComp.nome[idioma as 'PT'|'EN'|'ES'] || menorComp.nome['PT'];
+      }
+
+      const erroTraduzido = typeof erro1 !== 'undefined' && erro1 ? traduzirErro(erro1) : pontoFracoDetectado;
     const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
     const nomeAluno = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
 
-    const bancoConselhos = {
-      PT: [
-        `⚡ Notei que o seu ponto fraco atual é ${erroTraduzido}. Clique para reforçar esse conteúdo!`,
-        `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo badge hoje?`,
-        `🔥 Ótimo progresso, ${nomeAluno}! Não deixe seu Racha de Retenção cair hoje.`
-      ],
-      EN: [
-        `⚡ I noticed your current weak spot is ${erroTraduzido}. Click to reinforce this content!`,
-        `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next badge today?`,
-        `🚀 Great momentum, ${nomeAluno}! Keep your Retention Streak safe today.`
-      ],
-      ES: [
-        `⚡ Noté que tu punto débil actual es ${erroTraduzido}. ¡Haz clic para reservar este conteúdo!`,
-        `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por la seguinte insignia hoy?`,
-        `🔥 ¡Buen progreso, ${nomeAluno}! No dejes que tu racha de retención caiga hoy.`
-      ]
-    };
+    const horaAtual = new Date().getHours();
+      const saudacaoTime = horaAtual < 12 ? (idioma === 'ES' ? '¡Buenos días' : idioma === 'EN' ? 'Good morning' : 'Bom dia') : horaAtual < 18 ? (idioma === 'ES' ? '¡Buenas tardes' : idioma === 'EN' ? 'Good afternoon' : 'Boa tarde') : (idioma === 'ES' ? '¡Buenas noches' : idioma === 'EN' ? 'Good evening' : 'Boa noite');
+      const streakTexto = (typeof streakDays !== 'undefined' && streakDays > 0) ? (idioma === 'ES' ? `¡Llevas ${streakDays} días seguidos!` : idioma === 'EN' ? `You're on a ${streakDays}-day streak!` : `Você está em um Racha de ${streakDays} dias!`) : '';
+
+      const bancoConselhos = {
+        PT: [
+          `👋 ${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
+          `⚡ Notei que o seu ponto fraco atual é ${erroTraduzido}. Clique para reforçar esse conteúdo!`,
+          `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
+          `🔥 Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
+          `💡 Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
+        ],
+        EN: [
+          `👋 ${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
+          `⚡ I noticed your current weak spot is ${erroTraduzido}. Click to reinforce this content!`,
+          `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
+          `🚀 Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
+          `💡 Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
+        ],
+        ES: [
+          `👋 ${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
+          `⚡ Noté que tu punto débil actual es ${erroTraduzido}. ¡Haz clic para reforzar este contenido!`,
+          `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
+          `🔥 ¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
+          `💡 Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
+        ]
+      };
     const listaAtual = bancoConselhos[idioma] || bancoConselhos['PT'];
     return listaAtual[botPhraseIndex % listaAtual.length];
   };
