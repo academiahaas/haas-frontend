@@ -674,7 +674,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const saved = localStorage.getItem('arena_chat_history');
       return saved ? JSON.parse(saved) : [];
     }
-    return [];
+    return [{ tipo: 'ai', texto: 'Olá! Sou a Mentora Haas. Estou aqui para acompanhar sua evolução em tempo real e tirar todas as suas dúvidas. Como posso te ajudar hoje?' }];
   });
 
   useEffect(() => {
