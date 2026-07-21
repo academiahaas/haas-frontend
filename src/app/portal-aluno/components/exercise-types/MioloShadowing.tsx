@@ -305,11 +305,11 @@ Regras Estritas:
           : "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?",
         sugestao: "Intenta hablar de forma fluida frente al micrófono."
       });
-      setScoreFinal(15);
+      setScoreFinal(1.5);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
       if (onValidateResult) {
-        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 15, unidadeAtiva);
+        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 1.5, unidadeAtiva);
       }
       return;
     }
@@ -319,7 +319,7 @@ Regras Estritas:
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const notaCalculada = calcularSimilaridadeShadowing(referencePhrase, transcricaoAluno);
-      setScoreFinal(notaCalculada);
+      setScoreFinal(Number((notaCalculada / 10).toFixed(1)));
 
       let statusResult: "EXCELENTE" | "REGULAR" | "INCOERENTE" = "REGULAR";
       let msgPersonalizada = "";
@@ -368,7 +368,8 @@ Regras Estritas:
       if (onValidateResult) {
         const incTexto = aprovado ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : msgPersonalizada;
-        onValidateResult(aprovado, feedbackFinalMentora, aprovado ? 100 : 20, unidadeAtiva);
+        const notaFinal = Number((notaCalculada / 10).toFixed(1));
+          onValidateResult(aprovado, feedbackFinalMentora, notaFinal, unidadeAtiva);
       }
 
       if (aprovado) {
@@ -438,7 +439,7 @@ Regras Estritas:
           <div className="bg-[#0c192e]/60 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-2.5 animate-fade-in shadow-xl w-full min-h-[110px]">
             <div className="flex justify-end w-full shrink-0">
               <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider whitespace-nowrap shadow-sm">
-                +{scoreFinal} PTS
+                +{scoreFinal} NOTA
               </div>
             </div>
 

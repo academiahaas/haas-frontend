@@ -274,10 +274,10 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         mensagem: "No pude escuchar claramente tus palabras. ¿Podrías intentar responder de nuevo con una frase más larga?",
         sugestao: "Intenta hablar más cerca del micrófono elaborando una respuesta estruturada."
       });
-      setScoreFinal(15);
+      setScoreFinal(1.5);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
-      if (onValidateResult) onValidateResult(false, "No pude escuchar claramente tus palabras. Intenta de nuevo.", 15);
+      if (onValidateResult) onValidateResult(false, "No pude escuchar claramente tus palabras. Intenta de nuevo.", 1.5);
       return;
     }
 
@@ -287,7 +287,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
       const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias);
       
-      setScoreFinal(resultado.score);
+      setScoreFinal(Number((resultado.score / 10).toFixed(1)));
       
       const isCorrect = resultado.score >= 50;
       
@@ -307,7 +307,8 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       if (onValidateResult) {
         const incTexto = isCorrect ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : resultado.msg;
-        onValidateResult(isCorrect, feedbackFinalMentora, resultado.score);
+        const notaFinal = Number((resultado.score / 10).toFixed(1));
+          onValidateResult(isCorrect, feedbackFinalMentora, notaFinal);
       }
       
       if (isCorrect) {
@@ -317,7 +318,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       }
     } catch (e) {
       console.error("Erro na validação local:", e);
-      setScoreFinal(15);
+      setScoreFinal(1.5);
       setFeedback({
         status: "INCOERENTE",
         mensagem: "No logré procesar tu respuesta correctamente. Por favor, inténtalo de nuevo.",
@@ -456,7 +457,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
           <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-3 animate-fade-in shadow-xl relative">
             <div className="flex justify-end w-full">
               <div className="text-amber-400 font-semibold text-[10px] md:text-[0.8vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
-                +{scoreFinal} PTS
+                +{scoreFinal} NOTA
               </div>
             </div>
 
