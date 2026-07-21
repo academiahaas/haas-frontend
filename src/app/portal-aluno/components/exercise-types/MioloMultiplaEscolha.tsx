@@ -206,12 +206,12 @@ export default function MioloMultiplaEscolha({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? "Excelente!" : "Incorreto.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente!" : "Incorreto.", acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
