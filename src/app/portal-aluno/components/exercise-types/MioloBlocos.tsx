@@ -232,7 +232,8 @@ export default function MioloBlocos({
           });
           const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), nota, exerciseId || unidadeAtiva);
+          const textoMentora1 = aprovado ? (incentivoCorretoBanco || "Excelente montagem de sentença!") : (incentivoIncorretoBanco || "Atenção à ordem sintática dos blocos.");
+          onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
         }
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
@@ -250,7 +251,8 @@ export default function MioloBlocos({
           });
           const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          onValidateResult(aprovado, aprovado ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."), nota, exerciseId || unidadeAtiva);
+          const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente montagem de sentença!") : (incentivoIncorretoBanco || "Atenção à ordem sintática dos blocos.");
+          onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
         }
     } finally {
       setAnalisando(false);
