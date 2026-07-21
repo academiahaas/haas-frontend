@@ -240,12 +240,12 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
       setLocalStatus(resultado.acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? "CORRECT" : "WRONG");
       setFeedbackIA(acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.");
-      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.", acertou ? 100 : 20, exerciseId || unidadeAtiva);
+      if (onValidateResult) onValidateResult(acertou, acertou ? "Excelente escolha!" : "Esta opção contém um desvio estrutural.", acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);
     }
