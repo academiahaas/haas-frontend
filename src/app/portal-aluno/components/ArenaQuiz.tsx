@@ -612,6 +612,63 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
+  
+  // Gatilho de Boas-Vindas & Feedback Semanal do Aluno
+  useEffect(() => {
+    if (!userId || isThinking) return;
+
+    // Se já existe histórico de chat nesta sessão, não dispara boas-vindas duplicadas
+    if (chatHistory && chatHistory.length > 0) return;
+
+    // Se já respondeu algo ou ativou a IA, ignora
+    if (respostaIA) return;
+
+    const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
+    const nivelTxt = alunoNivel || "A1";
+    const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
+    const idiomaTarget = rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português";
+
+    const promptBoasVindas = `Gerar uma mensagem curta e motivadora de boas-vindas e feedback pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} (Nível ${nivelTxt}, Unidade: ${unidadeTxt}). Dê um incentivo sobre o progresso recente dele e incentive-o a continuar praticando hoje. Responda estritamente em ${idiomaTarget}.`;
+
+    setIsThinking(true);
+    setRespostaIA("");
+
+    fetch("/api/ai/mentor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: promptBoasVindas, userId: userId, idiomaTela: currentLang })
+    })
+      .then(async (res) => {
+        if (!res.ok || !res.body) throw new Error("Erro na resposta da API");
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let acumulado = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          acumulado += decoder.decode(value, { stream: true });
+          setRespostaIA(acumulado);
+        }
+      })
+      .catch((err) => console.error("Erro ao gerar feedback da Mentora:", err))
+      .finally(() => setIsThinking(false));
+  }, [userId]);
+
+  
+  useEffect(() => {
+    if (respostaIA && typeof window !== "undefined") {
+      setChatHistory((prev) => {
+        const jaExiste = prev.some((m) => m.texto === respostaIA);
+        if (jaExiste) return prev;
+        const novo: { tipo: "user" | "ai"; texto: string; audioUrl?: string }[] = [...prev, { tipo: "ai", texto: respostaIA }];
+        try {
+          localStorage.setItem("mentora_chat_history", JSON.stringify(novo));
+        } catch (e) {}
+        return novo;
+      });
+    }
+  }, [respostaIA]);
+
   const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('arena_chat_history');
@@ -1891,7 +1948,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               const nivelTxt = alunoNivel || "A1";
                               const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
                               
-                              if (typeof window !== 'undefined' && userId && !respostaIA && !isThinking) {
+                              if (typeof window !== 'undefined' && userId && !respostaIA && !isThinking && chatHistory && chatHistory.length === 0) {
                                 globalThis._hasTriggeredInit = true;
                                 if (!respostaIA && chatHistory.length === 0) {
                                   setRespostaIA(tArena.mentorFire);
@@ -1902,8 +1959,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                     const promptBoasVindas = `Gerar uma mensagem curta de incentivo pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} no nível ${nivelTxt}, unidade ${unidadeTxt}. Foque em motivá-lo a praticar e superar os pequenos desafios do aprendizado sem soar genérico. Responda estritamente no idioma ${rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português"}.`;
                                     
                                     // Dispara o fetch local diretamente usando as credenciais e variáveis do escopo local
-                                    setIsThinking(true);
-                                    setRespostaIA('');
+                                    // setIsThinking ignorado para não exibir animação de fila sem necessidade
                                     
                                     fetch("/api/ai/mentor", {
                                       method: "POST",
