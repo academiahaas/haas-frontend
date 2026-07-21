@@ -297,7 +297,8 @@ export default function DashboardDesktop() {
 
       const erroTraduzido = typeof erro1 !== 'undefined' && erro1 ? traduzirErro(erro1) : pontoFracoDetectado;
     const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
-    const nomeAluno = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
+    const nomeBruto = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
+      const nomeAluno = (nomeBruto || 'Alpha').trim().split(' ')[0];
 
     // Calculo inteligente da menor nota e recomendacao da Arena
       const comps = [
