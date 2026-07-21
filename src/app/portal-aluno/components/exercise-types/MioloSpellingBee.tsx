@@ -255,7 +255,16 @@ export default function MioloSpellingBee({
     setFeedbackIA("");
 
     const palavraMontada = userInput.join("").toUpperCase().trim();
-    const acertou = palavraMontada === targetWord;
+    const targetUpper = (targetWord || "").toUpperCase().trim();
+      let letrasCorretas = 0;
+      const totalLetras = targetUpper.length || 1;
+      for (let i = 0; i < totalLetras; i++) {
+        if (palavraMontada[i] && palavraMontada[i] === targetUpper[i]) {
+          letrasCorretas++;
+        }
+      }
+      const nota = Number(((letrasCorretas / totalLetras) * 10).toFixed(1));
+      const acertou = nota >= 6;
 
     setTimeout(async () => {
       setAnalisando(false);
@@ -268,7 +277,7 @@ export default function MioloSpellingBee({
       setFeedbackIA(mensagemFeedback);
 
       if (onValidateResult) {
-        onValidateResult(acertou, acertou ? incentivoCorretoBanco : incentivoIncorretoBanco, acertou ? 100 : 20, exerciseId || unidadeAtiva);
+        onValidateResult(acertou, acertou ? (incentivoCorretoBanco || mensagemFeedback) : (incentivoIncorretoBanco || mensagemFeedback), nota, exerciseId || unidadeAtiva);
       }
 
       if (acertou) {
