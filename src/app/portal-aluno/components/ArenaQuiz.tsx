@@ -456,7 +456,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
       isCancelledRef.current = false;
-      const mediaRecorder = new MediaRecorder(stream);
+      let options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        options = { mimeType: 'audio/webm;codecs=opus' };
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        options = { mimeType: 'audio/webm' };
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        options = { mimeType: 'audio/mp4' };
+      }
+      const mediaRecorder = new MediaRecorder(stream, options);
        
        // INICIALIZAÇÃO DA TRANSCRIÇÃO NATIVA ATRÁS DAS CORTINAS
        if (typeof window !== "undefined") {
@@ -668,6 +676,53 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       });
     }
   }, [respostaIA]);
+
+    const tocarAudioMensagem = async (indexMensagem: number, textoMensagem: string) => {
+    try {
+      const msg = chatHistory[indexMensagem];
+      
+      // 1. SE JÁ TEM ÁUDIO SALVO EM CACHE NA MENSAGEM: REUTILIZA SEM GASTAR CRÉDITOS
+      if (msg && (msg as any).audioUrl) {
+        if (currentAudioRef.current) {
+          currentAudioRef.current.pause();
+          if (currentAudioRef.current.src === (msg as any).audioUrl) {
+            currentAudioRef.current = null;
+            return;
+          }
+        }
+        const audio = new Audio((msg as any).audioUrl);
+        currentAudioRef.current = audio;
+        await audio.play();
+        return;
+      }
+
+      // 2. SE NÃO TEM ÁUDIO SALVO: CHAMA A API 1 ÚNICA VEZ E SALVA NO CACHE DO CHAT
+      const res = await fetch("/api/ai/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: textoMensagem })
+      });
+
+      if (!res.ok) return;
+
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64Audio = reader.result as string;
+        
+        // Salva na mensagem para nunca mais chamar a API para esta frase
+        setChatHistory(prev => prev.map((m, idx) => idx === indexMensagem ? { ...m, audioUrl: base64Audio } : m));
+
+        if (currentAudioRef.current) currentAudioRef.current.pause();
+        const audio = new Audio(base64Audio);
+        currentAudioRef.current = audio;
+        audio.play().catch(e => console.error("Erro ao tocar áudio salvo:", e));
+      };
+    } catch (err) {
+      console.error("Erro na geração/reprodução de áudio:", err);
+    }
+  };
 
   const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>(() => {
     if (typeof window !== 'undefined') {
