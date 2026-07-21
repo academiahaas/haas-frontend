@@ -595,6 +595,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setIsRecording(false);
   };
   
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [respostaIA, setRespostaIA] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
@@ -611,6 +612,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       localStorage.setItem('arena_chat_history', JSON.stringify(chatHistory));
     }
   }, [chatHistory]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, respostaIA, isThinking]);
+
   const [msgEscritaAleatoria, setMsgEscritaAleatoria] = useState("");
   const [tipoEnvio, setTipoEnvio] = useState("");
   
@@ -1664,6 +1670,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                          </div>
                       )}
 
+                      <div ref={chatEndRef} />
                       {/* Animação e feedback visual de digitação */}
                       {isThinking && (
                         <div className="flex flex-col gap-2 py-1 mt-1 w-max">
