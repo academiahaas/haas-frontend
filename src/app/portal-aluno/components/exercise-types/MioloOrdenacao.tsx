@@ -145,6 +145,8 @@ export default function MioloOrdenacao({
     setReferencePhrase(respostaAlvo);
     setFeedbackCorretoBanco(exe.correct_feedback || "");
     setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
+      setIncentivoCorretoBanco(exe.incentivo_correto || "");
+      setIncentivoIncorretoBanco(exe.incentivo_incorreto || "");
     setIncentivoCorretoBanco(exe.correct_incentive || "");
     setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
     setTextoParaFalar(exe.audio_transcript || exe.correct_answer || "");
@@ -254,7 +256,10 @@ export default function MioloOrdenacao({
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      if (onValidateResult) onValidateResult(resultado.acertou, resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback), resultado.acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+      if (onValidateResult) {
+        const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente ordenação de sentença!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "Atenção à ordem sintática dos elementos.");
+        onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+      }
     } catch (e) {
       const fraseMontadaAlunoLimpa = deposit.map(d => d.text).join(" ").trim().toLowerCase();
       const gabaritoOficial = referencePhrase.trim().toLowerCase();
@@ -262,7 +267,10 @@ export default function MioloOrdenacao({
       
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."));
-      if (onValidateResult) onValidateResult(acertou, acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."), acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+      if (onValidateResult) {
+        const textoMentora2 = acertou ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente ordenação sintática!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância.");
+        onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+      }
     } finally {
       setAnalisando(false);
     }
