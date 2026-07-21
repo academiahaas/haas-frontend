@@ -299,28 +299,47 @@ export default function DashboardDesktop() {
     const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
     const nomeAluno = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
 
-    const horaAtual = new Date().getHours();
+    // Calculo inteligente da menor nota e recomendacao da Arena
+      const comps = [
+        { key: 'escucha', val: typeof cEscucha !== 'undefined' ? cEscucha : 70, icone: '🎧', treino: { PT: 'treino de Escuta', EN: 'Listening practice', ES: 'entrenamiento de Escucha' }, nome: { PT: 'Compreensão Auditiva', EN: 'Listening', ES: 'Comprensión Auditiva' } },
+        { key: 'habla', val: typeof cHabla !== 'undefined' ? cHabla : 70, icone: '🎙️', treino: { PT: 'treino de Pronúncia e Shadowing', EN: 'Speaking and Shadowing', ES: 'práctica de Pronunciación' }, nome: { PT: 'Fala / Pronúncia', EN: 'Speaking', ES: 'Pronunciación' } },
+        { key: 'gramatica', val: typeof cGramatica !== 'undefined' ? cGramatica : 70, icone: '⚡', treino: { PT: 'exercício de Gramática em Blocos', EN: 'Grammar practice', ES: 'ejercicio de Gramática' }, nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' } },
+        { key: 'escritura', val: typeof cEscritura !== 'undefined' ? cEscritura : 70, icone: '✍️', treino: { PT: 'treino de Ditado e Escrita', EN: 'Writing dictation', ES: 'práctica de Dictado' }, nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' } },
+        { key: 'lectura', val: typeof cLectura !== 'undefined' ? cLectura : 70, icone: '📖', treino: { PT: 'treino de Leitura Veloz', EN: 'Speed Reading', ES: 'Lectura Veloz' }, nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' } }
+      ];
+
+      comps.sort((a, b) => a.val - b.val);
+      const piorComp = comps[0];
+      const langKey = (idioma || 'PT') as 'PT' | 'EN' | 'ES';
+
+      const dicaArena = {
+        PT: `${piorComp.icone} Sua menor pontuação é ${piorComp.nome.PT} (${piorComp.val}%). Que tal um ${piorComp.treino.PT} na Arena hoje?`,
+        EN: `${piorComp.icone} Your lowest score is ${piorComp.nome.EN} (${piorComp.val}%). How about a ${piorComp.treino.EN} session in the Arena today?`,
+        ES: `${piorComp.icone} Tu puntuación más baja es ${piorComp.nome.ES} (${piorComp.val}%). ¿Qué tal un ${piorComp.treino.ES} en la Arena hoy?`
+      }[langKey];
+
+      const horaAtual = new Date().getHours();
       const saudacaoTime = horaAtual < 12 ? (idioma === 'ES' ? '¡Buenos días' : idioma === 'EN' ? 'Good morning' : 'Bom dia') : horaAtual < 18 ? (idioma === 'ES' ? '¡Buenas tardes' : idioma === 'EN' ? 'Good afternoon' : 'Boa tarde') : (idioma === 'ES' ? '¡Buenas noches' : idioma === 'EN' ? 'Good evening' : 'Boa noite');
       const streakTexto = (typeof streakDays !== 'undefined' && streakDays > 0) ? (idioma === 'ES' ? `¡Llevas ${streakDays} días seguidos!` : idioma === 'EN' ? `You're on a ${streakDays}-day streak!` : `Você está em um Racha de ${streakDays} dias!`) : '';
 
       const bancoConselhos = {
         PT: [
           `👋 ${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
-          `⚡ Notei que o seu ponto fraco atual é ${erroTraduzido}. Clique para reforçar esse conteúdo!`,
+          dicaArena,
           `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
           `🔥 Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
           `💡 Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
         ],
         EN: [
           `👋 ${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
-          `⚡ I noticed your current weak spot is ${erroTraduzido}. Click to reinforce this content!`,
+          dicaArena,
           `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
           `🚀 Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
           `💡 Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
         ],
         ES: [
           `👋 ${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
-          `⚡ Noté que tu punto débil actual es ${erroTraduzido}. ¡Haz clic para reforzar este contenido!`,
+          dicaArena,
           `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
           `🔥 ¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
           `💡 Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
