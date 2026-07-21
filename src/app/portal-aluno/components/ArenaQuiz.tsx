@@ -597,6 +597,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [respostaIA, setRespostaIA] = useState('');
+  // Garante que a resposta da IA (Supabase) seja gravada no chatHistory persistente
+  useEffect(() => {
+    if (respostaIA) {
+      setChatHistory((prev) => {
+        const jaExiste = prev.some((m) => m.texto === respostaIA);
+        if (!jaExiste) {
+          return [...prev, { tipo: "ai", texto: respostaIA }];
+        }
+        return prev;
+      });
+    }
+  }, [respostaIA]);
+
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingTime, setThinkingTime] = useState(0);
   const [chatHistory, setChatHistory] = useState<{tipo: 'user' | 'ai', texto: string, audioUrl?: string}[]>(() => {
