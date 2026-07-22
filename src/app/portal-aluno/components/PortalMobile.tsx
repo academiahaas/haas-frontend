@@ -532,6 +532,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
   const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
+  const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
   React.useEffect(() => {
     async function carregarNomeReal() {
@@ -549,7 +550,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Busca na tabela users
           const { data, error: dbErr } = await supabase
             .from('users')
-            .select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, total_immersion')
+            .select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -564,6 +565,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
           if (data?.total_xp !== undefined && data?.total_xp !== null) {
             setTotalXp(Number(data.total_xp));
+          }
+          if (data?.next_expiration_es) {
+            setVencimentoPlano(String(data.next_expiration_es));
           }
           const imersao = data?.total_immersion_es ?? data?.total_immersion;
           if (imersao !== undefined && imersao !== null) {
@@ -585,7 +589,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
         } else {
           // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
-          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, total_immersion').limit(1).maybeSingle();
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion').limit(1).maybeSingle();
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
@@ -596,6 +600,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             }
             if (fallbackUser.total_xp !== undefined && fallbackUser.total_xp !== null) {
               setTotalXp(Number(fallbackUser.total_xp));
+            }
+            if (fallbackUser?.next_expiration_es) {
+              setVencimentoPlano(String(fallbackUser.next_expiration_es));
             }
             const imersaoFb = fallbackUser.total_immersion_es ?? fallbackUser.total_immersion;
             if (imersaoFb !== undefined && imersaoFb !== null) {
@@ -2312,7 +2319,14 @@ null
                   </span>
                   <span className="text-xs md:text-sm text-slate-300 font-medium">
                     {idiomaSelecionado === "PT" ? "Vence em: " : idiomaSelecionado === "ES" ? "Vence el: " : "Expires on: "}
-                    <span className="text-white font-mono font-bold">{idiomaSelecionado === "EN" ? "07/22/2026" : "22/07/2026"}</span>
+                    <span className="text-white font-mono font-bold">
+                      {(() => {
+                        if (!vencimentoPlano) return "--/--/----";
+                        const [ano, mes, dia] = vencimentoPlano.split("T")[0].split("-");
+                        if (!ano || !mes || !dia) return vencimentoPlano;
+                        return idiomaSelecionado === "EN" ? `${mes}/${dia}/${ano}` : `${dia}/${mes}/${ano}`;
+                      })()}
+                    </span>
                   </span>
                 </div>
                 <button 
