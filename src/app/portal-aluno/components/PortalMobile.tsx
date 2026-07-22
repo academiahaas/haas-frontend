@@ -2295,7 +2295,7 @@ null
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
                 <div className="text-amber-500 shrink-0"><Flame size={16} className="text-amber-500" /></div>
                 <div className="flex flex-col">
-                  <span className="text-lg md:text-2xl font-mono font-black text-white">23</span>
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">{streakDias}</span>
                   <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                     {idiomaSelecionado === "PT" ? "Sequência Ativa" : idiomaSelecionado === "ES" ? "Racha Activa" : "Active Streak"}
                   </span>
