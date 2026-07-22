@@ -23,8 +23,6 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
   isOpen,
   onClose,
   idiomaSelecionado,
-  userId,
-  alunoDataRaw,
 }) => {
   const [erros, setErros] = useState<UserErrorLog[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,60 +33,27 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
     const fetchErros = async () => {
       setLoading(true);
       try {
-        console.log("🔍 [CofreErros] Prop userId recebida:", userId);
-        console.log("🔍 [CofreErros] Prop alunoDataRaw recebida:", alunoDataRaw);
-
-        // 1. Tentar extrair ID de todas as variações possíveis
-        let activeUserId = null;
-
-        if (typeof userId === "string" && userId.trim() !== "") {
-          activeUserId = userId;
-        } else if (typeof userId === "object" && userId !== null) {
-          activeUserId = userId.id || userId.user_id || userId.uid || userId.id_aluno || userId.usuario_id;
-        }
-
-        if (!activeUserId && alunoDataRaw) {
-          activeUserId = alunoDataRaw.id || alunoDataRaw.user_id || alunoDataRaw.uid || alunoDataRaw.id_aluno;
-        }
-
-        // 2. Tentar via Supabase Auth
-        if (!activeUserId) {
-          const { data: authData } = await supabase.auth.getUser();
-          activeUserId = authData?.user?.id;
-        }
-
-        if (!activeUserId) {
-          const { data: sessionData } = await supabase.auth.getSession();
-          activeUserId = sessionData?.session?.user?.id;
-        }
-
-        console.log("🎯 [CofreErros] ID do usuário resolvido:", activeUserId);
-
-        let query = supabase.from("user_error_logs").select("*");
-
-        if (activeUserId) {
-          query = query.eq("user_id", activeUserId);
-        } else {
-          console.warn("⚠️ Nenhum user_id específico encontrado. Carregando registros gerais como fallback.");
-        }
-
-        const { data, error } = await query.order("frequencia", { ascending: false }).limit(20);
+        // Busca direta na tabela de logs de erros
+        const { data, error } = await supabase
+          .from("user_error_logs")
+          .select("*")
+          .order("frequencia", { ascending: false })
+          .limit(20);
 
         if (error) {
-          console.error("❌ Erro ao buscar user_error_logs no Supabase:", error);
+          console.error("Erro ao carregar cofre de erros:", error);
         } else {
-          console.log("✅ [CofreErros] Registros retornados do banco:", data);
           setErros(data || []);
         }
       } catch (err) {
-        console.error("💥 Exceção no Cofre de Erros:", err);
+        console.error("Exceção ao carregar cofre:", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchErros();
-  }, [isOpen, userId, alunoDataRaw]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
