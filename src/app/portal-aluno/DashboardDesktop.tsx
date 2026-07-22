@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react';
 import ProgramaTrilha from './components/ProgramaTrilha';
 import ArenaQuiz from './components/ArenaQuiz';
 import XpCardButton from './components/XpCardButton';
+import { getLastNameInitial } from './components/nameUtils';
 import XPButton from './components/XPButton';
 import { supabase } from '@/lib/supabase';
 import { fetchCentralPortalData } from "@/services/centralService";
@@ -73,9 +74,10 @@ export default function DashboardDesktop() {
         const headers = { "apikey": token, "Authorization": "Bearer " + token };
         const uid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
-        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp", { headers });
+        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
         const dUser = await rUser.json();
         if (dUser && dUser[0]) {
+            if (dUser[0].name) setUserName(dUser[0].name);
             if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
             if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
           const nivelSigla = dUser[0].current_level || "A1";
@@ -444,6 +446,7 @@ export default function DashboardDesktop() {
   const [nivelAtual, setNivelAtual] = useState("A1");
   const [levelName, setLevelName] = useState("");
   const [totalXp, setTotalXp] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
   const [userTotalXp, setUserTotalXp] = useState<number>(0);
   const [precisaoClinica, setPrecisaoClinica] = useState(94);
   const [imersaoTotal, setImersaoTotal] = useState("14h");
@@ -1067,7 +1070,7 @@ export default function DashboardDesktop() {
 
           <div className="flex flex-col gap-2 bg-[#071324]/60 p-2.5 rounded-2xl border border-white/[0.03] w-full min-h-0">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">H<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
+              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">{getLastNameInitial(userName)}<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
               <span className="text-white font-black text-sm tracking-wide">{aluno1}</span>
               <div className="flex justify-between items-center gap-2 text-[9px] font-mono font-black text-amber-500 uppercase tracking-widest mt-0.5 w-full min-w-0">
