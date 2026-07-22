@@ -122,13 +122,7 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
                       {item.conteudo}
                     </span>
                   </div>
-                  <button className="text-[10px] md:text-xs font-mono font-black uppercase text-amber-400 border border-amber-500/20 px-3 md:px-4 py-1 md:py-1.5 rounded bg-amber-500/5 hover:bg-amber-500/10 transition-all shrink-0">
-                    {idiomaSelecionado === "PT"
-                      ? "REVISAR"
-                      : idiomaSelecionado === "ES"
-                      ? "REVISAR"
-                      : "REVIEW"}
-                  </button>
+
                 </div>
               );
             })
