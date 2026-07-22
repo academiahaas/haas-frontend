@@ -1,3 +1,4 @@
+import { ModalTrilhaMobile } from "./ModalTrilhaMobile";
 import RadarCompetenciasMobile from './RadarCompetenciasMobile';
 import { supabase } from '@/lib/supabase';
 import ModalCertificados from './ModalCertificados';
@@ -2261,7 +2262,7 @@ null
             </div> 
  
             {/* Mini Calendário Semanal Acoplado */}
-            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado} /></div>
+            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} /></div>
  
             
 
@@ -2990,118 +2991,14 @@ null
         </div>
        )}
 
-      {/* 🔄 BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO */}
-      {modalProgramaAberto && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex flex-col justify-end">
-          <div className="absolute inset-0" onClick={() => setModalProgramaAberto(false)} />
-          
-          <div className="w-full bg-[#070d19] border-t border-white/[0.08] rounded-t-2xl max-h-[75vh] min-h-[50vh] flex flex-col relative z-10 animate-slide-up">
-            
-            {/* CABEÇALHO DA GAVETA */}
-            <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
-                  {idiomaSelecionado === "PT" ? "Módulos do Programa" : idiomaSelecionado === "ES" ? "Módulos del Programa" : "Program Modules"}
-                </h3>
-              </div>
-              <button 
-                onClick={() => setModalProgramaAberto(false)}
-                className="py-1 px-3 bg-slate-900 text-slate-400 border border-white/[0.03] rounded-lg font-mono font-black text-[10px] md:text-sm uppercase tracking-wider active:scale-[0.97] md:px-5 md:py-2"
-              >
-                {idiomaSelecionado === "PT" ? "Fechar" : idiomaSelecionado === "ES" ? "Cerrar" : "Close"}
-              </button>
-            </div>
-
-            {/* CONTEÚDO ROLÁVEL (ACCORDION) */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar-none pb-8 text-left">
-              
-              {/* MÓDULO 02 - CONCLUÍDO */}
-              <div className="border border-emerald-500/10 bg-emerald-500/[0.01] rounded-xl overflow-hidden transition-all">
-                <div 
-                  onClick={() => setModuloExpandido(moduloExpandido === 2 ? 0 : 2)}
-                  className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-emerald-400 tracking-wider">
-                      MODULE 02 • {idiomaSelecionado === "PT" ? "CONCLUÍDO" : idiomaSelecionado === "ES" ? "COMPLETADO" : "COMPLETED"}
-                    </span>
-                    <h4 className="text-sm md:text-xl text-slate-300 font-bold leading-tight">Crisis Management & Decision Making</h4>
-                  </div>
-                  <span className="text-emerald-400 font-mono text-xs">{moduloExpandido === 2 ? "▲" : "▼"}</span>
-                </div>
-                {moduloExpandido === 2 && (
-                  <div className="p-3 pt-0 border-t border-emerald-500/5 flex flex-col gap-2 bg-[#040912]">
-                    <div className="flex justify-between items-center p-2 bg-slate-900/30 rounded-lg border border-white/[0.02] mt-2">
-                      <p className="text-[11px] md:text-base text-slate-400 font-mono">1. Risk Identification & Mitigation (20 min)</p>
-                      <button className="text-[10px] md:text-sm font-mono font-black uppercase text-emerald-400 border border-emerald-500/20 px-3 md:px-5 py-1 md:py-2 rounded bg-emerald-500/5">{idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW"}</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* MÓDULO 03 - ATUAL (CURRENT) */}
-              <div className="border border-orange-500/30 bg-orange-500/[0.02] rounded-xl overflow-hidden transition-all shadow-lg shadow-orange-500/5">
-                <div 
-                  onClick={() => setModuloExpandido(moduloExpandido === 3 ? 0 : 3)}
-                  className="p-3 flex justify-between items-center cursor-pointer active:bg-white/[0.01]"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-orange-400 tracking-wider animate-pulse">
-                      MODULE 03 • {idiomaSelecionado === "PT" ? "ATUAL" : idiomaSelecionado === "ES" ? "ACTUAL" : "CURRENT"}
-                    </span>
-                    <h4 className="text-sm md:text-xl text-white font-black leading-tight">C-Level Business Strategy & Scale</h4>
-                  </div>
-                  <span className="text-orange-400 font-mono text-xs">{moduloExpandido === 3 ? "▲" : "▼"}</span>
-                </div>
-                {moduloExpandido === 3 && (
-                  <div className="p-3 pt-0 border-t border-orange-500/10 flex flex-col gap-2 bg-[#040912]">
-                    <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03] mt-2">
-                      <div>
-                        <p className="text-[11px] md:text-base text-white font-bold">Equity Modeling & Partnerships</p>
-                        <span className="text-[9px] md:text-sm font-mono text-slate-500">30 min</span>
-                      </div>
-                      <button className="text-[10px] md:text-sm font-mono font-black uppercase bg-orange-500 text-black px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
-                    </div>
-                    <div className="flex justify-between items-center p-2.5 bg-slate-900/60 rounded-lg border border-white/[0.03]">
-                      <div>
-                        <p className="text-[11px] md:text-base text-white font-bold">Mergers, Acquisitions & Scaling</p>
-                        <span className="text-[9px] md:text-sm font-mono text-slate-500">15 min</span>
-                      </div>
-                      <button className="text-[10px] md:text-sm font-mono font-black uppercase bg-orange-500 text-black px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg font-black tracking-wider shadow-md shadow-orange-500/10">{idiomaSelecionado === "PT" ? "INICIAR" : "START"}</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* MÓDULO 04 - BLOQUEADO (LOCKED) */}
-              <div className="border border-white/[0.03] bg-white/[0.01] rounded-xl overflow-hidden opacity-40">
-                <div 
-                  onClick={() => setModuloExpandido(moduloExpandido === 4 ? 0 : 4)}
-                  className="p-3 flex justify-between items-center cursor-pointer"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] md:text-xs font-mono font-black uppercase text-slate-500 tracking-wider">
-                      MODULE 04 • {idiomaSelecionado === "PT" ? "BLOQUEADO" : idiomaSelecionado === "ES" ? "BLOQUEADO" : "LOCKED"}
-                    </span>
-                    <h4 className="text-sm md:text-xl text-slate-500 font-bold leading-tight">Corporate Governance & Board Relations</h4>
-                  </div>
-                  <span className="text-slate-500 font-mono text-xs">{moduloExpandido === 4 ? "▲" : "▼"}</span>
-                </div>
-                {moduloExpandido === 4 && (
-                  <div className="p-3 pt-0 border-t border-white/[0.02] flex flex-col gap-2 bg-[#040912]">
-                    <div className="flex justify-between items-center p-2 bg-slate-900/20 rounded-lg mt-2">
-                      <p className="text-[11px] md:text-base text-slate-600 font-mono">1. Board Communication Matrix (45 min)</p>
-                      <button disabled className="text-[9px] md:text-sm font-mono font-black uppercase text-slate-600 border border-white/[0.02] px-3 md:px-5 py-1 md:py-2 rounded cursor-not-allowed">{idiomaSelecionado === "PT" ? "TRAVADO" : "LOCKED"}</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 🔄 BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO (ISOLADO) */}
+      <ModalTrilhaMobile
+        isOpen={modalProgramaAberto}
+        onClose={() => setModalProgramaAberto(false)}
+        idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"}
+        nivelAluno={nivelAluno || "A1"}
+        moduloAtualNumero={Number(moduloActual) || 1}
+      />
                   {/* 🔐 BOTTOMSHEET: COFRE DE ERROS (ERROR VAULT) */}
       {gavetaErroresAberta && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[130] flex flex-col justify-end">
