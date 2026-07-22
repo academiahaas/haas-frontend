@@ -739,16 +739,67 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [modalProgramaAberto, setModalProgramaAberto] = React.useState(false);
 
-  const handleEnviarFila = () => {
+  const handleEnviarFila = async () => {
     if (arquivosSelecionados.length === 0) return;
     setUploading(true);
     setUploadSuccess(false);
-    setTimeout(() => {
-      setUploading(false);
+
+    try {
+      // 1. Obter usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      let userIdFinal = user?.id;
+
+      if (!userIdFinal) {
+        const { data: fallbackUser } = await supabase.from('users').select('id').limit(1).maybeSingle();
+        userIdFinal = fallbackUser?.id;
+      }
+
+      if (!userIdFinal) {
+        throw new Error("Usuário não identificado para o envio.");
+      }
+
+      // 2. Processar cada arquivo selecionado
+      for (const file of arquivosSelecionados) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}_${Date.now()}.${fileExt}`;
+        const filePath = `tasks/${fileName}`;
+
+        // Upload no bucket student_tasks
+        const { error: uploadError } = await supabase.storage
+          .from("student_tasks")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Obter URL pública
+        const { data: urlData } = supabase.storage
+          .from("student_tasks")
+          .getPublicUrl(filePath);
+
+        // Inserção na tabela assignments_submissions
+        const { error: dbError } = await supabase
+          .from("assignments_submissions")
+          .insert([
+            {
+              user_id: userIdFinal,
+              unit_id: null,
+              photo_url: urlData.publicUrl,
+              status: "pending"
+            }
+          ]);
+
+        if (dbError) throw dbError;
+      }
+
       setUploadSuccess(true);
       setArquivosSelecionados([]);
       setTimeout(() => setUploadSuccess(false), 5000);
-    }, 3000);
+    } catch (err) {
+      console.error("Erro ao enviar tarefas:", err);
+      alert(idiomaSelecionado === 'PT' ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
