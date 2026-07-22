@@ -591,6 +591,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   };
 
   const nomeAluno = nomeBruto.trim();
+  const primeiroNome = nomeBruto.trim().split(" ")[0];
   const instrutor = "Dr. Alex Harrison";
   const dataAula = "22/06/2026";
   const horarioAula = "19:30 BRT";
@@ -720,7 +721,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         <div className="flex items-center gap-2">
           <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
           <div className="flex flex-col">
-            <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${nomeAluno}!` : idiomaSelecionado === "ES" ? `¡Hola, ${nomeAluno}!` : `Hi, ${nomeAluno}!`}</span>
+            <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${primeiroNome}!` : idiomaSelecionado === "ES" ? `¡Hola, ${primeiroNome}!` : `Hi, ${primeiroNome}!`}</span>
 <div className={`gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black ${isAdminMode ? "flex" : "hidden"}`}>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
