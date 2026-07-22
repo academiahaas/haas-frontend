@@ -590,7 +590,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     return sobrenome[0].toUpperCase();
   };
 
-  const nomeAluno = nomeBruto.trim().split(" ")[0];
+  const nomeAluno = nomeBruto.trim();
   const instrutor = "Dr. Alex Harrison";
   const dataAula = "22/06/2026";
   const horarioAula = "19:30 BRT";
@@ -2199,7 +2199,7 @@ null
                 </button>
               </div>
               
-              <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-xl font-black text-white mt-1.5 uppercase tracking-tight">Bruna Haas</h2>
+              <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-xl font-black text-white mt-1.5 uppercase tracking-tight">{nomeBruto}</h2>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">Nível B2</span>
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{idiomaSelecionado === 'es' ? 'Explorador' : 'Explorador'}</span>
