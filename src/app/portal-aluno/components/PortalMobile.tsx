@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import ModalCertificados from './ModalCertificados';
 // Tabela de bloqueios adicionada com segurança no escopo global
 const agendaBloqueiosHaas2026 = {
@@ -505,7 +506,56 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const nomeModulo = moduloActual || "Data Schema Integrity Checks";
-  const nomeAluno = alunoData?.nome || alunoData?.name || "Alpha";
+    const [nomeUsuarioDb, setNomeUsuarioDb] = React.useState<string>("");
+
+  React.useEffect(() => {
+    async function carregarNomeReal() {
+      try {
+        // Fallback 1: Tenta pegar de caches locais comuns se existir
+        const cachedUser = typeof window !== 'undefined' ? localStorage.getItem('user_name') || localStorage.getItem('usuario_nome') : null;
+        if (cachedUser) {
+          setNomeUsuarioDb(cachedUser);
+        }
+
+        // Tenta pegar o usuário logado via Supabase Auth
+        const { data: { user }, error: authErr } = await supabase.auth.getUser();
+        
+        if (user) {
+          // Busca na tabela users
+          const { data, error: dbErr } = await supabase
+            .from('users')
+            .select('name, nickname')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (dbErr) console.warn("Aviso Supabase DB:", dbErr.message);
+
+          const nomeEncontrado = data?.nickname || data?.name || user.user_metadata?.name || user.user_metadata?.nome || user.user_metadata?.full_name || user.email?.split('@')[0];
+
+          if (nomeEncontrado) {
+            const primeiroNome = nomeEncontrado.trim().split(' ')[0];
+            if (!primeiroNome.toLowerCase().includes('alpha')) {
+              setNomeUsuarioDb(primeiroNome);
+              if (typeof window !== 'undefined') localStorage.setItem('user_name', primeiroNome);
+            }
+          }
+        } else {
+          // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname').limit(1).maybeSingle();
+          if (fallbackUser) {
+            const nomeFb = fallbackUser.nickname || fallbackUser.name;
+            if (nomeFb) setNomeUsuarioDb(nomeFb.trim().split(' ')[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar nome:", err);
+      }
+    }
+    carregarNomeReal();
+  }, [alunoData]);
+
+  const nomeBruto = nomeUsuarioDb || alunoData?.nome || alunoData?.name || alunoData?.full_name || "Aluno";
+  const nomeAluno = nomeBruto.trim().split(" ")[0];
   const instrutor = "Dr. Alex Harrison";
   const dataAula = "22/06/2026";
   const horarioAula = "19:30 BRT";
