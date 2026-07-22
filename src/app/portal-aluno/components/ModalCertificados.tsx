@@ -1,73 +1,93 @@
-'use client';
-
 import React from 'react';
+import { X, Shield } from 'lucide-react';
 
 interface ModalCertificadosProps {
   isOpen: boolean;
   onClose: () => void;
-  idioma: string;
+  idioma: 'PT' | 'EN' | 'ES';
+  userLevel?: string;
 }
 
-export default function ModalCertificados({ isOpen, onClose, idioma }: ModalCertificadosProps) {
+export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
+  isOpen,
+  onClose,
+  idioma = 'PT',
+  userLevel = 'A1'
+}) => {
   if (!isOpen) return null;
+
+  const getTitle = () => {
+    if (idioma === 'EN') return 'CERTIFICATION CENTER';
+    if (idioma === 'ES') return 'CENTRO DE CERTIFICACIÓN';
+    return 'CENTRAL DE CERTIFICADOS';
+  };
+
+  const getSubtitle = () => {
+    if (idioma === 'EN') return 'SELECT LEVEL CERTIFICATE:';
+    if (idioma === 'ES') return 'SELECCIONE EL CERTIFICADO DE NIVEL:';
+    return 'SELECIONE O CERTIFICADO DE NÍVEL:';
+  };
+
+  const levels = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
   return (
     <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
       <div className="relative w-full max-w-lg bg-[#040a17] border border-amber-500/30 rounded-[24px] p-6 flex flex-col gap-6 shadow-2xl">
         
-        {/* Cabeçalho no padrão das modais do portal */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
-            <h3 className="text-xs font-bold tracking-widest text-amber-500 uppercase">
-              {idioma === 'EN' ? 'CENTRAL DE CERTIFICADOS' : idioma === 'PT' ? 'CENTRAL DE CERTIFICADOS' : 'CENTRAL DE CERTIFICACIÓN'}
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <h3 className="text-xs font-mono font-black text-amber-500 uppercase tracking-wider">
+              {getTitle()}
             </h3>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="text-white/40 hover:text-white transition-all p-1"
+            className="text-slate-400 hover:text-white p-1 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
-        {/* Título interno */}
-        <div className="text-center font-extrabold tracking-wider text-sm text-white uppercase">
-          {idioma === 'EN' ? 'SELECT LEVEL CERTIFICATE:' : idioma === 'PT' ? 'SELECIONE O CERTIFICADO:' : 'SELECCIONE EL CERTIFICADO:'}
+        {/* Subtítulo Central */}
+        <div className="text-center">
+          <p className="text-xs font-mono font-bold text-white tracking-widest uppercase">
+            {getSubtitle()}
+          </p>
         </div>
 
-        {/* Grid dos Escudos de Nível */}
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 py-2">
-          {[
-            { nivel: "A1", unlocked: true },
-            { nivel: "A2", unlocked: false },
-            { nivel: "B1", unlocked: false },
-            { nivel: "B2", unlocked: false },
-            { nivel: "C1", unlocked: false }
-          ].map((item) => (
-            <div 
-              key={item.nivel}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all ${
-                item.unlocked 
-                  ? "border-amber-400 bg-amber-500/10 text-amber-400 shadow-lg shadow-amber-500/10 cursor-pointer hover:scale-105" 
-                  : "border-white/10 bg-white/[0.02] text-white/20 opacity-40 grayscale cursor-not-allowed"
-              }`}
-            >
-              {/* Ícone Escudo SVG NATIVO */}
-              <svg className={`w-8 h-8 mb-2 ${item.unlocked ? "text-amber-400" : "text-white/20"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              
-              <span className="text-xs font-black tracking-wider uppercase">
-                {item.nivel}
-              </span>
-            </div>
-          ))}
+        {/* Grid de Níveis */}
+        <div className="grid grid-cols-5 gap-3 py-2">
+          {levels.map((lvl) => {
+            const isUnlocked = lvl === 'A1'; // Lógica de liberação
+            return (
+              <div
+                key={lvl}
+                className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${
+                  isUnlocked
+                    ? 'border-amber-500/60 bg-gradient-to-b from-amber-500/10 to-amber-950/30 shadow-lg shadow-amber-500/10 cursor-pointer hover:scale-105'
+                    : 'border-white/5 bg-white/[0.02] opacity-30 grayscale cursor-not-allowed'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+                  isUnlocked
+                    ? 'border-amber-400 bg-amber-500/20 text-amber-400'
+                    : 'border-slate-700 bg-slate-900 text-slate-500'
+                }`}>
+                  <Shield size={20} />
+                </div>
+                <span className={`text-xs font-mono font-black ${isUnlocked ? 'text-amber-400' : 'text-slate-500'}`}>
+                  {lvl}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
       </div>
     </div>
   );
-}
+};
+
+export default ModalCertificados;
