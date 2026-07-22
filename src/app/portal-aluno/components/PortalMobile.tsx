@@ -1,3 +1,4 @@
+import RadarCompetenciasMobile from './RadarCompetenciasMobile';
 import { supabase } from '@/lib/supabase';
 import ModalCertificados from './ModalCertificados';
 // Tabela de bloqueios adicionada com segurança no escopo global
@@ -2120,19 +2121,9 @@ null
                 <span className="text-[8px] md:text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
               </div>
               
-              {/* O container interno do pentágono agora cresce ocupando o espaço central da teia */}
-              <div className="flex-1 flex items-center justify-center relative w-full">
-                <div className="w-28 h-28 md:w-44 md:h-44 rounded-full border-4 border-dashed border-purple-500/20 flex items-center justify-center relative scale-110">
-                  <div className="absolute inset-3 rounded-full bg-purple-500/10 border border-purple-500/30" />
-                  <span className="text-[9px] md:text-xs font-mono font-black text-purple-400/40">HAAS</span>
-                  
-                  {/* AS 5 PONTAS DO PENTÁGONO RIGIDAMENTE ACOPLADAS */}
-                  <span className="absolute -top-6 md:-top-8 left-1/2 -translate-x-1/2 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pFala}</span>
-                  <span className="absolute top-3 -right-12 md:-right-16 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscuta}</span>
-                  <span className="absolute -bottom-4 -right-4 md:-right-6 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pGramatica}</span>
-                  <span className="absolute -bottom-4 -left-4 md:-left-6 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pEscrita}</span>
-                  <span className="absolute top-3 -left-12 md:-left-16 text-[10px] md:text-xs font-black text-white uppercase tracking-wide whitespace-nowrap">{txt.pLeitura}</span>
-                </div>
+              {/* Gráfico Radar Dinâmico Conectado à Tabela user_competencias */}
+              <div className="flex-1 flex items-center justify-center relative w-full min-h-[220px]">
+                <RadarCompetenciasMobile idioma={idiomaSelecionado} />
               </div>
 
               <p className="text-[clamp(11px,3.2vw,15px)] text-slate-400 font-medium text-center mt-2 shrink-0">{txt.radarDesc}</p>
