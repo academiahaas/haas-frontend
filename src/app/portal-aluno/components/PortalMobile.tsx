@@ -533,6 +533,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
   const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
+  const [diasTreinados, setDiasTreinados] = React.useState<boolean[]>([false, false, false, false, false, false, false]);
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -551,7 +552,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Busca na tabela users
           const { data, error: dbErr } = await supabase
             .from('users')
-            .select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion')
+            .select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion, trained_days')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -574,6 +575,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           if (imersao !== undefined && imersao !== null) {
             setHorasAtivas(Number(imersao));
           }
+          if (data?.trained_days) {
+            if (Array.isArray(data.trained_days)) {
+              setDiasTreinados(data.trained_days);
+            } else if (typeof data.trained_days === 'string') {
+              try {
+                const parsed = JSON.parse(data.trained_days);
+                if (Array.isArray(parsed)) setDiasTreinados(parsed);
+              } catch (e) {}
+            }
+          }
           const nomeEncontrado = data?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.nome || data?.nickname || user.email?.split('@')[0];
 
           const nivelDb = data?.current_level || data?.target_level;
@@ -590,7 +601,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
         } else {
           // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
-          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion').limit(1).maybeSingle();
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, next_expiration_es, total_immersion, trained_days').limit(1).maybeSingle();
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
@@ -608,6 +619,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             const imersaoFb = fallbackUser.total_immersion_es ?? fallbackUser.total_immersion;
             if (imersaoFb !== undefined && imersaoFb !== null) {
               setHorasAtivas(Number(imersaoFb));
+            }
+            if (fallbackUser?.trained_days) {
+              if (Array.isArray(fallbackUser.trained_days)) {
+                setDiasTreinados(fallbackUser.trained_days);
+              } else if (typeof fallbackUser.trained_days === 'string') {
+                try {
+                  const parsed = JSON.parse(fallbackUser.trained_days);
+                  if (Array.isArray(parsed)) setDiasTreinados(parsed);
+                } catch (e) {}
+              }
             }
           }
         }
@@ -2322,7 +2343,7 @@ null
                 <div className="flex items-center gap-2.5">
                   <div className="text-cyan-400 shrink-0"><Calendar size={14} className="text-cyan-400" /></div>
                   <div className="flex flex-col">
-                    <span className="text-lg md:text-2xl font-mono font-black text-white">187</span>
+                    <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                       {idiomaSelecionado === "PT" ? "Dias de Jornada" : idiomaSelecionado === "ES" ? "Días de Sesión" : "Journey Days"}
                     </span>
@@ -2331,7 +2352,7 @@ null
                 {/* Linha das pílulas da consistência semanal */}
                 <div className="flex justify-between items-center gap-0.5 mt-0.5 border-t border-white/[0.03] pt-1">
                   {(idiomaSelecionado === "PT" ? ["S", "T", "Q", "Q", "S", "S", "D"] : idiomaSelecionado === "ES" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"]).map((dia, idx) => {
-                    const ativo = idx < 4; // Simulação: seg a qui feito
+                    const ativo = Boolean(Array.isArray(diasTreinados) && diasTreinados[idx]);
                     return (
                       <span key={idx} className={`text-[10px] md:text-xs w-4 h-4 md:w-6 md:h-6 rounded-sm flex items-center justify-center font-bold font-mono ${ativo ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-950/50 text-slate-600 border border-white/5"}`}>
                         {dia}
