@@ -507,6 +507,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   
   const nomeModulo = moduloActual || "Data Schema Integrity Checks";
     const [nomeUsuarioDb, setNomeUsuarioDb] = React.useState<string>("");
+  const [nivelAluno, setNivelAluno] = React.useState<string>("B1");
 
   React.useEffect(() => {
     async function carregarNomeReal() {
@@ -524,13 +525,22 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Busca na tabela users
           const { data, error: dbErr } = await supabase
             .from('users')
-            .select('name, nickname')
+            .select('name, nickname, current_level, target_level')
             .eq('id', user.id)
             .maybeSingle();
 
           if (dbErr) console.warn("Aviso Supabase DB:", dbErr.message);
 
+          const nivelEncontrado = data?.current_level || data?.target_level;
+          if (nivelEncontrado) {
+            setNivelAluno(nivelEncontrado.toString().toUpperCase());
+          }
           const nomeEncontrado = data?.nickname || data?.name || user.user_metadata?.name || user.user_metadata?.nome || user.user_metadata?.full_name || user.email?.split('@')[0];
+
+          const nivelDb = data?.current_level || data?.target_level;
+          if (nivelDb) {
+            setNivelAluno(nivelDb.toUpperCase());
+          }
 
           if (nomeEncontrado) {
             const primeiroNome = nomeEncontrado.trim().split(' ')[0];
@@ -541,8 +551,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
         } else {
           // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
-          const { data: fallbackUser } = await supabase.from('users').select('name, nickname').limit(1).maybeSingle();
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level').limit(1).maybeSingle();
           if (fallbackUser) {
+            const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
+            if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
             const nomeFb = fallbackUser.nickname || fallbackUser.name;
             if (nomeFb) setNomeUsuarioDb(nomeFb.trim().split(' ')[0]);
           }
@@ -717,7 +729,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             >
               <AlertTriangle size={12} className="animate-pulse" />
             </button>
-            <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-amber-400 font-black px-2.5 py-1 rounded-lg border border-amber-500/20 uppercase font-mono tracking-wide">B1</span>
+            <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-amber-400 font-black px-2.5 py-1 rounded-lg border border-amber-500/20 uppercase font-mono tracking-wide">{nivelAluno || "B1"}</span>
           </div>
           <span className="text-[clamp(13px,3.8vw,18px)] md:text-base font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> 12d</span>
         </div>
