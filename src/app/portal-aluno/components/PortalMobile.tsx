@@ -534,6 +534,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
+  const [requiredXp, setRequiredXp] = React.useState<number>(0);
   const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
   const [diasTreinados, setDiasTreinados] = React.useState<boolean[]>([false, false, false, false, false, false, false]);
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
@@ -607,6 +608,21 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
+
+          // Busca dinamicamente o required_xp da tabela units
+          try {
+            const { data: unitData } = await supabase
+              .from('units')
+              .select('required_xp')
+              .limit(1)
+              .maybeSingle();
+
+            if (unitData && typeof unitData.required_xp === 'number') {
+              setRequiredXp(unitData.required_xp);
+            }
+          } catch (e) {
+            console.warn("Erro ao buscar units:", e);
+          }
             const nomeFb = fallbackUser.name || fallbackUser.nickname;
             if (nomeFb) setNomeUsuarioDb(nomeFb.trim());
             if (fallbackUser.streak_days !== undefined && fallbackUser.streak_days !== null) {
@@ -2310,11 +2326,11 @@ null
 
               <div className="w-full mt-4">
                 <div className="flex justify-between items-center text-[clamp(11px,3.2vw,15px)] font-mono text-slate-500 mb-1">
-                  <span className="md:text-base md:font-bold md:text-slate-300">{idiomaSelecionado === "PT" ? "Progresso do Módulo" : idiomaSelecionado === "ES" ? "Progreso del Módulo" : "Module Progress"}</span>
-                  <span className="text-cyan-400 font-bold md:text-base">65%</span>
+                  <span className="md:text-base md:font-bold md:text-slate-300">{idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}</span>
+                  <span className="text-cyan-400 font-bold md:text-base">-{Math.max(0, requiredXp - totalXp)} PTS</span>
                 </div>
                 <div className="w-full h-1 bg-slate-950 rounded-full overflow-hidden border border-white/[0.02]">
-                  <div className="h-full bg-cyan-500 rounded-full" style={{ width: '65%' }} />
+                  <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
                 </div>
               </div>
             </div>
@@ -2455,7 +2471,7 @@ null
             <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2">
               <div className="flex justify-between items-baseline font-mono">
                 <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-black uppercase tracking-wider text-emerald-400">
-                  {idiomaSelecionado === "PT" ? "Progresso do Módulo" : idiomaSelecionado === "ES" ? "Progreso del Módulo" : "Module Progress"}
+                  {idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}
                 </span>
                 <span className="text-sm font-black text-white">78%</span>
               </div>
