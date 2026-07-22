@@ -31,8 +31,8 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
   const levels = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
   return (
-    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-[#040a17] border border-amber-500/30 rounded-[24px] p-6 flex flex-col gap-6 shadow-2xl">
+    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn" onClick={onClose}>
+      <div className="relative w-full max-w-lg bg-[#040a17] border border-amber-500/30 rounded-[24px] p-6 flex flex-col gap-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         
         {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
