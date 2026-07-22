@@ -1,4 +1,5 @@
 'use client';
+import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
 import ModalEntregaAtividade from "./components/ModalEntregaAtividade";
@@ -22,7 +23,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
     ES: 'MENTORA HAAS'
   };
   return (
-    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none">
+    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
       <svg viewBox="0 0 64 64" className="w-10 h-10 xl:w-12 xl:h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path style={{ transform: devePiscar ? "rotate(-3deg) translateY(1px)" : "none", transformOrigin: "22px 22px", transition: "transform 0.15s ease-in-out" }} d="M18 22C18 12 22 6 22 6C22 6 26 12 26 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
         <path style={{ transform: devePiscar ? "rotate(3deg) translateY(1px)" : "none", transformOrigin: "42px 22px", transition: "transform 0.15s ease-in-out" }} d="M38 22C38 12 42 6 42 6C42 6 46 12 46 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,6 +181,7 @@ export default function DashboardDesktop() {
   }, [isArenaOpen]);
   const [isPerfilOpen, setIsPerfilOpen] = useState(false);
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
+  const [isCertificadosOpen, setIsCertificadosOpen] = useState(false);
   const [trainMon, setTrainMon] = useState(false);
   const [trainTue, setTrainTue] = useState(false);
   const [trainWed, setTrainWed] = useState(false);
@@ -934,7 +936,7 @@ export default function DashboardDesktop() {
           <div className="w-full flex flex-col shrink-0 mt-2">
             <button 
               onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1", "_blank")}
-              className="w-full py-3 bg-transparent hover:bg-orange-500/5 border border-orange-500/40 text-orange-400 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-3 bg-transparent hover:bg-orange-500/5 border border-orange-500/40 text-orange-400 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2" 
             >
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0"><path d="M8 5v14l11-7z"/></svg>
               {idioma === "PT" ? "Entrar na Aula" : idioma === "ES" ? "Entrar a la Clase" : "Enter Class"}
@@ -1091,7 +1093,7 @@ export default function DashboardDesktop() {
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Target size={11} className="text-amber-500 inline-block mr-1" /> {idioma === 'PT' ? 'Coesão' : idioma === 'ES' ? 'Cohesión' : 'Cohesion'}</div>
                 <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Flame size={11} className="text-orange-500 inline-block mr-1" /> {idioma === 'PT' ? '12 Dias' : idioma === 'ES' ? '12 Días' : '12 Days'}</div>
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Audits'}</div>
+                <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
             </div>
           </div>
@@ -1158,7 +1160,8 @@ export default function DashboardDesktop() {
           </div>
 
         </div>
-        <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
+        <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
+       <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
       {/* MODAL PROGRAMA TOTALMENTE RESTAURADO E MULTILÍNGUE */}

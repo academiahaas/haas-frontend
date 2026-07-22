@@ -1,3 +1,4 @@
+import ModalCertificados from './ModalCertificados';
 // Tabela de bloqueios adicionada com segurança no escopo global
 const agendaBloqueiosHaas2026 = {
   1: [1, 12], 2: [], 3: [23], 4: [2, 3], 5: [1, 18],
