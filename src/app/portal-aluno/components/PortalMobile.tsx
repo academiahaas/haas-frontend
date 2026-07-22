@@ -509,6 +509,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     const [nomeUsuarioDb, setNomeUsuarioDb] = React.useState<string>("");
   const [nivelAluno, setNivelAluno] = React.useState<string>("B1");
   const [streakDias, setStreakDias] = React.useState<number>(12);
+  const [totalXp, setTotalXp] = React.useState<number>(150);
 
   React.useEffect(() => {
     async function carregarNomeReal() {
@@ -526,7 +527,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Busca na tabela users
           const { data, error: dbErr } = await supabase
             .from('users')
-            .select('name, nickname, current_level, target_level, streak_days')
+            .select('name, nickname, current_level, target_level, streak_days, total_xp')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -538,6 +539,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
           if (data?.streak_days !== undefined && data?.streak_days !== null) {
             setStreakDias(Number(data.streak_days));
+          }
+          if (data?.total_xp !== undefined && data?.total_xp !== null) {
+            setTotalXp(Number(data.total_xp));
           }
           const nomeEncontrado = data?.nickname || data?.name || user.user_metadata?.name || user.user_metadata?.nome || user.user_metadata?.full_name || user.email?.split('@')[0];
 
@@ -555,7 +559,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
         } else {
           // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
-          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days').limit(1).maybeSingle();
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp').limit(1).maybeSingle();
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
@@ -563,6 +567,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             if (nomeFb) setNomeUsuarioDb(nomeFb.trim().split(' ')[0]);
             if (fallbackUser.streak_days !== undefined && fallbackUser.streak_days !== null) {
               setStreakDias(Number(fallbackUser.streak_days));
+            }
+            if (fallbackUser.total_xp !== undefined && fallbackUser.total_xp !== null) {
+              setTotalXp(Number(fallbackUser.total_xp));
             }
           }
         }
@@ -2102,7 +2109,7 @@ null
             <div className="bg-slate-950/40 border-[0.5px] border-white/[0.05] pt-3 pb-3 px-4 rounded-xl flex flex-col gap-[7px] w-full block clear-both backdrop-blur-md shadow-[0_0_20px_rgba(4,12,22,0.4)]"> 
               <div className="flex justify-between items-center border-b border-white/[0.05] pb-2"> 
                 <span className="text-[clamp(11px,3vw,15px)] font-mono font-black uppercase text-white tracking-wider">{idiomaSelecionado === "PT" ? "Foco Estratégico" : idiomaSelecionado === "ES" ? "Enfoque Estratégico" : "Strategic Focus"}</span> 
-                <span className="text-[clamp(13px,3.5vw,18px)] font-mono font-black text-cyan-400">+150 PTS</span> 
+                <span className="text-[clamp(13px,3.5vw,18px)] font-mono font-black text-cyan-400">+{totalXp} PTS</span> 
               </div> 
               
               {/* Container do Balão + Robozinho */}
