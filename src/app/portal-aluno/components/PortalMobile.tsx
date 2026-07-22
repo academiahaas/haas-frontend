@@ -543,7 +543,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           if (data?.total_xp !== undefined && data?.total_xp !== null) {
             setTotalXp(Number(data.total_xp));
           }
-          const nomeEncontrado = data?.nickname || data?.name || user.user_metadata?.name || user.user_metadata?.nome || user.user_metadata?.full_name || user.email?.split('@')[0];
+          const nomeEncontrado = data?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.nome || data?.nickname || user.email?.split('@')[0];
 
           const nivelDb = data?.current_level || data?.target_level;
           if (nivelDb) {
@@ -551,10 +551,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
 
           if (nomeEncontrado) {
-            const primeiroNome = nomeEncontrado.trim().split(' ')[0];
-            if (!primeiroNome.toLowerCase().includes('alpha')) {
-              setNomeUsuarioDb(primeiroNome);
-              if (typeof window !== 'undefined') localStorage.setItem('user_name', primeiroNome);
+            const nomeLimpo = nomeEncontrado.trim();
+            if (!nomeLimpo.toLowerCase().includes('alpha')) {
+              setNomeUsuarioDb(nomeLimpo);
+              if (typeof window !== 'undefined') localStorage.setItem('user_name', nomeLimpo.split(' ')[0]);
             }
           }
         } else {
@@ -563,8 +563,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
-            const nomeFb = fallbackUser.nickname || fallbackUser.name;
-            if (nomeFb) setNomeUsuarioDb(nomeFb.trim().split(' ')[0]);
+            const nomeFb = fallbackUser.name || fallbackUser.nickname;
+            if (nomeFb) setNomeUsuarioDb(nomeFb.trim());
             if (fallbackUser.streak_days !== undefined && fallbackUser.streak_days !== null) {
               setStreakDias(Number(fallbackUser.streak_days));
             }
@@ -580,7 +580,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     carregarNomeReal();
   }, [alunoData]);
 
-  const nomeBruto = nomeUsuarioDb || alunoData?.nome || alunoData?.name || alunoData?.full_name || "Aluno";
+  const nomeBruto = nomeUsuarioDb || alunoData?.full_name || alunoData?.name || alunoData?.nome || "Aluno";
+  // Retorna estritamente a inicial do sobrenome
+  const obterIniciais = (nome: string) => {
+    if (!nome) return "H";
+    const partes = nome.trim().split(/\s+/);
+    // Se tiver mais de um nome, pega a primeira letra da última palavra (sobrenome)
+    const sobrenome = partes.length > 1 ? partes[partes.length - 1] : partes[0];
+    return sobrenome[0].toUpperCase();
+  };
+
   const nomeAluno = nomeBruto.trim().split(" ")[0];
   const instrutor = "Dr. Alex Harrison";
   const dataAula = "22/06/2026";
@@ -2179,7 +2188,7 @@ null
             <div className="w-[calc(100%-32px)] mx-auto mt-4 bg-[#070d19]/90 bg-gradient-to-b from-[#070d19]/95 to-[#030914]/95 border border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0 rounded-2xl shadow-lg shadow-black/40">
               <div className="relative w-20 h-20 md:w-28 md:h-28">
                 <div className="w-full h-full rounded-full border border-white/[0.08] bg-slate-900 flex items-center justify-center text-xl md:text-3xl font-mono font-black text-white">
-                  BR
+                  {obterIniciais(nomeBruto)}
                 </div>
                 {/* O quadradinho do idioma encostado na foto que obedece ao clique */}
                 <button 
