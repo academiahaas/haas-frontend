@@ -1091,7 +1091,7 @@ export default function DashboardDesktop() {
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Target size={11} className="text-amber-500 inline-block mr-1" /> {idioma === 'PT' ? 'Coesão' : idioma === 'ES' ? 'Cohesión' : 'Cohesion'}</div>
                 <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Flame size={11} className="text-orange-500 inline-block mr-1" /> {idioma === 'PT' ? '12 Dias' : idioma === 'ES' ? '12 Días' : '12 Days'}</div>
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Auditorias' : idioma === 'ES' ? 'Auditorías' : 'Audits'}</div>
+                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Audits'}</div>
               </div>
             </div>
           </div>
