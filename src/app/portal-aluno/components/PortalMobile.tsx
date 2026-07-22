@@ -508,7 +508,28 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const nomeModulo = moduloActual || "Data Schema Integrity Checks";
+    const [moduleTitleDb, setModuleTitleDb] = React.useState<string>("");
+
+  React.useEffect(() => {
+    async function fetchModuleTitle() {
+      try {
+        const { data, error } = await supabase
+          .from('modules_content')
+          .select('module_title')
+          .limit(1)
+          .maybeSingle();
+
+        if (data?.module_title) {
+          setModuleTitleDb(data.module_title);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar module_title:", err);
+      }
+    }
+    fetchModuleTitle();
+  }, []);
+
+  const nomeModulo = moduleTitleDb || moduloActual || "Data Schema Integrity Checks";
     const [nomeUsuarioDb, setNomeUsuarioDb] = React.useState<string>("");
   
   const [nomeTituloNivel, setNomeTituloNivel] = useState<string>('EXPLORADOR');
