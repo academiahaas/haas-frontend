@@ -268,7 +268,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const mediaRecorderRef = React.useRef(null);
   const audioChunksRef = React.useRef([]);
 
-  // 🎙️ Função para fazer a Haas falar no idioma correto
+  // Função para fazer a Haas falar no idioma correto
   const falarTexto = (texto, langConfig, audioBase64 = null, podeFalar = true) => {
     if (!podeFalar) return;
     if (audioBase64) {
@@ -331,7 +331,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           
           try {
             // Adiciona uma mensagem temporária indicando que a IA está processando o áudio
-            setMensagensMentora(prev => [...prev, { id: Date.now(), sender: 'user', text: "🎙️ Áudio enviado..." }]);
+            setMensagensMentora(prev => [...prev, { id: Date.now(), sender: 'user', text: "Áudio enviado..." }]);
             
             const response = await fetch('/api/portal-aluno', {
               method: 'POST',
@@ -358,7 +358,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
       mediaRecorder.start();
       setGravando(true);
-      console.log("🎙️ Gravador de áudio bruto (Modo Desktop Fluido) iniciado com sucesso!");
+      console.log("Gravador de áudio bruto (Modo Desktop Fluido) iniciado com sucesso!");
     } catch (err) {
       console.error("Erro ao acessar microfone:", err);
       alert("Não foi possível acessar o microfone.");

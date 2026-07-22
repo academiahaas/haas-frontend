@@ -302,11 +302,11 @@ export default function DashboardDesktop() {
 
     // Calculo inteligente da menor nota e recomendacao da Arena
       const comps = [
-        { key: 'escucha', val: typeof cEscucha !== 'undefined' ? cEscucha : 70, icone: '🎧', treino: { PT: 'treino de Escuta', EN: 'Listening practice', ES: 'entrenamiento de Escucha' }, nome: { PT: 'Compreensão Auditiva', EN: 'Listening', ES: 'Comprensión Auditiva' } },
-        { key: 'habla', val: typeof cHabla !== 'undefined' ? cHabla : 70, icone: '🎙️', treino: { PT: 'treino de Pronúncia e Shadowing', EN: 'Speaking and Shadowing', ES: 'práctica de Pronunciación' }, nome: { PT: 'Fala / Pronúncia', EN: 'Speaking', ES: 'Pronunciación' } },
-        { key: 'gramatica', val: typeof cGramatica !== 'undefined' ? cGramatica : 70, icone: '⚡', treino: { PT: 'exercício de Gramática em Blocos', EN: 'Grammar practice', ES: 'ejercicio de Gramática' }, nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' } },
-        { key: 'escritura', val: typeof cEscritura !== 'undefined' ? cEscritura : 70, icone: '✍️', treino: { PT: 'treino de Ditado e Escrita', EN: 'Writing dictation', ES: 'práctica de Dictado' }, nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' } },
-        { key: 'lectura', val: typeof cLectura !== 'undefined' ? cLectura : 70, icone: '📖', treino: { PT: 'treino de Leitura Veloz', EN: 'Speed Reading', ES: 'Lectura Veloz' }, nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' } }
+        { key: 'escucha', val: typeof cEscucha !== 'undefined' ? cEscucha : 70, icone: '', treino: { PT: 'treino de Escuta', EN: 'Listening practice', ES: 'entrenamiento de Escucha' }, nome: { PT: 'Compreensão Auditiva', EN: 'Listening', ES: 'Comprensión Auditiva' } },
+        { key: 'habla', val: typeof cHabla !== 'undefined' ? cHabla : 70, icone: '', treino: { PT: 'treino de Pronúncia e Shadowing', EN: 'Speaking and Shadowing', ES: 'práctica de Pronunciación' }, nome: { PT: 'Fala / Pronúncia', EN: 'Speaking', ES: 'Pronunciación' } },
+        { key: 'gramatica', val: typeof cGramatica !== 'undefined' ? cGramatica : 70, icone: '', treino: { PT: 'exercício de Gramática em Blocos', EN: 'Grammar practice', ES: 'ejercicio de Gramática' }, nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' } },
+        { key: 'escritura', val: typeof cEscritura !== 'undefined' ? cEscritura : 70, icone: '', treino: { PT: 'treino de Ditado e Escrita', EN: 'Writing dictation', ES: 'práctica de Dictado' }, nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' } },
+        { key: 'lectura', val: typeof cLectura !== 'undefined' ? cLectura : 70, icone: '', treino: { PT: 'treino de Leitura Veloz', EN: 'Speed Reading', ES: 'Lectura Veloz' }, nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' } }
       ];
 
       comps.sort((a, b) => a.val - b.val);
@@ -325,25 +325,25 @@ export default function DashboardDesktop() {
 
       const bancoConselhos = {
         PT: [
-          `👋 ${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
+          `${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
           dicaArena,
-          `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
-          `🔥 Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
-          `💡 Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
+          `Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
+          `Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
+          `Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
         ],
         EN: [
-          `👋 ${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
+          `${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
           dicaArena,
-          `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
-          `🚀 Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
-          `💡 Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
+          `You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
+          `Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
+          `Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
         ],
         ES: [
-          `👋 ${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
+          `${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
           dicaArena,
-          `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
-          `🔥 ¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
-          `💡 Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
+          `Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
+          `¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
+          `Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
         ]
       };
     const listaAtual = bancoConselhos[idioma] || bancoConselhos['PT'];
@@ -955,7 +955,7 @@ export default function DashboardDesktop() {
         onAbrirPedagogo={(tipo) => setModalPedagogoPage({ aberto: true, tipo })} 
       />
 
-      {/* 🚀 MODAL COM BACKDROP BLUR GLOBAL DA VIEWPORT */}
+      {/* MODAL COM BACKDROP BLUR GLOBAL DA VIEWPORT */}
       {modalPedagogoPage.aberto && (
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setModalPedagogoPage({ aberto: false, tipo: null }); }} 
@@ -1134,7 +1134,7 @@ export default function DashboardDesktop() {
               
               {/* Card de Pagamento Premium Reativo */}
               <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-amber-600/20 via-amber-500/10 to-transparent border border-amber-500/40 hover:border-amber-400 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
-                <span className="font-sans text-[9px] font-black tracking-wider text-amber-500/90 block uppercase animate-pulse">{idioma === 'PT' ? '⚡ PLANOS E CRÉDITOS' : idioma === 'ES' ? '⚡ PLANES Y CRÉDITOS' : '⚡ PLANS & CREDITS'}</span>
+                <span className="font-sans text-[9px] font-black tracking-wider text-amber-500/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>
           </div>
@@ -1161,7 +1161,7 @@ export default function DashboardDesktop() {
         <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
-      {/* 🎯 MODAL PROGRAMA TOTALMENTE RESTAURADO E MULTILÍNGUE */}
+      {/* MODAL PROGRAMA TOTALMENTE RESTAURADO E MULTILÍNGUE */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isTrilhaOpen ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
         <div onClick={() => setIsTrilhaOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
         <div className="relative w-full max-w-3xl h-[75vh] bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl">
