@@ -954,9 +954,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <span className="text-[clamp(9px,2.5vw,13px)] font-mono font-black text-cyan-400 uppercase tracking-widest block mb-1">{idiomaSelecionado === "PT" ? "MÓDULO ATUAL" : idiomaSelecionado === "ES" ? "MÓDULO ACTUAL" : "CURRENT MODULE"}</span>
               <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{nomeModulo}</h2>
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
-                <div className="h-full w-[45%] bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full" />
+                <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
-              <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} 45%</span>
+              <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
               <div className="flex flex-col gap-3 mt-2 w-full">
                 {/* UNIDADE 1 */}
                 <div 
