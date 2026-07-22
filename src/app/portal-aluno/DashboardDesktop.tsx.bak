@@ -1,4 +1,5 @@
 'use client';
+import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
 import ModalEntregaAtividade from "./components/ModalEntregaAtividade";
@@ -10,8 +11,12 @@ import PremiumStyle from "./PremiumStyle";
 import React, { useState, useEffect } from 'react';
 import ProgramaTrilha from './components/ProgramaTrilha';
 import ArenaQuiz from './components/ArenaQuiz';
+import XpCardButton from './components/XpCardButton';
+import { getLastNameInitial } from './components/nameUtils';
+import XPButton from './components/XPButton';
 import { supabase } from '@/lib/supabase';
-import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
+import { fetchCentralPortalData } from "@/services/centralService";
+import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false }) {
@@ -21,7 +26,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
     ES: 'MENTORA HAAS'
   };
   return (
-    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none">
+    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
       <svg viewBox="0 0 64 64" className="w-10 h-10 xl:w-12 xl:h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path style={{ transform: devePiscar ? "rotate(-3deg) translateY(1px)" : "none", transformOrigin: "22px 22px", transition: "transform 0.15s ease-in-out" }} d="M18 22C18 12 22 6 22 6C22 6 26 12 26 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
         <path style={{ transform: devePiscar ? "rotate(3deg) translateY(1px)" : "none", transformOrigin: "42px 22px", transition: "transform 0.15s ease-in-out" }} d="M38 22C38 12 42 6 42 6C42 6 46 12 46 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -54,6 +59,96 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 
 export default function DashboardDesktop() {
   const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
+          const [scoreAtivo, setScoreAtivo] = useState(50);
+  const [tempoModulo, setTempoModulo] = useState(15);
+  const [nomeModulo, setNomeModulo] = useState("Carregando módulo...");
+  const [listaUnidades, setListaUnidades] = useState([]);
+  const [xpTotalUnidade, setXpTotalUnidade] = useState(4250);
+  const [patenteBruta, setPatenteBruta] = useState("Explorador");
+
+  useEffect(() => {
+    const carregarMetricasDashboard = async () => {
+      try {
+        const urlBase = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        const headers = { "apikey": token, "Authorization": "Bearer " + token };
+        const uid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
+        const dUser = await rUser.json();
+        if (dUser && dUser[0]) {
+            if (dUser[0].name) setUserName(dUser[0].name);
+            if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
+            if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
+          const nivelSigla = dUser[0].current_level || "A1";
+          const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name", { headers });
+          const dLevel = await rLevel.json();
+          if (dLevel && dLevel[0]) {
+            const nomeBase = dLevel[0].level_name || "Explorador";
+            setLevelName(nomeBase);
+            const traducoes = {
+              "Explorador": { PT: "Explorador", ES: "Explorador", EN: "Explorer" },
+              "Pioneiro": { PT: "Pioneiro", ES: "Pionero", EN: "Pioneer" },
+              "Conquistador": { PT: "Conquistador", ES: "Conquistador", EN: "Conqueror" },
+              "Estrategista": { PT: "Estrategista", ES: "Estratega", EN: "Strategist" },
+              "Embaixador": { PT: "Embaixador", ES: "Embajador", EN: "Ambassador" }
+            };
+            const lang = (typeof idioma !== "undefined" ? idioma : "PT").toUpperCase();
+            if (traducoes[nomeBase]) {
+              setPatenteBruta(traducoes[nomeBase][lang] || traducoes[nomeBase]["PT"]);
+            } else {
+              setPatenteBruta(nomeBase);
+            }
+          }
+        }
+
+        const rProg = await fetch(urlBase + "/rest/v1/user_unit_progress?user_id=eq." + uid + "&select=unit_xp&order=completed_at.desc&limit=1", { headers });
+        const dProg = await rProg.json();
+        if (dProg && dProg[0]) setScoreAtivo(dProg[0].unit_xp || 50);
+
+        // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
+        try {
+          const nivelResolvido = (dUser && dUser[0]) ? (dUser[0].current_level || "A1") : "A1";
+          const moduloAlvo = (dUser && dUser[0]) ? (dUser[0].current_module_number || 1) : 1;
+          
+          const rUnit = await fetch(urlBase + "/rest/v1/units?select=id,unit_title,module_number,level,required_xp,pedagogical_objective&module_number=eq." + moduloAlvo + "&level=eq." + nivelResolvido + "&order=unit_number.asc&limit=5", { headers });
+          const dUnit = await rUnit.json();
+          if (dUnit && dUnit.length > 0) {
+            setListaUnidades(dUnit);
+            setXpTotalUnidade(dUnit[0].required_xp || 4250);
+          }
+        } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
+
+        const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours,module_title&limit=1", { headers });
+        const dMod = await rMod.json();
+        if (dMod && dMod[0]) {
+          setTempoModulo(Math.round((dMod[0].estimated_hours || 2) * 60));
+          if (dMod[0].module_title) setNomeModulo(dMod[0].module_title);
+        }
+      } catch (e) { console.error("Erro ao carregar métricas:", e); }
+
+        // FETCH ISOLADO: Ranking Global com credenciais diretas do ambiente
+        try {
+          const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+          const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+          if (sUrl && sKey) {
+            const rRanking = await fetch(sUrl + "/rest/v1/users?select=id,nickname,total_xp&order=total_xp.desc&limit=10", {
+              headers: {
+                "apikey": sKey,
+                "Authorization": "Bearer " + sKey,
+                "Content-Type": "application/json"
+              }
+            });
+            const dRanking = await rRanking.json();
+            if (dRanking && Array.isArray(dRanking)) {
+              setTopTen(dRanking);
+            }
+          }
+        } catch (errRank) { console.error("Erro ao carregar Ranking Global:", errRank); }
+    };
+    carregarMetricasDashboard();
+  }, []);
+
   const [isTrilhaOpen, setIsTrilhaOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isEntregaOpen, setIsEntregaOpen] = useState(false);
@@ -61,9 +156,29 @@ export default function DashboardDesktop() {
   const [abaProgAtiva, setAbaProgAtiva] = useState(false);
   const tocarSom = (tipo) => { if (typeof window !== 'undefined' && (window as any).tocarSomNativoPremium) { (window as any).tocarSomNativoPremium(tipo); } };
   const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [unidadeExpandida, setUnidadeExpandida] = useState<number | null>(null);
+  const [arenaModo, setArenaModo] = useState({ tipo: null, idx: null });
 
   // <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />TRAVA DE SCROLL AUTOMÁTICA DA ARENA
   useEffect(() => {
+    async function obterDadosDoBanco() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase.from('usuarios').select('nome, nivel_atual, tipo_aluno').eq('id', user.id).maybeSingle();
+          if (data && !error) {
+            setAluno1(data.nome || "Alpha_Leader");
+            if (data.nivel_atual) setNivelAtual(data.nivel_atual.toUpperCase());
+            if (data.tipo_aluno) setTipoAluno(data.tipo_aluno.toLowerCase());
+          } else {
+            setAluno1(user.user_metadata?.nome || user.email?.split('@')[0] || "Aluno");
+          }
+        }
+      } catch (err) {
+        console.error("Erro Supabase:", err);
+      }
+    }
+    obterDadosDoBanco();
     if (isArenaOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -73,9 +188,18 @@ export default function DashboardDesktop() {
   }, [isArenaOpen]);
   const [isPerfilOpen, setIsPerfilOpen] = useState(false);
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
+  const [isCertificadosOpen, setIsCertificadosOpen] = useState(false);
+  const [trainMon, setTrainMon] = useState(false);
+  const [trainTue, setTrainTue] = useState(false);
+  const [trainWed, setTrainWed] = useState(false);
+  const [trainThu, setTrainThu] = useState(false);
+  const [trainFri, setTrainFri] = useState(false);
+  const [trainSat, setTrainSat] = useState(false);
+  const [trainSun, setTrainSun] = useState(false);
+
   const consistenciaSemanal = [
-    { dia: "S", treinou: true }, { dia: "T", treinou: true }, { dia: "Q", treinou: true },
-    { dia: "Q", treinou: false }, { dia: "S", treinou: true }, { dia: "S", treinou: true }, { dia: "D", treinou: false }
+    { dia: "1", treinou: trainMon }, { dia: "2", treinou: trainTue }, { dia: "3", treinou: trainWed },
+    { dia: "4", treinou: trainThu }, { dia: "5", treinou: trainFri }, { dia: "6", treinou: trainSat }, { dia: "7", treinou: trainSun }
   ];
   const [mounted, setMounted] = useState(false);
   // Inicializa buscando do localStorage, se não existir, define 'ES' como padrão absoluto no Desktop
@@ -152,33 +276,203 @@ export default function DashboardDesktop() {
       if (err === 'Phrasal Verbs') return { PT: 'Phrasal Verbs', EN: 'Phrasal Verbs', ES: 'Phrasal Verbs' }[idioma];
       return err;
     };
-    const erroTraduzido = typeof erro1 !== 'undefined' ? traduzirErro(erro1) : 'Preposições';
-    const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
-    const nomeAluno = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
+    // Calculo dinâmico do Ponto Fraco Real do Aluno
+      let pontoFracoDetectado = "";
 
-    const bancoConselhos = {
-      PT: [
-        `⚡ Notei que o seu ponto fraco atual é ${erroTraduzido}. Clique para reforçar esse conteúdo!`,
-        `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo badge hoje?`,
-        `🔥 Ótimo progresso, ${nomeAluno}! Não deixe seu Racha de Retenção cair hoje.`
-      ],
-      EN: [
-        `⚡ I noticed your current weak spot is ${erroTraduzido}. Click to reinforce this content!`,
-        `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next badge today?`,
-        `🚀 Great momentum, ${nomeAluno}! Keep your Retention Streak safe today.`
-      ],
-      ES: [
-        `⚡ Noté que tu punto débil actual es ${erroTraduzido}. ¡Haz clic para reservar este conteúdo!`,
-        `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por la seguinte insignia hoy?`,
-        `🔥 ¡Buen progreso, ${nomeAluno}! No dejes que tu racha de retención caiga hoy.`
-      ]
-    };
+      // 1. Tenta pegar dos logs de erros reais se existirem
+      if (typeof errorLogs !== 'undefined' && Array.isArray(errorLogs) && errorLogs.length > 0) {
+        const contadorErros: Record<string, number> = {};
+        errorLogs.forEach((item: any) => {
+          const topico = item.topic || item.error_type || item.category;
+          if (topico) contadorErros[topico] = (contadorErros[topico] || 0) + 1;
+        });
+        const ordenados = Object.entries(contadorErros).sort((a, b) => b[1] - a[1]);
+        if (ordenados.length > 0) pontoFracoDetectado = ordenados[0][0];
+      }
+
+      // 2. Se nao houver logs de erro específicos, calcula pela menor competencia (0-100)
+      if (!pontoFracoDetectado) {
+        const compValores = [
+          { nome: { PT: 'Pronúncia / Fala', EN: 'Speaking / Pronunciation', ES: 'Pronunciación / Habla' }, val: typeof cHabla !== 'undefined' ? cHabla : 70 },
+          { nome: { PT: 'Compreensão Auditiva', EN: 'Listening Comprehension', ES: 'Comprensión Auditiva' }, val: typeof cEscucha !== 'undefined' ? cEscucha : 70 },
+          { nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' }, val: typeof cGramatica !== 'undefined' ? cGramatica : 70 },
+          { nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' }, val: typeof cEscritura !== 'undefined' ? cEscritura : 70 },
+          { nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' }, val: typeof cLectura !== 'undefined' ? cLectura : 70 }
+        ];
+        compValores.sort((a, b) => a.val - b.val);
+        const menorComp = compValores[0];
+        pontoFracoDetectado = menorComp.nome[idioma as 'PT'|'EN'|'ES'] || menorComp.nome['PT'];
+      }
+
+      const erroTraduzido = typeof erro1 !== 'undefined' && erro1 ? traduzirErro(erro1) : pontoFracoDetectado;
+    const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
+    const nomeBruto = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
+      const nomeAluno = (nomeBruto || 'Alpha').trim().split(' ')[0];
+
+    // Calculo inteligente da menor nota e recomendacao da Arena
+      const comps = [
+        { key: 'escucha', val: typeof cEscucha !== 'undefined' ? cEscucha : 70, icone: '', treino: { PT: 'treino de Escuta', EN: 'Listening practice', ES: 'entrenamiento de Escucha' }, nome: { PT: 'Compreensão Auditiva', EN: 'Listening', ES: 'Comprensión Auditiva' } },
+        { key: 'habla', val: typeof cHabla !== 'undefined' ? cHabla : 70, icone: '', treino: { PT: 'treino de Pronúncia e Shadowing', EN: 'Speaking and Shadowing', ES: 'práctica de Pronunciación' }, nome: { PT: 'Fala / Pronúncia', EN: 'Speaking', ES: 'Pronunciación' } },
+        { key: 'gramatica', val: typeof cGramatica !== 'undefined' ? cGramatica : 70, icone: '', treino: { PT: 'exercício de Gramática em Blocos', EN: 'Grammar practice', ES: 'ejercicio de Gramática' }, nome: { PT: 'Gramática', EN: 'Grammar', ES: 'Gramática' } },
+        { key: 'escritura', val: typeof cEscritura !== 'undefined' ? cEscritura : 70, icone: '', treino: { PT: 'treino de Ditado e Escrita', EN: 'Writing dictation', ES: 'práctica de Dictado' }, nome: { PT: 'Escrita', EN: 'Writing', ES: 'Escritura' } },
+        { key: 'lectura', val: typeof cLectura !== 'undefined' ? cLectura : 70, icone: '', treino: { PT: 'treino de Leitura Veloz', EN: 'Speed Reading', ES: 'Lectura Veloz' }, nome: { PT: 'Leitura', EN: 'Reading', ES: 'Lectura' } }
+      ];
+
+      comps.sort((a, b) => a.val - b.val);
+      const piorComp = comps[0];
+      const langKey = (idioma || 'PT') as 'PT' | 'EN' | 'ES';
+
+      const dicaArena = {
+        PT: `${piorComp.icone} Sua menor pontuação é ${piorComp.nome.PT} (${piorComp.val}%). Que tal um ${piorComp.treino.PT} na Arena hoje?`,
+        EN: `${piorComp.icone} Your lowest score is ${piorComp.nome.EN} (${piorComp.val}%). How about a ${piorComp.treino.EN} session in the Arena today?`,
+        ES: `${piorComp.icone} Tu puntuación más baja es ${piorComp.nome.ES} (${piorComp.val}%). ¿Qué tal un ${piorComp.treino.ES} en la Arena hoy?`
+      }[langKey];
+
+      const horaAtual = new Date().getHours();
+      const saudacaoTime = horaAtual < 12 ? (idioma === 'ES' ? '¡Buenos días' : idioma === 'EN' ? 'Good morning' : 'Bom dia') : horaAtual < 18 ? (idioma === 'ES' ? '¡Buenas tardes' : idioma === 'EN' ? 'Good afternoon' : 'Boa tarde') : (idioma === 'ES' ? '¡Buenas noches' : idioma === 'EN' ? 'Good evening' : 'Boa noite');
+      const streakTexto = (typeof streakDays !== 'undefined' && streakDays > 0) ? (idioma === 'ES' ? `¡Llevas ${streakDays} días seguidos!` : idioma === 'EN' ? `You're on a ${streakDays}-day streak!` : `Você está em um Racha de ${streakDays} dias!`) : '';
+
+      const bancoConselhos = {
+        PT: [
+          `${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
+          dicaArena,
+          `Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
+          `Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
+          `Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
+        ],
+        EN: [
+          `${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
+          dicaArena,
+          `You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
+          `Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
+          `Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
+        ],
+        ES: [
+          `${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
+          dicaArena,
+          `Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
+          `¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
+          `Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
+        ]
+      };
     const listaAtual = bancoConselhos[idioma] || bancoConselhos['PT'];
     return listaAtual[botPhraseIndex % listaAtual.length];
   };
   
   const [aluno1, setAluno1] = useState("Alpha_Leader");
+  const [nicknameAluno, setNicknameAluno] = useState("Alpha_Leader");
+  const [userIdBanco, setUserIdBanco] = useState("");
+  const [streakDays, setStreakDays] = useState(0);
+  const [tipoAluno, setTipoAluno] = useState("particular");
+  const [idiomaCurso, setIdiomaCurso] = useState("SEM IDIOMA");
+  const [nivelObjetivo, setNivelObjetivo] = useState("SEM NÍVEL");
+  const [listaEntregas, setListaEntregas] = useState([]);
+
+    useEffect(() => {
+    async function carregarDadosCentralizados() {
+      try {
+        const dadosPortal = await fetchCentralPortalData();
+        if (dadosPortal && dadosPortal.user) {
+          const dbUser = dadosPortal.user;
+          if (dbUser && dbUser.id) setUserIdBanco(dbUser.id);
+          console.log("=== CONTEUDO REAL DE TRAINED_DAYS NO BANCO ===>", dbUser.trained_days);
+          setAluno1(dbUser.name || "Alpha_Leader");
+          if (dbUser.current_level) setNivelAtual(dbUser.current_level.toUpperCase());
+          if (dbUser.student_type) setTipoAluno(dbUser.student_type.toLowerCase());
+          if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
+          if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) setImersaoTotal(String(dbUser.total_immersion_es) + "h");
+          if (dbUser.active_vocabulary !== undefined) setVocabularioAtivo(dbUser.active_vocabulary);
+          
+          if (dadosPortal && dadosPortal.error_logs) {
+            setErrorLogs(dadosPortal.error_logs || []);
+          }
+
+          if (dbUser && dbUser.clinical_precision !== undefined) {
+            setPrecisaoClinica(dbUser.clinical_precision);
+          }
+          if (dadosPortal && dadosPortal.competencias) {
+            const comp = dadosPortal.competencias;
+            if (comp.habla !== undefined) setCHabla(Number(comp.habla));
+            if (comp.escucha !== undefined) setCEscucha(Number(comp.escucha));
+            if (comp.gramatica !== undefined) setCGramatica(Number(comp.gramatica));
+            if (comp.escritura !== undefined) setCEscritura(Number(comp.escritura));
+            if (comp.lectura !== undefined) setCLectura(Number(comp.lectura));
+          }
+          if (dbUser.next_expiration_es) {
+            const dateStr = String(dbUser.next_expiration_es);
+            if (dateStr.includes("-")) {
+              const [ano, mes, dia] = dateStr.split("T")[0].split("-");
+              setProximoVencimento(`${dia}/${mes}/${ano}`);
+            } else {
+              setProximoVencimento(dateStr);
+            }
+          }
+          if (dbUser.total_xp) setXpTotal(String(dbUser.total_xp));
+          setNicknameAluno(dbUser.nickname || dbUser.name || "Alpha_Leader");
+          if (dbUser.streak_days !== undefined && dbUser.streak_days !== null) setStreakDays(Number(dbUser.streak_days));
+          if (dbUser.trained_days && Array.isArray(dbUser.trained_days)) {
+            setTrainMon(!!dbUser.trained_days[0]);
+            setTrainTue(!!dbUser.trained_days[1]);
+            setTrainWed(!!dbUser.trained_days[2]);
+            setTrainThu(!!dbUser.trained_days[3]);
+            setTrainFri(!!dbUser.trained_days[4]);
+            setTrainSat(!!dbUser.trained_days[5]);
+            setTrainSun(!!dbUser.trained_days[6]);
+          }
+          const idiomaReal = dbUser.course_language ? dbUser.course_language.toUpperCase() : "INGLÉS";
+          const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "B1";
+          setIdiomaCurso(idiomaReal);
+          setNivelObjetivo(nivelReal);
+          if (dadosPortal.submissions) setListaEntregas(dadosPortal.submissions);
+          if (typeof window !== "undefined") {
+            (window as any).__dadosBanco = {
+              nome: dbUser.name,
+              idioma_curso: dbUser.course_language,
+              nivel_objetivo: dbUser.target_level,
+              nivel_atual: dbUser.current_level,
+              tipo_aluno: dbUser.student_type,
+              nickname_cru: dbUser.nickname,
+              objeto_user_inteiro: dbUser
+            };
+          }
+        }
+      } catch (err) { console.error(err); }
+    }
+    carregarDadosCentralizados();
+  }, []);
+
+  const carregarNomeUsuarioDesativado = async () => {};
+  // Funcao antiga removida com sucesso para centralizacao
+  const [nivelAtual, setNivelAtual] = useState("A1");
+  const [levelName, setLevelName] = useState("");
+  const [totalXp, setTotalXp] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
+  const [userTotalXp, setUserTotalXp] = useState<number>(0);
+  const [precisaoClinica, setPrecisaoClinica] = useState(94);
+  const [imersaoTotal, setImersaoTotal] = useState("14h");
+  const [cHabla, setCHabla] = useState(70);
+  const [errorLogs, setErrorLogs] = useState([]);
+  const [isDepurarOpen, setIsDepurarOpen] = useState(false);
+  const [cEscucha, setCEscucha] = useState(70);
+  const [cGramatica, setCGramatica] = useState(70);
+  const [cEscritura, setCEscritura] = useState(70);
+  const [cLectura, setCLectura] = useState(70);
+  const [vocabularioAtivo, setVocabularioAtivo] = useState(450);
+  const [proximoVencimento, setProximoVencimento] = useState("10/07/2026");
+  const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('admin') === 'true') {
+        setIsAdminMode(true);
+      }
+    }
+  }, []);
+  const [isVencidoSimulado, setIsVencidoSimulado] = useState(false);
+  const [isSimuladorLiberado, setIsSimuladorLiberado] = useState(false);
   const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
+  const [topTen, setTopTen] = useState([]);
   const [erro1, setErro1] = useState("Prepositions"), [erro2, setErro2] = useState("Phrasal Verbs");
   const [peso1, setPeso1] = useState("High"), [peso2, setPeso2] = useState("Medium");
   const [isLigaOpen, setIsLigaOpen] = useState(false);
@@ -198,31 +492,43 @@ export default function DashboardDesktop() {
   useEffect(() => { setMounted(true); }, []);
 
   const dadosRadar = [
-    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: 75 }, { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: 85 }, { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: 60 }, { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: 70 }, { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: 90 }
+    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: cHabla },
+    { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: cEscucha },
+    { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: cGramatica },
+    { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: cEscritura },
+    { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: cLectura }
   ];
 
   return (
     <div className="w-full min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar">
       
       {/* 🛠️ PAINEL GLOBAL DE SIMULAÇÃO (FLUTUANDO NO TOPO - VISÍVEL EM TODAS AS TELAS) */}
-      <div className="fixed top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-amber-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl">
+      <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-amber-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
         <span className="text-slate-400 font-bold tracking-wider">SIMULAR VISTA:</span>
         <div className="flex gap-1.5">
           <button 
-            onClick={() => { (window as any)._simulaMatriculado = false; (window as any).dispatchEvent(new Event("resize")); }}
-            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+            onClick={() => { (window as any)._simulaMatriculado = false; (window as any)._simulaVencido = false; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
               !(window as any)._simulaMatriculado ? "bg-amber-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
             }`}
           >
-            🆕 Aluno Nuevo
+            🆕 {idioma === 'PT' ? 'Aluno Novo' : idioma === 'EN' ? 'New Student' : 'Aluno Nuevo'}
           </button>
           <button 
-            onClick={() => { (window as any)._simulaMatriculado = true; (window as any).dispatchEvent(new Event("resize")); }}
-            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              (window as any)._simulaMatriculado ? "bg-emerald-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
+            onClick={() => { (window as any)._simulaMatriculado = true; (window as any)._simulaVencido = false; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              (window as any)._simulaMatriculado && !(window as any)._simulaVencido ? "bg-emerald-500 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
             }`}
           >
-            🔄 Aluno Matriculado (Grupo)
+            🔄 {idioma === 'PT' ? 'Matriculado' : idioma === 'EN' ? 'Enrolled' : 'Aluno Matriculado'}
+          </button>
+          <button 
+            onClick={() => { (window as any)._simulaMatriculado = true; (window as any)._simulaVencido = true; (window as any).dispatchEvent(new Event("resize")); }}
+            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              (window as any)._simulaMatriculado && (window as any)._simulaVencido ? "bg-rose-500 text-white shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
+            }`}
+          >
+            ⚠️ {idioma === 'PT' ? 'Vencido' : idioma === 'EN' ? 'Expired' : 'Vencido'}
           </button>
         </div>
       </div>
@@ -269,14 +575,68 @@ export default function DashboardDesktop() {
       <div className="w-full bg-[#061324] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#f59e0b]/40 relative">
         <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-4">
-            <a href="https://academiahaas.com.br" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
+            <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
             <div>
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
                 {t.greeting} {aluno1}
+                
+                {isAdminMode && !isSimuladorLiberado ? (
+                  <button 
+                    onClick={() => {
+                      const senha = prompt(idioma === 'PT' ? 'Digite a senha admin:' : idioma === 'ES' ? 'Ingrese la contraseña admin:' : 'Enter admin password:');
+                      if (senha === 'haasadmin123') {
+                        setIsSimuladorLiberado(true);
+                      } else if (senha !== null) {
+                        alert(idioma === 'PT' ? 'Senha incorreta!' : idioma === 'ES' ? '¡Contraseña incorrecta!' : 'Incorrect password!');
+                      }
+                    }}
+                    className="ml-2 text-xs opacity-40 hover:opacity-100 transition-all cursor-pointer select-none"
+                    title="Admin Simulation"
+                  >
+                    ⚙️
+                  </button>
+                ) : (
+                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
+                    <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
+                    </button>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      🔄 {idioma === 'PT' ? 'Ativo' : idioma === 'EN' ? 'Active' : 'Activo'}
+                    </button>
+                    <button 
+                      onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    >
+                      ⚠️ {idioma === 'PT' ? 'Vencido' : idioma === 'EN' ? 'Expired' : 'Vencido'}
+                    </button>
+                  </div>
+                )}
+                <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
+                  <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
+                  <button 
+                    onClick={() => setIsMatriculadoSimulado(false)} 
+                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                  >
+                    🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
+                  </button>
+                  <button 
+                    onClick={() => setIsMatriculadoSimulado(true)} 
+                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${isMatriculadoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                  >
+                    🔄 {idioma === 'PT' ? 'Matriculado' : idioma === 'EN' ? 'Enrolled' : 'Matriculado'}
+                  </button>
+                </div>
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
-                <span className="bg-[#f59e0b] text-white text-[10px] px-2.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{t.level}</span>
+                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{idiomaCurso} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {nivelObjetivo}</span>
               </div>
             </div>
           </div>
@@ -322,14 +682,21 @@ export default function DashboardDesktop() {
                     <span className="w-2 h-2 rounded-full bg-[#f59e0b] inline-block shrink-0" /> {t.missionTag}
                   </span>
                   <div className="mt-2 flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-slate-200 font-mono tracking-wider">{t.module}</span>
-                    <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight">Data Schema Integrity Checks</h2>
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[10px] font-black text-amber-500 font-mono tracking-widest uppercase">
+                        {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
+                      </span>
+                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase">
+                        {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {listaUnidades[0]?.level || 'A1'}
+                      </span>
+                    </div>
+                    <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight mt-0.5">{nomeModulo}</h2>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3 shrink-0 w-full md:w-auto justify-end">
                   <div onClick={handleBotClick} className="flex items-center gap-2 xl:gap-3 cursor-pointer select-none active:scale-98" title="Clique para falar com o Co-Pilot">
-                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-2.5 xl:p-3 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
+                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-4 xl:p-4.5 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
                       {obterConselhoIA()}
                       <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-900"></div>
                     </div>
@@ -339,47 +706,70 @@ export default function DashboardDesktop() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 xl:gap-4 mt-4 bg-[#040e1b] p-3 rounded-xl border border-white/5 text-white/90 font-mono text-[9px] xl:text-[10px] font-black shadow-inner shrink-0">
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.reward || 'SCORE: +50 PTS'}</span></div>
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.time || '15 MIN'}</span></div>
-                <div className="flex items-center gap-1.5 text-white"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{t.badge}</span></div>
+                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ EN: "ACTIVE SCORE", ES: "SCORE ACTIVO", PT: "SCORE ATIVO" }[(idioma || "PT").toUpperCase()] || "SCORE ATIVO")}: +{scoreAtivo} PTS</span></div>
+                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{(t.time || "TEMPO:").split(":")[0].toUpperCase()}: {tempoModulo} MIN</span></div>
+                <div className="flex items-center gap-1.5 text-white"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")}: {(() => { const d = { "Explorador": { PT: "EXPLORADOR", ES: "EXPLORADOR", EN: "EXPLORER" }, "Pioneiro": { PT: "PIONEIRO", ES: "PIONERO", EN: "PIONEER" }, "Conquistador": { PT: "CONQUISTADOR", ES: "CONQUISTADOR", EN: "CONQUEROR" }, "Estrategista": { PT: "ESTRATEGISTA", ES: "ESTRATEGA", EN: "STRATEGIST" }, "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" } }; return (d[patenteBruta] ? (d[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase(); })()}</span></div>
               </div>
 
               <div className="mt-5 mb-2 w-full flex flex-col gap-2 select-none xl:flex-1 min-h-0">
-                <div className="grid grid-cols-2 gap-x-4 xl:gap-x-8 mb-1 border-b border-white/5 pb-1 shrink-0">
-                  <div className="text-[10px] xl:text-[11px] font-bold tracking-wider text-white/30 uppercase truncate">
-                    {idioma === 'PT' ? 'Estruturas Gramaticais' : idioma === 'ES' ? 'Estructuras Gramaticales' : 'Grammar Structures'}
-                  </div>
-                  <div className="text-[10px] xl:text-[11px] font-bold tracking-wider text-white/30 uppercase truncate">
-                    {idioma === 'PT' ? 'Léxico & Vocabulário' : idioma === 'ES' ? 'Léxico y Vocabulario' : 'Lexicon & Vocabulary'}
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-x-4 xl:gap-x-8 xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[11.5px] xl:text-[12.72px]">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.03]">
-                      {['Verificação de Condicionais Complexas', 'Voz Passiva para Logs de Erro', 'Preposições de Direção e Causalidade', 'Estruturas de Controle e Laços Avançados', 'Tratamento de Exceções Escopadas'].map((item, idx) => (
-                        <div key={idx} onClick={() => setIsArenaOpen(true)} className="group h-[32px] flex items-center cursor-pointer transition-all duration-150 select-none">
-                          <span className="truncate group-hover:text-amber-400 group-hover:translate-x-1 transition-transform duration-150">{idioma === 'PT' ? item : 'Technical Topic Unit'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.03]">
-                      {['Gerenciamento de Threads Paralelas', 'Regras de Restrição e Schema', 'Otimização de Consultas Complexas', 'Casos de Borda e Tolerância a Falhas', 'Auditorias de Integridade de Produção'].map((item, idx) => (
-                        <div key={idx} onClick={() => setIsArenaOpen(true)} className="group h-[32px] flex items-center cursor-pointer transition-all duration-150 select-none">
-                          <span className="truncate group-hover:text-[#00D4FF] group-hover:translate-x-1 transition-transform duration-150">{idioma === 'PT' ? item : 'Vocabulary Sector'}</span>
+                <div className="flex flex-col xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[12.5px] xl:text-[13.5px] mt-1">
+                  <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.04]">
+                    {(listaUnidades.length > 0 ? listaUnidades : [
+                      { unit_title: 'O Primeiro Impacto e as Vogais Fracas', objectives: 'Compreender a redução vocálica e a estrutura das sílabas átonas.' },
+                      { unit_title: 'Identidade e os Sons', objectives: 'Dominar a fonética básica de apresentação e saudações iniciais.' },
+                      { unit_title: 'De Onde Você É? O Labirinto do R e do J', objectives: 'Diferenciar a articulação e som das consoantes de origem geográfica.' },
+                      { unit_title: 'Educação e Sobrevivência', objectives: 'Vocabulário prático para situações cotidianas de sala de aula e emergências.' },
+                      { unit_title: 'Despedidas Corporativas/Sociais e as Nasais', objectives: 'Aplicar regras de nasalização em contextos formais de encerramento.' }
+                    ]).map((unit, idx) => {
+                      const currentTitle = unit.unit_title;
+                      const isOpen = unidadeExpandida === idx;
+                      const objetivos = unit.pedagogical_objective || unit.objectives || unit.description || unit.learning_goals || (idioma === 'ES' ? 'Objetivos no mapeados' : 'Objetivos não mapeados');
+                      
+                      return (
+                        <div key={idx} className="flex flex-col border-b border-white/[0.02] py-1">
+                          <div 
+                            onClick={() => setUnidadeExpandida(isOpen ? null : idx)} 
+                            className="group h-[38px] flex items-center justify-between cursor-pointer transition-all duration-150 select-none hover:bg-white/[0.015] px-2 rounded-lg"
+                          >
+                            <div className="flex items-center gap-4 min-w-0 flex-1">
+                              <span className="font-mono text-[9px] text-amber-500/80 font-black bg-amber-500/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
+                              <span className={`transition-colors duration-150 tracking-wide font-medium ${isOpen ? 'text-amber-400' : 'text-white/90 group-hover:text-amber-400'}`}>
+                                {currentTitle}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={`text-slate-500 font-sans text-xs transition-transform duration-200 ${isOpen ? 'rotate-90 text-amber-400' : 'group-hover:text-amber-400'}`}>
+                                ➔
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {isOpen && (
+                            <div className="px-2 pb-3 pt-1 text-[11.5px] xl:text-[12.5px] text-slate-400 font-sans leading-relaxed transition-all animate-fadeIn pl-[38px]">
+                              <div className="bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-lg text-amber-100/80">
+                                <strong className="text-amber-500/90 font-mono text-[10px] block uppercase tracking-wider mb-1">
+                                  {idioma === 'ES' ? 'OBJETIVOS DE LA UNIDAD:' : idioma === 'EN' ? 'UNIT OBJECTIVES:' : 'OBJETIVOS DA UNIDADE:'}
+                                </strong>
+                                {objetivos}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="w-full mt-3 shrink-0">
-              <button onClick={() => { setIsArenaOpen(true); }} className="w-full bg-gradient-to-r from-[#f59e0b] via-[#d97706] to-[#b45309] hover:brightness-110 active:scale-[0.98] text-white font-black py-3.5 rounded-2xl text-base uppercase tracking-widest border border-orange-500/20 shadow-lg shadow-orange-950/40 transition-all">
+            <div className="w-full mt-auto shrink-0 pt-4">
+              <button 
+                onClick={() => { setArenaModo({ tipo: null, idx: null }); setIsArenaOpen(true); }} 
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(237,108,2,0.25)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
+              >
                 {t.trainBtn}
               </button>
             </div>
@@ -389,24 +779,33 @@ export default function DashboardDesktop() {
             <div className="w-full border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15),inset_0_0_15px_rgba(245,158,11,0.08)] rounded-[24px] p-4 flex flex-col justify-between min-h-[95px] sm:h-full select-none relative overflow-hidden text-white" style={{ background: "radial-gradient(circle at 5% 50%, rgba(217,119,6,0.22) 0%, transparent 55%), radial-gradient(circle at 95% 50%, rgba(217,119,6,0.18) 0%, transparent 50%), #0d1520" }}>
               <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest font-mono">{t.streakTitle}</span>
               <div className="space-y-0.5">
-                <div className="flex items-center gap-3"><span className="text-2xl xl:text-3xl font-black text-white tracking-wide font-sans">12 {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><Flame size={26} className="text-amber-500 shrink-0 stroke-[1.5]" /></div>
+                <div className="flex items-center gap-3"><span className="text-2xl xl:text-3xl font-black text-white tracking-wide font-sans">{streakDays} {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><Flame size={26} className="text-amber-500 shrink-0 stroke-[1.5]" /></div>
                 <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider text-left block">{t.streakSub}</span>
               </div>
             </div>
 
             <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
-              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{t.ranking}</span>
+              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
-                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{xpAtual} <span className="text-[11px] font-bold text-slate-400">/ {xpTotal} PTS</span></span>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${porcentagemXp}%` }} /></div>
+                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal)) * 100), 100)}%` }} /></div>
               </div>
             </div>
 
             <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
               <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{t.nextReward}</span>
               <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{idioma === "PT" ? "Nível Explorer" : idioma === "ES" ? "Nivel Explorer" : "Level Explorer"}</span><span className="text-amber-500 font-mono font-bold">-30 PTS</span></div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: "85%" }} /></div>
+                <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")} {(() => {
+                    const dic = {
+                      "Explorador": { PT: "EXPLORADOR", ES: "EXPLORADOR", EN: "EXPLORER" },
+                      "Pioneiro": { PT: "PIONEIRO", ES: "PIONERO", EN: "PIONEER" },
+                      "Conquistador": { PT: "CONQUISTADOR", ES: "CONQUISTADOR", EN: "CONQUEROR" },
+                      "Estrategista": { PT: "ESTRATEGISTA", ES: "ESTRATEGA", EN: "STRATEGIST" },
+                      "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" }
+                    };
+                    return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
+                  })()}</span><span className="text-amber-500 font-mono font-bold">-{Math.max(0, Number(xpTotal) - Number(xpAtual))} PTS</span></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((scoreAtivo / xpTotalUnidade) * 100), 100)}%` }} /></div>
               </div>
             </div>
           </div>
@@ -425,7 +824,7 @@ export default function DashboardDesktop() {
                         <stop offset="100%" stopColor="#d97706" stopOpacity="0.02"/>
                       </linearGradient>
                     </defs>
-                    <PolarGrid stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+                    <PolarGrid stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
                     <PolarAngleAxis dataKey="competenca" tick={{ fill: "#94A3B8", fontSize: 9, fontWeight: "800", letterSpacing: "0.03em" }} />
                     <PolarRadiusAxis tick={false} domain={[0, 100]} />
                     <Radar 
@@ -443,11 +842,35 @@ export default function DashboardDesktop() {
               ) : <div className="text-[10px] font-mono text-slate-400 animate-pulse">Sync...</div>}
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 text-[7.5px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
-              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={9}/> {t.insights[0]}</span>
-              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={9}/> {t.insights[1]}</span>
-              <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 py-1 rounded-lg flex items-center justify-center gap-1"><AlertTriangle size={9}/> {t.insights[2]}</span>
-            </div>
+            {(() => {
+              const lista = [
+                { id: "habla", pt: "Fala", es: "Habla", en: "Speaking", nota: cHabla },
+                { id: "escucha", pt: "Escuta", es: "Escucha", en: "Listening", nota: cEscucha },
+                { id: "gramatica", pt: "Gramática", es: "Gramática", en: "Grammar", nota: cGramatica },
+                { id: "escritura", pt: "Escrita", es: "Escritura", en: "Writing", nota: cEscritura },
+                { id: "lectura", pt: "Leitura", es: "Lectura", en: "Reading", nota: cLectura }
+              ].sort((a, b) => b.nota - a.nota);
+
+              const top1 = lista[0];
+              const top2 = lista[1];
+              const bottom = lista[4];
+
+              const tLabel = (item: any) => idioma === "PT" ? item.pt : idioma === "ES" ? item.es : item.en;
+
+              return (
+                <div className="grid grid-cols-3 gap-1.5 text-[7.2px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
+                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <TrendingUp size={9}/> {tLabel(top1)} +{top1.nota}%
+                  </span>
+                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <TrendingUp size={9}/> {tLabel(top2)} +{top2.nota}%
+                  </span>
+                  <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
+                    <AlertTriangle size={9}/> {idioma === "PT" ? "Prática de" : idioma === "ES" ? "Prática de" : "Practice"} {tLabel(bottom)}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="w-full flex flex-col gap-1 shrink-0 relative z-20 mt-2">
@@ -460,7 +883,7 @@ export default function DashboardDesktop() {
                 <ChevronDown size={12} className={`text-slate-500 transition-transform duration-300 ${isLigaOpen ? 'rotate-180 text-amber-500' : ''}`} />
               </div>
               <div className="bg-gradient-to-r from-amber-500/10 to-amber-600/20 border border-amber-500/50 text-[#f59e0b] px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
-                <span>{aluno1}</span>
+                <span>{nicknameAluno}</span>
               </div>
             </div>
 
@@ -469,16 +892,20 @@ export default function DashboardDesktop() {
                 <span>{idioma === "PT" ? "RANK & USUÁRIO" : idioma === "ES" ? "PUESTO & USUARIO" : "RANK & USER"}</span>
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
-              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-0.5 scrollbar-none">
-                {mockupLigas.map((user) => (
-                  <div key={user.rank} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${user.rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-mono text-[10px] font-black w-4 text-center">{user.rank}</span>
-                      <span className="truncate">{user.nome.replace("👑", "").trim()}</span>
+              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
+                {topTen.map((user, index) => {
+                  const rank = index + 1;
+                  const ptsFormatados = (user.total_xp || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                  return (
+                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono text-[10px] font-black w-4 text-center">{rank}</span>
+                        <span className="truncate">{user.nickname || "Aluno Anônimo"}</span>
+                      </div>
+                      <span className="font-mono text-[10px] text-slate-400">{ptsFormatados} PTS</span>
                     </div>
-                    <span className="font-mono text-[10px] text-slate-400">{user.xp}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -492,32 +919,56 @@ export default function DashboardDesktop() {
           <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
             <span className="text-[9px] font-black text-[#f59e0b] font-mono uppercase tracking-wider">{t.chestTitle}</span>
             <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] py-1.5 px-3 rounded-xl text-white/90 border border-white/5">
-              <span>Preposições (Alto)</span>
-              <span className="opacity-20">•</span>
-              <span>Phrasal Verbs (Médio)</span>
+              {(() => {
+                const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
+                const ordenados = [...errorLogs].sort((a, b) => {
+                  const pesoA = peso[a.frequencia] || 0;
+                  const pesoB = peso[b.frequencia] || 0;
+                  return pesoB - pesoA;
+                });
+                
+                const erro1 = ordenados[0] ? `${ordenados[0].conteudo} (${ordenados[0].frequencia})` : (idioma === "PT" ? "Nenhum Erro" : idioma === "ES" ? "Sin Errores" : "No Errors");
+                const erro2 = ordenados[1] ? `${ordenados[1].conteudo} (${ordenados[1].frequencia})` : "---";
+                
+                return (
+                  <>
+                    <span className="truncate max-w-[45%]">{erro1}</span>
+                    <span className="opacity-20">•</span>
+                    <span className="truncate max-w-[45%]">{erro2}</span>
+                  </>
+                );
+              })()}
             </div>
-            <button className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-amber-500/60 shadow-sm transition-all">
+            <button onClick={() => setIsDepurarOpen(true)} className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-amber-500/60 shadow-sm transition-all">
               <span className="text-[#f59e0b]">{t.clearBtn}</span>
             </button>
           </div>
 
           <div className="w-full flex flex-col shrink-0 mt-2">
-            <BotaoAula dataAulaIso="" linkMeet="" idiomaAtivo={idioma} />
+            <button 
+              onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1", "_blank")}
+              className="w-full py-3 bg-transparent hover:bg-orange-500/5 border border-orange-500/40 text-orange-400 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2" 
+            >
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0"><path d="M8 5v14l11-7z"/></svg>
+              {idioma === "PT" ? "Entrar na Aula" : idioma === "ES" ? "Entrar a la Clase" : "Enter Class"}
+            </button>
           </div>
         </div>
 
       </div>
 
       <PremiumStyle />
-      <ArenaQuiz 
+            <ArenaQuiz 
+        key={arenaModo?.tipo === 'unidade' ? String(arenaModo.idx) : 'arena-fechada'}
         isOpen={isArenaOpen} 
-        onClose={() => setIsArenaOpen(false)} 
-        userId="user_demo_123" 
-        idiomaAtivo={idioma} 
+        onClose={() => { setIsArenaOpen(false); setArenaModo(null); }} 
+        userId={userIdBanco} 
+        idiomaAtivo={idioma}
+        subUnidadeIndex={arenaModo?.tipo === 'unidade' ? arenaModo.idx : 0} 
         onAbrirPedagogo={(tipo) => setModalPedagogoPage({ aberto: true, tipo })} 
       />
 
-      {/* 🚀 MODAL COM BACKDROP BLUR GLOBAL DA VIEWPORT */}
+      {/* MODAL COM BACKDROP BLUR GLOBAL DA VIEWPORT */}
       {modalPedagogoPage.aberto && (
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setModalPedagogoPage({ aberto: false, tipo: null }); }} 
@@ -556,8 +1007,53 @@ export default function DashboardDesktop() {
         </div>
       )}
       <ModalAvaliacaoFidelidade isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} idioma={idioma} />
-      <ModalEntregaAtividade isOpen={isEntregaOpen} onClose={() => setIsEntregaOpen(false)} idioma={idioma} />
-      <ModalAgendaAluno isOpen={isAgendaOpen} onClose={() => setIsAgendaOpen(false)} idioma={idioma} />
+      <ModalEntregaAtividade isOpen={isEntregaOpen} onClose={() => setIsEntregaOpen(false)} idioma={idioma} entregas={listaEntregas} />
+      <ModalAgendaAluno 
+        isOpen={isAgendaOpen} 
+        onClose={() => setIsAgendaOpen(false)} 
+        idioma={idioma} 
+        userId={userIdBanco} 
+      />
+
+      {/* 🔍 MODAL DE DEPURAÇÃO DE LOGS COMPLETO */}
+      {isDepurarOpen && (
+        <div className="fixed inset-0 z-[600] flex items-center justify-center animate-fadeIn">
+          <div onClick={() => setIsDepurarOpen(false)} className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md bg-[#040c16] border border-amber-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
+            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+              <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#f59e0b]">
+                {idioma === "PT" ? "Depuração de Logs" : idioma === "ES" ? "Depuración de Logs" : "Logs Debugger"}
+              </h3>
+              <button onClick={() => setIsDepurarOpen(false)} className="text-slate-400 hover:text-white font-black font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-md transition-colors">X</button>
+            </div>
+
+            <div className="flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar">
+              {(() => {
+                const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
+                const ordenados = [...errorLogs].sort((a, b) => (peso[b.frequencia] || 0) - (peso[a.frequencia] || 0));
+
+                if (ordenados.length === 0) {
+                  return <p className="text-[10px] font-mono text-slate-400 py-4 text-center">{idioma === "PT" ? "Nenhum log de erro registrado." : idioma === "ES" ? "No hay logs de errores registrados." : "No error logs registered."}</p>;
+                }
+
+                return ordenados.map((item: any, idx: number) => {
+                  const isCritico = item.frequencia === "Alto";
+                  return (
+                    <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/5 text-[10px] font-mono font-bold">
+                      <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${
+                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      }`}>
+                        {item.frequencia}
+                      </span>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 🗂️ GAVETA LUXO PERFIL 100% COMPLETA, COM IDIOMAS E BOTÃO DE PAGAMENTO */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex justify-start ${isPerfilOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'}`}>
@@ -574,19 +1070,19 @@ export default function DashboardDesktop() {
 
           <div className="flex flex-col gap-2 bg-[#071324]/60 p-2.5 rounded-2xl border border-white/[0.03] w-full min-h-0">
             <div className="flex items-center gap-3.5">
-              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">AL<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
+              <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">{getLastNameInitial(userName)}<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
-              <span className="text-white font-black text-sm tracking-wide">Alpha_Leader</span>
+              <span className="text-white font-black text-sm tracking-wide">{aluno1}</span>
               <div className="flex justify-between items-center gap-2 text-[9px] font-mono font-black text-amber-500 uppercase tracking-widest mt-0.5 w-full min-w-0">
                 <span>
-                  {idioma === 'PT' ? 'Nível B1 • Líder Alpha' : idioma === 'ES' ? 'Nivel B1 • Líder Alpha' : 'Level B1 • Alpha Leader'}
+                  {idioma === 'PT' ? `Nível Atual: ${nivelAtual}` : idioma === 'ES' ? `Nivel Actual: ${nivelAtual}` : `Current Level: ${nivelAtual}`}
                 </span>
                 
                 <div></div>
               </div>
               <div className="mt-1 flex gap-1 flex-wrap">
                 {(() => {
-                  const tipoCurso = 'particular'; 
+                  const tipoCurso = tipoAluno; 
                   let textoBadge = '';
                   if (tipoCurso === 'particular') { textoBadge = idioma === 'PT' ? 'Particular' : idioma === 'ES' ? 'Particular' : 'Private'; }
                   else if (tipoCurso === 'grupo') { textoBadge = idioma === 'PT' ? 'Em Grupo' : idioma === 'ES' ? 'En Grupo' : 'Group Class'; }
@@ -604,11 +1100,11 @@ export default function DashboardDesktop() {
             </div>
             <div className="flex flex-col gap-1.5 border-t border-white/[0.04] pt-2.5 relative">
               <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
-              <div className="absolute top-2 right-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
+              <div className="hidden absolute top-2 right-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Target size={11} className="text-amber-500 inline-block mr-1" /> {idioma === 'PT' ? 'Coesão' : idioma === 'ES' ? 'Cohesión' : 'Cohesion'}</div>
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Flame size={11} className="text-orange-500 inline-block mr-1" /> {idioma === 'PT' ? '12 Dias' : idioma === 'ES' ? '12 Días' : '12 Days'}</div>
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Auditorias' : idioma === 'ES' ? 'Auditorías' : 'Audits'}</div>
+                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-amber-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-amber-500 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
+              <XpCardButton totalXp={totalXp} onClick={() => setIsArenaOpen(true)} idioma={idioma} />
+                <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
             </div>
           </div>
@@ -617,13 +1113,13 @@ export default function DashboardDesktop() {
             <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'DIAGNÓSTICO GERAL' : idioma === 'ES' ? 'DIAGNÓSTICO GENERAL' : 'GENERAL DIAGNOSTIC'}</span>
             <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">94%</div>
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">{precisaoClinica}%</div>
                 <div className="flex flex-col"><span className="text-[11px] text-slate-200 font-bold">{idioma === 'PT' ? 'Eficiência Clínica' : idioma === 'ES' ? 'Precisión Clínica' : 'Clinical Accuracy'}</span><span className="text-[9px] text-slate-500 font-medium">{idioma === 'PT' ? 'Precisão Geral' : idioma === 'ES' ? 'Precisión General' : 'Overall Precision'}</span></div>
               </div>
             </div>
             
             <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
-              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">Sequência: 12d</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
               <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
@@ -637,38 +1133,49 @@ export default function DashboardDesktop() {
             {/* GRID DOS 4 CARDS RESTAURADOS COM ACESSO DIRETO AO PAGAMENTO */}
             <div className="grid grid-cols-2 gap-2 w-full">
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-sky-400 block leading-none">14h</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Imersão Absoluta' : idioma === 'ES' ? 'Inmersión Total' : 'Total Immersion'}</span>
+                <span className="text-[14px] font-mono font-black text-sky-400 block leading-none">{imersaoTotal}</span>
+                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Horas de Imersão' : idioma === 'ES' ? 'Horas de Inmersión' : 'Immersion Hours'}</span>
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">450</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Vocabulário Ativado' : idioma === 'ES' ? 'Vocabulario Activo' : 'Active Vocab'}</span>
+                <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">{vocabularioAtivo}</span>
+                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Dias Ativos' : idioma === 'ES' ? 'Días Activos' : 'Active Days'}</span>
               </div>
               <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">10/07/2026</span>
+                <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">{proximoVencimento}</span>
                 <span className="font-sans text-[7.5px] font-bold tracking-tight text-slate-500 block uppercase mt-1">{idioma === 'PT' ? 'Próximo Vencimento' : idioma === 'ES' ? 'Próximo Vencimiento' : 'Next Due Date'}</span>
               </div>
               
               {/* Card de Pagamento Premium Reativo */}
               <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-amber-600/20 via-amber-500/10 to-transparent border border-amber-500/40 hover:border-amber-400 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
-                <span className="font-sans text-[9px] font-black tracking-wider text-amber-500/90 block uppercase animate-pulse">{idioma === 'PT' ? '⚡ PLANOS E CRÉDITOS' : idioma === 'ES' ? '⚡ PLANES Y CRÉDITOS' : '⚡ PLANS & CREDITS'}</span>
+                <span className="font-sans text-[9px] font-black tracking-wider text-amber-500/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>
           </div>
 
           <div className="border-t border-white/5 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
-            <div className="bg-amber-500/5 border border-amber-500/10 py-[1vh] px-3 rounded-xl text-[11px] text-slate-400 leading-relaxed font-sans relative flex flex-col justify-center">
-              <span className="font-bold text-amber-500 block mb-0.5">Mentora Haas:</span>
-              {idioma === 'PT' ? 'Alpha, seu ponto fraco hoje são Phrasal Verbs. A Arena te espera para ajustar esse ponteiro.' : idioma === 'ES' ? 'Alpha, tu punto débil hoy son Phrasal Verbs. La Arena te espera para ajustar este indicador.' : 'Alpha, your weak point today is Phrasal Verbs. The Arena awaits you to calibrate this vector.'}
-            </div>
+            <button 
+              onClick={() => window.open("https://api.whatsapp.com/send/?phone=573239421071&text=Hello%21+I%27m+interested+in+learning+more+about+Escuela+Haas.&type=phone_number&app_absent=0", "_blank")}
+              className="w-full py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 flex items-center justify-between text-emerald-400 font-mono font-bold text-[10px] md:text-xs cursor-pointer transition-colors min-h-[38px]"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="uppercase tracking-wider font-black">
+                  {idioma === "PT" ? "Atendimento ao Cliente" : idioma === "ES" ? "Atención al Cliente" : "Customer Service"}
+                </span>
+              </div>
+              <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-black">
+                {idioma === "PT" ? "CONTATO" : idioma === "ES" ? "CONTACTO" : "CONTACT"}
+              </span>
+            </button>
             <button onClick={() => { if(confirm(idioma === 'PT' ? 'Deseja realmente sair da conta?' : idioma === 'ES' ? '¿Realmente deseja salir de la cuenta?' : 'Are you sure you want to log out?')) { window.location.href = '/'; } }} className="w-full bg-red-950/20 hover:bg-red-950/40 text-red-400 hover:text-red-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-red-500/10 text-center transition-all">{idioma === 'PT' ? 'Sair da Conta' : idioma === 'ES' ? 'Cerrar Sesión' : 'Log Out'}</button>
           </div>
 
         </div>
-        <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
+        <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
+       <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
-      {/* 🎯 MODAL PROGRAMA TOTALMENTE RESTAURADO E MULTILÍNGUE */}
+      {/* MODAL PROGRAMA TOTALMENTE RESTAURADO E MULTILÍNGUE */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isTrilhaOpen ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
         <div onClick={() => setIsTrilhaOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
         <div className="relative w-full max-w-3xl h-[75vh] bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl">
@@ -695,16 +1202,38 @@ export default function DashboardDesktop() {
 
 function QuadrinhoPagamentoInteligente({ idioma }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  (window as any).setIsPagamentoOpen = setIsOpen;
+
+  // Escucha nativa global conectada directamente a los estados del Padre
+  React.useEffect(() => {
+    const dispararCentralHAAS = () => {
+      setIsOpen(true);
+      setPasso(1);
+      setModalidade(null);
+    };
+    window.addEventListener('HAAS_ABRIR_MATRICULAS', dispararCentralHAAS);
+    return () => window.removeEventListener('HAAS_ABRIR_MATRICULAS', dispararCentralHAAS);
+  }, []);
   const [passo, setPasso] = React.useState(1); // 1 = Seleção, 2 = Checkout
   
   // Estados de Compra
   const [modalidade, setModalidade] = React.useState(null); // 'grupo', 'vip_std', 'vip_pro', 'avulsa'
   const [creditosMensais, setCreditosMensais] = React.useState(null); // 8, 12, 20
   const [qtdAvulsas, setQtdAvulsas] = React.useState(0);
+  const [masterPlans, setMasterPlans] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const carregarBanco = async () => {
+      const { data } = await supabase.from("master_plans").select("*");
+      if (data) setMasterPlans(data);
+    };
+    carregarBanco();
+  }, [isOpen]);
 
   useEffect(() => {
-    (window as any).setIsPagamentoOpen = setIsOpen;
-    return () => { delete (window as any).setIsPagamentoOpen; };
+    
+    return () => { /* mantem a funcao viva na memoria global */ };
   }, []);
 
   if (!isOpen) return null;
@@ -724,30 +1253,73 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
   let descricaoItem = "";
 
   if (modalidade === "grupo" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 300000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 8 Créditos Mensais" : idioma === "EN" ? "Group Plan: 8 Monthly Credits" : "Plan Colectivo: 8 Créditos Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 420000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 12 Créditos Mensais" : idioma === "EN" ? "Group Plan: 12 Monthly Credits" : "Plan Colectivo: 12 Créditos Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 650000; descricaoItem = idioma === "PT" ? "Plano Coletivo: 20 Créditos Mensais (Imersão)" : idioma === "EN" ? "Group Plan: 20 Monthly Credits (Immersion)" : "Plan Colectivo: 20 Créditos Mensuales (Inmersión)"; }
+    // Procura o registro correspondente na coluna plan_category
+    const planoGrupo = masterPlans.find(p => p.plan_category === "Group");
+    
+    // Pega o objeto JSON puro da coluna pricing_matrix
+    const matriz = planoGrupo ? (typeof planoGrupo.pricing_matrix === "string" ? JSON.parse(planoGrupo.pricing_matrix) : planoGrupo.pricing_matrix) : {};
+    
+    // Atribui o valor total lido da chave correspondente (8, 12, 20) de dentro da matriz do banco
+    valorTotal = matriz[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 8 Créditos Mensais" : idioma === "EN" ? "Group Plan: 8 Monthly Credits" : "Plan Colectivo: 8 Créditos Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 12 Créditos Mensais" : idioma === "EN" ? "Group Plan: 12 Monthly Credits" : "Plan Colectivo: 12 Créditos Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "Plano Coletivo: 20 Créditos Mensais (Imersão)" : idioma === "EN" ? "Group Plan: 20 Monthly Credits (Immersion)" : "Plan Colectivo: 20 Créditos Mensuales (Inmersión)"; }
   } else if (modalidade === "vip_std" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 400000; descricaoItem = idioma === "PT" ? "VIP Standard: 8 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 8 Monthly Classes" : "VIP Standard: 8 Clases Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 540000; descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 800000; descricaoItem = idioma === "PT" ? "VIP Standard: 20 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 20 Monthly Classes" : "VIP Standard: 20 Clases Mensuales"; }
+    // Procura o registro do VIP Standard vindo do banco master_plans
+    const planoVipStd = masterPlans.find(p => p.plan_category === "VIP Standard");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizVipStd = planoVipStd ? (typeof planoVipStd.pricing_matrix === "string" ? JSON.parse(planoVipStd.pricing_matrix) : planoVipStd.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à chave (8, 12, 20) vinda do banco
+    valorTotal = matrizVipStd[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "VIP Standard: 8 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 8 Monthly Classes" : "VIP Standard: 8 Clases Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Standard: 12 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 12 Monthly Classes" : "VIP Standard: 12 Clases Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Standard: 20 Aulas Mensais" : idioma === "EN" ? "VIP Standard: 20 Monthly Classes" : "VIP Standard: 20 Clases Mensuales"; }
   } else if (modalidade === "vip_pro" && creditosMensais) {
-    if (creditosMensais === 8) { valorTotal = 560000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 8 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 8 Monthly Classes" : "VIP Pro Corporativo: 8 Clases Mensuales"; }
-    if (creditosMensais === 12) { valorTotal = 780000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
-    if (creditosMensais === 20) { valorTotal = 1200000; descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 20 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 20 Monthly Classes" : "VIP Pro Corporativo: 20 Clases Mensuales"; }
+    // Procura o registro do VIP Pro vindo do banco master_plans
+    const planoVipPro = masterPlans.find(p => p.plan_category === "VIP Pro");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizVipPro = planoVipPro ? (typeof planoVipPro.pricing_matrix === "string" ? JSON.parse(planoVipPro.pricing_matrix) : planoVipPro.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à chave vinda do banco
+    valorTotal = matrizVipPro[String(creditosMensais)] || 0;
+    
+    if (creditosMensais === 8) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 8 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 8 Monthly Classes" : "VIP Pro Corporativo: 8 Clases Mensuales"; }
+    if (creditosMensais === 12) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 12 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 12 Monthly Classes" : "VIP Pro Corporativo: 12 Clases Mensuales"; }
+    if (creditosMensais === 20) { descricaoItem = idioma === "PT" ? "VIP Pro Corporativo: 20 Aulas Mensais" : idioma === "EN" ? "VIP Pro Corporativo: 20 Monthly Classes" : "VIP Pro Corporativo: 20 Clases Mensuales"; }
   } else if (modalidade === "avulsa") {
-    // Tabela Flex / Corporativa - Inicia em 75k e rebate nos marcos de 8 (560k), 12 (780k) e 20 (1.2M)
-    const tabelaFlex = { 1: 75000, 2: 145000, 3: 215000, 4: 285000, 5: 355000, 6: 425000, 7: 495000, 8: 560000, 9: 615000, 10: 670000, 11: 725000, 12: 780000, 13: 835000, 14: 890000, 15: 945000, 16: 1000000, 17: 1055000, 18: 1110000, 19: 1155000, 20: 1200000 };
-    valorTotal = tabelaFlex[qtdAvulsas] || (qtdAvulsas * 75000);
-    descricaoItem = idioma === "PT" ? `Aula Individual Flex: ${qtdAvulsas} Créditos (1 a 1)` : idioma === "EN" ? `Individual Flex Class: ${qtdAvulsas} Credits (1-on-1)` : `Clase Individual Flex: ${qtdAvulsas} Créditos (1 a 1)`;
+    // Busca a linha "Pack VIP Pro" dentro do banco master_plans
+    const planoPackPro = masterPlans.find(p => p.plan_category === "Pack VIP Pro");
+    
+    // Extrai o objeto JSON da pricing_matrix
+    const matrizPackPro = planoPackPro ? (typeof planoPackPro.pricing_matrix === "string" ? JSON.parse(planoPackPro.pricing_matrix) : planoPackPro.pricing_matrix) : {};
+    
+    // Associa o preço final à quantidade de créditos selecionada pelo controle (qtdAvulsas)
+    valorTotal = matrizPackPro[String(qtdAvulsas)] || 0;
+    descricaoItem = idioma === "PT" ? `Pack VIP Pro: ${qtdAvulsas} Créditos` : idioma === "EN" ? `VIP Pro Pack: ${qtdAvulsas} Credits` : `Pack VIP Pro: ${qtdAvulsas} Créditos`;
   } else if (modalidade === "acumulador_grupo") {
-    const tabela = { 1: 40000, 2: 75000, 3: 110000, 4: 145000, 5: 180000, 6: 220000, 7: 260000, 8: 300000, 9: 330000, 10: 360000, 11: 390000, 12: 420000, 13: 450000, 14: 480000, 15: 510000, 16: 540000, 17: 570000, 18: 600000, 19: 625000, 20: 650000 };
-    valorTotal = tabela[qtdAvulsas] || (qtdAvulsas * 40000);
+    // Busca a linha do Pack Grupo na tabela master_plans
+    const planoPackGrupo = masterPlans.find(p => p.plan_category === "Pack Group");
+    
+    // Extrai a matriz real de preços
+    const matrizPackGrupo = planoPackGrupo ? (typeof planoPackGrupo.pricing_matrix === "string" ? JSON.parse(planoPackGrupo.pricing_matrix) : planoPackGrupo.pricing_matrix) : {};
+    
+    // Associa o preço diretamente à quantidade de aulas (qtdAvulsas)
+    valorTotal = matrizPackGrupo[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack Acumulativo: ${qtdAvulsas} Aulas em Grupo` : idioma === "EN" ? `Accumulative Pack: ${qtdAvulsas} Group Classes` : `Pack Acumulativo: ${qtdAvulsas} Aulas en Grupo`;
   } else if (modalidade === "acumulador_vip_std") {
-    // Tabela VIP Standard - Inicia em 55k e rebate nos marcos de 8 (400k), 12 (540k) e 20 (800k)
-    const tabelaStd = { 1: 55000, 2: 105000, 3: 155000, 4: 205000, 5: 255000, 6: 305000, 7: 355000, 8: 400000, 9: 435000, 10: 470000, 11: 505000, 12: 540000, 13: 575000, 14: 610000, 15: 645000, 16: 680000, 17: 715000, 18: 750000, 19: 775000, 20: 800000 };
-    valorTotal = tabelaStd[qtdAvulsas] || (qtdAvulsas * 55000);
+    // Busca o registro do Pack VIP Std na tabela master_plans
+    const planoPackStd = masterPlans.find(p => p.plan_category === "Pack VIP Std");
+    
+    // Extrai o objeto pricing_matrix real
+    const matrizPackStd = planoPackStd ? (typeof planoPackStd.pricing_matrix === "string" ? JSON.parse(planoPackStd.pricing_matrix) : planoPackStd.pricing_matrix) : {};
+    
+    // Vincula o valor total à quantidade selecionada no seletor (qtdAvulsas)
+    valorTotal = matrizPackStd[String(qtdAvulsas)] || 0;
     descricaoItem = idioma === "PT" ? `Pack VIP Standard Acumulativo: ${qtdAvulsas} Aulas` : idioma === "EN" ? `Accumulative VIP Standard Pack: ${qtdAvulsas} Classes` : `Pack VIP Standard Acumulativo: ${qtdAvulsas} Clases`;
   }
 
@@ -776,11 +1348,27 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
 
         {/* Banner Condicional de Renovación Activa */}
-        {typeof window !== "undefined" && (window as any)._simulaMatriculado && passo === 1 && (
+        {typeof window !== "undefined" && (window as any)._simulaMatriculado && !(window as any)._simulaVencido && passo === 1 && (
           <div onClick={() => { setModalidade("grupo"); setCreditosMensais(8); setPasso(2); }} className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-2xl text-left relative overflow-hidden animate-fadeIn cursor-pointer hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all group" title="Clique para pagar">
-            <div className="absolute right-2 top-2 text-xl opacity-20">🌟</div>
-            <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "Seu Plano Coletivo está Ativo" : idioma === "EN" ? "Your Group Plan is Active" : "Tu Plan Colectivo está Activo"}</div>
+            <div className="absolute right-2 top-2 text-xl opacity-20"></div>
+            <div className="text-[11px] font-black text-emerald-400 uppercase tracking-wider">🟢 {idioma === "PT" ? "Seu Plano está Ativo" : idioma === "EN" ? "Your Plan is Active" : "Tu Plan está Activo"}</div>
             <div className="text-[10px] text-slate-300 mt-0.5">{idioma === "PT" ? "Mensalidade Atual: " : idioma === "EN" ? "Current Fee: " : "Mensualidad Actual: "}<span className="text-white font-bold font-mono">$ 300.000 COP</span>. {idioma === "PT" ? "Próxima renovação automática: 05/Próx Mes. Clique aqui para pagar" : idioma === "EN" ? "Next automatic renewal: 05/Next Month. Click here to pay" : "Próxima renovación automática: 05/Próx Mes. Clique aquí para pagar"}</div>
+          </div>
+        )}
+
+        {/* Banner de Alerta de Vencimiento */}
+        {typeof window !== "undefined" && (window as any)._simulaMatriculado && (window as any)._simulaVencido && passo === 1 && (
+          <div className="bg-rose-500/10 border border-rose-500/30 p-3 rounded-2xl text-left relative overflow-hidden animate-fadeIn select-none">
+            <div className="text-[11px] font-black text-rose-400 uppercase tracking-wider">⚠️ {idioma === "PT" ? "Sua data de renovação expirou" : idioma === "EN" ? "Your renewal date has expired" : "Tu fecha de renovación expiró"}</div>
+            <div className="text-[10px] text-rose-300 mt-0.5">
+              {idioma === "PT" ? (
+                <>Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. <strong className="text-white">Selecione um plano abaixo para reativar seu acesso.</strong></>
+              ) : idioma === "EN" ? (
+                <>In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. <strong className="text-white">Select a new plan below to reactivate your access.</strong></>
+              ) : (
+                <>Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. <strong className="text-white">Selecciona un plan abajo para reactivar tu acceso.</strong></>
+              )}
+            </div>
           </div>
         )}
 
@@ -788,35 +1376,47 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
           <>
             {/* Opções de Modalidades */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">1. {idioma === "PT" ? "Selecione a Modalidade:" : idioma === "EN" ? "Select the Modality:" : "Seleccione la Modalidad:"}</span>
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{idioma === "PT" ? "Selecione a Modalidade:" : idioma === "EN" ? "Select the Modality:" : "Seleccione la Modalidad:"}</span>
               
               <div className="grid grid-cols-3 gap-2 mt-1">
                 {/* Linha 1: Planos Padrão Fechados */}
                 <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Mensal" : idioma === "EN" ? "Monthly" : "Mensual"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Particular 1 a 1" : idioma === "EN" ? "1-on-1 Private" : "Particular 1 a 1"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "PT" ? "Corporativo" : idioma === "EN" ? "Corporate" : "Corporativo"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                  </div>
                 </button>
 
                 {/* Linha 2: Aulas Avulsas / Packs Progressivos */}
                 <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "EN" ? "Extra 1 to 20" : "Extra 1 a 20"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +10 IA /cr" : idioma === "EN" ? "+7d Access | +10 AI /cr" : "+7d Acceso | +10 IA /cr"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-amber-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">{idioma === "EN" ? "Extra 1 to 20" : "Extra 1 a 20"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                  </div>
                 </button>
                 <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-amber-500 bg-amber-500/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
-                  <div className="text-[11px] font-bold text-amber-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Particulares Flex" : idioma === "EN" ? "Private Flex" : "Particulares Flex"}</div>
-                  <div className="text-[9px] text-slate-400 mt-0.5">Extra Pro 1 a 20</div>
+                  <div className="text-[11px] font-bold text-amber-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-amber-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
+                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                  </div>
                 </button>
               </div>
             </div>
@@ -824,11 +1424,11 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             {/* Sub-configurações baseadas na escolha */}
             {["grupo", "vip_std", "vip_pro"].includes(modalidade) && (
               <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-400 font-bold uppercase">2. {idioma === "PT" ? "Selecione a Intensidade Mensal:" : idioma === "EN" ? "Select Monthly Intensity:" : "Seleccione la Intensidad Mensual:"}</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Selecione a Intensidade Mensal:" : idioma === "EN" ? "Select Monthly Intensity:" : "Seleccione la Intensidad Mensual:"}</span>
                 <div className="flex gap-2">
                   {[8, 12, 20].map((num) => (
                     <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "bg-amber-500 text-black border-amber-500" : "bg-slate-900 border-white/5 hover:border-white/10"}`}>
-                      {num} Créditos
+                      {num} {idioma === "EN" ? "Credits" : "Créditos"}
                     </button>
                   ))}
                 </div>
@@ -837,7 +1437,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
             {modalidade === "avulsa" && (
               <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-400 font-bold uppercase">2. Cantidad de Clases Flex ($50.000 COP c/u):</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Quantidade de Aulas VIP Pro:" : idioma === "EN" ? "Amount of VIP Pro Classes:" : "Cantidad de Clases VIP Pro:"}</span>
                 <div className="flex items-center gap-4 justify-center py-1">
                   <button onClick={() => setQtdAvulsas(Math.max(1, qtdAvulsas - 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">-</button>
                   <span className="text-lg font-mono font-black text-amber-400">{qtdAvulsas}</span>
@@ -848,7 +1448,13 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
             {["acumulador_grupo", "acumulador_vip_std", "acumulador_vip_pro"].includes(modalidade) && (
               <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-400 font-bold uppercase">2. {idioma === "PT" ? "Quantidade de Aulas em Grupo Acumuladas:" : idioma === "EN" ? "Amount of Accumulated Group Classes:" : "Cantidad de Aulas en Grupo Acumuladas:"}</span>
+                <span className="text-xs text-slate-400 font-bold uppercase">
+                  {modalidade === "acumulador_grupo" ? (
+                    idioma === "PT" ? "Quantidade de Aulas em Grupo:" : idioma === "EN" ? "Amount of Group Classes:" : "Cantidad de Clases en Grupo:"
+                  ) : (
+                    idioma === "PT" ? "Quantidade de Aulas VIP Std:" : idioma === "EN" ? "Amount of VIP Std Classes:" : "Cantidad de Clases VIP Std:"
+                  )}
+                </span>
                 <div className="flex items-center gap-4 justify-center py-1">
                   <button onClick={() => setQtdAvulsas(Math.max(1, qtdAvulsas - 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">-</button>
                   <span className="text-lg font-mono font-black text-amber-400">{qtdAvulsas}</span>
@@ -865,11 +1471,23 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             {/* Resumo e Botão Avançar Original Restaurado */}
             {valorTotal > 0 && (
               <div className="mt-2 flex flex-col gap-3">
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 text-center">
-                  <span className="text-slate-400 text-[11px] block font-medium mb-1 uppercase tracking-wider">{descricaoItem}</span>
+                <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 text-center flex flex-col items-center justify-center">
                   <span className="text-3xl font-black text-amber-400 font-mono">
                     $ {valorTotal.toLocaleString("es-CO")} COP
                   </span>
+
+                  {/* Linha de Status de IA Dinâmica e Minimalista para o Desktop */}
+                  <div className="text-[10px] font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2 mt-2 leading-relaxed">
+                    {["grupo", "vip_std", "vip_pro"].includes(modalidade) ? (
+                      idioma === "PT" ? "Vigência Integral: 30 Dias | Acesso IA: Ilimitado" :
+                      idioma === "EN" ? "Full Validity: 30 Days | AI Access: Unlimited" :
+                      "Vigencia Integral: 30 Días | Acceso IA: Ilimitado"
+                    ) : (
+                      idioma === "PT" ? `Vigência Base: +${Math.min(qtdAvulsas * 7, 30)} Dias (Teto 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas` :
+                      idioma === "EN" ? `Base Term: +${Math.min(qtdAvulsas * 7, 30)} Days (Max 30) | AI Credit: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Queries` :
+                      `Vigencia Base: +${Math.min(qtdAvulsas * 7, 30)} Días (Techo 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas`
+                    )}
+                  </div>
                 </div>
                 
                 <button 
@@ -932,7 +1550,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                           onClick={() => { (window as any)._showPopUpHAAS = false; setPasso(2); (window as any).dispatchEvent(new Event("resize")); }} 
                           className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black py-2.5 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all font-mono"
                         >
-                          {idioma === 'PT' ? 'Aceito Regras e Continuar' : idioma === 'EN' ? 'Accept Rules & Proceed' : 'Acepto Reglas y Continuar'} <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 mb-0.5" />
+                          {idioma === 'PT' ? 'Aceito Regras e Continuar' : idioma === 'EN' ? 'Accept Rules & Proceed' : 'Acepto Reglas y Continuar'}
                         </button>
                         <button 
                           onClick={() => { (window as any)._showPopUpHAAS = false; setModalidade(null); (window as any).dispatchEvent(new Event("resize")); }} 
@@ -979,12 +1597,32 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             }
             const taxaAtual = (window as any)._taxaCop || 4100;
             
-            // Converte o valor base aplicando os 5% internacionais e rotaciona centavos finos (Ex: 18.00 -> 17.92) para o robô achar
-            const dolarBrutoComTaxa = (valorTotal / taxaAtual) * 1.05;
-            const valorEmDolarFinal = (Math.ceil(dolarBrutoComTaxa * 100) - diferencaCentavos) / 100;
+            // Regra de Ouro em COP: Adiciona 5% da taxa do gateway e subtrai o rastro fino de pesos do robô
+            const valorCopComTaxa = Math.round(valorTotal * 1.05);
+            const valorCopFinalComDescontoRobo = valorCopComTaxa - diferencaCentavos;
+            
+            // O Dólar acompanha a taxa real da internet dinamicamente para referência do gringo
+            const valorEmDolarFinal = valorCopFinalComDescontoRobo / taxaAtual;
 
             return (
               <div className="flex flex-col gap-4 text-white animate-fadeIn w-full">
+                
+                {/* BLOCO DE CUPOM REAL SIMULADO 3001 - TOPO DO MODAL */}
+                <div className="w-full bg-[#0a1324] border border-white/[0.05] p-3.5 rounded-xl flex flex-col gap-2 shadow-inner text-left">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+                    {idioma === "PT" ? "Possui um cupom de desconto?" : idioma === "EN" ? "Have a discount coupon?" : "¿Tienes un cupón de descuento?"}
+                  </span>
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="text" 
+                      placeholder="HAAS10" 
+                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-orange-500/50 transition-all" 
+                    />
+                    <button className="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 text-orange-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                      {idioma === "PT" ? "Aplicar" : idioma === "EN" ? "Apply" : "Aplicar"}
+                    </button>
+                  </div>
+                </div>
                 
                 {/* Seletor de Localização Simples */}
                 <div className="bg-white/[0.02] border border-white/5 p-2 rounded-xl flex justify-between items-center text-[10px]">
@@ -1018,7 +1656,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       </div>
 
                       {/* COLUNA DIREITA: TABELA EM USD DETALHADA COM TAXA E DESCONTO DO ROBÔ */}
-                      <div className="flex flex-col justify-between gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-800/60">
+                      <div className="flex flex-col justify-between gap-1.5 bg-slate-900/40 p-2 rounded-xl border border-slate-800/60 max-h-[300px] overflow-hidden">
                         {(() => {
                           // Força a taxa do cartão da Colômbia para 5% e gera a rotação fina estável por aluno
                           (window as any)._taxaCartaoCol = 0.05;
@@ -1033,30 +1671,37 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                           const valorEmDolarFinal = usdBaseOriginal + usdFeeInternacional - (diferencaCentavos / 100);
 
                           return (
-                            <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left w-full">
-                              <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {usdBaseOriginal} USD</span></div>
-                              <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa global (5%):" : idioma === "EN" ? "Global fee (5%):" : "Fee global (5%):"}</span><span>+ $ {usdFeeInternacional} USD</span></div>
-                              <div className="border-t border-slate-800/80 my-0.5"></div>
-                              <div className="flex justify-between font-black text-amber-400 text-xs"><span>Total:</span><span>$ {valorEmDolarFinal.toFixed(2)} USD</span></div>
+                            <div className="flex flex-col gap-0.5 text-[9px] bg-slate-900/40 p-2 rounded-lg border border-slate-800/60 font-mono text-left w-full">
+                              <div className="flex justify-between text-slate-400"><span>{idioma === "PT" ? "Base do Plano:" : idioma === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorTotal.toLocaleString("es-CO")} COP</span></div>
+                              <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa de Processamento (5%):" : idioma === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorTotal * 0.05).toLocaleString("es-CO")} COP</span></div>
+                              <div className="flex justify-between text-slate-500 text-[8px]"><span>{idioma === "PT" ? "Desconto de Identificação do Robô:" : idioma === "EN" ? "Robot Identification Discount:" : "Descuento de Identificación del Robot:"}</span><span>- $ {diferencaCentavos} COP</span></div>
+                              <div className="border-t border-slate-800/80 my-1"></div>
+                              <div className="flex flex-col gap-0.5 text-left">
+                                <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "VALOR EXATO PARA DIGITAR NA PASSARELA (COP):" : idioma === "EN" ? "EXACT VALUE TO ENTER IN THE GATEWAY (COP):" : "VALOR EXACTO PARA INGRESAR EN LA PASARELA (COP):"}</span>
+                                <div className="flex justify-between font-black text-emerald-400 text-sm"><span>Total COP:</span><span>$ {(Math.round(valorTotal * 1.05) - diferencaCentavos).toLocaleString("es-CO")} COP</span></div>
+                              </div>
+                              <div className="border-t border-slate-800/40 my-0.5 opacity-30"></div>
+                              <div className="flex justify-between text-slate-400 text-[9px]"><span>{idioma === "PT" ? "Equivalente comercial aproximado:" : idioma === "EN" ? "Approximate commercial equivalent:" : "Equivalente comercial aproximado:"}</span><span className="font-bold font-mono text-slate-300">$ {((Math.round(valorTotal * 1.05) - diferencaCentavos) / taxaAtual).toFixed(2)} USD</span></div>
                             </div>
                           );
                         })()}
                           
 
                         <button 
-                          onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.wompi.co/l/haas_pay_global", "_blank"); }} 
-                          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
+                          onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank"); }} 
+                          className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
                         >
-                          {idioma === "PT" ? "Pagar com Cartão Internacional" : idioma === "EN" ? "Pay with International Card" : "Pagar con Tarjeta Internacional"} <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 mb-0.5" />
+                          {idioma === "PT" ? "Ir para o Gateway de Pagamento" : idioma === "EN" ? "Go to Payment Gateway" : "Ir a la Pasarela de Pago"}
                         </button>
                       </div>
 
                     </div>
-                    <div className="text-[8px] text-slate-500 text-center mt-2">
-                      ⚠️ {idioma === "PT" ? (<><b>ATENÇÃO:</b> Processe o valor exato em dólares (USD) indicado para garantir que a validação global seja bem-sucedida e seu plano seja ativado <b>de forma automática</b>. <i>Nota: A taxa de processamento global não é reembolsável em caso de cancelamento.</i></>) : idioma === "EN" ? (<><b>ATTENTION:</b> Process the exact value in dollars (USD) indicated to ensure that the global validation is successful and your plan activates <b>automatically</b>. <i>Note: The global processing fee is non-refundable in case of cancellation.</i></>) : (<><b>ATENCIÓN:</b> Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active <b>de forma automática</b>. <i>Nota: La comisión de procesamiento global no es reembolsable en caso de cancelación.</i></>)}
+                    <div className="text-[8px] text-slate-400 text-center mt-2">
+                      ⚠️ {idioma === "PT" ? (<><b>ATENÇÃO:</b> HAAS processa suas inscrições em moeda local (COP). A taxa bancária de processamento global não é reembolsável em caso de cancelamento. Certifique-se de digitar o valor em COP exato indicado na tabela acima para garantir a ativação automática pelo nosso robô.</>) : idioma === "EN" ? (<><b>ATTENTION:</b> HAAS processes enrollments in local currency (COP). The global processing bank fee is non-refundable in case of cancellation. Please make sure to enter the exact COP value shown in the table above to ensure automatic activation by our system.</>) : (<><b>ATENCIÓN:</b> HAAS procesa las inscripciones en moneda local (COP). La comisión bancaria de procesamiento global no es reembolsable en caso de cancelación. Asegúrese de ingresar el valor exacto en COP indicado en la tabla de arriba para garantizar la activación automática por nuestro robot.</>)}
                     </div>
                   </div>
-                ) : (
+                
+            ) : (
                   <div className="grid grid-cols-2 gap-4 items-stretch">
                     
                     {/* COLUNA ESQUERDA: CARTÃO (CONFIÁVEL & ATIVO) */}
@@ -1091,10 +1736,10 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       </div>
 
                       <button 
-                        onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.wompi.co/l/haas_pay", "_blank"); }} 
+                        onClick={() => { if (typeof window !== "undefined") window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank"); }} 
                         className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center"
                       >
-                        {idioma === "PT" ? "Pagar via Wompi / Nequi" : idioma === "EN" ? "Pay via Wompi / Nequi" : "Pagar vía Wompi / Nequi"} <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 mb-0.5" />
+                        {idioma === "PT" ? "Pagar via Wompi / Nequi" : idioma === "EN" ? "Pay via Wompi / Nequi" : "Pagar vía Wompi / Nequi"}
                       </button>
                       <p className="text-[7.5px] text-slate-500/90 font-medium text-center leading-tight mt-1.5 px-1">
                         <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />{idioma === "PT" ? (
@@ -1211,7 +1856,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                         }}
                         className="w-full bg-amber-500 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center font-mono"
                       >
-                        {idioma === "PT" ? "Já realizei o pagamento, voltar ao portal" : idioma === "EN" ? "I already paid, return to portal" : "Ya realicé el pago, volver al portal"} <ArrowRight className="inline-block w-3.5 h-3.5 ml-1 mb-0.5" />
+                        {idioma === "PT" ? "Já realizei o pagamento, voltar ao portal" : idioma === "EN" ? "I already paid, return to portal" : "Ya realicé el pago, volver al portal"}
                       </button>
                     );
                   })()}
