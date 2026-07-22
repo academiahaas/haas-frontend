@@ -531,6 +531,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
+  const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
 
   React.useEffect(() => {
     async function carregarNomeReal() {
@@ -548,7 +549,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Busca na tabela users
           const { data, error: dbErr } = await supabase
             .from('users')
-            .select('name, nickname, current_level, target_level, streak_days, total_xp')
+            .select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, total_immersion')
             .eq('id', user.id)
             .maybeSingle();
 
@@ -563,6 +564,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
           if (data?.total_xp !== undefined && data?.total_xp !== null) {
             setTotalXp(Number(data.total_xp));
+          }
+          const imersao = data?.total_immersion_es ?? data?.total_immersion;
+          if (imersao !== undefined && imersao !== null) {
+            setHorasAtivas(Number(imersao));
           }
           const nomeEncontrado = data?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.nome || data?.nickname || user.email?.split('@')[0];
 
@@ -580,7 +585,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
         } else {
           // Se auth.getUser() retornar null no cliente, busca primeiro registro de backup se necessário
-          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp').limit(1).maybeSingle();
+          const { data: fallbackUser } = await supabase.from('users').select('name, nickname, current_level, target_level, streak_days, total_xp, total_immersion_es, total_immersion').limit(1).maybeSingle();
           if (fallbackUser) {
             const nivelFb = fallbackUser.current_level || fallbackUser.target_level;
             if (nivelFb) setNivelAluno(nivelFb.toString().toUpperCase());
@@ -591,6 +596,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             }
             if (fallbackUser.total_xp !== undefined && fallbackUser.total_xp !== null) {
               setTotalXp(Number(fallbackUser.total_xp));
+            }
+            const imersaoFb = fallbackUser.total_immersion_es ?? fallbackUser.total_immersion;
+            if (imersaoFb !== undefined && imersaoFb !== null) {
+              setHorasAtivas(Number(imersaoFb));
             }
           }
         }
@@ -2252,7 +2261,7 @@ null
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
                 <div className="text-cyan-400 shrink-0"><Timer size={16} className="text-cyan-400" /></div>
                 <div className="flex flex-col">
-                  <span className="text-lg md:text-2xl font-mono font-black text-white">124h</span>
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">{horasAtivas}h</span>
                   <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                     {idiomaSelecionado === "PT" ? "Horas Ativas" : idiomaSelecionado === "ES" ? "Horas Activas" : "Active Hours"}
                   </span>
