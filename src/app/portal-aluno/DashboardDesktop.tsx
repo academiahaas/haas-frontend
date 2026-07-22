@@ -79,6 +79,7 @@ export default function DashboardDesktop() {
           const dLevel = await rLevel.json();
           if (dLevel && dLevel[0]) {
             const nomeBase = dLevel[0].level_name || "Explorador";
+            setLevelName(nomeBase);
             const traducoes = {
               "Explorador": { PT: "Explorador", ES: "Explorador", EN: "Explorer" },
               "Pioneiro": { PT: "Pioneiro", ES: "Pionero", EN: "Pioneer" },
@@ -437,6 +438,7 @@ export default function DashboardDesktop() {
   const carregarNomeUsuarioDesativado = async () => {};
   // Funcao antiga removida com sucesso para centralizacao
   const [nivelAtual, setNivelAtual] = useState("A1");
+  const [levelName, setLevelName] = useState("");
   const [precisaoClinica, setPrecisaoClinica] = useState(94);
   const [imersaoTotal, setImersaoTotal] = useState("14h");
   const [cHabla, setCHabla] = useState(70);
@@ -1091,7 +1093,7 @@ export default function DashboardDesktop() {
               <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
               <div className="hidden absolute top-2 right-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-amber-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={nivelAtual}><Target size={11} className="text-amber-500 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{nivelAtual ? (idioma === 'PT' ? `Nível ${nivelAtual}` : idioma === 'ES' ? `Nivel ${nivelAtual}` : `Level ${nivelAtual}`) : (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
+                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-amber-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-amber-500 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
                 <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Flame size={11} className="text-orange-500 inline-block mr-1" /> {idioma === 'PT' ? '12 Dias' : idioma === 'ES' ? '12 Días' : '12 Days'}</div>
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
