@@ -11,6 +11,8 @@ import PremiumStyle from "./PremiumStyle";
 import React, { useState, useEffect } from 'react';
 import ProgramaTrilha from './components/ProgramaTrilha';
 import ArenaQuiz from './components/ArenaQuiz';
+import XpCardButton from './components/XpCardButton';
+import XPButton from './components/XPButton';
 import { supabase } from '@/lib/supabase';
 import { fetchCentralPortalData } from "@/services/centralService";
 import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
@@ -71,9 +73,11 @@ export default function DashboardDesktop() {
         const headers = { "apikey": token, "Authorization": "Bearer " + token };
         const uid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
-        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level", { headers });
+        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp", { headers });
         const dUser = await rUser.json();
         if (dUser && dUser[0]) {
+            if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
+            if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
           const nivelSigla = dUser[0].current_level || "A1";
           const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name", { headers });
           const dLevel = await rLevel.json();
@@ -439,6 +443,8 @@ export default function DashboardDesktop() {
   // Funcao antiga removida com sucesso para centralizacao
   const [nivelAtual, setNivelAtual] = useState("A1");
   const [levelName, setLevelName] = useState("");
+  const [totalXp, setTotalXp] = useState<number>(0);
+  const [userTotalXp, setUserTotalXp] = useState<number>(0);
   const [precisaoClinica, setPrecisaoClinica] = useState(94);
   const [imersaoTotal, setImersaoTotal] = useState("14h");
   const [cHabla, setCHabla] = useState(70);
@@ -1094,7 +1100,7 @@ export default function DashboardDesktop() {
               <div className="hidden absolute top-2 right-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-amber-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-amber-500 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
-                <div className="bg-slate-900/80 border border-white/5 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-slate-300"><Flame size={11} className="text-orange-500 inline-block mr-1" /> {idioma === 'PT' ? '12 Dias' : idioma === 'ES' ? '12 Días' : '12 Days'}</div>
+              <XpCardButton totalXp={totalXp} onClick={() => setIsArenaOpen(true)} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
             </div>
