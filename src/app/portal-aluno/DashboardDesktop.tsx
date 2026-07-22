@@ -1154,18 +1154,10 @@ export default function DashboardDesktop() {
 
           <div className="border-t border-white/5 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
             <button 
-              onClick={() => window.open("https://api.whatsapp.com/send/?phone=573239421071&text=Hello%21+I%27m+interested+in+learning+more+about+Escuela+Haas.&type=phone_number&app_absent=0", "_blank")}
-              className="w-full py-2.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3.5 flex items-center justify-between text-emerald-400 font-mono font-bold text-[10px] md:text-xs cursor-pointer transition-colors min-h-[38px]"
+              onClick={() => window.open('https://wa.me/5491168809228', '_blank')} 
+              className="w-full bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 hover:text-emerald-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-emerald-500/10 text-center transition-all flex items-center justify-center"
             >
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="uppercase tracking-wider font-black">
-                  {idioma === "PT" ? "Atendimento ao Cliente" : idioma === "ES" ? "Atención al Cliente" : "Customer Service"}
-                </span>
-              </div>
-              <span className="text-[9px] uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-black">
-                {idioma === "PT" ? "CONTATO" : idioma === "ES" ? "CONTACTO" : "CONTACT"}
-              </span>
+              {idioma === 'PT' ? 'Contato' : idioma === 'ES' ? 'Contacto' : 'Contact'}
             </button>
             <button onClick={() => { if(confirm(idioma === 'PT' ? 'Deseja realmente sair da conta?' : idioma === 'ES' ? '¿Realmente deseja salir de la cuenta?' : 'Are you sure you want to log out?')) { window.location.href = '/'; } }} className="w-full bg-red-950/20 hover:bg-red-950/40 text-red-400 hover:text-red-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-red-500/10 text-center transition-all">{idioma === 'PT' ? 'Sair da Conta' : idioma === 'ES' ? 'Cerrar Sesión' : 'Log Out'}</button>
           </div>
