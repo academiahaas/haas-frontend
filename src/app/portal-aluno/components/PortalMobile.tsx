@@ -507,7 +507,28 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   
   const nomeModulo = moduloActual || "Data Schema Integrity Checks";
     const [nomeUsuarioDb, setNomeUsuarioDb] = React.useState<string>("");
+  
+  const [nomeTituloNivel, setNomeTituloNivel] = useState<string>('EXPLORADOR');
   const [nivelAluno, setNivelAluno] = React.useState<string>("B1");
+
+  // Busca o titulo dinâmico na tabela levels
+  React.useEffect(() => {
+    async function fetchLevelName() {
+      if (!nivelAluno) return;
+      try {
+        const { data, error } = await supabase
+          .from('levels').select('level_name').eq('level_tag', nivelAluno).maybeSingle();
+
+        if (data?.level_name) {
+          setNomeTituloNivel(data.level_name);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar level_name:', err);
+      }
+    }
+    fetchLevelName();
+  }, [nivelAluno]);
+
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
 
@@ -2203,7 +2224,7 @@ null
               <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-xl font-black text-white mt-1.5 uppercase tracking-tight">{nomeBruto}</h2>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">{nivelAluno ? (nivelAluno.toUpperCase().startsWith("NÍVEL") || nivelAluno.toUpperCase().startsWith("NIVEL") ? nivelAluno : `NÍVEL ${nivelAluno}`) : "NÍVEL B2"}</span>
-                <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{idiomaSelecionado === 'es' ? 'Explorador' : 'Explorador'}</span>
+                <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{nomeTituloNivel || 'EXPLORADOR'}</span>
               </div>
 
               <div className="w-full mt-4">
