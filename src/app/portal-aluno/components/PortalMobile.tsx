@@ -1060,6 +1060,26 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </div>
                   )}
                 </div>
+
+                 {/* UNIDADE 5 */}
+                 <div 
+                   onClick={() => setUnidadeExpandida(unidadeExpandida === 5 ? null : 5)}
+                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
+                 >
+                   <div className="flex justify-between items-center w-full">
+                     <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
+                       • {idiomaSelecionado === "PT" ? "Unidade 5: Expressões Avançadas" : idiomaSelecionado === "ES" ? "Unidad 5: Expresiones Avanzadas" : "Unit 5: Advanced Expressions"}
+                     </span>
+                     <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 5 ? "▲" : "▼"}</span>
+                   </div>
+
+                   {unidadeExpandida === 5 && (
+                     <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
+                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
+                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
+                     </div>
+                   )}
+                 </div>
               </div>
 
             {/* 🏁 TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
