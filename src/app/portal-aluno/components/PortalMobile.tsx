@@ -979,40 +979,20 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
               <div className="flex flex-col gap-3 mt-2 w-full">
-                {/* UNIDADE 1 */}
-                <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 1 ? null : 1)}
-                  className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 1: Gramática Estrutural" : idiomaSelecionado === "ES" ? "Unidad 1: Gramática Estructural" : "Unit 1: Structural Grammar"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 1 ? "▲" : "▼"}</span>
-                  </div>
-                  
-                  {unidadeExpandida === 1 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                      
-                    </div>
-                  )}
-                </div>
 
                 {/* UNIDADE 2 */}
                 <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 2 ? null : 2)}
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 1 ? null : 2)}
                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-center w-full">
                     <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 2: Vocabulário Técnico" : idiomaSelecionado === "ES" ? "Unidad 2: Vocabulario Técnico" : "Unit 2: Technical Vocabulary"}
+                      • {idiomaSelecionado === "PT" ? "Unidade 1: Vocabulário Técnico" : idiomaSelecionado === "ES" ? "Unidad 1: Vocabulario Técnico" : "Unit 1: Technical Vocabulary"}
                     </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 2 ? "▲" : "▼"}</span>
+                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 1 ? "▲" : "▼"}</span>
                   </div>
 
-                  {unidadeExpandida === 2 && (
+                  {unidadeExpandida === 1 && (
                     <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
@@ -1023,12 +1003,32 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
                             {/* UNIDADE 3 */}
                 <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 3 ? null : 3)}
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 2 ? null : 3)}
                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-center w-full">
                     <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 3: Conversação Aplicada" : idiomaSelecionado === "ES" ? "Unidad 3: Conversación Aplicada" : "Unit 3: Applied Conversation"}
+                      • {idiomaSelecionado === "PT" ? "Unidade 2: Conversação Aplicada" : idiomaSelecionado === "ES" ? "Unidad 2: Conversación Aplicada" : "Unit 2: Applied Conversation"}
+                    </span>
+                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 2 ? "▲" : "▼"}</span>
+                  </div>
+
+                  {unidadeExpandida === 2 && (
+                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
+                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
+                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* UNIDADE 4 */}
+                <div 
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 3 ? null : 4)}
+                  className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
+                >
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
+                      • {idiomaSelecionado === "PT" ? "Unidade 3: Prática de Fluência" : idiomaSelecionado === "ES" ? "Unidad 3: Práctica de Fluidez" : "Unit 3: Fluency Practice"}
                     </span>
                     <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 3 ? "▲" : "▼"}</span>
                   </div>
@@ -1041,39 +1041,19 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   )}
                 </div>
 
-                {/* UNIDADE 4 */}
-                <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 4 ? null : 4)}
-                  className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 4: Prática de Fluência" : idiomaSelecionado === "ES" ? "Unidad 4: Práctica de Fluidez" : "Unit 4: Fluency Practice"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 4 ? "▲" : "▼"}</span>
-                  </div>
-
-                  {unidadeExpandida === 4 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                    </div>
-                  )}
-                </div>
-
                  {/* UNIDADE 5 */}
                  <div 
-                   onClick={() => setUnidadeExpandida(unidadeExpandida === 5 ? null : 5)}
+                   onClick={() => setUnidadeExpandida(unidadeExpandida === 4 ? null : 5)}
                    className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                  >
                    <div className="flex justify-between items-center w-full">
                      <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                       • {idiomaSelecionado === "PT" ? "Unidade 5: Expressões Avançadas" : idiomaSelecionado === "ES" ? "Unidad 5: Expresiones Avanzadas" : "Unit 5: Advanced Expressions"}
+                       • {idiomaSelecionado === "PT" ? "Unidade 4: Expressões Avançadas" : idiomaSelecionado === "ES" ? "Unidad 4: Expresiones Avanzadas" : "Unit 4: Advanced Expressions"}
                      </span>
-                     <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 5 ? "▲" : "▼"}</span>
+                     <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 4 ? "▲" : "▼"}</span>
                    </div>
 
-                   {unidadeExpandida === 5 && (
+                   {unidadeExpandida === 4 && (
                      <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
                        <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
                        <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
