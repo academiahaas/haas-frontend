@@ -982,7 +982,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* UNIDADE 2 */}
                 <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 1 ? null : 2)}
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 1 ? null : 1)}
                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-center w-full">
@@ -1003,7 +1003,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
                             {/* UNIDADE 3 */}
                 <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 2 ? null : 3)}
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 2 ? null : 2)}
                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-center w-full">
@@ -1023,7 +1023,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* UNIDADE 4 */}
                 <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 3 ? null : 4)}
+                  onClick={() => setUnidadeExpandida(unidadeExpandida === 3 ? null : 3)}
                   className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                 >
                   <div className="flex justify-between items-center w-full">
@@ -1043,7 +1043,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                  {/* UNIDADE 5 */}
                  <div 
-                   onClick={() => setUnidadeExpandida(unidadeExpandida === 4 ? null : 5)}
+                   onClick={() => setUnidadeExpandida(unidadeExpandida === 4 ? null : 4)}
                    className="flex flex-col bg-black/30 p-3 rounded-xl border border-white/[0.03] cursor-pointer transition-all active:scale-[0.99]"
                  >
                    <div className="flex justify-between items-center w-full">
