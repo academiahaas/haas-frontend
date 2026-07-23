@@ -214,7 +214,10 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
     return 0;
   };
 
-export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: PortalMobileProps) {
+export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+  const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
+  console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
+
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -512,16 +515,17 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     const [moduleTitleDb, setModuleTitleDb] = React.useState<string>("");
 
   React.useEffect(() => {
-    async function fetchModuleTitle() {
+      async function fetchModuleTitle() {
       try {
         const { data, error } = await supabase
           .from('modules_content')
-          .select('module_title')
+          .select('id, module_title')
           .limit(1)
           .maybeSingle();
 
-        if (data?.module_title) {
-          setModuleTitleDb(data.module_title);
+        if (data) {
+          if (data.module_title) setModuleTitleDb(data.module_title);
+          if (data.id) setModuleIdDb(data.id);
         }
       } catch (err) {
         console.error("Erro ao buscar module_title:", err);
@@ -981,7 +985,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
                <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full min-h-0">
-                 <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} />
+                 <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
                </div>
              </div>
 

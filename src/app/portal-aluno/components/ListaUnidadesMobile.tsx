@@ -1,7 +1,10 @@
+import { supabase } from "@/lib/supabase";
 import React, { useState } from "react";
 
 interface Unidade {
   id: number;
+  unit_number?: number;
+  unit_title?: string;
   titulo: {
     PT: string;
     ES: string;
@@ -16,6 +19,7 @@ interface Unidade {
 
 interface ListaUnidadesMobileProps {
   idioma: "PT" | "ES" | "EN";
+  moduleId?: number | string;
   onAbrirMaterial?: (id: number) => void;
   onAbrirVideo?: (id: number) => void;
 }
@@ -77,10 +81,38 @@ const UNIDADES_DATA: Unidade[] = [
 
 export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
   idioma = "PT",
+  moduleId,
   onAbrirMaterial,
   onAbrirVideo,
 }) => {
   const [unidadeExpandida, setUnidadeExpandida] = useState<number | null>(null);
+  const [unidadesDb, setUnidadesDb] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    console.log("🔍 [ListaUnidadesMobile] moduleId recebido:", moduleId);
+    async function fetchUnits() {
+      try {
+        if (!moduleId) {
+          console.warn("⚠️ moduleId veio vazio. Cancelando busca total.");
+          setUnidadesDb([]);
+          return;
+        }
+        const { data, error } = await supabase
+          .from("units")
+          .select("*")
+          .eq("module_id", moduleId)
+          .select("id, unit_number, unit_title")
+          .order("unit_number", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          setUnidadesDb(data);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar units do Supabase:", err);
+      }
+    }
+    fetchUnits();
+  }, []);
 
   const toggleGaveta = (id: number) => {
     setUnidadeExpandida((prev) => (prev === id ? null : id));
@@ -95,7 +127,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
   return (
     <div className="w-full flex-1 flex flex-col justify-between gap-2 py-1 min-h-0 overflow-y-auto pr-0.5">
       <div className="w-full flex-1 overflow-y-auto pr-0.5 flex flex-col gap-2 min-h-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-500/30 [&::-webkit-scrollbar-thumb]:rounded-full">
-        {UNIDADES_DATA.map((u) => {
+        {(unidadesDb.length > 0 ? unidadesDb : UNIDADES_DATA).map((u) => {
         const isExpanded = unidadeExpandida === u.id;
         return (
           <div
@@ -113,7 +145,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
             >
               <span className="text-white font-mono text-[clamp(11px,3.2vw,14px)] uppercase tracking-wider font-bold flex items-center gap-2">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                {u.titulo[idioma] || u.titulo["PT"]}
+                {u.unit_title || (u.titulo ? (u.titulo[idioma] || u.titulo["PT"]) : `UNIDAD ${u.unit_number}`)}
               </span>
               <span className="text-slate-400 text-xs font-bold px-1.5 py-0.5 rounded bg-white/5">
                 {isExpanded ? "▲" : "▼"}
@@ -129,7 +161,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
                     {labels.objetivo[idioma] || labels.objetivo["PT"]}
                   </span>
                   <p className="text-slate-300 text-xs leading-relaxed font-sans">
-                    {u.objetivo[idioma] || u.objetivo["PT"]}
+                    {u.objetivo?.[idioma] || u.objetivo?.["PT"] || "Objetivo não cadastrado."}
                   </p>
                 </div>
 
