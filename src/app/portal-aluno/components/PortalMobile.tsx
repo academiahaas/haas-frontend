@@ -260,7 +260,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
   };
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
-  const [diasRestantes, setDiasRestantes] = React.useState<number>(12);
+  const [expirationDate, setExpirationDate] = React.useState<string>("");
   const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
   console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
@@ -645,6 +645,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           if (targetUid) {
             const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date").eq("user_id", targetUid).maybeSingle();
             if (sub?.plan_category) setPlanCategory(sub.plan_category);
+            if (sub?.expiration_date) {
+              const dt = new Date(sub.expiration_date);
+              const hoy = new Date();
+              const diffMs = dt.getTime() - hoy.getTime();
+              const diffDias = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+              setExpirationDate(`${diffDias} DÍAS`);
+            }
           }
         } catch (e) {
           console.warn("Erro ao buscar plano:", e);
@@ -1401,7 +1408,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {planCategory}
               </span>
               <span className="text-[9.5px] md:text-xs font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
-                {idiomaSelecionado === "PT" ? "VENCE EM {diasRestantes} DÍAS" : idiomaSelecionado === "ES" ? "VENCE EN {diasRestantes} DÍAS" : "EXPIRES IN 12 DAYS"}
+                {idiomaSelecionado === "PT" ? `VENCE EM ${expirationDate || "---"}` : idiomaSelecionado === "ES" ? `VENCE EN ${expirationDate || "---"}` : `EXPIRES ON ${expirationDate || "---"}`}
               </span>
             </div>
 
