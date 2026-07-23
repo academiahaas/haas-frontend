@@ -125,7 +125,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
                 {/* Objetivos da Unidade */}
                 <div className="bg-black/30 rounded-lg p-2.5 border border-white/[0.03]">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 font-extrabold block mb-1">
-                    🎯 {labels.objetivo[idioma] || labels.objetivo["PT"]}
+                    {labels.objetivo[idioma] || labels.objetivo["PT"]}
                   </span>
                   <p className="text-slate-300 text-xs leading-relaxed font-sans">
                     {u.objetivo[idioma] || u.objetivo["PT"]}
@@ -142,7 +142,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
                     }}
                     className="flex-1 py-2 bg-slate-950/80 hover:bg-slate-900 active:scale-95 border border-cyan-500/20 rounded-lg text-[11px] font-mono font-black uppercase text-cyan-300 tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm"
                   >
-                    📖 {labels.ler[idioma] || labels.ler["PT"]}
+                    {labels.ler[idioma] || labels.ler["PT"]}
                   </button>
 
                   <button
@@ -153,7 +153,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
                     }}
                     className="flex-1 py-2 bg-slate-950/80 hover:bg-slate-900 active:scale-95 border border-white/10 rounded-lg text-[11px] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm"
                   >
-                    🎬 {labels.video[idioma] || labels.video["PT"]}
+                    {labels.video[idioma] || labels.video["PT"]}
                   </button>
                 </div>
               </div>

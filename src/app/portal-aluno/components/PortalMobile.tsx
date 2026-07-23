@@ -877,19 +877,19 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
-                🆕 {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
+                {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
               </button>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
-                🔄 {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
+                {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
               </button>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black' : 'text-slate-400 opacity-60'}`}
               >
-                ⚠️ {idiomaSelecionado === 'PT' ? 'Vencido' : idiomaSelecionado === 'EN' ? 'Expired' : 'Vencido'}
+                {idiomaSelecionado === 'PT' ? 'Vencido' : idiomaSelecionado === 'EN' ? 'Expired' : 'Vencido'}
               </button>
             </div>
 
@@ -916,7 +916,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
             <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 flex flex-col justify-between overflow-hidden relative">
-              {/* 📦 PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
+              {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2 mb-2">
@@ -929,7 +929,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </button>
                   </div>
                   
-                  {/* 💬 HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
+                  {/* HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
                   <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-3 scrollbar-thin">
                     {mensagensMentora.map((msg) => {
                       const textoExibido = msg.id === 1 && msg.text === "" 
@@ -954,7 +954,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       );
                     })}
 
-                    {/* ⏳ INDICADOR VISUAL "HAAS ESTÁ DIGITANDO..." */}
+                    {/* INDICADOR VISUAL "HAAS ESTÁ DIGITANDO..." */}
                     {digitandoHaas && (
                       <div className="flex w-full justify-start animate-fadeIn">
                         <div className="bg-white/5 border border-white/[0.04] text-slate-400 rounded-2xl rounded-tl-sm p-3.5 flex items-center gap-1.5 shadow-md">
@@ -985,7 +985,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                </div>
              </div>
 
-            {/* 🏁 TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
+            {/* TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
             {!mentoraMobileAberta ? (
               <div className="flex items-center gap-2 w-full shrink-0">
                 <button 
@@ -1342,7 +1342,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </button>
                   </div>
 
-                                    {/* 🔄 GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
+                                    {/* GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
                   <div 
                     onClick={() => setGavetaRegulamentoAberta(!gavetaRegulamentoAberta)} 
                     className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex flex-col gap-2 shrink-0 text-left cursor-pointer active:scale-[0.99] transition-all"
@@ -1423,7 +1423,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         </button>
                       </div>
 
-                      {/* 🔄 CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
+                      {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
                       {meusAgendamentos.slice(2).map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         return (
@@ -2062,7 +2062,7 @@ null
                     onClick={() => {
                       const ehReposicao = String(tipoAgendamento).toLowerCase().includes('reposi') || String(tipoAgendamento).toLowerCase().includes('rep');
                       
-                      // 🔄 VALIDAÇÃO DINÂMICA DO SUPABASE: Verifica se o aluno tem saldo real para esta modalidade
+                      // VALIDAÇÃO DINÂMICA DO SUPABASE: Verifica se o aluno tem saldo real para esta modalidade
                       const saldoDisponivel = saldosDoAluno[modalidadeSelecionada || 'vip_std'] || 0;
                       
                       if (!ehReposicao && saldoDisponivel <= 0) {
@@ -2317,7 +2317,7 @@ null
                 </div>
               </div>
             </div>
-            {/* 🔄 CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
+            {/* CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
             <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-6 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
@@ -2631,11 +2631,11 @@ null
             {isMatriculadoSimulado && isVencidoSimulado && (
               <div className="mb-3 p-3 bg-rose-950/80 border border-rose-500/30 rounded-xl text-[10px] text-rose-300 font-medium leading-relaxed shadow-sm">
                 {idiomaSelecionado === "PT" ? (
-                  <>⚠️ <strong className="text-rose-400 font-black">SUA DATA DE RENOVAÇÃO EXPIROU.</strong> Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. Selecione um plano abaixo para reativar seu acesso.</>
+                  <><strong className="text-rose-400 font-black">SUA DATA DE RENOVAÇÃO EXPIROU.</strong> Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. Selecione um plano abaixo para reativar seu acesso.</>
                 ) : idiomaSelecionado === "ES" ? (
-                  <>⚠️ <strong className="text-rose-400 font-black">TU FECHA DE RENOVACIÓN EXPIRÓ.</strong> Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. Selecciona un plan abajo para reactivar tu acceso.</>
+                  <><strong className="text-rose-400 font-black">TU FECHA DE RENOVACIÓN EXPIRÓ.</strong> Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. Selecciona un plan abajo para reactivar tu acceso.</>
                 ) : (
-                  <>⚠️ <strong className="text-rose-400 font-black">YOUR RENEWAL DATE HAS EXPIRED.</strong> In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. Select a new plan below to reactivate your access.</>
+                  <><strong className="text-rose-400 font-black">YOUR RENEWAL DATE HAS EXPIRED.</strong> In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. Select a new plan below to reactivate your access.</>
                 )}
               </div>
             )}
@@ -2961,7 +2961,7 @@ null
                     {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
                   <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center mt-1">
-                    {idiomaSelecionado === "PT" ? "⚠️ ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "⚠️ ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
+                    {idiomaSelecionado === "PT" ? "ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
                   </span>
                 </div>
 
@@ -2991,7 +2991,7 @@ null
         </div>
        )}
 
-      {/* 🔄 BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO (ISOLADO) */}
+      {/* BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO (ISOLADO) */}
       <ModalTrilhaMobile
         isOpen={modalProgramaAberto}
         onClose={() => setModalProgramaAberto(false)}
