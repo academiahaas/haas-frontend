@@ -93,7 +93,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
   };
 
   return (
-    <div className="max-h-[320px] xs:max-h-[380px] overflow-y-auto pr-1.5 flex flex-col gap-2.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-900/40 [&::-webkit-scrollbar-thumb]:bg-cyan-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/60 gap-3 w-full mt-3">
+    <div className="flex-1 min-h-0 overflow-y-auto pr-2 pb-2 flex flex-col gap-2.5 w-full mt-2 after:content-[''] after:block after:h-4 after:shrink-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/60">
       {UNIDADES_DATA.map((u) => {
         const isExpanded = unidadeExpandida === u.id;
         return (

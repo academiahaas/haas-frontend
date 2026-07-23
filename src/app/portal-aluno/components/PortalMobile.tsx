@@ -864,7 +864,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   };
 
   return (
-    <div className="w-full h-[100svh] bg-[#030914] text-white select-none flex flex-col overflow-hidden max-w-[100vw] font-sans fixed inset-0">
+    <div className="w-full h-[100svh] bg-[#030914] text-white select-none flex flex-col  max-w-[100vw] font-sans fixed inset-0">
       
       {/* HEADER FIXO */}
       <div className="w-full bg-[#070d19]/90 backdrop-blur-md border-b border-white/[0.05] px-4 h-14 flex items-center justify-between shrink-0 z-50">
@@ -910,12 +910,12 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       </div>
 
       {/* ÁREA DE CONTEÚDO PRINCIPAL - DISTRIBUIÇÃO VERTICAL COMPLETA */}
-      <div className="flex-1 p-4 flex flex-col gap-4 overflow-hidden z-10 justify-between">
+      <div className="flex-1 min-h-0 p-4 flex flex-col gap-4 z-10 justify-between overflow-hidden">
         
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
-          <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 flex flex-col justify-between overflow-hidden relative">
+          <div className="flex-1 min-h-0 flex flex-col gap-4 h-full">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 min-h-0 flex flex-col justify-between relative">
               {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
@@ -975,19 +975,19 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
               <span className="text-[clamp(9px,2.5vw,13px)] font-mono font-black text-cyan-400 uppercase tracking-widest block mb-1">{idiomaSelecionado === "PT" ? "MÓDULO ATUAL" : idiomaSelecionado === "ES" ? "MÓDULO ACTUAL" : "CURRENT MODULE"}</span>
               <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{nomeModulo}</h2>
-              <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
+              <div className="w-full h-2 bg-slate-950 rounded-full  border border-white/[0.05] mb-2">
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
-               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full">
+               <div className="flex-1 min-h-0 flex flex-col gap-2.5 mt-2 w-full">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} />
                </div>
              </div>
 
             {/* TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
             {!mentoraMobileAberta ? (
-              <div className="flex items-center gap-2 w-full shrink-0">
+              <div className="flex items-center gap-2 w-full shrink-0 z-20 pb-1">
                 <button 
                   onClick={() => { setCapaAtiva(true); setContador(null); setArenaAtiva(true); }}
                   className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-4 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-2 border-none active:scale-[0.98] transition-all shadow-lg shadow-orange-500/10 cursor-pointer shrink-0"
@@ -1082,7 +1082,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
 {/* CONTAINER DOS MIOLOS COM CABEÇALHO E RODAPÉ DE VALIDAÇÃO */}
             {arenaAtiva && (
-              <div className="fixed inset-0 z-[9999] bg-[#060e1a] flex flex-col p-4 overflow-hidden text-white w-full h-full">
+              <div className="fixed inset-0 z-[9999] bg-[#060e1a] flex flex-col p-4  text-white w-full h-full">
                 
                 {/* CAPA DE PREPARAÇÃO UNIVERSAL PREMIUM */}
                 {capaAtiva && (
@@ -1143,8 +1143,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* CORPO DO EXERCÍCIO COM ADAPTAÇÃO NATIVA DE FILHOS FORÇADA */}
-                <div className="bg-slate-900/20 border border-white/[0.02] p-3 rounded-xl w-full flex flex-col flex-1 items-stretch overflow-hidden  mb-0 min-h-0">
-                  <div className="w-full flex-1 flex flex-col items-stretch justify-between min-h-0 h-full overflow-hidden">
+                <div className="bg-slate-900/20 border border-white/[0.02] p-3 rounded-xl w-full flex flex-col flex-1 items-stretch   mb-0 min-h-0">
+                  <div className="w-full flex-1 flex flex-col items-stretch justify-between min-h-0 h-full ">
                     {jogoSelecionadoMobile === 'escolha' && <MioloMultiplaEscolhaMobile />}
                     {jogoSelecionadoMobile === 'caca_erro' && <MioloCacaErro />}
                     {jogoSelecionadoMobile === 'blitz' && <MioloBlitzChallenge />}
@@ -1306,7 +1306,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
         {/* ABA 2: AGENDA - SISTEMA DE FLUXO SEGURO */}
         {(abaAtiva as string) === 'agenda' && (
-          <div className="flex-1 w-full h-full flex flex-col overflow-hidden relative text-slate-200">
+          <div className="flex-1 w-full h-full flex flex-col  relative text-slate-200">
             
             {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
             <div className="px-4 py-3 md:px-6 md:py-4 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
@@ -1320,7 +1320,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* STAGE 0: HOME DA AGENDA (LISTAGEM PADRÃO) */}
             {etapaAgendamento === 0 && (
-              <div className="flex-1 w-full h-full flex flex-col gap-3 overflow-hidden justify-between p-3">
+              <div className="flex-1 w-full h-full flex flex-col gap-3  justify-between p-3">
                 <div className="flex flex-col gap-3 overflow-y-auto scrollbar-none">
                   
                   {/* BOTÕES DE FILTRO DINÂMICO DE CRÉDITOS */}
@@ -1790,7 +1790,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* STAGE 1: SELEÇÃO DE CATEGORIA */}
             {etapaAgendamento === 1 && (
-              <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
+              <div className="flex flex-col justify-between h-full py-1 animate-fade-in ">
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
                     <button onClick={() => setEtapaAgendamento(0)} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">← Voltar</button>
@@ -1843,7 +1843,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <div onClick={() => setGavetaCalendarioAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
                   </div>
-              <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
+              <div className="flex flex-col justify-between h-full py-1 animate-fade-in ">
                 <div className="flex-1 flex flex-col gap-3.5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
                     <button onClick={() => { setGavetaCalendarioAberta(false); setGavetaTipoAulaAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
@@ -1996,8 +1996,8 @@ null
                   <div onClick={() => setGavetaHorariosAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
                   </div>
-              <div className="flex flex-col gap-4 justify-start h-full py-1 animate-fade-in overflow-hidden">
-                <div className="flex flex-col gap-3 min-h-0 overflow-hidden">
+              <div className="flex flex-col gap-4 justify-start h-full py-1 animate-fade-in ">
+                <div className="flex flex-col gap-3 min-h-0 ">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3 shrink-0">
                     <button onClick={() => { setGavetaHorariosAberta(false); setGavetaCalendarioAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
                       {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "ES" ? "← Volver" : "← Back"}
@@ -2128,7 +2128,7 @@ null
 
 
         {(abaAtiva as string) === 'tarefas' && (
-          <div className="flex flex-col gap-4 h-full flex-1 overflow-hidden">
+          <div className="flex flex-col gap-4 h-full flex-1 ">
             
             {/* CARD DE ENVIO DE ATIVIDADE */}
             <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex flex-col shrink-0">
@@ -2188,7 +2188,7 @@ null
             </div>
 
             {/* RADAR CARD EXPANSIVO (FLEX-1 FORCE ELE A PREENCHER TODO O ESPAÇO ATÉ O RODAPÉ) */}
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex-1 flex flex-col ">
               <div className="w-full flex items-center justify-between mb-2 shrink-0">
                 <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
                 <span className="text-[8px] md:text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
@@ -2262,12 +2262,12 @@ null
             </div> 
  
             {/* Mini Calendário Semanal Acoplado */}
-            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} /></div>
+            <div className="w-full max-w-full  flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} /></div>
  
             
 
             {/* 4. Campo de Prática */} 
-            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 md:p-6 bg-slate-950/40 border-[0.5px] border-amber-500/10 hover:border-cyan-500/30 rounded-xl flex items-center justify-between gap-4 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
+            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 md:p-6 bg-slate-950/40 border-[0.5px] border-amber-500/10 hover:border-cyan-500/30 rounded-xl flex items-center justify-between gap-4 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full  shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
               <div className="flex items-center gap-3 min-w-0 flex-1"> 
                  
                 <div className="flex flex-col text-left min-w-0 flex-1"> 
@@ -2284,7 +2284,7 @@ null
 
         {/* ABA 4: PERFIL */}
         {((abaAtiva as string) === "perfil") && (
-          <div className="flex-1 w-full h-[calc(100vh-80px)] flex flex-col overflow-hidden">
+          <div className="flex-1 w-full h-[calc(100vh-80px)] flex flex-col ">
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
             <div className="w-[calc(100%-32px)] mx-auto mt-4 bg-[#070d19]/90 bg-gradient-to-b from-[#070d19]/95 to-[#030914]/95 border border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0 rounded-2xl shadow-lg shadow-black/40">
@@ -2312,7 +2312,7 @@ null
                   <span className="md:text-base md:font-bold md:text-slate-300">{idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}</span>
                   <span className="text-cyan-400 font-bold md:text-base">-{Math.max(0, requiredXp - totalXp)} PTS</span>
                 </div>
-                <div className="w-full h-1 bg-slate-950 rounded-full overflow-hidden border border-white/[0.02]">
+                <div className="w-full h-1 bg-slate-950 rounded-full  border border-white/[0.02]">
                   <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
                 </div>
               </div>
@@ -2458,7 +2458,7 @@ null
                 </span>
                 <span className="text-sm font-black text-white">78%</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.03] p-0.5">
+              <div className="w-full h-2.5 bg-slate-950 rounded-full  border border-white/[0.03] p-0.5">
                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: '78%' }} />
               </div>
               <p className="text-xs md:text-base md:text-sm text-slate-400 mt-1 font-mono text-center">
@@ -2891,7 +2891,7 @@ null
                 </div>
 
                 {/* CARD 2: LLAVE BRE-B (QR CODE - DESCONTO DO ROBÔ) */}
-                <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-2.5 relative overflow-hidden">
+                <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-2.5 relative ">
                   <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
                   <span className="text-xs md:text-base font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
                   <div className="w-full flex justify-center my-1 bg-white p-2 rounded-xl max-w-[140px] mx-auto">
