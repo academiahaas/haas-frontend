@@ -2268,8 +2268,8 @@ null
               <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
                 <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-amber-500" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
-                  <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-amber-500 truncate">{idiomaSelecionado === "PT" ? "2º Lugar" : idiomaSelecionado === "ES" ? "2º Lugar" : "2nd Place"}</span> 
-                  <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span> 
+
+                  <span className="text-[clamp(12px,3.5vw,18px)] uppercase font-mono font-black text-amber-500 leading-tight break-words">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span>
                 </div> 
               </button> 
               <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
