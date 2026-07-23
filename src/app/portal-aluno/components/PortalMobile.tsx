@@ -915,7 +915,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 flex flex-col justify-between overflow-hidden relative">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
               {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
@@ -980,7 +980,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
-               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full">
+               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full min-h-0">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} />
                </div>
              </div>

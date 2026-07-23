@@ -93,13 +93,14 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
   };
 
   return (
-    <div className="max-h-[320px] xs:max-h-[380px] overflow-y-auto pr-1.5 flex flex-col gap-2.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-900/40 [&::-webkit-scrollbar-thumb]:bg-cyan-500/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/60 gap-3 w-full mt-3">
-      {UNIDADES_DATA.map((u) => {
+    <div className="w-full flex-1 flex flex-col justify-between gap-2 py-1 min-h-0 overflow-y-auto pr-0.5">
+      <div className="w-full flex-1 overflow-y-auto pr-0.5 flex flex-col gap-2 min-h-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-500/30 [&::-webkit-scrollbar-thumb]:rounded-full">
+        {UNIDADES_DATA.map((u) => {
         const isExpanded = unidadeExpandida === u.id;
         return (
           <div
             key={u.id}
-            className={`flex flex-col bg-slate-900/40 px-4 py-3.5 rounded-xl border transition-all duration-200 shadow-sm ${
+            className={`w-full ${isExpanded ? "h-auto shrink-0 py-3" : "flex-1 min-h-[48px]"} flex flex-col justify-start bg-slate-900/40 px-3.5 rounded-xl border transition-all duration-200 shadow-sm ${
               isExpanded
                 ? "border-cyan-500/30 bg-slate-900/80 shadow-cyan-950/20"
                 : "border-white/[0.05] hover:border-white/10"
@@ -161,6 +162,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
           </div>
         );
       })}
+      </div>
     </div>
   );
 };
