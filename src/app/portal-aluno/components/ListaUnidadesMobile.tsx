@@ -101,7 +101,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
           .from("units")
           .select("*")
           .eq("module_id", moduleId)
-          .select("id, unit_number, unit_title")
+          .select("id, unit_number, unit_title, pedagogical_objective")
           .order("unit_number", { ascending: true });
 
         if (!error && data && data.length > 0) {
@@ -161,7 +161,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
                     {labels.objetivo[idioma] || labels.objetivo["PT"]}
                   </span>
                   <p className="text-slate-300 text-xs leading-relaxed font-sans">
-                    {u.objetivo?.[idioma] || u.objetivo?.["PT"] || "Objetivo não cadastrado."}
+                    {u.objetivo?.[idioma] || u.objetivo?.["PT"] || u.pedagogical_objective || u.objetivo || 'Objetivo não cadastrado.'}
                   </p>
                 </div>
 
