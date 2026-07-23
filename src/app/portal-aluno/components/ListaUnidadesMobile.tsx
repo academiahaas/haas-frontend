@@ -109,7 +109,7 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
             {/* Header do Card (Clicável) */}
             <div
               onClick={() => toggleGaveta(u.id)}
-              className="flex justify-between items-center w-full cursor-pointer select-none"
+              className="flex justify-between items-center w-full my-auto cursor-pointer select-none min-h-[32px]"
             >
               <span className="text-white font-mono text-[clamp(11px,3.2vw,14px)] uppercase tracking-wider font-bold flex items-center gap-2">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
