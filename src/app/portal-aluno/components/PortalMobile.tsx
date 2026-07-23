@@ -12,7 +12,7 @@ const agendaBloqueiosHaas2026 = {
   9: [], 10: [12], 11: [2, 16], 12: [8, 25]
 };
 import ArenaQuizMobile from './ArenaQuizMobile';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Gift, Swords, BookOpen, LayoutDashboard, Calendar, Camera, User, Star, MessageSquare, Flame, Trophy, Award, CheckCircle, TrendingUp, Globe, X, FileText, AlertTriangle, Zap, Timer, Lock } from 'lucide-react';
 import MioloMultiplaEscolhaMobile from './exercise-types/MioloMultiplaEscolhaMobile';
 import MioloCacaErro from './exercise-types/MioloCacaErro';
@@ -93,30 +93,73 @@ const titulosJogos: Record<string, { label: Record<string, string>; title: Recor
 };
 
 
-function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado }: any) {
-  // Dias da semana simplificados
+function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado, supabase, userId }: any) {
+  const [diasComAula, setDiasComAula] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const diasDaSemana = [
-    { id: 1, label: 'S' },
-    { id: 2, label: 'T' },
-    { id: 3, label: 'Q' },
-    { id: 4, label: 'Q' },
-    { id: 5, label: 'S' },
-    { id: 6, label: 'S' },
-    { id: 7, label: 'D' }
+    { id: 1, label: "S" },
+    { id: 2, label: "T" },
+    { id: 3, label: "Q" },
+    { id: 4, label: "Q" },
+    { id: 5, label: "S" },
+    { id: 6, label: "S" },
+    { id: 7, label: "D" }
   ];
 
-  // Mock seguro ou mapeamento de dias com aula marcado (Ex: Terça e Quinta = dias 2 e 4)
-  const diasComAula = [2, 4]; 
-
-  // Pega os dias do mês de forma sequencial sutil para a semana corrente
   const hoje = new Date();
   const diaSemanaAtual = hoje.getDay() === 0 ? 7 : hoje.getDay();
+
+  useEffect(() => {
+    async function fetchAgenda() {
+      // Se não tiver o userId repassado pelo PortalMobile, não faz nada
+      if (!supabase || !userId) return;
+
+      try {
+        setLoading(true);
+        
+        const inicioSemana = new Date(hoje);
+        inicioSemana.setDate(hoje.getDate() - (diaSemanaAtual - 1));
+        inicioSemana.setHours(0, 0, 0, 0);
+
+        const fimSemana = new Date(inicioSemana);
+        fimSemana.setDate(inicioSemana.getDate() + 6);
+        fimSemana.setHours(23, 59, 59, 999);
+
+        // Busca a agenda plugado direto no userId que já está funcionando no sistema
+        const { data, error } = await supabase
+          .from("user_agenda_appointments")
+          .select("appointment_date, status, canceled_at")
+          .eq("user_id", userId)
+          .is("canceled_at", null)
+          .gte("appointment_date", inicioSemana.toISOString())
+          .lte("appointment_date", fimSemana.toISOString());
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const dias = data.map((item) => {
+            const dt = new Date(item.appointment_date);
+            const dayNum = dt.getDay();
+            return dayNum === 0 ? 7 : dayNum;
+          });
+          setDiasComAula(Array.from(new Set(dias)));
+        } else {
+          setDiasComAula([]);
+        }
+      } catch (err) {
+        console.error("🗓️ Erro ao carregar agendamentos:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAgenda();
+  }, [supabase, userId]);
   
   return (
     <div className="w-full py-4 bg-[#070d19]/40 border border-white/[0.03] rounded-xl flex flex-col gap-2 shrink-0 px-4">
       <div className="flex items-center gap-2 text-white">
-        <Calendar size={14} className="text-cyan-400 md:w-5 md:h-5" />
-        <span className="text-[clamp(10px,2.8vw,12px)] md:text-sm font-mono font-black uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Cronograma da Semana" : idiomaSelecionado === "ES" ? "Cronograma Semanal" : "Weekly Schedule"}</span>
       </div>
       <div className="flex justify-between items-center gap-1.5">
         {diasDaSemana.map((dia) => {
@@ -144,6 +187,7 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado }: any) {
     </div>
   );
 }
+
 
 function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false }) {
   const dicionarioMascote = { PT: "MENTORA HAAS", EN: "HAAS MENTOR", ES: "MENTORA HAAS" };
@@ -2282,7 +2326,7 @@ null
             </div> 
  
             {/* Mini Calendário Semanal Acoplado */}
-            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} /></div>
+            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} supabase={supabase} userId={alunoData?.id || alunoData?.user_id} /></div>
  
             
 
@@ -2362,7 +2406,6 @@ null
               {/* Card de Dias de Jornada Customizado com Consistência Semanal Embutida */}
               <div className="bg-slate-900/40 border border-white/[0.02] p-2.5 rounded-xl flex flex-col gap-1.5 justify-center">
                 <div className="flex items-center gap-2.5">
-                  <div className="text-cyan-400 shrink-0"><Calendar size={14} className="text-cyan-400" /></div>
                   <div className="flex flex-col">
                     <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
