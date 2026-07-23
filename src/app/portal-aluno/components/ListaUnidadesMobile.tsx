@@ -110,9 +110,9 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
               onClick={() => toggleGaveta(u.id)}
               className="flex justify-between items-center w-full cursor-pointer select-none"
             >
-              <span className="text-white font-mono text-[clamp(11px,3.2vw,14px)] uppercase tracking-wider font-bold flex items-center gap-2">
+              <span className="text-white font-mono text-[clamp(11px,3.2vw,14px)] uppercase tracking-wider font-bold flex items-center gap-2 min-w-0 flex-1">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                {u.titulo[idioma] || u.titulo["PT"]}
+                <span className={isExpanded ? "whitespace-normal" : "truncate"}>{u.titulo[idioma] || u.titulo["PT"]}</span>
               </span>
               <span className="text-slate-400 text-xs font-bold px-1.5 py-0.5 rounded bg-white/5">
                 {isExpanded ? "▲" : "▼"}
