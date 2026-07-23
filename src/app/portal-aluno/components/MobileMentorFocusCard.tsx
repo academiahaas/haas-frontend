@@ -58,10 +58,10 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
     const dicaArenaPadrao =
       dicaArena ||
       (lang === "ES"
-        ? "🎯 ¿Qué tal una sesión en la Arena de Quiz para acelerar tu nivel hoy?"
+        ? "¿Qué tal una sesión en la Arena de Quiz para acelerar tu nivel hoy?"
         : lang === "EN"
-        ? "🎯 How about a Quiz Arena session to boost your score today?"
-        : "🎯 Que tal um treino na Arena de Quiz para turbinar sua pontuação hoje?");
+        ? "How about a Quiz Arena session to boost your score today?"
+        : "Que tal um treino na Arena de Quiz para turbinar sua pontuação hoje?");
 
     const bancoConselhos: Record<string, string[]> = {
       PT: [
