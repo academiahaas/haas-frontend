@@ -261,6 +261,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
   const [expirationDate, setExpirationDate] = React.useState<string>("");
+  const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
   const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
   console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
@@ -643,8 +644,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
 
           if (targetUid) {
-            const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date").eq("user_id", targetUid).maybeSingle();
+            const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date, class_credits_available").eq("user_id", targetUid).maybeSingle();
             if (sub?.plan_category) setPlanCategory(sub.plan_category);
+            if (sub?.class_credits_available !== undefined && sub?.class_credits_available !== null) {
+              setCreditosRegulares(sub.class_credits_available);
+            }
             if (sub?.expiration_date) {
               const dt = new Date(sub.expiration_date);
               const hoy = new Date();
@@ -1424,7 +1428,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
                     >
                       <span className="text-[clamp(10px,2.8vw,12px)] md:text-xs font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões Regulares" : idiomaSelecionado === "ES" ? "Sesiones Regulares" : "Regular Sessions"}</span>
-                      <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">4<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
+                      <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">{creditosRegulares}<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
                     </button>
 
                     <button 
