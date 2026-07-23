@@ -2287,6 +2287,7 @@ null
               idiomaSelecionado={idiomaSelecionado}
               primeiroNome={primeiroNome}
               totalXp={totalXp}
+              requiredXp={requiredXp}
               streakDias={streakDias}
               MascoteRoboAI={MascoteRoboAI}
               roboDevePiscar={roboDevePiscar}

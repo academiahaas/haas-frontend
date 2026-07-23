@@ -6,6 +6,7 @@ interface MobileMentorFocusCardProps {
   idiomaSelecionado?: string;
   primeiroNome?: string;
   totalXp?: number;
+  requiredXp?: number;
   streakDias?: number;
   xpPorcentagem?: number;
   dicaArena?: string;
@@ -18,14 +19,22 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
   idiomaSelecionado = "PT",
   primeiroNome = "",
   totalXp = 0,
+  requiredXp = 0,
   streakDias = 0,
-  xpPorcentagem = 0,
+  xpPorcentagem,
   dicaArena = "",
   MascoteRoboAI,
   roboDevePiscar,
   olharDireta
 }) => {
   const [botPhraseIndex, setBotPhraseIndex] = useState(0);
+
+  // Cálculo dinâmico do percentual de progresso com base na sub-base
+  const percentualUnidade = xpPorcentagem !== undefined
+    ? xpPorcentagem
+    : requiredXp > 0
+    ? Math.min(100, Math.round((totalXp / requiredXp) * 100))
+    : 0;
 
   const obterMensagemMentora = () => {
     const lang = (idiomaSelecionado || "PT").toUpperCase();
@@ -49,30 +58,30 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
     const dicaArenaPadrao =
       dicaArena ||
       (lang === "ES"
-        ? "¡Practica en la Arena de Quiz para ganar XP extra!"
+        ? "🎯 ¿Qué tal una sesión en la Arena de Quiz para acelerar tu nivel hoy?"
         : lang === "EN"
-        ? "Practice in the Quiz Arena to earn bonus XP!"
-        : "Pratique na Arena de Quiz para ganhar XP extra!");
+        ? "🎯 How about a Quiz Arena session to boost your score today?"
+        : "🎯 Que tal um treino na Arena de Quiz para turbinar sua pontuação hoje?");
 
     const bancoConselhos: Record<string, string[]> = {
       PT: [
         `${saudacaoTime}, ${primeiroNome}! Pronto para avançar na sua jornada hoje?`,
         dicaArenaPadrao,
-        `Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
+        `Você já domina ${percentualUnidade}% desta unidade. Vamos buscar o próximo nível hoje?`,
         `Ótimo progresso, ${primeiroNome}! ${streakTexto} Não deixe sua sequência cair.`,
         `Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
       ],
       EN: [
         `${saudacaoTime}, ${primeiroNome}! Ready to level up your skills today?`,
         dicaArenaPadrao,
-        `You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
+        `You have mastered ${percentualUnidade}% of this unit. Let's aim for the next level today?`,
         `Great momentum, ${primeiroNome}! ${streakTexto} Keep your Retention Streak safe today.`,
         `Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
       ],
       ES: [
         `${saudacaoTime}, ${primeiroNome}! ¿Listo para avanzar en tu nivel hoy?`,
         dicaArenaPadrao,
-        `Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
+        `Ya dominas el ${percentualUnidade}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
         `¡Buen progreso, ${primeiroNome}! ${streakTexto} No dejes que tu racha caiga hoy.`,
         `Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
       ]
