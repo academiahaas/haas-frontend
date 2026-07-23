@@ -27,6 +27,7 @@ import MioloShadowing from './exercise-types/MioloShadowing';
 import MioloSpellingBee from './exercise-types/MioloSpellingBee';
 import MioloTraducaoInversaMobile from './exercise-types/MioloTraducaoInversaMobile';
 import MioloVelocidadeProgressiva from './exercise-types/MioloVelocidadeProgressiva';
+import { ListaUnidadesMobile } from "./ListaUnidadesMobile";
 
 interface PortalMobileProps {
   alunoData?: any;
@@ -876,19 +877,19 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
-                🆕 {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
+                {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
               </button>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
-                🔄 {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
+                {idiomaSelecionado === 'PT' ? 'Ativo' : idiomaSelecionado === 'EN' ? 'Active' : 'Activo'}
               </button>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
                 className={`px-1.5 py-0.5 rounded transition-all ${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black' : 'text-slate-400 opacity-60'}`}
               >
-                ⚠️ {idiomaSelecionado === 'PT' ? 'Vencido' : idiomaSelecionado === 'EN' ? 'Expired' : 'Vencido'}
+                {idiomaSelecionado === 'PT' ? 'Vencido' : idiomaSelecionado === 'EN' ? 'Expired' : 'Vencido'}
               </button>
             </div>
 
@@ -914,8 +915,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 flex flex-col justify-between overflow-hidden relative">
-              {/* 📦 PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
+              {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2 mb-2">
@@ -928,7 +929,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </button>
                   </div>
                   
-                  {/* 💬 HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
+                  {/* HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
                   <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-3 scrollbar-thin">
                     {mensagensMentora.map((msg) => {
                       const textoExibido = msg.id === 1 && msg.text === "" 
@@ -953,7 +954,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       );
                     })}
 
-                    {/* ⏳ INDICADOR VISUAL "HAAS ESTÁ DIGITANDO..." */}
+                    {/* INDICADOR VISUAL "HAAS ESTÁ DIGITANDO..." */}
                     {digitandoHaas && (
                       <div className="flex w-full justify-start animate-fadeIn">
                         <div className="bg-white/5 border border-white/[0.04] text-slate-400 rounded-2xl rounded-tl-sm p-3.5 flex items-center gap-1.5 shadow-md">
@@ -978,114 +979,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
-              <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 mt-3 w-full">
+               {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
+               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full min-h-0">
+                 <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} />
+               </div>
+             </div>
 
-                
-                  {unidadeExpandida === 5 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                    </div>
-                  )}
-                </div>
-
-
-                {/* UNIDADE 2 */}
-                <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 1 ? null : 1)}
-                  className="flex-1 min-h-[58px] flex flex-col justify-center bg-black/30 px-4 sm:px-5 py-3.5 rounded-xl border border-white/[0.04] hover:border-white/10 cursor-pointer transition-all active:scale-[0.99] shadow-sm"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 1: Vocabulário Técnico" : idiomaSelecionado === "ES" ? "Unidad 1: Vocabulario Técnico" : "Unit 1: Technical Vocabulary"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 1 ? "▲" : "▼"}</span>
-                  </div>
-
-                  {unidadeExpandida === 1 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                      
-                    </div>
-                  )}
-                </div>
-              </div>
-                            {/* UNIDADE 3 */}
-                <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 2 ? null : 2)}
-                  className="flex-1 min-h-[58px] flex flex-col justify-center bg-black/30 px-4 sm:px-5 py-3.5 rounded-xl border border-white/[0.04] hover:border-white/10 cursor-pointer transition-all active:scale-[0.99] shadow-sm"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 2: Conversação Aplicada" : idiomaSelecionado === "ES" ? "Unidad 2: Conversación Aplicada" : "Unit 2: Applied Conversation"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 2 ? "▲" : "▼"}</span>
-                  </div>
-
-                  {unidadeExpandida === 2 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                    </div>
-                  )}
-                </div>
-
-                {/* UNIDADE 4 */}
-                <div 
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 3 ? null : 3)}
-                  className="flex-1 min-h-[58px] flex flex-col justify-center bg-black/30 px-4 sm:px-5 py-3.5 rounded-xl border border-white/[0.04] hover:border-white/10 cursor-pointer transition-all active:scale-[0.99] shadow-sm"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 3: Prática de Fluência" : idiomaSelecionado === "ES" ? "Unidad 3: Práctica de Fluidez" : "Unit 3: Fluency Practice"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 3 ? "▲" : "▼"}</span>
-                  </div>
-
-{/* UNIDADE 5 (CARD NOVO TESTE) */}
-                <div
-                  onClick={() => setUnidadeExpandida(unidadeExpandida === 5 ? null : 5)}
-                  className="flex-1 min-h-[58px] flex flex-col justify-center bg-black/30 px-4 sm:px-5 py-3.5 rounded-xl border border-white/[0.04] hover:border-white/10 cursor-pointer transition-all active:scale-[0.99] shadow-sm"
-                >
-                  <div className="flex justify-between items-center w-full">
-                    <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                      • {idiomaSelecionado === "PT" ? "Unidade 5: Teste de Expansão" : idiomaSelecionado === "ES" ? "Unidad 5: Prueba de Expansión" : "Unit 5: Expansion Test"}
-                    </span>
-                    <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 5 ? "▲" : "▼"}</span>
-                  </div>
-
-
-                  {unidadeExpandida === 3 && (
-                    <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                      <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                    </div>
-                  )}
-                </div>
-
-                 {/* UNIDADE 5 */}
-                 <div 
-                   onClick={() => setUnidadeExpandida(unidadeExpandida === 4 ? null : 4)}
-                   className="flex-1 min-h-[58px] flex flex-col justify-center bg-black/30 px-4 sm:px-5 py-3.5 rounded-xl border border-white/[0.04] hover:border-white/10 cursor-pointer transition-all active:scale-[0.99] shadow-sm"
-                 >
-                   <div className="flex justify-between items-center w-full">
-                     <span className="text-white font-mono text-[clamp(10px,3vw,15px)] uppercase tracking-wider font-bold">
-                       • {idiomaSelecionado === "PT" ? "Unidade 4: Expressões Avançadas" : idiomaSelecionado === "ES" ? "Unidad 4: Expresiones Avanzadas" : "Unit 4: Advanced Expressions"}
-                     </span>
-                     <span className="text-slate-500 text-[clamp(10px,2.8vw,14px)]">{unidadeExpandida === 4 ? "▲" : "▼"}</span>
-                   </div>
-
-                   {unidadeExpandida === 4 && (
-                     <div className="flex gap-2 mt-3 w-full justify-between pt-2 border-t border-white/[0.05] animate-fadeIn">
-                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Material"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Ler</button>
-                       <button onClick={(e) => { e.stopPropagation(); alert("Abrir Vídeo"); }} className="flex-1 py-2 bg-slate-950/60 hover:bg-slate-900 border border-white/5 rounded-lg text-[clamp(9px,3.2vw,14px)] font-mono font-black uppercase text-slate-300 tracking-wider flex items-center justify-center gap-1">Vídeo</button>
-                     </div>
-                   )}
-                 </div>
-              </div>
-
-            {/* 🏁 TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
+            {/* TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
             {!mentoraMobileAberta ? (
               <div className="flex items-center gap-2 w-full shrink-0">
                 <button 
@@ -1442,7 +1342,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </button>
                   </div>
 
-                                    {/* 🔄 GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
+                                    {/* GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
                   <div 
                     onClick={() => setGavetaRegulamentoAberta(!gavetaRegulamentoAberta)} 
                     className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex flex-col gap-2 shrink-0 text-left cursor-pointer active:scale-[0.99] transition-all"
@@ -1523,7 +1423,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         </button>
                       </div>
 
-                      {/* 🔄 CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
+                      {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
                       {meusAgendamentos.slice(2).map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         return (
@@ -2162,7 +2062,7 @@ null
                     onClick={() => {
                       const ehReposicao = String(tipoAgendamento).toLowerCase().includes('reposi') || String(tipoAgendamento).toLowerCase().includes('rep');
                       
-                      // 🔄 VALIDAÇÃO DINÂMICA DO SUPABASE: Verifica se o aluno tem saldo real para esta modalidade
+                      // VALIDAÇÃO DINÂMICA DO SUPABASE: Verifica se o aluno tem saldo real para esta modalidade
                       const saldoDisponivel = saldosDoAluno[modalidadeSelecionada || 'vip_std'] || 0;
                       
                       if (!ehReposicao && saldoDisponivel <= 0) {
@@ -2417,7 +2317,7 @@ null
                 </div>
               </div>
             </div>
-            {/* 🔄 CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
+            {/* CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
             <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-6 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
@@ -2731,11 +2631,11 @@ null
             {isMatriculadoSimulado && isVencidoSimulado && (
               <div className="mb-3 p-3 bg-rose-950/80 border border-rose-500/30 rounded-xl text-[10px] text-rose-300 font-medium leading-relaxed shadow-sm">
                 {idiomaSelecionado === "PT" ? (
-                  <>⚠️ <strong className="text-rose-400 font-black">SUA DATA DE RENOVAÇÃO EXPIROU.</strong> Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. Selecione um plano abaixo para reativar seu acesso.</>
+                  <><strong className="text-rose-400 font-black">SUA DATA DE RENOVAÇÃO EXPIROU.</strong> Conforme os termos da plataforma, as condições anteriores e descontos de fidelidade foram desativados automaticamente. Selecione um plano abaixo para reativar seu acesso.</>
                 ) : idiomaSelecionado === "ES" ? (
-                  <>⚠️ <strong className="text-rose-400 font-black">TU FECHA DE RENOVACIÓN EXPIRÓ.</strong> Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. Selecciona un plan abajo para reactivar tu acceso.</>
+                  <><strong className="text-rose-400 font-black">TU FECHA DE RENOVACIÓN EXPIRÓ.</strong> Conforme a los términos de la plataforma, las condiciones anteriores y descuentos de fidelidad se han desactivado automáticamente. Selecciona un plan abajo para reactivar tu acceso.</>
                 ) : (
-                  <>⚠️ <strong className="text-rose-400 font-black">YOUR RENEWAL DATE HAS EXPIRED.</strong> In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. Select a new plan below to reactivate your access.</>
+                  <><strong className="text-rose-400 font-black">YOUR RENEWAL DATE HAS EXPIRED.</strong> In accordance with platform terms, previous conditions and loyalty discounts have been automatically deactivated. Select a new plan below to reactivate your access.</>
                 )}
               </div>
             )}
@@ -3061,7 +2961,7 @@ null
                     {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
                   <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center mt-1">
-                    {idiomaSelecionado === "PT" ? "⚠️ ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "⚠️ ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
+                    {idiomaSelecionado === "PT" ? "ATENÇÃO: HAAS processa inscrições em COP. A taxa bancária não é reembolsável. Digite o valor em COP exato acima para a ativação automática pelo nosso robô." : idiomaSelecionado === "EN" ? "ATTENTION: HAAS processes enrollments in COP. The processing bank fee is non-refundable. Enter the exact COP value above to ensure automatic activation." : "▲ ATENCIÓN: Procesa el valor exacto en dólares (USD) indicado para asegurar que la validación global sea exitosa y seu plano se active de forma automática."}
                   </span>
                 </div>
 
@@ -3091,7 +2991,7 @@ null
         </div>
        )}
 
-      {/* 🔄 BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO (ISOLADO) */}
+      {/* BOTTOMSHEET ACCORDION PREMIUM: PROGRAMA COMPLETO CORPORATIVO (ISOLADO) */}
       <ModalTrilhaMobile
         isOpen={modalProgramaAberto}
         onClose={() => setModalProgramaAberto(false)}

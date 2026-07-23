@@ -12,7 +12,7 @@ const agendaBloqueiosHaas2026 = {
   9: [], 10: [12], 11: [2, 16], 12: [8, 25]
 };
 import ArenaQuizMobile from './ArenaQuizMobile';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Gift, Swords, BookOpen, LayoutDashboard, Calendar, Camera, User, Star, MessageSquare, Flame, Trophy, Award, CheckCircle, TrendingUp, Globe, X, FileText, AlertTriangle, Zap, Timer, Lock } from 'lucide-react';
 import MioloMultiplaEscolhaMobile from './exercise-types/MioloMultiplaEscolhaMobile';
 import MioloCacaErro from './exercise-types/MioloCacaErro';
@@ -93,73 +93,30 @@ const titulosJogos: Record<string, { label: Record<string, string>; title: Recor
 };
 
 
-function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado, supabase, userId }: any) {
-  const [diasComAula, setDiasComAula] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
-
+function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado }: any) {
+  // Dias da semana simplificados
   const diasDaSemana = [
-    { id: 1, label: "S" },
-    { id: 2, label: "T" },
-    { id: 3, label: "Q" },
-    { id: 4, label: "Q" },
-    { id: 5, label: "S" },
-    { id: 6, label: "S" },
-    { id: 7, label: "D" }
+    { id: 1, label: 'S' },
+    { id: 2, label: 'T' },
+    { id: 3, label: 'Q' },
+    { id: 4, label: 'Q' },
+    { id: 5, label: 'S' },
+    { id: 6, label: 'S' },
+    { id: 7, label: 'D' }
   ];
 
+  // Mock seguro ou mapeamento de dias com aula marcado (Ex: Terça e Quinta = dias 2 e 4)
+  const diasComAula = [2, 4]; 
+
+  // Pega os dias do mês de forma sequencial sutil para a semana corrente
   const hoje = new Date();
   const diaSemanaAtual = hoje.getDay() === 0 ? 7 : hoje.getDay();
-
-  useEffect(() => {
-    async function fetchAgenda() {
-      // Se não tiver o userId repassado pelo PortalMobile, não faz nada
-      if (!supabase || !userId) return;
-
-      try {
-        setLoading(true);
-        
-        const inicioSemana = new Date(hoje);
-        inicioSemana.setDate(hoje.getDate() - (diaSemanaAtual - 1));
-        inicioSemana.setHours(0, 0, 0, 0);
-
-        const fimSemana = new Date(inicioSemana);
-        fimSemana.setDate(inicioSemana.getDate() + 6);
-        fimSemana.setHours(23, 59, 59, 999);
-
-        // Busca a agenda plugado direto no userId que já está funcionando no sistema
-        const { data, error } = await supabase
-          .from("user_agenda_appointments")
-          .select("appointment_date, status, canceled_at")
-          .eq("user_id", userId)
-          .is("canceled_at", null)
-          .gte("appointment_date", inicioSemana.toISOString())
-          .lte("appointment_date", fimSemana.toISOString());
-
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          const dias = data.map((item) => {
-            const dt = new Date(item.appointment_date);
-            const dayNum = dt.getDay();
-            return dayNum === 0 ? 7 : dayNum;
-          });
-          setDiasComAula(Array.from(new Set(dias)));
-        } else {
-          setDiasComAula([]);
-        }
-      } catch (err) {
-        console.error("🗓️ Erro ao carregar agendamentos:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAgenda();
-  }, [supabase, userId]);
   
   return (
     <div className="w-full py-4 bg-[#070d19]/40 border border-white/[0.03] rounded-xl flex flex-col gap-2 shrink-0 px-4">
       <div className="flex items-center gap-2 text-white">
+        <Calendar size={14} className="text-cyan-400 md:w-5 md:h-5" />
+        <span className="text-[clamp(10px,2.8vw,12px)] md:text-sm font-mono font-black uppercase tracking-wider">{idiomaSelecionado === "PT" ? "Cronograma da Semana" : idiomaSelecionado === "ES" ? "Cronograma Semanal" : "Weekly Schedule"}</span>
       </div>
       <div className="flex justify-between items-center gap-1.5">
         {diasDaSemana.map((dia) => {
@@ -187,7 +144,6 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado, supabase, userI
     </div>
   );
 }
-
 
 function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false }) {
   const dicionarioMascote = { PT: "MENTORA HAAS", EN: "HAAS MENTOR", ES: "MENTORA HAAS" };
@@ -258,10 +214,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
     return 0;
   };
 
-export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
-  const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
-  console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
-
+export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: PortalMobileProps) {
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -273,7 +226,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   // Timer para olhar para a direita (frente -> direita -> frente)
   const [olharDireta, setOlharDireta] = React.useState(false);
-  const [botPhraseIndex, setBotPhraseIndex] = React.useState(0);
   React.useEffect(() => {
     const interval = setInterval(() => {
       setOlharDireta(prev => !prev);
@@ -495,22 +447,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
   const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
-  const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
-  React.useEffect(() => {
-    const fetchRanking = async () => {
-      try {
-        const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hnqylikpzhvymvbdvujg.supabase.co';
-        const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (!sKey) return;
-        const res = await fetch(`${sUrl}/rest/v1/users?select=id,name,nickname,total_xp&order=total_xp.desc&limit=10`, {
-          headers: { 'apikey': sKey, 'Authorization': `Bearer ${sKey}` }
-        });
-        const data = await res.json();
-        if (Array.isArray(data)) setTopRankingMobile(data);
-      } catch (e) { console.error(e); }
-    };
-    fetchRanking();
-  }, []);
   const [gavetaErroresAberta, setGavetaErroresAberta] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
@@ -576,17 +512,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     const [moduleTitleDb, setModuleTitleDb] = React.useState<string>("");
 
   React.useEffect(() => {
-      async function fetchModuleTitle() {
+    async function fetchModuleTitle() {
       try {
         const { data, error } = await supabase
           .from('modules_content')
-          .select('id, module_title')
+          .select('module_title')
           .limit(1)
           .maybeSingle();
 
-        if (data) {
-          if (data.module_title) setModuleTitleDb(data.module_title);
-          if (data.id) setModuleIdDb(data.id);
+        if (data?.module_title) {
+          setModuleTitleDb(data.module_title);
         }
       } catch (err) {
         console.error("Erro ao buscar module_title:", err);
@@ -980,7 +915,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-5 rounded-2xl shadow-xl flex-1 flex flex-col justify-between overflow-hidden relative">
               {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
@@ -1045,8 +980,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
-               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full min-h-0">
-                 <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
+               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full">
+                 <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} />
                </div>
              </div>
 
@@ -2293,7 +2228,7 @@ null
                 {/* Balão de Fala Dinâmico Estilo Mentora */}
                 <div className="flex-1 bg-black/20 border-[0.5px] border-amber-500/10 p-3 rounded-xl flex items-center justify-center relative bg-black/40">
                   <p className="text-[clamp(12px,3.2vw,16px)] text-white/90 font-medium leading-relaxed">
-                    {(() => { const h = new Date().getHours(); const s = h < 12 ? (idiomaSelecionado === "ES" ? "¡Buenos días" : idiomaSelecionado === "EN" ? "Good morning" : "Bom dia") : h < 18 ? (idiomaSelecionado === "ES" ? "¡Buenas tardes" : idiomaSelecionado === "EN" ? "Good afternoon" : "Boa tarde") : (idiomaSelecionado === "ES" ? "¡Buenas noches" : idiomaSelecionado === "EN" ? "Good evening" : "Boa noite"); return idiomaSelecionado === "PT" ? `${s}, ${primeiroNome}! Pronto para avançar na sua jornada hoje?` : idiomaSelecionado === "ES" ? `${s}, ${primeiroNome}! ¿Listo para avanzar en tu nivel hoy?` : `${s}, ${primeiroNome}! Ready to level up your skills today?`; })()}
+                    {idiomaSelecionado === "PT" ? <><span className="font-bold text-amber-400">Notei que o seu ponto fraco atual é Preposições.</span> Clique para reforçar esse conteúdo!</> : idiomaSelecionado === "ES" ? <><span className="font-bold text-amber-400">Noté que tu punto débil actual são as Preposiciones.</span> ¡Haz clic para reforzar este contenido!</> : <><span className="font-bold text-amber-400">I noticed your current weak point is Prepositions.</span> Click to reinforce this content!</>}
                   </p>
                   {/* Seta do Balão apontando para o robô */}
                   <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-amber-500/10 rotate-45" />
@@ -2313,8 +2248,8 @@ null
               <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
                 <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-amber-500" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
-
-                  <span className="text-[clamp(10px,3.2vw,18px)] uppercase font-mono font-black text-amber-500 tracking-tight break-words leading-tight">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span>
+                  <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-amber-500 truncate">{idiomaSelecionado === "PT" ? "2º Lugar" : idiomaSelecionado === "ES" ? "2º Lugar" : "2nd Place"}</span> 
+                  <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span> 
                 </div> 
               </button> 
               <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
@@ -2327,7 +2262,7 @@ null
             </div> 
  
             {/* Mini Calendário Semanal Acoplado */}
-            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} supabase={supabase} userId={alunoData?.id || alunoData?.user_id} /></div>
+            <div className="w-full max-w-full overflow-hidden flex flex-col !flex-none"><MiniCalendarioSemanal setAbaAtiva={setAbaAtiva} idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"} /></div>
  
             
 
@@ -2407,6 +2342,7 @@ null
               {/* Card de Dias de Jornada Customizado com Consistência Semanal Embutida */}
               <div className="bg-slate-900/40 border border-white/[0.02] p-2.5 rounded-xl flex flex-col gap-1.5 justify-center">
                 <div className="flex items-center gap-2.5">
+                  <div className="text-cyan-400 shrink-0"><Calendar size={14} className="text-cyan-400" /></div>
                   <div className="flex flex-col">
                     <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
@@ -3095,21 +3031,96 @@ null
 
             {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-2 md:gap-3 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
-              {topRankingMobile.length > 0 ? topRankingMobile.map((aluno, i) => {
-                const isFirst = i === 0;
-                const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';
-                const xp = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' PTS';
-                return (
-                  <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-500/[0.04] border border-amber-500/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
-                    <div className="flex items-center gap-3">
-                      <span className={`w-4 ${isFirst ? 'font-black text-amber-500 text-sm' : 'font-medium text-slate-400'}`}>{i + 1}</span>
-                      <span className={isFirst ? 'text-white font-black' : 'text-slate-200'}>{nome}</span>
-                    </div>
-                    <span className={`font-mono ${isFirst ? 'text-amber-500 font-bold' : 'text-slate-400'}`}>{xp}</span>
-                  </div>
-                );
-              }) : <div className="text-center py-6 text-slate-400 text-xs font-mono">Carregando classificação...</div>}
-            
+              
+              {/* 1º LUGAR - DESTAQUE DE LIDERANÇA */}
+              <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/30 rounded-xl shadow-md shadow-amber-500/[0.02]">
+                <div className="flex items-center gap-3">
+                  <span className="font-black text-amber-500 text-sm w-4">1</span>
+                  <span className="text-white font-black">Alpha_Leader</span>
+                </div>
+                <span className="text-amber-500 font-black">2.450 PTS</span>
+              </div>
+
+              {/* 2º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-slate-400 text-sm w-4">2</span>
+                  <span className="text-slate-200 font-bold">Bruna_Haas</span>
+                </div>
+                <span className="text-slate-400">1.920 PTS</span>
+              </div>
+
+              {/* 3º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-slate-400 text-sm w-4">3</span>
+                  <span className="text-slate-200">Rodrigo_M</span>
+                </div>
+                <span className="text-slate-400">1.850 PTS</span>
+              </div>
+
+              {/* 4º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">4</span>
+                  <span className="text-slate-200">Elena_Rostova</span>
+                </div>
+                <span className="text-slate-400">1.620 PTS</span>
+              </div>
+
+              {/* 5º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">5</span>
+                  <span className="text-slate-200">Marcus_Tech</span>
+                </div>
+                <span className="text-slate-400">1.400 PTS</span>
+              </div>
+
+              {/* 6º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">6</span>
+                  <span className="text-slate-200">David_CEO</span>
+                </div>
+                <span className="text-slate-400">1.320 PTS</span>
+              </div>
+
+              {/* 7º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">7</span>
+                  <span className="text-slate-200">Sophia_Global</span>
+                </div>
+                <span className="text-slate-400">1.250 PTS</span>
+              </div>
+
+              {/* 8º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">8</span>
+                  <span className="text-slate-200">Lucas_Scale</span>
+                </div>
+                <span className="text-slate-400">1.180 PTS</span>
+              </div>
+
+              {/* 9º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">9</span>
+                  <span className="text-slate-200">Elena_Strategy</span>
+                </div>
+                <span className="text-slate-400">1.100 PTS</span>
+              </div>
+
+              {/* 10º LUGAR */}
+              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-slate-400 w-4">10</span>
+                  <span className="text-slate-200">Robert_M&A</span>
+                </div>
+                <span className="text-slate-400">950 PTS</span>
+              </div>
 
             </div>
           </div>
