@@ -450,6 +450,22 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
   const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
+  const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
+  React.useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hnqylikpzhvymvbdvujg.supabase.co';
+        const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!sKey) return;
+        const res = await fetch(`${sUrl}/rest/v1/users?select=id,name,nickname,total_xp&order=total_xp.desc&limit=10`, {
+          headers: { 'apikey': sKey, 'Authorization': `Bearer ${sKey}` }
+        });
+        const data = await res.json();
+        if (Array.isArray(data)) setTopRankingMobile(data);
+      } catch (e) { console.error(e); }
+    };
+    fetchRanking();
+  }, []);
   const [gavetaErroresAberta, setGavetaErroresAberta] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
@@ -3035,96 +3051,21 @@ null
 
             {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-2 md:gap-3 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
-              
-              {/* 1º LUGAR - DESTAQUE DE LIDERANÇA */}
-              <div className="flex items-center justify-between p-3 bg-amber-500/[0.04] border border-amber-500/30 rounded-xl shadow-md shadow-amber-500/[0.02]">
-                <div className="flex items-center gap-3">
-                  <span className="font-black text-amber-500 text-sm w-4">1</span>
-                  <span className="text-white font-black">Alpha_Leader</span>
-                </div>
-                <span className="text-amber-500 font-black">2.450 PTS</span>
-              </div>
-
-              {/* 2º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-slate-400 text-sm w-4">2</span>
-                  <span className="text-slate-200 font-bold">Bruna_Haas</span>
-                </div>
-                <span className="text-slate-400">1.920 PTS</span>
-              </div>
-
-              {/* 3º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-slate-400 text-sm w-4">3</span>
-                  <span className="text-slate-200">Rodrigo_M</span>
-                </div>
-                <span className="text-slate-400">1.850 PTS</span>
-              </div>
-
-              {/* 4º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">4</span>
-                  <span className="text-slate-200">Elena_Rostova</span>
-                </div>
-                <span className="text-slate-400">1.620 PTS</span>
-              </div>
-
-              {/* 5º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">5</span>
-                  <span className="text-slate-200">Marcus_Tech</span>
-                </div>
-                <span className="text-slate-400">1.400 PTS</span>
-              </div>
-
-              {/* 6º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">6</span>
-                  <span className="text-slate-200">David_CEO</span>
-                </div>
-                <span className="text-slate-400">1.320 PTS</span>
-              </div>
-
-              {/* 7º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">7</span>
-                  <span className="text-slate-200">Sophia_Global</span>
-                </div>
-                <span className="text-slate-400">1.250 PTS</span>
-              </div>
-
-              {/* 8º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">8</span>
-                  <span className="text-slate-200">Lucas_Scale</span>
-                </div>
-                <span className="text-slate-400">1.180 PTS</span>
-              </div>
-
-              {/* 9º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">9</span>
-                  <span className="text-slate-200">Elena_Strategy</span>
-                </div>
-                <span className="text-slate-400">1.100 PTS</span>
-              </div>
-
-              {/* 10º LUGAR */}
-              <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/[0.02] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-slate-400 w-4">10</span>
-                  <span className="text-slate-200">Robert_M&A</span>
-                </div>
-                <span className="text-slate-400">950 PTS</span>
-              </div>
+              {topRankingMobile.length > 0 ? topRankingMobile.map((aluno, i) => {
+                const isFirst = i === 0;
+                const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';
+                const xp = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' PTS';
+                return (
+                  <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-500/[0.04] border border-amber-500/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
+                    <div className="flex items-center gap-3">
+                      <span className={`w-4 ${isFirst ? 'font-black text-amber-500 text-sm' : 'font-medium text-slate-400'}`}>{i + 1}</span>
+                      <span className={isFirst ? 'text-white font-black' : 'text-slate-200'}>{nome}</span>
+                    </div>
+                    <span className={`font-mono ${isFirst ? 'text-amber-500 font-bold' : 'text-slate-400'}`}>{xp}</span>
+                  </div>
+                );
+              }) : <div className="text-center py-6 text-slate-400 text-xs font-mono">Carregando classificação...</div>}
+            
 
             </div>
           </div>
