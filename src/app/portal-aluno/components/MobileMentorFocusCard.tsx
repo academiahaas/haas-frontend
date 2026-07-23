@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface MobileMentorFocusCardProps {
   idiomaSelecionado?: string;
@@ -28,6 +28,14 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
   olharDireta
 }) => {
   const [botPhraseIndex, setBotPhraseIndex] = useState(0);
+
+  // Rotação automática das frases a cada 3 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBotPhraseIndex(prev => prev + 1);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Cálculo dinâmico do percentual de progresso com base na sub-base
   const percentualUnidade = xpPorcentagem !== undefined
