@@ -1,3 +1,4 @@
+import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
 import { ModalCofreErrosMobile } from "./ModalCofreErrosMobile";
 import { ModalTrilhaMobile } from "./ModalTrilhaMobile";
 import RadarCompetenciasMobile from './RadarCompetenciasMobile';
@@ -2282,29 +2283,15 @@ null
             </button> 
  
             {/* 2. Foco Estratégico - Hub Mentora HAAS */} 
-            <div className="bg-slate-950/40 border-[0.5px] border-white/[0.05] pt-3 pb-3 px-4 rounded-xl flex flex-col gap-[7px] w-full block clear-both backdrop-blur-md shadow-[0_0_20px_rgba(4,12,22,0.4)]"> 
-              <div className="flex justify-between items-center border-b border-white/[0.05] pb-2"> 
-                <span className="text-[clamp(11px,3vw,15px)] font-mono font-black uppercase text-white tracking-wider">{idiomaSelecionado === "PT" ? "Foco Estratégico" : idiomaSelecionado === "ES" ? "Enfoque Estratégico" : "Strategic Focus"}</span> 
-                <span className="text-[clamp(13px,3.5vw,18px)] font-mono font-black text-cyan-400">+{totalXp} PTS</span> 
-              </div> 
-              
-              {/* Container do Balão + Robozinho */}
-              <div className="flex flex-row items-center justify-between gap-3 mt-2">
-                {/* Balão de Fala Dinâmico Estilo Mentora */}
-                <div className="flex-1 bg-black/20 border-[0.5px] border-amber-500/10 p-3 rounded-xl flex items-center justify-center relative bg-black/40">
-                  <p className="text-[clamp(12px,3.2vw,16px)] text-white/90 font-medium leading-relaxed">
-                    {(() => { const h = new Date().getHours(); const s = h < 12 ? (idiomaSelecionado === "ES" ? "¡Buenos días" : idiomaSelecionado === "EN" ? "Good morning" : "Bom dia") : h < 18 ? (idiomaSelecionado === "ES" ? "¡Buenas tardes" : idiomaSelecionado === "EN" ? "Good afternoon" : "Boa tarde") : (idiomaSelecionado === "ES" ? "¡Buenas noches" : idiomaSelecionado === "EN" ? "Good evening" : "Boa noite"); return idiomaSelecionado === "PT" ? `${s}, ${primeiroNome}! Pronto para avançar na sua jornada hoje?` : idiomaSelecionado === "ES" ? `${s}, ${primeiroNome}! ¿Listo para avanzar en tu nivel hoy?` : `${s}, ${primeiroNome}! Ready to level up your skills today?`; })()}
-                  </p>
-                  {/* Seta do Balão apontando para o robô */}
-                  <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-amber-500/10 rotate-45" />
-                </div>
-
-                {/* Box do Avatar da Mentora HAAS Clicável */}
-                <div onClick={() => setBotPhraseIndex(prev => prev + 1)} className="cursor-pointer transition-all active:scale-95 hover:scale-105 shrink-0">
-                  <MascoteRoboAI devePiscar={roboDevePiscar} idioma={idiomaSelecionado} olharDireta={olharDireta} />
-                </div>
-              </div>
-            </div>
+            <MobileMentorFocusCard
+              idiomaSelecionado={idiomaSelecionado}
+              primeiroNome={primeiroNome}
+              totalXp={totalXp}
+              streakDias={streakDias}
+              MascoteRoboAI={MascoteRoboAI}
+              roboDevePiscar={roboDevePiscar}
+              olharDireta={olharDireta}
+            />
 
  
             {/* 3. Sequência de Dias & Próxima Recompensa */} 
