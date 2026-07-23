@@ -260,6 +260,8 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
   };
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+  const [diasRestantes, setDiasRestantes] = React.useState<number>(12);
+  const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
   console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
 
@@ -629,6 +631,25 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   React.useEffect(() => {
     async function carregarNomeReal() {
+      // Busca independente do plano
+      (async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          let targetUid = user?.id;
+
+          if (!targetUid) {
+            const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
+            if (fallback?.id) targetUid = fallback.id;
+          }
+
+          if (targetUid) {
+            const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date").eq("user_id", targetUid).maybeSingle();
+            if (sub?.plan_category) setPlanCategory(sub.plan_category);
+          }
+        } catch (e) {
+          console.warn("Erro ao buscar plano:", e);
+        }
+      })();
       try {
         // Fallback 1: Tenta pegar de caches locais comuns se existir
         const cachedUser = typeof window !== 'undefined' ? localStorage.getItem('user_name') || localStorage.getItem('usuario_nome') : null;
@@ -1377,10 +1398,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
             <div className="px-4 py-3 md:px-6 md:py-4 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
               <span className="text-[11px] md:text-sm font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
-                VIP STANDARD
+                {planCategory}
               </span>
               <span className="text-[9.5px] md:text-xs font-black text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-md font-mono shrink-0 whitespace-nowrap tracking-wider">
-                {idiomaSelecionado === "PT" ? "VENCE EM 12 DIAS" : idiomaSelecionado === "ES" ? "VENCE EN 12 DÍAS" : "EXPIRES IN 12 DAYS"}
+                {idiomaSelecionado === "PT" ? "VENCE EM {diasRestantes} DÍAS" : idiomaSelecionado === "ES" ? "VENCE EN {diasRestantes} DÍAS" : "EXPIRES IN 12 DAYS"}
               </span>
             </div>
 
@@ -1590,7 +1611,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           </div>
                         </button>
 
-                        {/* PLANO 3: VIP STANDARD */}
+                        {/* PLANO 3: {planCategory} */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
                           className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
@@ -1602,7 +1623,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           </div>
                         </button>
 
-                        {/* PLANO 4: PACK VIP STANDARD */}
+                        {/* PLANO 4: PACK {planCategory} */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('acumulador_vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
                           className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
@@ -2708,7 +2729,7 @@ null
                   </span>
                 </button>
 
-                {/* 2. VIP STANDARD */}
+                {/* 2. {planCategory} */}
                 <button onClick={() => { setModalidadeSelecionada('particular'); setEtapaPagamento(1); setCreditosSelecionados(8); }} className="w-full p-4 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-orange-500/20">
                   <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">VIP Standard</span>
                   <span className="text-[10px] md:text-sm text-orange-400 font-medium leading-normal mt-0.5">
