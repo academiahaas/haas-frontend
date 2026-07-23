@@ -2300,7 +2300,7 @@ null
                 </div>
 
                 {/* Box do Avatar da Mentora HAAS Clicável */}
-                <div onClick={() => alert("Abrir Tela de Diálogo com a IA Mentora")} className="cursor-pointer transition-all active:scale-95 hover:scale-105 shrink-0">
+                <div onClick={() => setBotPhraseIndex(prev => prev + 1)} className="cursor-pointer transition-all active:scale-95 hover:scale-105 shrink-0">
                   <MascoteRoboAI devePiscar={roboDevePiscar} idioma={idiomaSelecionado} olharDireta={olharDireta} />
                 </div>
               </div>
