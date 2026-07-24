@@ -2043,9 +2043,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <div className="w-full flex flex-col gap-2 mt-3">
                         <button 
                           onClick={() => {
-                            const msg = idiomaSelecionado === "PT" ? "Cancelamento confirmado. O prazo original desta reposição continua ativo." : idiomaSelecionado === "ES" ? "Cancelación confirmada. El plazo original de esta reposición sigue activo." : "Cancellation confirmed. The original deadline for this makeup remains active.";
-                            alert(msg);
-                            setModalAgenda('CLOSED');
+                            handleConfirmarCancelamento();
                           }} 
                           className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
