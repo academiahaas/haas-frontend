@@ -370,6 +370,27 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           console.error("❌ Erro ao cancelar no Supabase:", error.message);
         } else {
           console.log("✅ Cancelamento gravado com sucesso no Supabase (canceled_at)!");
+          
+          // Incrementa o crédito de reposição na UI imediatamente
+          setCreditosReposicao(prev => prev + 1);
+
+          // Atualiza o saldo no Supabase
+          const uid = (typeof window !== "undefined" && localStorage.getItem("haas_uid")) || (alunoData as any)?.id;
+          if (uid) {
+            supabase
+              .from("user_subscriptions")
+              .select("replacement_credits")
+              .eq("user_id", uid)
+              .maybeSingle()
+              .then(({ data: subData }) => {
+                const atual = subData?.replacement_credits ?? 0;
+                supabase
+                  .from("user_subscriptions")
+                  .update({ replacement_credits: atual + 1 })
+                  .eq("user_id", uid)
+                  .then(() => console.log("✅ Crédito de reposição incrementado no Supabase!"));
+              });
+          }
         }
       }
     } catch (e) {
