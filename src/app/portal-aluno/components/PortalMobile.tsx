@@ -601,8 +601,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           targetUid = localStorage.getItem("haas_uid");
         }
         if (!targetUid) {
-          // Garante recuperação segura do UID sem requisição desprotegida
-          targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || null;
+          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
+          if (fallback?.id) targetUid = fallback.id;
         }
 
         if (!targetUid) return;
@@ -611,7 +611,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           .from("user_agenda_appointments")
           .select("id, appointment_date, appointment_type, status, canceled_at")
           .eq("user_id", targetUid)
-          .gte("appointment_date", new Date().toISOString())
+          .gte("appointment_date", new Date(new Date().setHours(0,0,0,0)).toISOString())
           .order("appointment_date", { ascending: true });
 
         if (error) {
