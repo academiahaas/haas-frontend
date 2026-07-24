@@ -1678,7 +1678,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <div className="flex flex-col gap-2 min-h-0">
                     <span className="text-[clamp(11px,3vw,13px)] font-mono font-black text-slate-600 uppercase tracking-widest block px-1 shrink-0">{idiomaSelecionado === "PT" ? "Próximos Agendamentos" : idiomaSelecionado === "ES" ? "Próximos Agendamientos" : "Upcoming Sessions"}</span>
                     <div className="flex flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-none">
-                      {/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
+                      {false && (
+<>
+{/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
                       <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
                         <div className="flex justify-between items-center">
                           <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
@@ -1726,7 +1728,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         </button>
                       </div>
 
-                      {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
+                      </>
+)}
+{/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
                       {meusAgendamentos.map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         const isCanceled = Boolean((agendamento as any).canceled_at || (agendamento as any).status === "canceled" || (agendamento as any).status === "cancelled");
