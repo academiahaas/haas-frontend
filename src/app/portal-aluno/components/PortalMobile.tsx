@@ -342,11 +342,29 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const handleConfirmarCancelamento = async () => {
     try {
       if (agendamentoParaCancelar) {
+        let idParaCancelar = agendamentoParaCancelar;
         const agora = new Date().toISOString();
+
+        if (String(idParaCancelar).startsWith("temp-")) {
+          const uid = (typeof window !== "undefined" && localStorage.getItem("haas_uid")) || (alunoData as any)?.id;
+          if (uid) {
+            const { data: listData } = await supabase
+              .from("user_agenda_appointments")
+              .select("id")
+              .eq("user_id", uid)
+              .is("canceled_at", null)
+              .order("created_at", { ascending: false })
+              .limit(1);
+            if (listData && listData[0]?.id) {
+              idParaCancelar = listData[0].id;
+            }
+          }
+        }
+
         const { error } = await supabase
           .from("user_agenda_appointments")
           .update({ canceled_at: agora })
-          .eq("id", agendamentoParaCancelar);
+          .eq("id", idParaCancelar);
 
         if (error) {
           console.error("❌ Erro ao cancelar no Supabase:", error.message);
@@ -583,8 +601,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           targetUid = localStorage.getItem("haas_uid");
         }
         if (!targetUid) {
-          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-          if (fallback?.id) targetUid = fallback.id;
+          // Garante recuperação segura do UID sem requisição desprotegida
+          targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || null;
         }
 
         if (!targetUid) return;
@@ -2336,7 +2354,7 @@ null
                       }
                       setGavetaHorariosAberta(false);
                       const novaDataTexto = `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/2026 a las ${horarioSelecionado}`;
-                      setMeusAgendamentos(prev => [...prev, { tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
+                      setMeusAgendamentos(prev => [...prev, { id: "temp-" + Date.now(), tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
                       if (ehReposicao) {
                         setSucessoAgendamento("REPOSICAO");
                         setCreditosReposicao(prev => {
@@ -2379,19 +2397,22 @@ null
                               const [h, m] = (horarioSelecionado || "00:00").split(":");
                               const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
                               
-                              const { error: errInsert } = await supabase
+                              const { data: dataInserted, error: errInsert } = await supabase
                                 .from("user_agenda_appointments")
                                 .insert([{
                                   user_id: targetUid,
                                   appointment_date: fechaIso,
                                   appointment_type: ehReposicao ? "reposicao" : "regular",
                                   status: "agendada"
-                                }]);
+                                }])
+                                .select();
                               
                               if (errInsert) {
                                 console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
-                              } else {
-                                console.log("✅ [SUPABASE] Agendamento salvo com sucesso em user_agenda_appointments!");
+                              } else if (dataInserted && dataInserted[0]) {
+                                const realUuid = dataInserted[0].id;
+                                console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
+                                setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
                               }
                             }
                           }
