@@ -544,61 +544,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [sucessoAgendamento, setSucessoAgendamento] = useState<'CLOSED' | 'REGULAR' | 'REPOSICAO'>('CLOSED');
   const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1);
   const [anoAgendamento, setAnoAgendamento] = React.useState(() => new Date().getFullYear());
-  const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ tipo: string; dataStr: string }>>([]);
-
-  React.useEffect(() => {
-    async function carregarMeusAgendamentos() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        let targetUid = user?.id;
-        if (!targetUid && typeof window !== "undefined") {
-          targetUid = localStorage.getItem("haas_uid");
-        }
-        if (!targetUid) {
-          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-          if (fallback?.id) targetUid = fallback.id;
-        }
-
-        if (!targetUid) return;
-
-        const { data, error } = await supabase
-          .from("user_agenda_appointments")
-          .select("appointment_date, appointment_type, status, canceled_at")
-          .eq("user_id", targetUid)
-          .is("canceled_at", null)
-          .gte("appointment_date", new Date().toISOString())
-          .order("appointment_date", { ascending: true });
-
-        if (error) {
-          console.error("❌ Erro ao buscar agendamentos do Supabase:", error.message);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          const formatados = data.map((item) => {
-            const dt = new Date(item.appointment_date);
-            const dia = String(dt.getDate()).padStart(2, "0");
-            const mes = String(dt.getMonth() + 1).padStart(2, "0");
-            const ano = dt.getFullYear();
-            const horas = String(dt.getHours()).padStart(2, "0");
-            const minutos = String(dt.getMinutes()).padStart(2, "0");
-            const tipoUpper = (item.appointment_type || "REGULAR").toUpperCase();
-            return {
-              tipo: tipoUpper,
-              dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`
-            };
-          });
-          setMeusAgendamentos(formatados);
-        } else {
-          setMeusAgendamentos([]);
-        }
-      } catch (err) {
-        console.error("Exceção ao sincronizar agendamentos:", err);
-      }
-    }
-
-    carregarMeusAgendamentos();
-  }, []); // Dinâmico baseado no mês real
+  const [meusAgendamentos, setMeusAgendamentos] = React.useState([
+    { tipo: "REPOSICAO", dataStr: "Hoy a las 18:30" },
+    { tipo: "REGULAR", dataStr: "22/06/2026 a las 19:30" }
+  ]); // Dinâmico baseado no mês real
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
@@ -1630,7 +1579,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </div>
 
                       {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
-                      {meusAgendamentos.map((agendamento, index) => {
+                      {meusAgendamentos.slice(2).map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         return (
                           <div key={index} className={`${isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-2 shrink-0`}>
@@ -2335,6 +2284,7 @@ null
                           }
 
                           if (targetUid) {
+                            // 1. Atualiza saldos na tabela user_subscriptions
                             if (ehReposicao) {
                               const novoSaldo = Math.max(0, creditosReposicao - 1);
                               await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
@@ -2343,6 +2293,46 @@ null
                               const novoSaldo = Math.max(0, creditosRegulares - 1);
                               await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
                               console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
+                            }
+
+                            // 2. Busca subscription_id (se existir) para vincular ao agendamento
+                            let subId = null;
+                            try {
+                              const { data: subData } = await supabase.from("user_subscriptions").select("id").eq("user_id", targetUid).maybeSingle();
+                              if (subData?.id) subId = subData.id;
+                            } catch (eSub) {}
+
+                            // 3. Monta a data exata da aula agendada
+                            const [horaStr, minStr] = (horarioSelecionado || "00:00").split(":");
+                            
+                            // Valores em minusculo para respeitar a CHECK CONSTRAINT do banco
+                            const tipoAula = ehReposicao ? "reposicao" : "regular";
+                            const tipoCredito = ehReposicao ? "reposicao" : "regular";
+
+                            // 4. Insere o registro na tabela user_agenda_appointments (alinhado com ModalAgendaAluno.tsx)
+                            const anoStr = "2026";
+                            const mesStr = String(mesAgendamento || 1).padStart(2, "0");
+                            const diaStr = String(diaSelecionado || 1).padStart(2, "0");
+                            const horaFormatada = horarioSelecionado || "00:00";
+                            const fechaAgendadaISO = `${anoStr}-${mesStr}-${diaStr}T${horaFormatada}:00.000Z`;
+                            const tipoBanco = ehReposicao ? "reposicao" : "regular";
+
+                            const { data: agendaInserted, error: errAgenda } = await supabase
+                              .from("user_agenda_appointments")
+                              .insert([
+                                {
+                                  user_id: targetUid,
+                                  appointment_date: fechaAgendadaISO,
+                                  appointment_type: tipoBanco,
+                                  status: "agendada"
+                                }
+                              ])
+                              .select();
+
+                            if (errAgenda) {
+                              console.error("❌ [SUPABASE AGENDA] Erro ao gravar agendamento:", errAgenda.message, errAgenda.details);
+                            } else {
+                              console.log("✅ [SUPABASE AGENDA] Registrado com sucesso em user_agenda_appointments:", agendaInserted);
                             }
                           }
                         } catch (err) {
