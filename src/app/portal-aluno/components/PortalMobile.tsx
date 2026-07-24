@@ -2043,7 +2043,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <div className="w-full flex flex-col gap-2 mt-3">
                         <button 
                           onClick={() => {
-                            handleConfirmarCancelamento();
+                            const msg = idiomaSelecionado === "PT" ? "Cancelamento confirmado. O prazo original desta reposição continua ativo." : idiomaSelecionado === "ES" ? "Cancelación confirmada. El plazo original de esta reposición sigue activo." : "Cancellation confirmed. The original deadline for this makeup remains active.";
+                            alert(msg);
+                            setModalAgenda('CLOSED');
                           }} 
                           className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
@@ -2435,27 +2437,28 @@ null
                               const novoSaldo = Math.max(0, creditosRegulares - 1);
                               await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
                               console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
-                              // Inserção do agendamento no Supabase
-                              const [h, m] = (horarioSelecionado || "00:00").split(":");
-                              const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
-                              
-                              const { data: dataInserted, error: errInsert } = await supabase
-                                .from("user_agenda_appointments")
-                                .insert([{
-                                  user_id: targetUid,
-                                  appointment_date: fechaIso,
-                                  appointment_type: ehReposicao ? "reposicao" : "regular",
-                                  status: "agendada"
-                                }])
-                                .select();
-                              
-                              if (errInsert) {
-                                console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
-                              } else if (dataInserted && dataInserted[0]) {
-                                const realUuid = dataInserted[0].id;
-                                console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
-                                setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
-                              }
+                            }
+
+                            // Inserção do agendamento no Supabase (MOVIDO PARA FORA DO ELSE)
+                            const [h, m] = (horarioSelecionado || "00:00").split(":");
+                            const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
+                            
+                            const { data: dataInserted, error: errInsert } = await supabase
+                              .from("user_agenda_appointments")
+                              .insert([{
+                                user_id: targetUid,
+                                appointment_date: fechaIso,
+                                appointment_type: ehReposicao ? "reposicao" : "regular",
+                                status: "agendada"
+                              }])
+                              .select();
+                            
+                            if (errInsert) {
+                              console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
+                            } else if (dataInserted && dataInserted[0]) {
+                              const realUuid = dataInserted[0].id;
+                              console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
+                              setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
                             }
                           }
                         } catch (err) {
