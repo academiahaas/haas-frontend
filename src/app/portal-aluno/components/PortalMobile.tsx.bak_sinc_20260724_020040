@@ -263,59 +263,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [expirationDate, setExpirationDate] = React.useState<string>("");
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
-  
-  // Função para salvar atualizações de créditos no Supabase
-  const salvarCreditosNoSupabase = async (novosRegulares: number, novosReposicao: number) => {
-    try {
-      let targetUid: string | null | undefined = null;
-
-      // 1. Tentar pegar da sessao atual do Supabase
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        targetUid = session.user.id;
-      }
-
-      // 2. Se nao encontrar, varrer o localStorage
-      if (!targetUid && typeof window !== "undefined") {
-        targetUid = localStorage.getItem("haas_uid") || 
-                    localStorage.getItem("user_id") || 
-                    localStorage.getItem("supabase_uid");
-        
-        // 3. Tentar extrair do token do Supabase no localStorage se existir
-        if (!targetUid) {
-          const sbAuth = Object.keys(localStorage).find(k => k.includes("auth-token"));
-          if (sbAuth) {
-            try {
-              const parsed = JSON.parse(localStorage.getItem(sbAuth) || "{}");
-              targetUid = parsed?.user?.id || parsed?.currentSession?.user?.id;
-            } catch (e) {}
-          }
-        }
-      }
-
-      if (!targetUid) {
-        console.warn("⚠️ [SUPABASE SYNC] Nenhum UID encontrado apos busca exaustiva.");
-        return;
-      }
-
-      const { error } = await supabase
-        .from("user_subscriptions")
-        .update({
-          class_credits_available: novosRegulares,
-          replacement_credits: novosReposicao
-        })
-        .eq("user_id", targetUid);
-
-      if (error) {
-        console.error("❌ [SUPABASE SYNC] Erro Supabase:", error.message);
-      } else {
-        console.log("✅ [SUPABASE SYNC] Sucesso! UID:", targetUid, "| Regulares:", novosRegulares, "| Reposicao:", novosReposicao);
-      }
-    } catch (err) {
-      console.error("❌ [SUPABASE SYNC] Excecao:", err);
-    }
-  };
-
   const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
   console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
@@ -2256,43 +2203,24 @@ null
                       setMeusAgendamentos(prev => [...prev, { tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
                       if (ehReposicao) {
                         setSucessoAgendamento("REPOSICAO");
-                        setCreditosReposicao(prev => {
-                          const n = Math.max(0, prev - 1);
-                          
-                          return n;
-                        });
+                        setCreditosReposicao(prev => Math.max(0, prev - 1));
                       } else {
                         setSucessoAgendamento("REGULAR");
-                        setCreditosRegulares(prev => {
-                          const n = Math.max(0, prev - 1);
-                          
-                          return n;
-                        });
+                        setCreditosRegulares(prev => Math.max(0, prev - 1));
                       }
 
                       // Atualiza dinamicamente no Supabase
                       (async () => {
                         try {
-                          const { data: { user } } = await supabase.auth.getUser();
-                          let targetUid = user?.id;
-                          if (!targetUid) {
-                            const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-                            if (fallback?.id) targetUid = fallback.id;
-                          }
-                          if (!targetUid && typeof window !== "undefined") {
-                            targetUid = localStorage.getItem("haas_uid");
-                          }
+                          const targetUid = typeof window !== "undefined" ? localStorage.getItem("haas_uid") : null;
+                          if (!targetUid) return;
 
-                          if (targetUid) {
-                            if (ehReposicao) {
-                              const novoSaldo = Math.max(0, creditosReposicao - 1);
-                              await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] replacement_credits atualizado para:", novoSaldo);
-                            } else {
-                              const novoSaldo = Math.max(0, creditosRegulares - 1);
-                              await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
-                            }
+                          if (ehReposicao) {
+                            const novoSaldo = Math.max(0, creditosReposicao - 1);
+                            await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
+                          } else {
+                            const novoSaldo = Math.max(0, creditosRegulares - 1);
+                            await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
                           }
                         } catch (err) {
                           console.error("Erro ao atualizar creditos no Supabase:", err);
