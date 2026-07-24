@@ -2203,29 +2203,9 @@ null
                       setMeusAgendamentos(prev => [...prev, { tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
                       if (ehReposicao) {
                         setSucessoAgendamento("REPOSICAO");
-                        setCreditosReposicao(prev => Math.max(0, prev - 1));
                       } else {
                         setSucessoAgendamento("REGULAR");
-                        setCreditosRegulares(prev => Math.max(0, prev - 1));
                       }
-
-                      // Atualiza dinamicamente no Supabase
-                      (async () => {
-                        try {
-                          const targetUid = typeof window !== "undefined" ? localStorage.getItem("haas_uid") : null;
-                          if (!targetUid) return;
-
-                          if (ehReposicao) {
-                            const novoSaldo = Math.max(0, creditosReposicao - 1);
-                            await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
-                          } else {
-                            const novoSaldo = Math.max(0, creditosRegulares - 1);
-                            await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
-                          }
-                        } catch (err) {
-                          console.error("Erro ao atualizar creditos no Supabase:", err);
-                        }
-                      })();
                     }}
                     className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 border ${
                       horarioSelecionado 
