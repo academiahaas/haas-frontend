@@ -260,6 +260,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
   const [expirationDate, setExpirationDate] = React.useState<string>("");
+  const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
 
@@ -841,7 +842,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
 
           if (targetUid) {
-            const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date, class_credits_available, replacement_credits").eq("user_id", targetUid).maybeSingle();
+            console.log("🔍 [SUPABASE DEBUG] Buscando assinatura para UID:", targetUid);
+            const { data: sub, error: errSub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date, class_credits_available, replacement_credits").eq("user_id", targetUid).maybeSingle();
+            if (errSub) console.error("❌ [SUPABASE ERROR]:", errSub);
+            console.log("📊 [SUPABASE DADOS RECEBIDOS]:", sub);
             if (sub?.plan_category) setPlanCategory(sub.plan_category);
             if (sub?.class_credits_available !== undefined && sub?.class_credits_available !== null) {
               setCreditosRegulares(sub.class_credits_available);
@@ -850,6 +854,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               setCreditosReposicao(sub.replacement_credits);
             }
             if (sub?.expiration_date) {
+              setDataExpiracaoIso(sub.expiration_date);
               const dt = new Date(sub.expiration_date);
               const hoy = new Date();
               const diffMs = dt.getTime() - hoy.getTime();
@@ -2228,8 +2233,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           const dataAlvo = new Date(anoCalculado, mesAgendamento - 1, numDay);
                           const dataHojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
                           
-                          if (dataAlvo < dataHojeSemHora || (feriadosColombia2026[mesAgendamento] || []).includes(numDay)) {
-                            return <div key={i} className="aspect-square bg-transparent opacity-0" />;
+                          // Data de expiração real do aluno
+                          let dtExpUsuario = vencimentoPlano ? new Date(vencimentoPlano) : null;
+                          const passouDaExpiracao = dtExpUsuario ? (dataAlvo > dtExpUsuario) : false;
+                          const temReposicaoDisponivel = creditosReposicao > 0;
+
+                          // Bloqueia se for passado, se for feriado, OU se passou da expiração E NÃO tem crédito de reposição
+                          const diaBloqueado = dataAlvo < dataHojeSemHora || 
+                                               (feriadosColombia2026[mesAgendamento] || []).includes(numDay) ||
+                                               (passouDaExpiracao && !temReposicaoDisponivel);
+
+                          if (diaBloqueado) {
+                            return <div key={i} className="aspect-square bg-transparent opacity-30 cursor-not-allowed flex items-center justify-center text-slate-600 font-mono text-xs">{d}</div>;
                           }
 
                           const isSelected = diaSelecionado === d;
@@ -2250,24 +2265,39 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CRITÉRIO DE TRAVA DINÂMICA FINANCEIRA NO BOTÃO AVANÇAR */}
                 <div className="w-full pt-0">
                   {(() => {
-                    const foraDoCiclo = (mesAgendamento === 7 && parseInt(diaSelecionado) >= 26) || mesAgendamento > 7 || anoAgendamento > 2026;
-                    const travaAtiva = foraDoCiclo;
-                    
-                    if (travaAtiva) {
-                      return (
-null
-                      );
+                    // Validação infalível por texto de Data (Sem erro de Fuso Horário)
+                    let passouExpiracao = false;
+                    if (dataExpiracaoIso && diaSelecionado) {
+                      try {
+                        const strExp = dataExpiracaoIso.split("T")[0]; // "2026-08-01"
+                        const strSel = `${anoAgendamento}-${String(mesAgendamento).padStart(2, "0")}-${String(diaSelecionado).padStart(2, "0")}`; // "2026-08-02"
+                        if (strSel > strExp) {
+                          passouExpiracao = true;
+                        }
+                      } catch (e) {}
                     }
+
+                    // TRAVA ESTREITA: Apenas Data de Validade + Créditos Regulares
+                    const temCreditoRegular = creditosRegulares > 0;
+                    const travaAtiva = passouExpiracao || !temCreditoRegular;
                     
                     const hojeData = new Date();
                     const ehHoje = mesAgendamento === (hojeData.getMonth() + 1) && parseInt(diaSelecionado) === hojeData.getDate() && anoAgendamento === hojeData.getFullYear();
                     const temDia = diaSelecionado !== "" && !ehHoje;
+
+                    console.log("%c 🚨 [CONTINUAR A HORARIOS] 🚨", "background: #ff0055; color: #fff; font-size: 14px; font-weight: bold; padding: 4px;");
+                    console.log("👉 Dia Selecionado:", diaSelecionado);
+                    console.log("👉 Passou da Expiracao?:", passouExpiracao);
+                    console.log("👉 Creditos Regulares:", creditosRegulares);
+                    console.log("👉 Creditos Reposicao:", creditosReposicao);
+                    console.log("👉 TRAVA ATIVA (Bloqueado?):", travaAtiva);
+
                     return (
                       <button 
-                        disabled={!temDia}
+                        disabled={!temDia || travaAtiva}
                         onClick={() => { setGavetaCalendarioAberta(false); setGavetaHorariosAberta(true); }}
                         className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 ${
-                          temDia 
+                          (temDia && !travaAtiva) 
                                                         ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                             : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
                         }`}
