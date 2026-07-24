@@ -2265,21 +2265,39 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CRITÉRIO DE TRAVA DINÂMICA FINANCEIRA NO BOTÃO AVANÇAR */}
                 <div className="w-full pt-0">
                   {(() => {
-                    // Validação infalível por texto de Data (Sem erro de Fuso Horário)
+                    // TRAVA DUPLA: REGULAR vs REPOSIÇÃO (BASEADA EM expiration_date + 10 DIAS)
+                    const modoAgenda = (typeof window !== "undefined" && (window as any)._filtroAgenda) || "regular";
                     let passouExpiracao = false;
-                    if (dataExpiracaoIso && diaSelecionado) {
-                      try {
-                        const strExp = dataExpiracaoIso.split("T")[0]; // "2026-08-01"
-                        const strSel = `${anoAgendamento}-${String(mesAgendamento).padStart(2, "0")}-${String(diaSelecionado).padStart(2, "0")}`; // "2026-08-02"
-                        if (strSel > strExp) {
-                          passouExpiracao = true;
-                        }
-                      } catch (e) {}
-                    }
+                    let travaAtiva = false;
 
-                    // TRAVA ESTREITA: Apenas Data de Validade + Créditos Regulares
-                    const temCreditoRegular = creditosRegulares > 0;
-                    const travaAtiva = passouExpiracao || !temCreditoRegular;
+                    const selMs = new Date(anoAgendamento, mesAgendamento - 1, parseInt(diaSelecionado)).setHours(0, 0, 0, 0);
+
+                    if (modoAgenda === "reposicao") {
+                      // Reposição: Validade estendida em +10 dias a partir da user_subscriptions.expiration_date
+                      let limiteReposicaoMs = Infinity;
+                      if (dataExpiracaoIso) {
+                        const expMs = new Date(dataExpiracaoIso).setHours(0, 0, 0, 0);
+                        limiteReposicaoMs = expMs + (10 * 24 * 60 * 60 * 1000); // Expiracao + 10 dias
+                      }
+
+                      const excedeu10DiasReposicao = selMs > limiteReposicaoMs;
+                      const semCreditoReposicao = creditosReposicao <= 0;
+
+                      passouExpiracao = excedeu10DiasReposicao;
+                      travaAtiva = excedeu10DiasReposicao || semCreditoReposicao;
+                    } else {
+                      // Regular: Validade exata até a user_subscriptions.expiration_date
+                      let limiteRegularMs = Infinity;
+                      if (dataExpiracaoIso) {
+                        limiteRegularMs = new Date(dataExpiracaoIso).setHours(0, 0, 0, 0);
+                      }
+
+                      const excedeuExpiracaoRegular = selMs > limiteRegularMs;
+                      const semCreditoRegular = creditosRegulares <= 0;
+
+                      passouExpiracao = excedeuExpiracaoRegular;
+                      travaAtiva = excedeuExpiracaoRegular || semCreditoRegular;
+                    }
                     
                     const hojeData = new Date();
                     const ehHoje = mesAgendamento === (hojeData.getMonth() + 1) && parseInt(diaSelecionado) === hojeData.getDate() && anoAgendamento === hojeData.getFullYear();
