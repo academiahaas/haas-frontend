@@ -1665,7 +1665,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                     {gavetaRegulamentoAberta && (
                       <div className="flex flex-col gap-1 text-[11px] md:text-sm text-slate-300 font-medium leading-relaxed font-mono border-t border-white/[0.03] pt-2 animate-fade-in">
-                        <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
+                        <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 10 dias após o vencimento para manter seu ritmo e fluxo de aprendizado." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 10 días posteriores al vencimiento para mantener tu ritmo y flujo de aprendizaje." : "Makeup: Schedule within 10 days of plan expiration to maintain your learning flow and momentum."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
                         <p className="text-cyan-400 font-bold mt-1 text-[10px] md:text-xs tracking-wide border-t border-white/[0.02] pt-1">
@@ -2003,7 +2003,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </h3>
                       <p className="text-xs md:text-base text-slate-300 font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
-                          <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 5 dias para reagendá-la.</>
+                          <>{idiomaSelecionado === "PT" ? (
+  <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 10 dias após o vencimento do plano para reagendá-la e manter seu fluxo de aprendizado.</>
+) : idiomaSelecionado === "ES" ? (
+  <>Estás solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúas, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrás hasta 10 días tras el vencimiento del plan para reprogramarla y mantener tu flujo de aprendizaje.</>
+) : (
+  <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will turn into a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 10 days post-expiration to reschedule it and keep your learning momentum.</>
+)}</>
                         ) : idiomaSelecionado === "ES" ? (
                           <>Está solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrá hasta 5 días para programarla de nuevo.</>
                         ) : (
