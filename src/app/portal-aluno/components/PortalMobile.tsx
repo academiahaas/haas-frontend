@@ -613,7 +613,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             return {
               id: item.id,
               tipo: tipoUpper,
-              dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`
+              dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`,
+              canceled_at: item.canceled_at,
+              status: item.status
             };
           });
           setMeusAgendamentos(formatados);
