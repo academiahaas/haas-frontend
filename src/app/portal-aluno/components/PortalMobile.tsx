@@ -695,7 +695,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
-  const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
+  const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(false);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
   const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
   React.useEffect(() => {
