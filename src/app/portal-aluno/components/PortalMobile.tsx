@@ -262,6 +262,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [expirationDate, setExpirationDate] = React.useState<string>("");
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
+
+  // Efeito isolado para disparar a sincronização quando o valor de reposição mudar
+  React.useEffect(() => {
+    if (creditosReposicao > 0) {
+      salvarCreditosNoSupabase(creditosRegulares, creditosReposicao);
+    }
+  }, [creditosReposicao]);
   
   // Função para salvar atualizações de créditos no Supabase
   const salvarCreditosNoSupabase = async (novosRegulares: number, novosReposicao: number) => {
@@ -290,6 +297,15 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             } catch (e) {}
           }
         }
+      }
+
+      if (!targetUid && (alunoData as any)?.id) {
+        targetUid = (alunoData as any).id;
+      }
+
+      if (!targetUid) {
+        const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
+        if (fallback?.id) targetUid = fallback.id;
       }
 
       if (!targetUid) {
@@ -374,22 +390,29 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           // Incrementa o crédito de reposição na UI imediatamente
           setCreditosReposicao(prev => prev + 1);
 
-          // Atualiza o saldo no Supabase
-          const uid = (typeof window !== "undefined" && localStorage.getItem("haas_uid")) || (alunoData as any)?.id;
-          if (uid) {
-            supabase
+          // Atualiza o saldo no Supabase obtendo o UID idêntico ao carregamento inicial
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          const targetUidSync = authUser?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id;
+
+          if (targetUidSync) {
+            const { data: subData } = await supabase
               .from("user_subscriptions")
               .select("replacement_credits")
-              .eq("user_id", uid)
-              .maybeSingle()
-              .then(({ data: subData }) => {
-                const atual = subData?.replacement_credits ?? 0;
-                supabase
-                  .from("user_subscriptions")
-                  .update({ replacement_credits: atual + 1 })
-                  .eq("user_id", uid)
-                  .then(() => console.log("✅ Crédito de reposição incrementado no Supabase!"));
-              });
+              .eq("user_id", targetUidSync)
+              .maybeSingle();
+            
+            const atual = subData?.replacement_credits ?? 0;
+            const novoValor = atual + 1;
+
+            const { error: errSub } = await supabase
+              .from("user_subscriptions")
+              .upsert({ user_id: targetUidSync, replacement_credits: novoValor }, { onConflict: "user_id" });
+
+            if (errSub) {
+              console.error("❌ Erro ao atualizar replacement_credits no Supabase:", errSub.message);
+            } else {
+              console.log("✅ [SUPABASE] replacement_credits atualizado com sucesso no BD para:", novoValor);
+            }
           }
         }
       }
