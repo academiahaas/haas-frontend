@@ -2304,29 +2304,23 @@ null
 
                             // 3. Monta a data exata da aula agendada
                             const [horaStr, minStr] = (horarioSelecionado || "00:00").split(":");
-                            
+                            const fechaAgendada = new Date(2026, (mesAgendamento || 1) - 1, Number(diaSelecionado || 1), Number(horaStr || 0), Number(minStr || 0)).toISOString();
                             // Valores em minusculo para respeitar a CHECK CONSTRAINT do banco
                             const tipoAula = ehReposicao ? "reposicao" : "regular";
                             const tipoCredito = ehReposicao ? "reposicao" : "regular";
 
-                            // 4. Insere o registro na tabela user_agenda_appointments (alinhado com ModalAgendaAluno.tsx)
-                            const anoStr = "2026";
-                            const mesStr = String(mesAgendamento || 1).padStart(2, "0");
-                            const diaStr = String(diaSelecionado || 1).padStart(2, "0");
-                            const horaFormatada = horarioSelecionado || "00:00";
-                            const fechaAgendadaISO = `${anoStr}-${mesStr}-${diaStr}T${horaFormatada}:00.000Z`;
-                            const tipoBanco = ehReposicao ? "reposicao" : "regular";
-
+                            // 4. Insere o registro na tabela user_agenda_appointments
                             const { data: agendaInserted, error: errAgenda } = await supabase
                               .from("user_agenda_appointments")
-                              .insert([
-                                {
-                                  user_id: targetUid,
-                                  appointment_date: fechaAgendadaISO,
-                                  appointment_type: tipoBanco,
-                                  status: "agendada"
-                                }
-                              ])
+                              .insert([{
+                                user_id: targetUid,
+                                subscription_id: subId,
+                                appointment_date: fechaAgendada,
+                                appointment_type: tipoAula,
+                                credit_used_type: tipoCredito,
+                                status: "SCHEDULED",
+                                created_at: new Date().toISOString()
+                              }])
                               .select();
 
                             if (errAgenda) {
