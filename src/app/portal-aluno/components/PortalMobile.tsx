@@ -339,7 +339,35 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     return () => clearInterval(interval);
   }, []);
   const [abaAtiva, setAbaAtiva] = useState<'inicio' | 'agenda' | 'tarefas' | 'perfil'>('dashboard' as any);
-      const [modalAgenda, setModalAgenda] = React.useState('CLOSED');
+      
+  const handleConfirmarCancelamento = async () => {
+    try {
+      if (agendamentoParaCancelar) {
+        const agora = new Date().toISOString();
+        const { error } = await supabase
+          .from("user_agenda_appointments")
+          .update({ canceled_at: agora })
+          .eq("id", agendamentoParaCancelar);
+
+        if (error) {
+          console.error("❌ Erro ao cancelar no Supabase:", error.message);
+        } else {
+          console.log("✅ Cancelamento gravado com sucesso no Supabase (canceled_at)!");
+        }
+      }
+    } catch (e) {
+      console.error("Exceção ao cancelar:", e);
+    } finally {
+      // Remove o agendamento cancelado do estado local para a UI atualizar na hora
+      if (agendamentoParaCancelar) {
+        setMeusAgendamentos(prev => prev.filter(a => a.id !== agendamentoParaCancelar));
+      }
+      setAgendamentoParaCancelar(null);
+      setModalAgenda("CLOSED");
+    }
+  };
+
+  const [modalAgenda, setModalAgenda] = React.useState('CLOSED');
   const [modalCreditosAberto, setModalCreditosAberto] = React.useState(false);
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = React.useState(false);
   const [isVencidoSimulado, setIsVencidoSimulado] = React.useState(false);
@@ -544,7 +572,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [sucessoAgendamento, setSucessoAgendamento] = useState<'CLOSED' | 'REGULAR' | 'REPOSICAO'>('CLOSED');
   const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1);
   const [anoAgendamento, setAnoAgendamento] = React.useState(() => new Date().getFullYear());
-  const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ tipo: string; dataStr: string }>>([]);
+  const [agendamentoParaCancelar, setAgendamentoParaCancelar] = React.useState<string | null>(null);
+  const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ id?: string; tipo: string; dataStr: string }>>([]);
 
   React.useEffect(() => {
     async function carregarMeusAgendamentos() {
@@ -563,7 +592,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
         const { data, error } = await supabase
           .from("user_agenda_appointments")
-          .select("appointment_date, appointment_type, status, canceled_at")
+          .select("id, appointment_date, appointment_type, status, canceled_at")
           .eq("user_id", targetUid)
           .is("canceled_at", null)
           .gte("appointment_date", new Date().toISOString())
@@ -584,6 +613,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             const minutos = String(dt.getMinutes()).padStart(2, "0");
             const tipoUpper = (item.appointment_type || "REGULAR").toUpperCase();
             return {
+              id: item.id,
               tipo: tipoUpper,
               dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`
             };
@@ -1643,7 +1673,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                               <p className="text-[clamp(13px,3.6vw,15px)] text-white font-bold">{agendamento.dataStr}</p>
                             </div>
                             <button 
-                              onClick={() => setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS")}
+                              onClick={() => { if (agendamento.id) setAgendamentoParaCancelar(agendamento.id); setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS"); }}
                               className="w-full py-2.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-w-0"
                             >
                               {idiomaSelecionado === "PT" ? "Cancelar Sessão" : idiomaSelecionado === "ES" ? "Cancelar Sesión" : "Cancel Session"}
@@ -1909,11 +1939,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </p>
                       <div className="w-full flex flex-col gap-2 mt-3">
                         <button 
-                          onClick={() => {
-                            const msg = idiomaSelecionado === "PT" ? "Sessão Regular cancelada com sucesso!" : idiomaSelecionado === "ES" ? "¡Sesión Regular cancelada con éxito!" : "Regular Session canceled successfully!";
-                            alert(msg);
-                            setModalAgenda('CLOSED');
-                          }} 
+                          onClick={handleConfirmarCancelamento} 
                           className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5"
                         >
                           {idiomaSelecionado === "PT" ? "Sim, Cancelar Sessão" : idiomaSelecionado === "ES" ? "Sí, Cancelar Sesión" : "Yes, Cancel Session"}
