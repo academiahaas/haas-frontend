@@ -1764,7 +1764,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 <div className="w-full pt-0 bg-transparent shrink-0">
                   <button 
-                    onClick={() => { setGavetaTipoAulaAberta(true); }}
+                    onClick={() => { setTipoAgendamento("REGULAR"); const padraoComSaldo = Object.keys(saldosDoAluno || {}).find(key => (saldosDoAluno as any)[key] > 0) || "vip_std"; setModalidadeSelecionada(padraoComSaldo); setGavetaCalendarioAberta(true); }}
                     className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4"
                   >
                     {idiomaSelecionado === "PT" ? "Agendar Nova Sessão" : idiomaSelecionado === "ES" ? "Programar Nueva Sesión" : "Book New Session"}
