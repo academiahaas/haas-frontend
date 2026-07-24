@@ -359,7 +359,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     } finally {
       // Remove o agendamento cancelado do estado local para a UI atualizar na hora
       if (agendamentoParaCancelar) {
-        setMeusAgendamentos(prev => prev.filter(a => a.id !== agendamentoParaCancelar));
+        setMeusAgendamentos(prev => prev.map(a => a.id === agendamentoParaCancelar ? { ...a, canceled_at: new Date().toISOString() } : a));
       }
       setAgendamentoParaCancelar(null);
       setModalAgenda("CLOSED");
@@ -1660,21 +1660,27 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
                       {meusAgendamentos.map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
+                        const isCanceled = Boolean((agendamento as any).canceled_at || (agendamento as any).status === "canceled" || (agendamento as any).status === "cancelled");
+                        
                         return (
-                          <div key={index} className={`${isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-2 shrink-0`}>
+                          <div key={index} className={`${isCanceled ? "bg-neutral-800/40 border border-neutral-700/50 opacity-60" : isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-2 shrink-0 transition-all`}>
                             <div className="flex justify-between items-center">
-                              <span className={`px-2 py-0.5 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border ${isRegular ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
+                              <span className={`px-2 py-0.5 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border ${isCanceled ? "bg-neutral-700/40 text-neutral-400 border-neutral-600/50" : isRegular ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
                                 {agendamento.tipo}
                               </span>
                             </div>
-                            <div className={`flex flex-col gap-0.5 border-l-2 ${isRegular ? "border-cyan-500" : "border-orange-500"} pl-2 py-0.5`}>
-                              <p className="text-[clamp(13px,3.6vw,15px)] text-white font-bold">{agendamento.dataStr}</p>
+                            <div className={`flex flex-col gap-0.5 border-l-2 ${isCanceled ? "border-neutral-500" : isRegular ? "border-cyan-500" : "border-orange-500"} pl-2 py-0.5`}>
+                              <p className={`text-[clamp(13px,3.6vw,15px)] font-bold ${isCanceled ? "text-neutral-400 line-through" : "text-white"}`}>{agendamento.dataStr}</p>
                             </div>
                             <button 
-                              onClick={() => { if (agendamento.id) setAgendamentoParaCancelar(agendamento.id); setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS"); }}
-                              className="w-full py-2.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-w-0"
+                              disabled={isCanceled}
+                              onClick={() => { if (!isCanceled && agendamento.id) { setAgendamentoParaCancelar(agendamento.id); setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS"); } }}
+                              className={`w-full py-2.5 text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-w-0 ${isCanceled ? "bg-neutral-800/80 border border-neutral-700/50 text-neutral-500 cursor-not-allowed" : "bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer"}`}
                             >
-                              {idiomaSelecionado === "PT" ? "Cancelar Sessão" : idiomaSelecionado === "ES" ? "Cancelar Sesión" : "Cancel Session"}
+                              {isCanceled 
+                                ? (idiomaSelecionado === "PT" ? "Cancelado" : idiomaSelecionado === "ES" ? "Cancelado" : "Cancelled")
+                                : (idiomaSelecionado === "PT" ? "Cancelar Sessão" : idiomaSelecionado === "ES" ? "Cancelar Sesión" : "Cancel Session")
+                              }
                             </button>
                           </div>
                         );
