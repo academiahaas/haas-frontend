@@ -2455,7 +2455,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       }
                       setGavetaHorariosAberta(false);
                       const novaDataTexto = `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/2026 a las ${horarioSelecionado}`;
-                      setMeusAgendamentos(prev => [...prev, { id: "temp-" + Date.now(), tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
+                      setMeusAgendamentos(prev => [{ id: "temp-" + Date.now(), tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }, ...prev]);
                       if (ehReposicao) {
                         setSucessoAgendamento("REPOSICAO");
                         setCreditosReposicao(prev => {
