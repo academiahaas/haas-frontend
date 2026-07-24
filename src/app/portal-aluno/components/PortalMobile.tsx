@@ -132,7 +132,6 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado, supabase, userI
           .from("user_agenda_appointments")
           .select("appointment_date, status, canceled_at")
           .eq("user_id", userId)
-          .is("canceled_at", null)
           .gte("appointment_date", inicioSemana.toISOString())
           .lte("appointment_date", fimSemana.toISOString());
 
@@ -594,7 +593,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           .from("user_agenda_appointments")
           .select("id, appointment_date, appointment_type, status, canceled_at")
           .eq("user_id", targetUid)
-          .is("canceled_at", null)
           .gte("appointment_date", new Date().toISOString())
           .order("appointment_date", { ascending: true });
 
@@ -2369,6 +2367,24 @@ null
                               const novoSaldo = Math.max(0, creditosRegulares - 1);
                               await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
                               console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
+                              // Inserção do agendamento no Supabase
+                              const [h, m] = (horarioSelecionado || "00:00").split(":");
+                              const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
+                              
+                              const { error: errInsert } = await supabase
+                                .from("user_agenda_appointments")
+                                .insert([{
+                                  user_id: targetUid,
+                                  appointment_date: fechaIso,
+                                  appointment_type: ehReposicao ? "reposicao" : "regular",
+                                  status: "agendada"
+                                }]);
+                              
+                              if (errInsert) {
+                                console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
+                              } else {
+                                console.log("✅ [SUPABASE] Agendamento salvo com sucesso em user_agenda_appointments!");
+                              }
                             }
                           }
                         } catch (err) {
