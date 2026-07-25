@@ -749,61 +749,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [gavetaTipoAulaAberta, setGavetaTipoAulaAberta] = React.useState(false);
   const [gavetaCalendarioAberta, setGavetaCalendarioAberta] = React.useState(false);
   const [gavetaHorariosAberta, setGavetaHorariosAberta] = React.useState(false);
-
-  // State e Effect para busca dinamica de horarios no Supabase
-  const [horariosDoBanco, setHorariosDoBanco] = React.useState<string[]>([]);
-  const [carregandoHorarios, setCarregandoHorarios] = React.useState(false);
-
-  React.useEffect(() => {
-    async function buscarHorariosReais() {
-      if (!gavetaHorariosAberta || !diaSelecionado) return;
-      
-      setCarregandoHorarios(true);
-      console.log('🔥 [SUPABASE] Buscando horarios para:', { diaSelecionado, mesAgendamento });
-
-      try {
-        // Formata data de inicio e fim do dia selecionado (ex: 2026-07-26)
-        const ano = 2026;
-        const mesStr = String(mesAgendamento).padStart(2, '0');
-        const diaStr = String(diaSelecionado).padStart(2, '0');
-        
-        const dataInicioISO = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
-        const dataFimISO = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
-
-        const { data, error } = await supabase
-          .from('aulas_disponiveis')
-          .select('*')
-          .gte('data_hora_inicio', dataInicioISO)
-          .lte('data_hora_inicio', dataFimISO)
-          .eq('status', 'DISPONIVEL');
-
-        console.log('🔥 [SUPABASE] Resposta recebida:', { data, error });
-
-        if (error) {
-          console.error('❌ Erro Supabase:', error.message);
-          setHorariosDoBanco([]);
-        } else if (data) {
-          // Extrai o HH:mm de cada aula encontrada
-          const listaHorarios = data.map((aula: any) => {
-            const dateObj = new Date(aula.data_hora_inicio);
-            const horas = String(dateObj.getUTCHours()).padStart(2, '0');
-            const min = String(dateObj.getUTCMinutes()).padStart(2, '0');
-            return `${horas}:${min}`;
-          });
-          
-          console.log('🔥 [SUPABASE] Horarios processados:', listaHorarios);
-          setHorariosDoBanco(listaHorarios);
-        }
-      } catch (err) {
-        console.error('❌ Exceção ao buscar horarios:', err);
-      } finally {
-        setCarregandoHorarios(false);
-      }
-    }
-
-    buscarHorariosReais();
-  }, [gavetaHorariosAberta, diaSelecionado, mesAgendamento]);
-
   const [statusRespostaMobile, setStatusRespostaMobile] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [opcaoSelecionadaMobile, setOpcaoSelecionadaMobile] = React.useState(false);
 
@@ -1819,7 +1764,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 <div className="w-full pt-0 bg-transparent shrink-0">
                   <button 
-                    onClick={() => { const eReposicao = (window as any)._filtroAgenda === "reposicao"; setTipoAgendamento(eReposicao ? "REPOSICAO" : "REGULAR"); const padraoComSaldo = Object.keys(saldosDoAluno || {}).find(key => (saldosDoAluno as any)[key] > 0) || "vip_std"; setModalidadeSelecionada(padraoComSaldo); setGavetaCalendarioAberta(true); }}
+                    onClick={() => { setGavetaTipoAulaAberta(true); }}
                     className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4"
                   >
                     {idiomaSelecionado === "PT" ? "Agendar Nova Sessão" : idiomaSelecionado === "ES" ? "Programar Nueva Sesión" : "Book New Session"}

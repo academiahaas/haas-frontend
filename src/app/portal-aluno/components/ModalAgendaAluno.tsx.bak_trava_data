@@ -99,13 +99,6 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   const tipoRef = useRef<HTMLDivElement>(null);
   const horarioRef = useRef<HTMLDivElement>(null);
 
-  // Trava de Elegibilidade por Data e Crédito
-  const planoValidoData = selectedDate <= (planoAluno.validade || "1970-01-01");
-  const temCreditoAulas = (planoAluno.creditosAulas || 0) > 0;
-  const temCreditoReposicao = (planoAluno.creditosReposicao || 0) > 0;
-  const podeAgendarData = (planoValidoData && temCreditoAulas) || temCreditoReposicao;
-
-
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [currentNavDate, setCurrentNavDate] = useState(new Date());
 
@@ -720,9 +713,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                     <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.lblTime}</label>
                     <button
                       type="button"
-                      disabled={!podeAgendarData}
-                      onClick={() => { if(podeAgendarData) { setIsHorarioDropdownOpen(!isHorarioDropdownOpen); setIsTipoDropdownOpen(false); } }}
-                      className={`w-full bg-white/5 border rounded-xl px-3 py-2 text-xs font-mono flex justify-between items-center transition-all focus:outline-none ${!podeAgendarData ? "opacity-40 border-slate-700 text-slate-500 cursor-not-allowed" : "border-amber-500/40 hover:border-amber-500 text-amber-500 cursor-pointer"}`}
+                      onClick={() => { setIsHorarioDropdownOpen(!isHorarioDropdownOpen); setIsTipoDropdownOpen(false); }}
+                      className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                     >
                       <span className="text-amber-500 font-black">{selectedHorario}</span>
                       <ChevronDown size={14} className="text-amber-500" />
@@ -747,7 +739,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   </div>
                 </div>
 
-                <button type="button" disabled={!podeAgendarData} onClick={validarAntesDeAgendar} className={`w-full py-2 mt-2 rounded-xl text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md shrink-0 ${!podeAgendarData ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed border border-slate-700" : "bg-amber-500 hover:bg-amber-400 text-black cursor-pointer"}`}>
+                <button type="button" onClick={validarAntesDeAgendar} className="w-full py-2 mt-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md cursor-pointer shrink-0">
                   {t.btnConfirm}
                 </button>
               </div>

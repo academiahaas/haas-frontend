@@ -695,6 +695,46 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
+  const [ocupacaoHorarios, setOcupacaoHorarios] = React.useState<Record<string, number>>({});
+
+  React.useEffect(() => {
+    async function carregarOcupacaoDoDia() {
+      try {
+        const ano = 2026;
+        const mStr = String(mesAgendamento).padStart(2, '0');
+        const dStr = String(diaSelecionado).padStart(2, '0');
+        const inicioDia = `${ano}-${mStr}-${dStr}T00:00:00.000Z`;
+        const fimDia = `${ano}-${mStr}-${dStr}T23:59:59.999Z`;
+
+        const { data, error } = await supabase
+          .from('user_agenda_appointments')
+          .select('appointment_date, status, canceled_at')
+          .gte('appointment_date', inicioDia)
+          .lte('appointment_date', fimDia);
+
+        if (error) {
+          console.error('Erro ao buscar ocupação global:', error);
+          return;
+        }
+
+        const mapaOcupacao: Record<string, number> = {};
+        (data || []).forEach((item: any) => {
+          if (item.canceled_at || item.status === 'cancelada') return;
+          const dt = new Date(item.appointment_date);
+          const hh = String(dt.getHours()).padStart(2, '0');
+          const mm = String(dt.getMinutes()).padStart(2, '0');
+          const slot = `${hh}:${mm}`;
+          mapaOcupacao[slot] = (mapaOcupacao[slot] || 0) + 1;
+        });
+
+        console.log('🔥 [SUPABASE MAPA OCUPACAO]:', mapaOcupacao);
+        setOcupacaoHorarios(mapaOcupacao);
+      } catch (err) {
+        console.error('Exceção ao buscar ocupação:', err);
+      }
+    }
+    carregarOcupacaoDoDia();
+  }, [diaSelecionado, mesAgendamento]);
   const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(false);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
   const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
@@ -2460,15 +2500,22 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         return diferenca >= 24;
                       }).map((h) => {
                         const isSelected = horarioSelecionado === h;
+                        const esGrupo = ['grupo', 'pack_grupo'].includes(modalidadeSelecionada) || (modalidadeSelecionada && modalidadeSelecionada.includes('grupo'));
+                        const limiteVagas = esGrupo ? 8 : 1;
+                        const vagasOcupadas = ocupacaoHorarios[h] || 0;
+                        const isEsgotado = vagasOcupadas >= limiteVagas;
+
                         return (
                           <button
                             key={h}
-                            onClick={() => setHorarioSelecionado(h)}
-                            /* USANDO ring-2 EM VEZ DE border PARA NÃO MELECAR O LAYOUT HORIZONTAL */
-                            className={`py-2.5 md:py-4 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all cursor-pointer border border-transparent ${
-                              isSelected 
-                                ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/10' 
-                                : 'bg-slate-900/40 border-white/[0.03] text-slate-300'
+                            disabled={isEsgotado}
+                            onClick={() => !isEsgotado && setHorarioSelecionado(h)}
+                            className={`py-2.5 md:py-4 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all border border-transparent ${
+                              isEsgotado
+                                ? 'bg-slate-800 text-slate-600 opacity-40 cursor-not-allowed'
+                                : isSelected 
+                                  ? 'bg-cyan-500 text-black font-black shadow-lg shadow-cyan-500/10 cursor-pointer' 
+                                  : 'bg-slate-900/40 border-white/[0.03] text-slate-300 cursor-pointer hover:bg-slate-800'
                             }`}
                           >
                             {h}

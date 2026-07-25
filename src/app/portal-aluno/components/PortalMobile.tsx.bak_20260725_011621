@@ -770,12 +770,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         const dataInicioISO = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
         const dataFimISO = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
 
+        // Busca ampla para inspecionar o formato real do banco
         const { data, error } = await supabase
           .from('aulas_disponiveis')
           .select('*')
-          .gte('data_hora_inicio', dataInicioISO)
-          .lte('data_hora_inicio', dataFimISO)
-          .eq('status', 'DISPONIVEL');
+          .limit(10);
 
         console.log('🔥 [SUPABASE] Resposta recebida:', { data, error });
 

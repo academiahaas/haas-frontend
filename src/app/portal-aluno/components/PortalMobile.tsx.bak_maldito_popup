@@ -260,7 +260,6 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
   const [expirationDate, setExpirationDate] = React.useState<string>("");
-  const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
 
@@ -695,7 +694,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
-  const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(false);
+  const [gavetaRegulamentoAberta, setGavetaRegulamentoAberta] = React.useState(true);
   const [gavetaRankingAberta, setGavetaRankingAberta] = React.useState(false);
   const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
   React.useEffect(() => {
@@ -749,61 +748,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [gavetaTipoAulaAberta, setGavetaTipoAulaAberta] = React.useState(false);
   const [gavetaCalendarioAberta, setGavetaCalendarioAberta] = React.useState(false);
   const [gavetaHorariosAberta, setGavetaHorariosAberta] = React.useState(false);
-
-  // State e Effect para busca dinamica de horarios no Supabase
-  const [horariosDoBanco, setHorariosDoBanco] = React.useState<string[]>([]);
-  const [carregandoHorarios, setCarregandoHorarios] = React.useState(false);
-
-  React.useEffect(() => {
-    async function buscarHorariosReais() {
-      if (!gavetaHorariosAberta || !diaSelecionado) return;
-      
-      setCarregandoHorarios(true);
-      console.log('🔥 [SUPABASE] Buscando horarios para:', { diaSelecionado, mesAgendamento });
-
-      try {
-        // Formata data de inicio e fim do dia selecionado (ex: 2026-07-26)
-        const ano = 2026;
-        const mesStr = String(mesAgendamento).padStart(2, '0');
-        const diaStr = String(diaSelecionado).padStart(2, '0');
-        
-        const dataInicioISO = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
-        const dataFimISO = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
-
-        const { data, error } = await supabase
-          .from('aulas_disponiveis')
-          .select('*')
-          .gte('data_hora_inicio', dataInicioISO)
-          .lte('data_hora_inicio', dataFimISO)
-          .eq('status', 'DISPONIVEL');
-
-        console.log('🔥 [SUPABASE] Resposta recebida:', { data, error });
-
-        if (error) {
-          console.error('❌ Erro Supabase:', error.message);
-          setHorariosDoBanco([]);
-        } else if (data) {
-          // Extrai o HH:mm de cada aula encontrada
-          const listaHorarios = data.map((aula: any) => {
-            const dateObj = new Date(aula.data_hora_inicio);
-            const horas = String(dateObj.getUTCHours()).padStart(2, '0');
-            const min = String(dateObj.getUTCMinutes()).padStart(2, '0');
-            return `${horas}:${min}`;
-          });
-          
-          console.log('🔥 [SUPABASE] Horarios processados:', listaHorarios);
-          setHorariosDoBanco(listaHorarios);
-        }
-      } catch (err) {
-        console.error('❌ Exceção ao buscar horarios:', err);
-      } finally {
-        setCarregandoHorarios(false);
-      }
-    }
-
-    buscarHorariosReais();
-  }, [gavetaHorariosAberta, diaSelecionado, mesAgendamento]);
-
   const [statusRespostaMobile, setStatusRespostaMobile] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [opcaoSelecionadaMobile, setOpcaoSelecionadaMobile] = React.useState(false);
 
@@ -897,10 +841,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           }
 
           if (targetUid) {
-            console.log("🔍 [SUPABASE DEBUG] Buscando assinatura para UID:", targetUid);
-            const { data: sub, error: errSub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date, class_credits_available, replacement_credits").eq("user_id", targetUid).maybeSingle();
-            if (errSub) console.error("❌ [SUPABASE ERROR]:", errSub);
-            console.log("📊 [SUPABASE DADOS RECEBIDOS]:", sub);
+            const { data: sub } = await supabase.from("user_subscriptions").select("plan_category, expiration_date, class_credits_available, replacement_credits").eq("user_id", targetUid).maybeSingle();
             if (sub?.plan_category) setPlanCategory(sub.plan_category);
             if (sub?.class_credits_available !== undefined && sub?.class_credits_available !== null) {
               setCreditosRegulares(sub.class_credits_available);
@@ -909,7 +850,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               setCreditosReposicao(sub.replacement_credits);
             }
             if (sub?.expiration_date) {
-              setDataExpiracaoIso(sub.expiration_date);
               const dt = new Date(sub.expiration_date);
               const hoy = new Date();
               const diffMs = dt.getTime() - hoy.getTime();
@@ -1720,7 +1660,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                     {gavetaRegulamentoAberta && (
                       <div className="flex flex-col gap-1 text-[11px] md:text-sm text-slate-300 font-medium leading-relaxed font-mono border-t border-white/[0.03] pt-2 animate-fade-in">
-                        <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 10 dias após o vencimento para manter seu ritmo e fluxo de aprendizado." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 10 días posteriores al vencimiento para mantener tu ritmo y flujo de aprendizaje." : "Makeup: Schedule within 10 days of plan expiration to maintain your learning flow and momentum."}</p>
+                        <p>• {idiomaSelecionado === "PT" ? "Reposição: Agendar em até 5 dias após a aula cancelada." : idiomaSelecionado === "ES" ? "Reposición: Programar dentro de los 5 días posteriores a la sesión cancelada." : "Makeup: Schedule within 5 days of the canceled session."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Cancelamento: Realizar com no mínimo 12 horas de antecedência." : idiomaSelecionado === "ES" ? "Cancelación: Realizar con un mínimo de 12 horas de anticipación." : "Cancellation: Must be done at least 12 hours in advance."}</p>
                         <p>• {idiomaSelecionado === "PT" ? "Agendamento: Reservar novas aulas com pelo menos 24 horas de antecedência." : idiomaSelecionado === "ES" ? "Reserva: Programar clases con al menos 24 horas de anticipación." : "Booking: Reserve classes at least 24 hours in advance."}</p>
                         <p className="text-cyan-400 font-bold mt-1 text-[10px] md:text-xs tracking-wide border-t border-white/[0.02] pt-1">
@@ -1733,9 +1673,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <div className="flex flex-col gap-2 min-h-0">
                     <span className="text-[clamp(11px,3vw,13px)] font-mono font-black text-slate-600 uppercase tracking-widest block px-1 shrink-0">{idiomaSelecionado === "PT" ? "Próximos Agendamentos" : idiomaSelecionado === "ES" ? "Próximos Agendamientos" : "Upcoming Sessions"}</span>
                     <div className="flex flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-none">
-                      {false && (
-<>
-{/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
+                      {/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
                       <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
                         <div className="flex justify-between items-center">
                           <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
@@ -1783,9 +1721,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         </button>
                       </div>
 
-                      </>
-)}
-{/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
+                      {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
                       {meusAgendamentos.map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         const isCanceled = Boolean((agendamento as any).canceled_at || (agendamento as any).status === "canceled" || (agendamento as any).status === "cancelled");
@@ -1819,7 +1755,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 <div className="w-full pt-0 bg-transparent shrink-0">
                   <button 
-                    onClick={() => { const eReposicao = (window as any)._filtroAgenda === "reposicao"; setTipoAgendamento(eReposicao ? "REPOSICAO" : "REGULAR"); const padraoComSaldo = Object.keys(saldosDoAluno || {}).find(key => (saldosDoAluno as any)[key] > 0) || "vip_std"; setModalidadeSelecionada(padraoComSaldo); setGavetaCalendarioAberta(true); }}
+                    onClick={() => { setGavetaTipoAulaAberta(true); }}
                     className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4"
                   >
                     {idiomaSelecionado === "PT" ? "Agendar Nova Sessão" : idiomaSelecionado === "ES" ? "Programar Nueva Sesión" : "Book New Session"}
@@ -2062,13 +1998,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </h3>
                       <p className="text-xs md:text-base text-slate-300 font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
-                          <>{idiomaSelecionado === "PT" ? (
-  <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 10 dias após o vencimento do plano para reagendá-la e manter seu fluxo de aprendizado.</>
-) : idiomaSelecionado === "ES" ? (
-  <>Estás solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúas, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrás hasta 10 días tras el vencimiento del plan para reprogramarla y mantener tu flujo de aprendizaje.</>
-) : (
-  <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will turn into a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 10 days post-expiration to reschedule it and keep your learning momentum.</>
-)}</>
+                          <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 5 dias para reagendá-la.</>
                         ) : idiomaSelecionado === "ES" ? (
                           <>Está solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrá hasta 5 días para programarla de nuevo.</>
                         ) : (
@@ -2113,7 +2043,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <div className="w-full flex flex-col gap-2 mt-3">
                         <button 
                           onClick={() => {
-                            handleConfirmarCancelamento();
+                            const msg = idiomaSelecionado === "PT" ? "Cancelamento confirmado. O prazo original desta reposição continua ativo." : idiomaSelecionado === "ES" ? "Cancelación confirmada. El plazo original de esta reposición sigue activo." : "Cancellation confirmed. The original deadline for this makeup remains active.";
+                            alert(msg);
                             setModalAgenda('CLOSED');
                           }} 
                           className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer select-none min-h-[48px] md:min-h-[56px] md:py-5"
@@ -2298,18 +2229,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           const dataAlvo = new Date(anoCalculado, mesAgendamento - 1, numDay);
                           const dataHojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
                           
-                          // Data de expiração real do aluno
-                          let dtExpUsuario = vencimentoPlano ? new Date(vencimentoPlano) : null;
-                          const passouDaExpiracao = dtExpUsuario ? (dataAlvo > dtExpUsuario) : false;
-                          const temReposicaoDisponivel = creditosReposicao > 0;
-
-                          // Bloqueia se for passado, se for feriado, OU se passou da expiração E NÃO tem crédito de reposição
-                          const diaBloqueado = dataAlvo < dataHojeSemHora || 
-                                               (feriadosColombia2026[mesAgendamento] || []).includes(numDay) ||
-                                               (passouDaExpiracao && !temReposicaoDisponivel);
-
-                          if (diaBloqueado) {
-                            return <div key={i} className="aspect-square bg-transparent opacity-30 cursor-not-allowed flex items-center justify-center text-slate-600 font-mono text-xs">{d}</div>;
+                          if (dataAlvo < dataHojeSemHora || (feriadosColombia2026[mesAgendamento] || []).includes(numDay)) {
+                            return <div key={i} className="aspect-square bg-transparent opacity-0" />;
                           }
 
                           const isSelected = diaSelecionado === d;
@@ -2330,57 +2251,24 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CRITÉRIO DE TRAVA DINÂMICA FINANCEIRA NO BOTÃO AVANÇAR */}
                 <div className="w-full pt-0">
                   {(() => {
-                    // TRAVA DUPLA: REGULAR vs REPOSIÇÃO (BASEADA EM expiration_date + 10 DIAS)
-                    const modoAgenda = (typeof window !== "undefined" && (window as any)._filtroAgenda) || "regular";
-                    let passouExpiracao = false;
-                    let travaAtiva = false;
-
-                    const selMs = new Date(anoAgendamento, mesAgendamento - 1, parseInt(diaSelecionado)).setHours(0, 0, 0, 0);
-
-                    if (modoAgenda === "reposicao") {
-                      // Reposição: Validade estendida em +10 dias a partir da user_subscriptions.expiration_date
-                      let limiteReposicaoMs = Infinity;
-                      if (dataExpiracaoIso) {
-                        const expMs = new Date(dataExpiracaoIso).setHours(0, 0, 0, 0);
-                        limiteReposicaoMs = expMs + (10 * 24 * 60 * 60 * 1000); // Expiracao + 10 dias
-                      }
-
-                      const excedeu10DiasReposicao = selMs > limiteReposicaoMs;
-                      const semCreditoReposicao = creditosReposicao <= 0;
-
-                      passouExpiracao = excedeu10DiasReposicao;
-                      travaAtiva = excedeu10DiasReposicao || semCreditoReposicao;
-                    } else {
-                      // Regular: Validade exata até a user_subscriptions.expiration_date
-                      let limiteRegularMs = Infinity;
-                      if (dataExpiracaoIso) {
-                        limiteRegularMs = new Date(dataExpiracaoIso).setHours(0, 0, 0, 0);
-                      }
-
-                      const excedeuExpiracaoRegular = selMs > limiteRegularMs;
-                      const semCreditoRegular = creditosRegulares <= 0;
-
-                      passouExpiracao = excedeuExpiracaoRegular;
-                      travaAtiva = excedeuExpiracaoRegular || semCreditoRegular;
+                    const foraDoCiclo = (mesAgendamento === 7 && parseInt(diaSelecionado) >= 26) || mesAgendamento > 7 || anoAgendamento > 2026;
+                    const travaAtiva = foraDoCiclo;
+                    
+                    if (travaAtiva) {
+                      return (
+null
+                      );
                     }
                     
                     const hojeData = new Date();
                     const ehHoje = mesAgendamento === (hojeData.getMonth() + 1) && parseInt(diaSelecionado) === hojeData.getDate() && anoAgendamento === hojeData.getFullYear();
                     const temDia = diaSelecionado !== "" && !ehHoje;
-
-                    console.log("%c 🚨 [CONTINUAR A HORARIOS] 🚨", "background: #ff0055; color: #fff; font-size: 14px; font-weight: bold; padding: 4px;");
-                    console.log("👉 Dia Selecionado:", diaSelecionado);
-                    console.log("👉 Passou da Expiracao?:", passouExpiracao);
-                    console.log("👉 Creditos Regulares:", creditosRegulares);
-                    console.log("👉 Creditos Reposicao:", creditosReposicao);
-                    console.log("👉 TRAVA ATIVA (Bloqueado?):", travaAtiva);
-
                     return (
                       <button 
-                        disabled={!temDia || travaAtiva}
+                        disabled={!temDia}
                         onClick={() => { setGavetaCalendarioAberta(false); setGavetaHorariosAberta(true); }}
                         className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 ${
-                          (temDia && !travaAtiva) 
+                          temDia 
                                                         ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                             : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
                         }`}
@@ -2510,7 +2398,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       }
                       setGavetaHorariosAberta(false);
                       const novaDataTexto = `${diaSelecionado}/${String(mesAgendamento).padStart(2, "0")}/2026 a las ${horarioSelecionado}`;
-                      setMeusAgendamentos(prev => [{ id: "temp-" + Date.now(), tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }, ...prev]);
+                      setMeusAgendamentos(prev => [...prev, { id: "temp-" + Date.now(), tipo: ehReposicao ? "REPOSICAO" : "REGULAR", dataStr: novaDataTexto }]);
                       if (ehReposicao) {
                         setSucessoAgendamento("REPOSICAO");
                         setCreditosReposicao(prev => {

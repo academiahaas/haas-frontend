@@ -750,7 +750,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [gavetaCalendarioAberta, setGavetaCalendarioAberta] = React.useState(false);
   const [gavetaHorariosAberta, setGavetaHorariosAberta] = React.useState(false);
 
-  // State e Effect para busca dinamica de horarios no Supabase
+    // State e Effect para busca dinamica de horarios no Supabase
   const [horariosDoBanco, setHorariosDoBanco] = React.useState<string[]>([]);
   const [carregandoHorarios, setCarregandoHorarios] = React.useState(false);
 
@@ -759,40 +759,36 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       if (!gavetaHorariosAberta || !diaSelecionado) return;
       
       setCarregandoHorarios(true);
-      console.log('🔥 [SUPABASE] Buscando horarios para:', { diaSelecionado, mesAgendamento });
+      console.log('🔥 [SUPABASE] Buscando horarios para dia:', diaSelecionado, 'mes:', mesAgendamento);
 
       try {
-        // Formata data de inicio e fim do dia selecionado (ex: 2026-07-26)
         const ano = 2026;
         const mesStr = String(mesAgendamento).padStart(2, '0');
         const diaStr = String(diaSelecionado).padStart(2, '0');
         
-        const dataInicioISO = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
-        const dataFimISO = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
+        const inicioDia = `${ano}-${mesStr}-${diaStr}T00:00:00+00:00`;
+        const fimDia = `${ano}-${mesStr}-${diaStr}T23:59:59+00:00`;
 
         const { data, error } = await supabase
           .from('aulas_disponiveis')
           .select('*')
-          .gte('data_hora_inicio', dataInicioISO)
-          .lte('data_hora_inicio', dataFimISO)
+          .gte('data_hora_inicio', inicioDia)
+          .lte('data_hora_inicio', fimDia)
           .eq('status', 'DISPONIVEL');
-
-        console.log('🔥 [SUPABASE] Resposta recebida:', { data, error });
 
         if (error) {
           console.error('❌ Erro Supabase:', error.message);
           setHorariosDoBanco([]);
         } else if (data) {
-          // Extrai o HH:mm de cada aula encontrada
-          const listaHorarios = data.map((aula: any) => {
-            const dateObj = new Date(aula.data_hora_inicio);
-            const horas = String(dateObj.getUTCHours()).padStart(2, '0');
-            const min = String(dateObj.getUTCMinutes()).padStart(2, '0');
-            return `${horas}:${min}`;
-          });
-          
-          console.log('🔥 [SUPABASE] Horarios processados:', listaHorarios);
-          setHorariosDoBanco(listaHorarios);
+          const horasUnicas = Array.from(new Set(
+            data.map((aula) => {
+              const horaStr = String(aula.data_hora_inicio);
+              const match = horaStr.match(/T(\d{2}:\d{2})/);
+              return match ? match[1] : horaStr.substring(11, 16);
+            })
+          )).sort();
+
+          setHorariosDoBanco(horasUnicas);
         }
       } catch (err) {
         console.error('❌ Exceção ao buscar horarios:', err);
