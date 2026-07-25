@@ -423,6 +423,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       // Remove o agendamento cancelado do estado local para a UI atualizar na hora
       if (agendamentoParaCancelar) {
         setMeusAgendamentos(prev => prev.map(a => a.id === agendamentoParaCancelar ? { ...a, canceled_at: new Date().toISOString() } : a));
+      // Re-sincroniza agendamentos e força atualização dos horários ocupados no banco em tempo real
+      if (typeof window !== "undefined") {
+        setAgendaRefreshKey(prev => prev + 1);
+      }
       }
       setAgendamentoParaCancelar(null);
       setModalAgenda("CLOSED");
@@ -634,6 +638,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [sucessoAgendamento, setSucessoAgendamento] = useState<'CLOSED' | 'REGULAR' | 'REPOSICAO'>('CLOSED');
   const [mesAgendamento, setMesAgendamento] = React.useState(() => new Date().getMonth() + 1);
   const [anoAgendamento, setAnoAgendamento] = React.useState(() => new Date().getFullYear());
+  
+  const [agendaRefreshKey, setAgendaRefreshKey] = React.useState(0);
   const [agendamentoParaCancelar, setAgendamentoParaCancelar] = React.useState<string | null>(null);
   const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ id?: string; tipo: string; dataStr: string }>>([]);
 
@@ -814,7 +820,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           .select('*')
           .gte('data_hora_inicio', inicioDia)
           .lte('data_hora_inicio', fimDia)
-          .eq('status', 'DISPONIVEL');
+          ;
 
         if (error) {
           console.error('❌ Erro Supabase:', error.message);
@@ -829,6 +835,30 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           )).sort();
 
           setHorariosDoBanco(horasUnicas);
+        // --- ATUALIZAÇÃO REATIVA DE OCUPAÇÃO EM TEMPO REAL ---
+        try {
+          const inicioDiaOcup = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
+          const fimDiaOcup = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
+
+          const { data: dataOcup } = await supabase
+            .from("user_agenda_appointments")
+            .select("appointment_date, status, canceled_at")
+            .gte("appointment_date", inicioDiaOcup)
+            .lte("appointment_date", fimDiaOcup);
+
+          const mapaOcupacao: Record<string, number> = {};
+          (dataOcup || []).forEach((item: any) => {
+            if (item.canceled_at || item.status === "cancelada") return;
+            const dt = new Date(item.appointment_date);
+            const slot = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
+            mapaOcupacao[slot] = (mapaOcupacao[slot] || 0) + 1;
+          });
+
+          setOcupacaoHorarios(mapaOcupacao);
+        } catch (errOcup) {
+          console.error("Erro ao atualizar ocupação no polling:", errOcup);
+        }
+
         }
       } catch (err) {
         console.error('❌ Exceção ao buscar horarios:', err);
@@ -838,7 +868,23 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     }
 
     buscarHorariosReais();
-  }, [gavetaHorariosAberta, diaSelecionado, mesAgendamento]);
+    if (gavetaHorariosAberta) {
+      const interval = setInterval(() => { console.log("🔄 [POLLING HORARIOS]: Verificando ocupação em tempo real..."); buscarHorariosReais(); }, 2500);
+      return () => clearInterval(interval);
+    }
+
+    const channel = supabase
+      .channel("rt-portal-mobile-aulas")
+      .on("postgres_changes", { event: "*", schema: "public", table: "aulas_disponiveis" }, (payload) => {
+        console.log("⚡ [REALTIME DETECTADO NO NAVEGADOR]:", payload);
+        buscarHorariosReais();
+      })
+      .subscribe((status) => {
+        console.log("📡 [STATUS DO CANAL]:", status);
+      });
+
+    return () => { supabase.removeChannel(channel); };
+  }, [gavetaHorariosAberta, diaSelecionado, mesAgendamento, agendaRefreshKey]);
 
   const [statusRespostaMobile, setStatusRespostaMobile] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [opcaoSelecionadaMobile, setOpcaoSelecionadaMobile] = React.useState(false);
@@ -2640,6 +2686,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                               const realUuid = dataInserted[0].id;
                               console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
                               setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
+                              if (typeof window !== "undefined") {
+                                setAgendaRefreshKey(prev => prev + 1);
+                              }
                             }
                           }
                         } catch (err) {
