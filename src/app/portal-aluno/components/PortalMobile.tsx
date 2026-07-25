@@ -2433,10 +2433,25 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     <div className="grid grid-cols-2 gap-2 w-full">
                       {(() => {
                         const cat = String(planCategory || '').toLowerCase();
+                        
+                        // 1. Grupo
                         const esGrupo = cat.includes('grupo') || cat.includes('group') || cat.includes('grupal');
-                        return esGrupo 
-                          ? ['07:00', '08:00', '09:00', '18:00', '19:00', '20:00']
-                          : ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+                        if (esGrupo) {
+                          return ['07:00', '08:00', '09:00', '18:00', '19:00', '20:00'];
+                        }
+                        
+                        // 2. VIP Pro & Pack VIP Pro (Grade completa: 07:00 as 20:00)
+                        const esVipPro = cat.includes('vip pro') || cat.includes('pack vip pro');
+                        if (esVipPro) {
+                          return [
+                            '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
+                            '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
+                            '19:00', '20:00'
+                          ];
+                        }
+                        
+                        // 3. VIP Standard / Pack VIP Standard / Outros (10:00 as 17:00)
+                        return ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
                       })().filter((h) => {
                         const [horasStr, minutosStr] = h.split(":");
                         const dataHorario = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
