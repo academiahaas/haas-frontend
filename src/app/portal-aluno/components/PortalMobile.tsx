@@ -2301,7 +2301,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                           // Bloqueia se for passado, se for feriado, OU se passou da expiração E NÃO tem crédito de reposição
                           const diaBloqueado = dataAlvo < dataHojeSemHora || 
-                                               dataAlvo.getDay() === 0 || (feriadosColombia2026[mesAgendamento] || []).includes(numDay) ||
+                                               (feriadosColombia2026[mesAgendamento] || []).includes(numDay) ||
                                                (passouDaExpiracao && !temReposicaoDisponivel);
 
                           if (diaBloqueado) {
@@ -2432,7 +2432,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   <div className="flex-1 overflow-y-auto pb-2 scrollbar-none flex flex-col gap-2 min-h-0 px-0.5">
                     <div className="grid grid-cols-2 gap-2 w-full">
                       {[
-                        '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
+                        '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', 
+                        '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', 
+                        '19:00', '20:00'
                       ].filter((h) => {
                         const [horasStr, minutosStr] = h.split(":");
                         const dataHorario = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(horasStr), Number(minutosStr));
