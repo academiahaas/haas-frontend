@@ -1,3 +1,4 @@
+import ArenaImersivaTotal from "./ArenaImersivaTotal";
 import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
 import { ModalCofreErrosMobile } from "./ModalCofreErrosMobile";
 import { ModalTrilhaMobile } from "./ModalTrilhaMobile";
@@ -1303,6 +1304,17 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     }
   };
 
+  if (arenaAtiva) {
+    return (
+      <ArenaImersivaTotal 
+        onFechar={() => setArenaAtiva(false)}
+        idiomaSelecionado={idiomaSelecionado}
+        statusRespostaMobile={statusRespostaMobile}
+        setStatusRespostaMobile={setStatusRespostaMobile}
+      />
+    );
+  }
+
   return (
     <div className="w-full h-[100svh] bg-[#030914] text-white select-none flex flex-col overflow-hidden max-w-[100vw] font-sans fixed inset-0">
       
@@ -2565,7 +2577,31 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <button
                             key={h}
                             disabled={isEsgotado}
-                            onClick={() => !isEsgotado && setHorarioSelecionado(h)}
+                            onClick={() => {
+                                if (isEsgotado) return;
+                                
+                                const anoStr = String(anoAgendamento || 2026);
+                                const mesStr = String(mesAgendamento).padStart(2, "0");
+                                const diaStr = String(diaSelecionado).padStart(2, "0");
+                                const dataAlvoStr = `${anoStr}-${mesStr}-${diaStr}`;
+
+                                // Checa se ESTE ALUNO ESPECÍFICO já tem aula neste mesmo dia e horário
+                                const alunoJaTemEssaAula = (meusAgendamentos || []).some((apt: any) => {
+                                  if (apt.canceled_at || apt.status === "cancelada") return false;
+                                  const dt = new Date(apt.appointment_date || apt.dataStr);
+                                  const dataApt = dt.toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
+                                  const horaApt = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
+                                  return dataApt === dataAlvoStr && horaApt === h;
+                                });
+
+                                if (alunoJaTemEssaAula) {
+                                  console.warn("⚠️ [AVISO INDIVIDUAL]: Você já tem uma aula agendada neste horário.");
+                                  if (typeof setGavetaErro24hAberta === "function") setGavetaErro24hAberta(true);
+                                  return;
+                                }
+
+                                setHorarioSelecionado(h);
+                              }}
                             className={`py-2.5 md:py-1.5 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all border border-transparent ${
                               isEsgotado
                                 ? 'bg-slate-800 text-slate-600 opacity-40 cursor-not-allowed'

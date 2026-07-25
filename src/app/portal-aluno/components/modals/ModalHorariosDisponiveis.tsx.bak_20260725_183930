@@ -39,7 +39,6 @@ export const ModalHorariosDisponiveis: React.FC<ModalHorariosProps> = ({
 
     // 1. Inscrição em Tempo Real (Realtime) + Carga Inicial
   useEffect(() => {
-    console.log("=== TESTE MODAL ===", { isOpen, dia, mes, ano, modalidadeAluno });
     if (isOpen && dia && mes && ano) {
       console.log("[REALTIME] Evento recebido do banco! Recarregando horários...");
             carregarHorariosDoBanco();
@@ -47,7 +46,7 @@ export const ModalHorariosDisponiveis: React.FC<ModalHorariosProps> = ({
       // Escuta mudanças na tabela aulas_disponiveis em tempo real
       console.log("[REALTIME] Tentando conectar ao canal aulas_disponiveis...");
       const channel = supabase
-        .channel(`rt-aulas-${dia}-${mes}-${ano}`)
+        .channel(`rt-aulas-${dia}-${mes}-${ano}-${Math.random().toString(36).substring(7)}`)
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "aulas_disponiveis" },
@@ -62,7 +61,7 @@ export const ModalHorariosDisponiveis: React.FC<ModalHorariosProps> = ({
         supabase.removeChannel(channel);
       };
     }
-  }, [isOpen, dia, mes, ano, modalidadeAluno]);
+  }, [isOpen, dia, mes, ano]);
 
   const carregarHorariosDoBanco = async () => {
     setCarregando(true);

@@ -37,44 +37,64 @@ export const ModalHorariosDisponiveis: React.FC<ModalHorariosProps> = ({
   const [processando, setProcessando] = useState<boolean>(false);
   const [erro, setErro] = useState<string | null>(null);
 
+    // 1. Inscrição em Tempo Real (Realtime) + Carga Inicial
   useEffect(() => {
+    console.log("=== TESTE MODAL ===", { isOpen, dia, mes, ano, modalidadeAluno });
     if (isOpen && dia && mes && ano) {
-      carregarHorariosDoBanco();
+      console.log("[REALTIME] Evento recebido do banco! Recarregando horários...");
+            carregarHorariosDoBanco();
+
+      // Escuta mudanças na tabela aulas_disponiveis em tempo real
+      console.log("[REALTIME] Tentando conectar ao canal aulas_disponiveis...");
+      const channel = supabase
+        .channel(`rt-aulas-${dia}-${mes}-${ano}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "aulas_disponiveis" },
+          (payload) => {
+            console.log("[REALTIME] Alteração detectada no banco:", payload);
+            carregarHorariosDoBanco();
+          }
+        )
+        .subscribe((status) => console.log("[REALTIME] Status da conexão:", status));
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-  }, [isOpen, dia, mes, ano]);
+  }, [isOpen, dia, mes, ano, modalidadeAluno]);
 
   const carregarHorariosDoBanco = async () => {
     setCarregando(true);
     setErro(null);
     try {
-      const diaStr = String(dia).padStart(2, '0');
-      const mesStr = String(mes).padStart(2, '0');
+      const diaStr = String(dia).padStart(2, "0");
+      const mesStr = String(mes).padStart(2, "0");
       
       const inicioDia = `${ano}-${mesStr}-${diaStr}T00:00:00.000Z`;
       const fimDia = `${ano}-${mesStr}-${diaStr}T23:59:59.999Z`;
 
-      // Mapeia modalidade para o enum do banco ('GRUPO' ou 'PARTICULAR')
-      const tipoAulaBanco = (modalidadeAluno || '').toLowerCase().includes('vip') || 
-                            (modalidadeAluno || '').toLowerCase().includes('particular') 
-                            ? 'PARTICULAR' : 'GRUPO';
+      const tipoAulaBanco = (modalidadeAluno || "").toLowerCase().includes("vip") || 
+                            (modalidadeAluno || "").toLowerCase().includes("particular") 
+                            ? "PARTICULAR" : "GRUPO";
 
       const { data, error } = await supabase
-        .from('aulas_disponiveis')
-        .select('*')
-        .gte('data_hora_inicio', inicioDia)
-        .lte('data_hora_inicio', fimDia)
-        .eq('tipo_aula', tipoAulaBanco)
-        .eq('status', 'DISPONIVEL')
-        .order('data_hora_inicio', { ascending: true });
+        .from("aulas_disponiveis")
+        .select("*")
+        .gte("data_hora_inicio", inicioDia)
+        .lte("data_hora_inicio", fimDia)
+        .eq("tipo_aula", tipoAulaBanco)
+        .eq("status", "DISPONIVEL")
+        .order("data_hora_inicio", { ascending: true });
 
       if (error) throw error;
 
-      const limite = tipoAulaBanco === 'GRUPO' ? 8 : 1;
+      const limite = tipoAulaBanco === "GRUPO" ? 8 : 1;
       const validos = (data || []).filter((h) => h.vagas_ocupadas < limite);
 
       setHorarios(validos);
     } catch (e: any) {
-      setErro('Erro ao carregar horários disponíveis.');
+      setErro("Erro ao carregar horários disponíveis.");
     } finally {
       setCarregando(false);
     }
@@ -86,37 +106,24 @@ export const ModalHorariosDisponiveis: React.FC<ModalHorariosProps> = ({
     setErro(null);
 
     try {
-      const { data: agendamento, error: errAgendamento } = await supabase
-        .from('agendamentos')
+      // O banco de dados cuida da trava e da alteração do status via TRIGGER no INSERT
+      const { error: errAgendamento } = await supabase
+        .from("agendamentos")
         .insert({
           aluno_id: alunoId,
           aula_id: selecionado,
           tipo_fluxo: tipoFluxo,
-        })
-        .select()
-        .single();
+        });
 
-      if (errAgendamento) throw errAgendamento;
-
-      const slotAtual = horarios.find((h) => h.id === selecionado);
-      if (slotAtual) {
-        const tipoAulaBanco = (modalidadeAluno || '').toLowerCase().includes('vip') || 
-                              (modalidadeAluno || '').toLowerCase().includes('particular') 
-                              ? 'PARTICULAR' : 'GRUPO';
-        const novasVagas = slotAtual.vagas_ocupadas + 1;
-        const limite = tipoAulaBanco === 'GRUPO' ? 8 : 1;
-        const novoStatus = novasVagas >= limite ? 'LOTADO' : 'DISPONIVEL';
-
-        await supabase
-          .from('aulas_disponiveis')
-          .update({ vagas_ocupadas: novasVagas, status: novoStatus })
-          .eq('id', selecionado);
+      if (errAgendamento) {
+        throw new Error("Este horário acabou de ser preenchido por outro aluno.");
       }
 
       onSuccess();
       onClose();
     } catch (e: any) {
-      setErro(e.message || 'Falha ao confirmar o agendamento.');
+      setErro(e.message || "Falha ao confirmar o agendamento.");
+      carregarHorariosDoBanco();
     } finally {
       setProcessando(false);
     }
