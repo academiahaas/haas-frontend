@@ -1,13 +1,12 @@
 "use client";
 
 import React from "react";
-import { Target, Flame, Star, Trophy, Zap, BookOpen, Video, MessageSquare } from "lucide-react";
+import { Zap, Target, Flame, Trophy, Star, BookOpen, Video, MessageSquare } from "lucide-react";
 
 interface ArenaHeaderMobileProps {
   precisao?: number;
   streak?: number;
   unidadeAtual?: string;
-  nivelText?: string;
   pts?: number;
   creditosIA?: number;
   onOpenLeitura?: () => void;
@@ -26,68 +25,65 @@ export default function ArenaHeaderMobile({
   onOpenChatIA
 }: ArenaHeaderMobileProps) {
   return (
-    <header className="w-full bg-[#030712]/95 backdrop-blur-md border-b border-white/10 px-3 py-2 flex items-center justify-between text-xs select-none">
+    <header className="w-full bg-[#030712]/95 border-b border-white/10 px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 flex items-center justify-between backdrop-blur-md gap-2 select-none">
       
-      {/* LADO ESQUERDO: METRICAS COMPACTAS (SEM SCROLLBAR) */}
-      <div className="flex items-center gap-1.5 overflow-hidden">
-        {/* REQS / Créditos IA */}
-        <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono font-bold px-2 py-1 rounded-lg shrink-0">
-          <Zap size={12} className="fill-amber-400" />
-          <span className="text-[11px]">{creditosIA}</span>
+      {/* LADO ESQUERDO: MOEDAS E METRICAS FLUIDAS */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar">
+        {/* Creditos IA */}
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-amber-400 font-mono font-extrabold text-xs sm:text-sm md:text-base shrink-0">
+          <Zap size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-amber-400 text-amber-400" />
+          <span>{creditosIA}</span>
         </div>
 
-        {/* Precisão (77%) - SÓ APARECE EM TELAS MAIORES / EXPANDIDAS */}
-        <div className="hidden sm:flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-mono font-bold px-2 py-1 rounded-lg shrink-0">
-          <Target size={12} />
+        {/* Precisão */}
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+          <Target size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-cyan-400" />
           <span>{precisao}%</span>
         </div>
 
-        {/* Foguinho / Streak */}
-        <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/30 text-orange-400 font-mono font-bold px-2 py-1 rounded-lg shrink-0">
-          <Flame size={12} className="fill-orange-400" />
+        {/* Off/Streak */}
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-orange-500/10 border border-orange-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-orange-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+          <Flame size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-orange-400 text-orange-400" />
           <span>x{streak}</span>
         </div>
 
-        {/* PTS */}
-        <div className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono font-bold px-2 py-1 rounded-lg shrink-0">
-          <Trophy size={12} />
+        {/* Pontos */}
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-emerald-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+          <Trophy size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-emerald-400" />
           <span>+{pts}</span>
         </div>
 
         {/* Unidade */}
-        <div className="hidden min-[380px]:flex items-center gap-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-mono font-bold px-2 py-1 rounded-lg shrink-0">
-          <Star size={12} />
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+          <Star size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-300" />
           <span>{unidadeAtual}</span>
         </div>
       </div>
 
-      {/* LADO DIREITO: ÍCONES REORGANIZADOS (LIVRO -> VÍDEO -> IA AO LADO) */}
-      <div className="flex items-center gap-1.5 shrink-0 ml-1">
-        {/* 1. Botão de Leitura */}
+      {/* LADO DIREITO: ACOES DE SUPORTE FLUIDAS */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <button
           onClick={onOpenLeitura}
+          className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
           title="Material de Leitura"
-          className="p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:border-cyan-500/50 active:scale-95 transition-all cursor-pointer"
         >
-          <BookOpen size={15} />
+          <BookOpen size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
-        {/* 2. Botão de Vídeo */}
         <button
           onClick={onOpenVideo}
-          title="Assistir Vídeo"
-          className="p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:border-cyan-500/50 active:scale-95 transition-all cursor-pointer"
+          className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
+          title="Explicacao em Video"
         >
-          <Video size={15} />
+          <Video size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
-        {/* 3. BALÃO DA IA - AGORA FIXO AO LADO DO VÍDEO (SEM PISCAR / PING) */}
         <button
           onClick={onOpenChatIA}
-          title="Falar com a IA"
-          className="p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer"
+          className="p-1.5 sm:p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 transition-all cursor-pointer"
+          title="Tutor IA"
         >
-          <MessageSquare size={15} />
+          <MessageSquare size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
       </div>
 
