@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronUp, ChevronDown, CheckCircle2, XCircle, Sparkles, X, Quote, HelpCircle } from "lucide-react";
+import { ChevronUp, ChevronDown, CheckCircle2, XCircle, Sparkles, X, Quote } from "lucide-react";
 import ArenaHeaderMobile from "./ArenaHeaderMobile";
 
 interface ArenaImersivaProps {
@@ -9,6 +9,7 @@ interface ArenaImersivaProps {
   idiomaSelecionado?: string;
   statusRespostaMobile?: "IDLE" | "CORRECT" | "WRONG";
   setStatusRespostaMobile?: React.Dispatch<React.SetStateAction<"IDLE" | "CORRECT" | "WRONG">>;
+  // Dados que virão futuramente da tabela do Supabase
   ditadoIncentivoSupabase?: string;
   explicacaoPedagogicaSupabase?: string;
 }
@@ -89,9 +90,7 @@ export default function ArenaImersivaTotal({
   const ditadoExibido = ditadoIncentivoSupabase || (
     statusAtual === "CORRECT"
       ? "Água mole em pedra dura, tanto bate até que fura!"
-      : statusAtual === "WRONG"
-      ? "É errando que se aprende. A prática leva à perfeição!"
-      : "Escolha uma das opções acima para analisar o resultado."
+      : "É errando que se aprende. A prática leva à perfeição!"
   );
 
   return (
@@ -210,44 +209,42 @@ export default function ArenaImersivaTotal({
       </main>
 
       {/* ------------------------------------------------------------- */}
-      {/* 4. GAVETINHA DO RODAPÉ (PERMANENTEMENTE VISÍVEL) */}
+      {/* 4. GAVETINHA DO RODAPÉ (DRAWER/BOTTOM SHEET RETRÁTIL) */}
       {/* ------------------------------------------------------------- */}
       <div 
         className={`fixed bottom-0 left-0 right-0 z-50 bg-[#070c18] border-t border-white/15 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.9)] transition-all duration-300 ease-in-out flex flex-col ${
-          gavetaExpandida ? "h-[320px]" : "h-[75px]"
+          statusAtual === "IDLE" 
+            ? "translate-y-full opacity-0 pointer-events-none" 
+            : "translate-y-0 opacity-100"
+        } ${
+          gavetaExpandida ? "h-[320px]" : "h-[85px]"
         }`}
       >
-        {/* HASTE DE PUXAR A GAVETA */}
+        {/* HASTE/TALHA DE PUXAR A GAVETA (VISUAL TÁTIL) */}
         <div 
           onClick={() => setGavetaExpandida(!gavetaExpandida)}
-          className="w-full pt-2 pb-1 flex justify-center cursor-pointer shrink-0"
+          className="w-full pt-2.5 pb-1 flex justify-center cursor-pointer"
         >
           <div className="w-12 h-1.5 bg-white/20 rounded-full hover:bg-amber-500/60 transition-colors" />
         </div>
 
-        {/* BARRA COMPACTA DA GAVETA */}
+        {/* BARRA COMPACTA DA GAVETA (FECHADA) */}
         <div 
           onClick={() => setGavetaExpandida(!gavetaExpandida)}
-          className="w-full px-5 pb-3 flex items-center justify-between cursor-pointer shrink-0"
+          className="w-full px-5 pb-3 flex items-center justify-between cursor-pointer"
         >
           <div className="flex items-center gap-3">
             {statusAtual === "CORRECT" ? (
               <CheckCircle2 size={24} className="text-emerald-400 shrink-0" />
-            ) : statusAtual === "WRONG" ? (
-              <XCircle size={24} className="text-rose-400 shrink-0" />
             ) : (
-              <HelpCircle size={24} className="text-amber-400 shrink-0" />
+              <XCircle size={24} className="text-rose-400 shrink-0" />
             )}
             
             <div className="flex flex-col">
               <span className={`font-black text-sm ${
-                statusAtual === "CORRECT" ? "text-emerald-400" : statusAtual === "WRONG" ? "text-rose-400" : "text-amber-400"
+                statusAtual === "CORRECT" ? "text-emerald-400" : "text-rose-400"
               }`}>
-                {statusAtual === "CORRECT" 
-                  ? "Muito bem, você acertou!" 
-                  : statusAtual === "WRONG" 
-                  ? "Não foi desta vez..." 
-                  : "Painel de Resposta"}
+                {statusAtual === "CORRECT" ? "Muito bem, você acertou!" : "Não foi desta vez..."}
               </span>
               
               <span className="text-[11px] text-slate-400 font-medium line-clamp-1 italic">
@@ -256,15 +253,17 @@ export default function ArenaImersivaTotal({
             </div>
           </div>
 
-          {/* BOTÃO COM SETINHA */}
+          {/* BOTÃO DA SETINHA DE EXPANSÃO */}
           <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2.5 py-1.5 rounded-xl text-amber-400 hover:bg-amber-500/10 transition-colors">
             {gavetaExpandida ? <ChevronDown size={18} /> : <ChevronUp size={18} className="animate-bounce" />}
           </div>
         </div>
 
-        {/* CONTEÚDO EXPANDIDO */}
+        {/* CONTEÚDO DA GAVETA EXPANDIDA (INCENTIVOS E EXPLICAÇÃO DO SUPABASE) */}
         <div className="px-5 pb-5 flex-1 overflow-y-auto flex flex-col justify-between bg-[#030712]/90 rounded-b-3xl">
+          
           <div className="space-y-3 pt-2">
+            {/* CARD DO DITADO POPULAR / INCENTIVO DO SUPABASE */}
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2.5">
               <Quote size={16} className="text-amber-400 shrink-0 mt-0.5" />
               <div>
@@ -277,6 +276,7 @@ export default function ArenaImersivaTotal({
               </div>
             </div>
 
+            {/* EXPLICAÇÃO TÉCNICA PEDAGÓGICA */}
             <div className="bg-slate-900/80 border border-white/10 rounded-xl p-3">
               <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider block mb-1">
                 EXPLICAÇÃO DA RESPOSTA
@@ -285,22 +285,19 @@ export default function ArenaImersivaTotal({
                 {explicacaoPedagogicaSupabase || (
                   statusAtual === "CORRECT"
                     ? "Excelente! Sua escolha está alinhada com as normas de regência e gramática aplicadas a este modelo de exercício."
-                    : statusAtual === "WRONG"
-                    ? "A resposta incorreta decorre do desvio de concordância. Recomenda-se revisar o conteúdo da unidade."
-                    : "Selecione uma opção de resposta (A ou B) no exercício acima para gerar a análise."
+                    : "A resposta incorreta decorre do desvio de concordância. Recomenda-se revisar o conteúdo da unidade."
                 )}
               </p>
             </div>
           </div>
 
-          {statusAtual !== "IDLE" && (
-            <button
-              onClick={resetarResposta}
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs rounded-xl uppercase tracking-wider active:scale-95 transition-transform cursor-pointer shadow-lg shadow-orange-500/20 mt-3"
-            >
-              CONTINUAR ➔
-            </button>
-          )}
+          {/* BOTÃO CONTINUAR */}
+          <button
+            onClick={resetarResposta}
+            className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs rounded-xl uppercase tracking-wider active:scale-95 transition-transform cursor-pointer shadow-lg shadow-orange-500/20 mt-3"
+          >
+            CONTINUAR ➔
+          </button>
         </div>
 
       </div>
