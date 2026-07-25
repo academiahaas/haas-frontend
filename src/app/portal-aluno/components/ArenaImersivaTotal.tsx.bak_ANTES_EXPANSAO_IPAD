@@ -190,7 +190,7 @@ export default function ArenaImersivaTotal({
       {/* 4. GAVETINHA DO RODAPÉ PERMANENTE COM FONTE RESPONSIVA */}
       <div 
         className={`fixed bottom-0 left-0 right-0 z-50 bg-[#070c18] border-t border-white/15 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.9)] transition-all duration-300 ease-in-out flex flex-col ${
-          gavetaExpandida ? "h-[310px] sm:h-[320px]" : "h-[75px] sm:h-[85px] md:h-[95px]"
+          gavetaExpandida ? "h-[285px]" : "h-[75px] sm:h-[85px] md:h-[95px]"
         }`}
       >
         <div 
