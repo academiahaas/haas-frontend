@@ -1822,7 +1822,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </>
 )}
 {/* CONTAINER EXCLUSIVO: RENDERIZA APENAS AS NOVAS AULAS AGENDADAS LOCAIS */}
-                      {meusAgendamentos.map((agendamento, index) => {
+                      {[...meusAgendamentos].sort((a: any, b: any) => {
+                          const aCanceled = Boolean(a.canceled_at || a.status === "canceled" || a.status === "cancelled");
+                          const bCanceled = Boolean(b.canceled_at || b.status === "canceled" || b.status === "cancelled");
+                          if (aCanceled && !bCanceled) return 1;
+                          if (!aCanceled && bCanceled) return -1;
+                          return 0;
+                        }).map((agendamento, index) => {
                         const isRegular = agendamento.tipo === "REGULAR";
                         const isCanceled = Boolean((agendamento as any).canceled_at || (agendamento as any).status === "canceled" || (agendamento as any).status === "cancelled");
                         
