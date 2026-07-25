@@ -2158,9 +2158,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will turn into a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 10 days post-expiration to reschedule it and keep your learning momentum.</>
 )}</>
                         ) : idiomaSelecionado === "ES" ? (
-                          <>Está solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrá hasta 5 días para programarla de nuevo.</>
+                          <>Está solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrá hasta 10 días para programarla de nuevo y mantener su ritmo.</>
                         ) : (
-                          <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will become a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 5 days to reschedule it.</>
+                          <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will become a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 10 days to reschedule it and keep your learning pace.</>
                         )}
                       </p>
                       <div className="w-full flex flex-col gap-1.5 mt-3">

@@ -936,7 +936,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                 ? "To plan your studies successfully, please remember: classes must be booked at least 24 hours in advance. If you need to cancel a class, your makeup credits will expire within 5 calendar days, counting from the original date of the canceled class. Shall we book?" 
                 : idioma === "ES"
                 ? "Para planificar tus estudios con éxito, recuerda: las clases deben reservarse con al menos 24 horas de anticipación. Si necesitas cancelar una clase, tus créditos de reposición vencerán dentro de los 5 días naturales, contados a partir de la fecha original de la clase cancelada. ¿Vamos a reservar?"
-                : "Para planejar seus estudos com sucesso, lembre-se: as aulas devem ser agendadas com pelo menos 24 horas de antecedência. Caso precise cancelar uma aula, seus créditos de reposição expiram em até 5 dias corridos, contados a partir da data original da aula que foi cancelada. Vamos agendar?"}
+                : "Para planejar seus estudos com sucesso, lembre-se: as aulas devem ser agendadas com pelo menos 24 horas de antecedência. Caso precise cancelar uma aula, seus créditos de reposição expiram em até 10 dias para manter seu ritmo e fluxo de aprendizado. Vamos agendar?"}
             </p>
 
             <div className="flex gap-3 mt-2">
