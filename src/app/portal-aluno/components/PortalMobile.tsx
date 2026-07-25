@@ -158,8 +158,8 @@ function MiniCalendarioSemanal({ setAbaAtiva, idiomaSelecionado, supabase, userI
   }, [supabase, userId]);
   
   return (
-    <div className="w-full py-4 bg-[#070d19]/40 border border-white/[0.03] rounded-xl flex flex-col gap-2 shrink-0 px-4">
-      <div className="flex items-center gap-2 text-white">
+    <div className="w-full py-1.5 bg-[#070d19]/40 border border-white/[0.03] rounded-xl flex flex-col gap-1.5 shrink-0 px-4">
+      <div className="flex items-center gap-1.5 text-white">
       </div>
       <div className="flex justify-between items-center gap-1.5">
         {diasDaSemana.map((dia) => {
@@ -1262,7 +1262,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       
       {/* HEADER FIXO */}
       <div className="w-full bg-[#070d19]/90 backdrop-blur-md border-b border-white/[0.05] px-4 h-14 flex items-center justify-between shrink-0 z-50">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${primeiroNome}!` : idiomaSelecionado === "ES" ? `¡Hola, ${primeiroNome}!` : `Hi, ${primeiroNome}!`}</span>
@@ -1289,7 +1289,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5">
           <div className="flex items-center gap-1.5">
             <button 
               onClick={() => setGavetaExerciciosAberta(true)}
@@ -1309,10 +1309,10 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-3 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
               {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
-                <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
+                <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-3 sm:p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2 mb-2">
                     <span className="text-[clamp(14px,3.5vw,22px)] font-mono font-black tracking-widest text-slate-400 uppercase">MENTORA HAAS</span>
                     <button 
@@ -1324,7 +1324,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </div>
                   
                   {/* HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
-                  <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-3 scrollbar-thin">
+                  <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-1.5 scrollbar-thin">
                     {mensagensMentora.map((msg) => {
                       const textoExibido = msg.id === 1 && msg.text === "" 
                         ? (idiomaSelecionado === "PT" ? "Oi, tudo bem? Meu nome é Haas e eu vou ser a sua mentora. Qual é a sua dúvida sobre o conteúdo de hoje?" : idiomaSelecionado === "ES" ? "¿Hola, todo bien? Mi nombre es Haas y voy a ser tu mentora. ¿Cuál es tu duda sobre el contenido de hoy?" : "Hi, how are you? My name is Haas and I'll be your mentor. What is your question about today's content?")
@@ -1374,17 +1374,17 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
               <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
-               <div className="flex-1 flex flex-col gap-3 sm:gap-3.5 mt-3 w-full min-h-0">
+               <div className="flex-1 flex flex-col gap-1.5 sm:gap-1.5.5 mt-3 w-full min-h-0">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
                </div>
              </div>
 
             {/* TRANSIÇÃO DINÂMICA DE BOTÕES - PARTE 3/20 */}
             {!mentoraMobileAberta ? (
-              <div className="flex items-center gap-2 w-full shrink-0">
+              <div className="flex items-center gap-1.5 w-full shrink-0">
                 <button 
                   onClick={() => { setCapaAtiva(true); setContador(null); setArenaAtiva(true); }}
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-4 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-2 border-none active:scale-[0.98] transition-all shadow-lg shadow-orange-500/10 cursor-pointer shrink-0"
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-1.5 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-1.5 border-none active:scale-[0.98] transition-all shadow-lg shadow-orange-500/10 cursor-pointer shrink-0"
                 >
                   <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" /> {idiomaSelecionado === "PT" ? "INICIAR TREINO PRÁTICO" : idiomaSelecionado === "ES" ? "INICIAR ENTRENAMIENTO" : "START TRAINING"}
                 </button>
@@ -1397,11 +1397,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
             ) : (
               /* 🎨 1. O CARDZINHO DE ENTRADA STANDALONE (QUANDO ABERTO) */
-              <div className="w-full bg-[#070d19] border border-white/[0.08] p-2 rounded-xl flex items-center gap-2 shrink-0 shadow-2xl animate-fadeIn">
+              <div className="w-full bg-[#070d19] border border-white/[0.08] p-2 rounded-xl flex items-center gap-1.5 shrink-0 shadow-2xl animate-fadeIn">
                 <input 
                   type="text"
                   placeholder={idiomaSelecionado === "PT" ? "Digite sua dúvida aqui..." : idiomaSelecionado === "ES" ? "Escribe tu duda aquí..." : "Type your question here..."}
-                  className="flex-1 bg-black/40 border border-white/[0.05] rounded-lg px-3 py-3 sm:py-4 text-[clamp(12px,2.8vw,15px)] text-white placeholder-slate-500 outline-none focus:border-amber-500/50 transition-all"
+                  className="flex-1 bg-black/40 border border-white/[0.05] rounded-lg px-3 py-3 sm:py-1.5 text-[clamp(12px,2.8vw,15px)] text-white placeholder-slate-500 outline-none focus:border-amber-500/50 transition-all"
                   value={textoDuda}
                   onChange={(e) => setTextoDuda(e.target.value)} onKeyDown={(e) => e.key === "Enter" && enviarDuda()}
                 />
@@ -1427,11 +1427,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* SELETOR PLANO RECORRENTE (8, 12, 20 CRÉDITOS) */}
                 {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-1.5.5">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       {idiomaSelecionado === 'PT' ? 'Selecione a Intensidade Mensal:' : 'Seleccione la Intensidad Mensual:'}
                     </span>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1.5">
                       {[8, 12, 20].map((cr) => (
                         <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
                           {cr} CLASES
@@ -1443,11 +1443,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* SELETOR PACKS EXTRAS (CONTADOR + E -) */}
                 {['pack_grupo', 'pack_vip', 'flex'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-3 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
+                  <div className="flex flex-col gap-1.5 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       {idiomaSelecionado === 'PT' ? 'Quantidade de Aulas:' : 'Cantidad de Clases:'}
                     </span>
-                    <div className="flex items-center gap-6 my-1">
+                    <div className="flex items-center gap-3 sm:p-6 my-1">
                       <button onClick={() => setCreditosSelecionados(Math.max(1, creditosSelecionados - 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">-</button>
                       <span className="text-2xl font-mono font-black text-white">{creditosSelecionados}</span>
                       <button onClick={() => setCreditosSelecionados(Math.min(modalidadeSelecionada === 'pack_grupo' ? 8 : modalidadeSelecionada === 'pack_vip' ? 18 : 20, creditosSelecionados + 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">+</button>
@@ -1468,7 +1468,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO FINAL: CONTINUAR AO PAGO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : "Continuar al Pago"}
                 </button>
               </div>
@@ -1498,7 +1498,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         }
                       }, 1000);
                     }}
-                    className="absolute inset-0 z-[10000] bg-[#030914] flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none"
+                    className="absolute inset-0 z-[10000] bg-[#030914] flex flex-col items-center justify-center p-3 sm:p-6 text-center cursor-pointer select-none"
                   >
                     {contador === null ? (
                       <div className="flex flex-col items-center gap-4 animate-fadeIn">
@@ -1516,7 +1516,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     )}
                   </div>
                 )}
-                <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] shrink-0 mb-4">
+                <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] shrink-0 mb-2 sm:mb-1.5">
                   <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">AUDITORIA DE EXERCÍCIOS</span>
                   <button 
                     onClick={() => { setArenaAtiva(false); setStatusRespostaMobile('IDLE'); }}
@@ -1555,7 +1555,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </div>
 
                   {/* BARRA DE VALIDAÇÃO ACOPLADA SEM ESPAÇAMENTO REBENTADO */}
-                  <div className="w-full pt-0 mt-auto pt-2 border-t border-white/[0.02] flex flex-col gap-2 shrink-0">
+                  <div className="w-full pt-0 mt-auto pt-2 border-t border-white/[0.02] flex flex-col gap-1.5 shrink-0">
                     {statusRespostaMobile === 'CORRECT' && (
                       <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wide text-center">
                         🎉 Resposta Correta! Muito bom!
@@ -1601,7 +1601,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div>
-                    <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] mb-4">
+                    <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] mb-2 sm:mb-1.5">
                       <span className="text-[10px] font-black tracking-widest text-orange-500 uppercase">SELECIONAR EXERCÍCIO</span>
                       <button 
                         onClick={() => setGavetaExerciciosAberta(false)}
@@ -1662,11 +1662,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* SELETOR PACKS (CONTADOR) */}
                 {['pack_grupo', 'pack_vip', 'flex'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-3 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
+                  <div className="flex flex-col gap-1.5 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       Cantidad de Clases:
                     </span>
-                    <div className="flex items-center gap-6 my-1">
+                    <div className="flex items-center gap-3 sm:p-6 my-1">
                       <button onClick={() => setCreditosSelecionados(Math.max(1, creditosSelecionados - 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">-</button>
                       <span className="text-2xl font-mono font-black text-white">{creditosSelecionados}</span>
                       <button onClick={() => setCreditosSelecionados(Math.min(modalidadeSelecionada === 'pack_grupo' ? 8 : 20, creditosSelecionados + 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">+</button>
@@ -1687,7 +1687,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO DE AÇÃO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   Continuar al Pago
                 </button>
               </div>
@@ -1703,7 +1703,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex-1 w-full h-full flex flex-col overflow-hidden relative text-slate-200">
             
             {/* CABEÇALHO DA ABA DA AGENDA COM MAPEAMENTO COMERCIAL TRILINGUE */}
-            <div className="px-4 py-3 md:px-6 md:py-4 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-2 shrink-0 w-full text-left">
+            <div className="px-4 py-3 md:px-6 md:py-1.5 bg-slate-950/50 border-b border-white/[0.03] flex justify-between items-center gap-1.5 shrink-0 w-full text-left">
               <span className="text-[11px] md:text-sm font-black text-slate-200 uppercase tracking-wider font-mono truncate max-w-[65%]">
                 {planCategory}
               </span>
@@ -1714,11 +1714,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* STAGE 0: HOME DA AGENDA (LISTAGEM PADRÃO) */}
             {etapaAgendamento === 0 && (
-              <div className="flex-1 w-full h-full flex flex-col gap-3 overflow-hidden justify-between p-3">
-                <div className="flex flex-col gap-3 overflow-y-auto scrollbar-none">
+              <div className="flex-1 w-full h-full flex flex-col gap-1.5 overflow-hidden justify-between p-3">
+                <div className="flex flex-col gap-1.5 overflow-y-auto scrollbar-none">
                   
                   {/* BOTÕES DE FILTRO DINÂMICO DE CRÉDITOS */}
-                  <div className="grid grid-cols-2 gap-2 shrink-0">
+                  <div className="grid grid-cols-2 gap-1.5 shrink-0">
                     <button 
                       onClick={() => { (window as any)._filtroAgenda = 'regular'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
                       className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 border-orange-500/40 shadow-md shadow-orange-500/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
@@ -1739,9 +1739,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                                     {/* GAVETINHA RETRÁTIL DE REGRAS E FUSO HORÁRIO COLÔMBIA */}
                   <div 
                     onClick={() => setGavetaRegulamentoAberta(!gavetaRegulamentoAberta)} 
-                    className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex flex-col gap-2 shrink-0 text-left cursor-pointer active:scale-[0.99] transition-all"
+                    className="bg-slate-900/30 border border-white/[0.04] rounded-xl p-3 flex flex-col gap-1.5 shrink-0 text-left cursor-pointer active:scale-[0.99] transition-all"
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-1.5.5">
                       <AlertTriangle size={14} className="text-orange-400 shrink-0" />
                       <span className="font-bold text-orange-400 uppercase tracking-wider text-[10px] md:text-xs flex-1">
                         {idiomaSelecionado === "PT" ? "Regulamento de Sessões" : idiomaSelecionado === "ES" ? "Reglamento de Sesiones" : "Session Rules"}
@@ -1766,13 +1766,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2 min-h-0">
+                  <div className="flex flex-col gap-1.5 min-h-0">
                     <span className="text-[clamp(11px,3vw,13px)] font-mono font-black text-slate-600 uppercase tracking-widest block px-1 shrink-0">{idiomaSelecionado === "PT" ? "Próximos Agendamentos" : idiomaSelecionado === "ES" ? "Próximos Agendamientos" : "Upcoming Sessions"}</span>
-                    <div className="flex flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-none">
+                    <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 scrollbar-none">
                       {false && (
 <>
 {/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
-                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
+                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-1.5 shrink-0">
                         <div className="flex justify-between items-center">
                           <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
                         </div>
@@ -1788,7 +1788,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </div>
 
                       {/* 2º CARD CRONOLÓGICO: DATA SEGUINTE (REGULAR VÁLIDO) */}
-                      <div className="bg-cyan-500/[0.02] border border-cyan-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
+                      <div className="bg-cyan-500/[0.02] border border-cyan-500/10 p-3 rounded-xl flex flex-col gap-1.5 shrink-0">
                         <div className="flex justify-between items-center">
                           <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-cyan-500/20">{idiomaSelecionado === "PT" ? "Regular" : idiomaSelecionado === "ES" ? "Regular" : "Regular"}</span>
                         </div>
@@ -1804,7 +1804,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </div>
 
                       {/* 3º CARD CRONOLÓGICO: DATA FUTURA (REPOSIÇÃO NO PRAZO / GAMEFICADO) */}
-                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
+                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-1.5 shrink-0">
                         <div className="flex justify-between items-center">
                           <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
                         </div>
@@ -1827,7 +1827,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         const isCanceled = Boolean((agendamento as any).canceled_at || (agendamento as any).status === "canceled" || (agendamento as any).status === "cancelled");
                         
                         return (
-                          <div key={index} className={`${isCanceled ? "bg-neutral-800/40 border border-neutral-700/50 opacity-60" : isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-2 shrink-0 transition-all`}>
+                          <div key={index} className={`${isCanceled ? "bg-neutral-800/40 border border-neutral-700/50 opacity-60" : isRegular ? "bg-cyan-500/[0.02] border border-cyan-500/10" : "bg-orange-500/[0.02] border border-orange-500/10"} p-3 rounded-xl flex flex-col gap-1.5 shrink-0 transition-all`}>
                             <div className="flex justify-between items-center">
                               <span className={`px-2 py-0.5 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border ${isCanceled ? "bg-neutral-700/40 text-neutral-400 border-neutral-600/50" : isRegular ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-orange-500/10 text-orange-400 border-orange-500/20"}`}>
                                 {agendamento.tipo}
@@ -1856,7 +1856,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 <div className="w-full pt-0 bg-transparent shrink-0">
                   <button 
                     onClick={() => { const eReposicao = (window as any)._filtroAgenda === "reposicao"; setTipoAgendamento(eReposicao ? "REPOSICAO" : "REGULAR"); const padraoComSaldo = Object.keys(saldosDoAluno || {}).find(key => (saldosDoAluno as any)[key] > 0) || "vip_std"; setModalidadeSelecionada(padraoComSaldo); setGavetaCalendarioAberta(true); }}
-                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4"
+                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-xl shadow-slate-950/20 min-h-[48px] md:py-1.5"
                   >
                     {idiomaSelecionado === "PT" ? "Agendar Nova Sessão" : idiomaSelecionado === "ES" ? "Programar Nueva Sesión" : "Book New Session"}
                   </button>
@@ -1872,7 +1872,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default animate-slide-up"
                 >
                   <div onClick={() => setGavetaTipoAulaAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
@@ -1887,12 +1887,12 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-2 mt-1">
+                  <div className="flex flex-col gap-1.5 mt-1">
                     {((window as any)._filtroAgenda || 'regular') === 'reposicao' ? (
                       /* FLUXO FILTRADO PARA REPOSIÇÃO DIRETA */
                       <button 
                         onClick={() => { setTipoAgendamento('REPOSICAO'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                        className="w-full p-3 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/20 rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                        className="w-full p-3 bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/20 rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                       >
                         <div className="w-4 h-4 bg-transparent border-2 border-orange-400 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
                         <div className="flex flex-col font-mono text-left">
@@ -1902,12 +1902,12 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </button>
                     ) : (
                       /* FLUXO COM LISTAGEM COMERCIAL EXPANDIDA SEM ROLAGEM */
-                      <div className="flex flex-col gap-2 w-full text-left">
+                      <div className="flex flex-col gap-1.5 w-full text-left">
                         
                         {/* PLANO 1: COLETIVO GRUPO */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('grupo'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-emerald-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1919,7 +1919,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         {/* PLANO 2: PACK ACUMULATIVO GRUPO */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); const padraoComSaldo = Object.keys(saldosDoAluno).find(key => saldosDoAluno[key] > 0) || 'vip_std'; setModalidadeSelecionada(padraoComSaldo); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-teal-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-teal-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1931,7 +1931,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         {/* PLANO 3: {planCategory} */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-amber-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1943,7 +1943,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         {/* PLANO 4: PACK {planCategory} */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('acumulador_vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-orange-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1955,7 +1955,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         {/* PLANO 5: VIP PRO CORPORATIVO */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_pro'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-cyan-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-cyan-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1967,7 +1967,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         {/* PLANO 6: PARTICULAR FLEX */}
                         <button 
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('avulsa'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
-                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
+                          className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
                           <div className="w-3.5 h-3.5 bg-transparent border-2 border-indigo-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-indigo-400" /></div>
                           <div className="flex flex-col font-mono text-left">
@@ -1995,14 +1995,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-6 w-full shadow-2xl flex flex-col gap-5 cursor-default animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-6 w-full shadow-2xl flex flex-col gap-3 sm:p-5 cursor-default animate-slide-up"
                 >
                   <div onClick={() => { setSucessoAgendamento('CLOSED'); setEtapaAgendamento(0); setAbaAtiva('agenda'); }} className="w-full py-1 -mt-3 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
                   </div>
 
                   {sucessoAgendamento === 'REGULAR' && (
-                    <div className="flex flex-col items-center text-center gap-3 py-2">
+                    <div className="flex flex-col items-center text-center gap-1.5 py-2">
                       <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full shadow-xl shadow-emerald-500/5">
                         <CheckCircle size={26} />
                       </div>
@@ -2033,7 +2033,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   )}
 
                   {sucessoAgendamento === 'REPOSICAO' && (
-                    <div className="flex flex-col items-center text-center gap-3 py-2">
+                    <div className="flex flex-col items-center text-center gap-1.5 py-2">
                       <div className="p-3.5 bg-purple-500/10 border border-orange-500/20 text-purple-400 rounded-full shadow-xl shadow-purple-500/5">
                         <CheckCircle size={26} />
                       </div>
@@ -2065,7 +2065,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   <button 
                     onClick={() => { setSucessoAgendamento('CLOSED'); setEtapaAgendamento(0); setAbaAtiva('inicio'); }} 
-                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider cursor-pointer transition-colors shadow-xl shadow-slate-950/20 min-h-[48px] md:py-4 flex items-center justify-center"
+                    className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider cursor-pointer transition-colors shadow-xl shadow-slate-950/20 min-h-[48px] md:py-1.5 flex items-center justify-center"
                   >
                     {idiomaSelecionado === "PT" ? "Bora Praticar" : idiomaSelecionado === "ES" ? "Vamos a Practicar" : "Start Practice"}
                   </button>
@@ -2081,7 +2081,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default animate-slide-up"
                 >
                   <div onClick={() => setModalAgenda('CLOSED')} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
@@ -2089,7 +2089,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   
                   {/* MOMENTO DE CHECAGEM DO CARD REGULAR (CONFIRMAÇÃO EM DOIS PASSOS) */}
                   {modalAgenda === 'SUCCESS_REGULAR' && (
-                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
+                    <div className="flex flex-col items-center text-center gap-1.5 md:gap-4 py-1 md:py-1.5">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
@@ -2111,7 +2111,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will become a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 5 days to reschedule it.</>
                         )}
                       </p>
-                      <div className="w-full flex flex-col gap-2 mt-3">
+                      <div className="w-full flex flex-col gap-1.5 mt-3">
                         <button 
                           onClick={handleConfirmarCancelamento} 
                           className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-xs md:text-sm font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px] md:min-h-[56px] md:py-5"
@@ -2130,7 +2130,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {/* MOMENTO DE CHECAGEM DO CARD DE REPOSIÇÃO NO PRAZO (CONFIRMAÇÃO EM DOIS PASSOS) */}
                   {modalAgenda === 'ALERT_REPOSICAO_LOSS' && (
-                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
+                    <div className="flex flex-col items-center text-center gap-1.5 md:gap-4 py-1 md:py-1.5">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
@@ -2146,7 +2146,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                           <>Notice: This session <span className="text-orange-400 font-black">is already a makeup</span>. To maintain your momentum and progress, avoid consecutive rescheduling. The deadline to use this credit continues running from the original date.</>
                         )}
                       </p>
-                      <div className="w-full flex flex-col gap-2 mt-3">
+                      <div className="w-full flex flex-col gap-1.5 mt-3">
                         <button 
                           onClick={() => {
                             handleConfirmarCancelamento();
@@ -2168,7 +2168,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {/* MOMENTO DE BLOQUEIO OPERACIONAL - MENOS DE 12H (AÇÃO ÚNICA INFORMATIVA) */}
                   {modalAgenda === 'LOCK_12H' && (
-                    <div className="flex flex-col items-center text-center gap-2 md:gap-4 py-1 md:py-4">
+                    <div className="flex flex-col items-center text-center gap-1.5 md:gap-4 py-1 md:py-1.5">
                       <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-full">
                         <AlertTriangle size={20} />
                       </div>
@@ -2196,7 +2196,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {/* STAGE 1: SELEÇÃO DE CATEGORIA */}
             {etapaAgendamento === 1 && (
               <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-3 sm:p-5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
                     <button onClick={() => setEtapaAgendamento(0)} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">← Voltar</button>
                     <span className="text-[clamp(11px,3vw,12px)] md:text-sm font-mono font-bold text-slate-500 uppercase tracking-wider">Etapa 1 de 3</span>
@@ -2205,7 +2205,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-2xl font-mono font-black uppercase text-white tracking-wide">Categoria da Aula</h2>
                     <p className="text-[clamp(12px,3.4vw,13px)] text-slate-400 mt-0.5">Escolha qual tipo de crédito deseja utilizar.</p>
                   </div>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
                     <div 
                       onClick={() => { setTipoAgendamento('REGULAR'); setEtapaAgendamento(2); }}
                       className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] transition-all cursor-pointer active:scale-[0.99]"
@@ -2243,13 +2243,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[85vh] overflow-y-auto animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[85vh] overflow-y-auto animate-slide-up"
                 >
                   <div onClick={() => setGavetaCalendarioAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
                   </div>
               <div className="flex flex-col justify-between h-full py-1 animate-fade-in overflow-hidden">
-                <div className="flex-1 flex flex-col gap-3.5">
+                <div className="flex-1 flex flex-col gap-1.5.5">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3">
                     <button onClick={() => { setGavetaCalendarioAberta(false); setGavetaTipoAulaAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
                       {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "ES" ? "← Volver" : "← Back"}
@@ -2297,29 +2297,33 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {/* GRADE MENSAL DINÂMICA */} 
                   <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-3 rounded-2xl shadow-xl flex flex-col gap-1 mt-0.5">
-                    <div className="grid grid-cols-7 gap-2 text-center border-b border-white/[0.02] pb-2">
-                      {(idiomaSelecionado === "PT" ? ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'] : idiomaSelecionado === "ES" ? ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'] : ['SUN','MON','TUE','WED','THU','FRI','SAT']).map((day, idx) => (
+                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-1.5 text-center border-b border-white/[0.02] pb-2">
+                      {(idiomaSelecionado === "PT" ? ['SEG','TER','QUA','QUI','SEX','SÁB'] : idiomaSelecionado === "ES" ? ['LUN','MAR','MIÉ','JUE','VIE','SÁB'] : ['MON','TUE','WED','THU','FRI','SAT']).map((day, idx) => (
                         <span key={idx} className="text-[clamp(11px,3vw,12px)] font-mono font-bold text-slate-500">{day}</span>
                       ))}
                     </div>
                     
-                    <div className="grid grid-cols-7 gap-x-1.5 gap-y-2 text-center">
+                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-x-1.5 gap-y-2 text-center">
                       {/* RENDERIZA JUNHO OU JULHO COM BASE NO ESTADO */}
                       {(() => {
                         
                         const obterDiasDoMesUniversal = (mes, ano) => {
-                          const diaSemanaInicial = new Date(ano, mes - 1, 1).getDay();
+                          const diaSem = new Date(ano, mes - 1, 1).getDay();
+                          const offsetLund = diaSem === 0 ? 6 : diaSem - 1;
                           const totalDias = new Date(ano, mes, 0).getDate();
                           const grade = [];
-                          for (let i = 0; i < diaSemanaInicial; i++) grade.push("");
-                          for (let d = 1; d <= totalDias; d++) grade.push(String(d));
+                          for (let i = 0; i < offsetLund; i++) grade.push("");
+                          for (let d = 1; d <= totalDias; d++) {
+                            const dateObj = new Date(ano, mes - 1, d);
+                            if (dateObj.getDay() !== 0) grade.push(String(d));
+                          }
                           return grade;
                         };
                         const mapasMeses2026 = { [mesAgendamento]: obterDiasDoMesUniversal(mesAgendamento, anoAgendamento) };
 
 
                         return (mapasMeses2026[mesAgendamento] || []).map((d, i) => {
-                          if (!d) return <div key={i} className="aspect-square" />;
+                          if (!d) return <div key={i} className="h-9 sm:h-11 w-full flex items-center justify-center p-1 text-[clamp(11px,3.2vw,14px)]" />;
                           
                           const numDay = parseInt(d);
                           const feriadosColombia2026 = {
@@ -2345,11 +2349,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                                                (passouDaExpiracao && !temReposicaoDisponivel);
 
                           if (diaBloqueado) {
-                            return <div key={i} className="aspect-square bg-transparent opacity-30 cursor-not-allowed flex items-center justify-center text-slate-600 font-mono text-xs">{d}</div>;
+                            return <div key={i} className="h-9 sm:h-11 w-full flex items-center justify-center p-1 text-[clamp(11px,3.2vw,14px)] bg-transparent opacity-30 cursor-not-allowed flex items-center justify-center text-slate-600 font-mono text-xs">{d}</div>;
                           }
 
                           const isSelected = diaSelecionado === d;
-                          const classeBotao = "aspect-square h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all " + 
+                          const classeBotao = "h-9 sm:h-11 w-full flex items-center justify-center p-1 text-[clamp(11px,3.2vw,14px)] h-auto w-full flex items-center justify-center rounded-xl text-[clamp(13px,3.8vw,15px)] font-mono font-bold transition-all " + 
                             (isSelected ? "bg-cyan-500 text-black font-black" : "bg-[#0a1220] text-slate-300 cursor-pointer");
 
                           return (
@@ -2415,7 +2419,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <button 
                         disabled={!temDia || travaAtiva}
                         onClick={() => { setGavetaCalendarioAberta(false); setGavetaHorariosAberta(true); }}
-                        className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 ${
+                        className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-1.5 ${
                           (temDia && !travaAtiva) 
                                                         ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                             : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
@@ -2439,13 +2443,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[80vh] overflow-y-auto animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[80vh] overflow-y-auto animate-slide-up"
                 >
                   <div onClick={() => setGavetaHorariosAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
                   </div>
               <div className="flex flex-col gap-4 justify-start h-full py-1 animate-fade-in overflow-hidden">
-                <div className="flex flex-col gap-3 min-h-0 overflow-hidden">
+                <div className="flex flex-col gap-1.5 min-h-0 overflow-hidden">
                   <div className="flex items-center justify-between border-b border-white/[0.04] pb-3 shrink-0">
                     <button onClick={() => { setGavetaHorariosAberta(false); setGavetaCalendarioAberta(true); }} className="text-slate-400 font-mono text-[clamp(11px,3.2vw,15px)] md:text-sm uppercase tracking-wider bg-slate-900/60 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg border border-white/[0.04] cursor-pointer">
                       {idiomaSelecionado === "PT" ? "← Voltar" : idiomaSelecionado === "ES" ? "← Volver" : "← Back"}
@@ -2469,8 +2473,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </div>
 
                   {/* CONTAINER DE ROLAGEM VERTICAL DO POLEGAR - SEM ESTOURAR O BOTÃO DE BAIXO */}
-                  <div className="flex-1 overflow-y-auto pb-2 scrollbar-none flex flex-col gap-2 min-h-0 px-0.5">
-                    <div className="grid grid-cols-2 gap-2 w-full">
+                  <div className="flex-1 overflow-y-auto pb-2 scrollbar-none flex flex-col gap-1.5 min-h-0 px-0.5">
+                    <div className="grid grid-cols-2 gap-1.5 w-full">
                       {(() => {
                         const cat = String(planCategory || '').toLowerCase();
                         
@@ -2510,7 +2514,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                             key={h}
                             disabled={isEsgotado}
                             onClick={() => !isEsgotado && setHorarioSelecionado(h)}
-                            className={`py-2.5 md:py-4 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all border border-transparent ${
+                            className={`py-2.5 md:py-1.5 rounded-xl text-center font-mono text-[clamp(13px,3.8vw,15px)] md:text-lg font-bold transition-all border border-transparent ${
                               isEsgotado
                                 ? 'bg-slate-800 text-slate-600 opacity-40 cursor-not-allowed'
                                 : isSelected 
@@ -2637,7 +2641,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                         }
                       })();
                     }}
-                    className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-4 border ${
+                    className={`w-full py-3.5 font-mono font-black rounded-xl text-[clamp(14px,4vw,22px)] uppercase tracking-wider transition-all flex items-center justify-center min-h-[48px] md:py-1.5 border ${
                       horarioSelecionado 
                                                     ? 'bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer shadow-xl shadow-slate-950/20' 
                         : 'bg-slate-800/50 border-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
@@ -2663,7 +2667,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex flex-col gap-4 h-full flex-1 overflow-hidden">
             
             {/* CARD DE ENVIO DE ATIVIDADE */}
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex flex-col shrink-0">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-3 sm:p-6 rounded-2xl shadow-xl flex flex-col shrink-0">
               <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block mb-1">{txt.taskTitle}</span>
               <p className="text-xs md:text-base md:text-sm md:text-sm text-slate-300 mb-3 leading-relaxed">{txt.taskDesc}</p>
               
@@ -2679,18 +2683,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               <button 
                 onClick={acionarInputNativo}
                 disabled={uploading}
-              className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
+              className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
               >
                                 {txt.btnPhoto}
               </button>
 
               {/* FILA DE ARQUIVOS */}
               {arquivosSelecionados.length > 0 && (
-                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-2 animate-fadeIn max-h-[110px] overflow-y-auto">
+                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[110px] overflow-y-auto">
                   <span className="text-[9px] font-mono font-black text-slate-400 uppercase tracking-widest">{txt.selectedFiles} ({arquivosSelecionados.length}/3):</span>
                   <div className="flex flex-col gap-1.5">
                     {arquivosSelecionados.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-white/[0.02] p-1.5 rounded border border-white/[0.03]">
+                      <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-300 font-mono bg-white/[0.02] p-1.5 rounded border border-white/[0.03]">
                         <FileText size={12} className="text-emerald-400" />
                         <span className="truncate flex-1 font-bold">{file.name}</span>
                       </div>
@@ -2720,7 +2724,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {/* RADAR CARD EXPANSIVO (FLEX-1 FORCE ELE A PREENCHER TODO O ESPAÇO ATÉ O RODAPÉ) */}
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-6 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-3 sm:p-6 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
               <div className="w-full flex items-center justify-between mb-2 shrink-0">
                 <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
                 <span className="text-[8px] md:text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
@@ -2743,7 +2747,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         {((abaAtiva as string) === "dashboard") && ( 
           <div className="flex flex-col flex-1 gap-4 px-0 pb-0 pt-0 overflow-y-auto scrollbar-none [&>*]:flex-1">
             {/* 1. Entrar na Aula */} 
-            <button onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1&hs=122&ijlm=1783058944948", "_blank")} className="w-full py-3 bg-gradient-to-r from-orange-600/20 via-amber-600/10 to-transparent border border-orange-500/40 text-orange-400 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.1)] border-[0.5px] border-orange-400/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2">
+            <button onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1&hs=122&ijlm=1783058944948", "_blank")} className="w-full py-3 bg-gradient-to-r from-orange-600/20 via-amber-600/10 to-transparent border border-orange-500/40 text-orange-400 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.1)] border-[0.5px] border-orange-400/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-1.5">
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0" style={{ display: "inline-block" }}><path d="M8 5v14l11-7z"/></svg>
               {idiomaSelecionado === "PT" ? "Entrar na Aula" : idiomaSelecionado === "ES" ? "Entrar a la Clase" : "Enter Class"} 
             </button> 
@@ -2762,16 +2766,16 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
  
             {/* 3. Sequência de Dias & Próxima Recompensa */} 
-            <div className="grid grid-cols-2 gap-2 w-full"> 
+            <div className="grid grid-cols-2 gap-1.5 w-full"> 
                             {/* 🏆 GATILHO PREMIUM: LIGA DE ELITE / RANKING GLOBAL */}
-              <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
+              <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-1.5 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
                 <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-amber-500" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
 
                   <span className="text-[clamp(10px,3.2vw,18px)] uppercase font-mono font-black text-amber-500 tracking-tight break-words leading-tight">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span>
                 </div> 
               </button> 
-              <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
+              <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-1.5 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
                 <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center shrink-0"><Gift className="w-5 h-5 text-emerald-400" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
                   <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-white truncate">{idiomaSelecionado === "PT" ? "Faltam 40 UT" : idiomaSelecionado === "ES" ? "Faltan 40 UT" : "40 UT Remaining"}</span> 
@@ -2786,8 +2790,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             
 
             {/* 4. Campo de Prática */} 
-            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 md:p-6 bg-slate-950/40 border-[0.5px] border-amber-500/10 hover:border-cyan-500/30 rounded-xl flex items-center justify-between gap-4 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
-              <div className="flex items-center gap-3 min-w-0 flex-1"> 
+            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 md:p-3 sm:p-6 bg-slate-950/40 border-[0.5px] border-amber-500/10 hover:border-cyan-500/30 rounded-xl flex items-center justify-between gap-4 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
+              <div className="flex items-center gap-1.5 min-w-0 flex-1"> 
                  
                 <div className="flex flex-col text-left min-w-0 flex-1"> 
                   <span className="text-[clamp(12px,3.5vw,16px)] font-mono font-black text-white uppercase tracking-wide truncate">{idiomaSelecionado === "PT" ? "Espaço de Prática" : idiomaSelecionado === "ES" ? "Espacio de Práctica" : "Practice Space"}</span> 
@@ -2806,7 +2810,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex-1 w-full h-[calc(100vh-80px)] flex flex-col overflow-hidden">
             
             {/* 1. BLOCO SUPERIOR: IDENTIDADE & RANK - CORRIGIDO NATÍVAMENTE */}
-            <div className="w-[calc(100%-32px)] mx-auto mt-4 bg-[#070d19]/90 bg-gradient-to-b from-[#070d19]/95 to-[#030914]/95 border border-white/[0.05] p-5 flex flex-col items-center text-center relative h-auto shrink-0 rounded-2xl shadow-lg shadow-black/40">
+            <div className="w-[calc(100%-32px)] mx-auto mt-4 bg-[#070d19]/90 bg-gradient-to-b from-[#070d19]/95 to-[#030914]/95 border border-white/[0.05] p-3 sm:p-5 flex flex-col items-center text-center relative h-auto shrink-0 rounded-2xl shadow-lg shadow-black/40">
               <div className="relative w-20 h-20 md:w-28 md:h-28">
                 <div className="w-full h-full rounded-full border border-white/[0.08] bg-slate-900 flex items-center justify-center text-xl md:text-3xl font-mono font-black text-white">
                   {obterIniciais(nomeBruto)}
@@ -2837,18 +2841,18 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
             </div>
             {/* CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
-            <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-6 scrollbar-none">
+            <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-3 sm:p-6 scrollbar-none">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
-            <div className="grid grid-cols-2 gap-2 w-full px-0 m-0 h-auto">
-              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
+            <div className="grid grid-cols-2 gap-1.5 w-full px-0 m-0 h-auto">
+              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-1.5.5">
                 <div className="text-amber-400 shrink-0"><Zap size={16} className="text-amber-400" /></div>
                 <div className="flex flex-col">
                   <span className="text-lg md:text-2xl font-mono font-black text-white">{totalXp ? Number(totalXp).toLocaleString('pt-BR') : '0'}</span>
                   <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">Total PTS</span>
                 </div>
               </div>
-              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
+              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-1.5.5">
                 <div className="text-cyan-400 shrink-0"><Timer size={16} className="text-cyan-400" /></div>
                 <div className="flex flex-col">
                   <span className="text-lg md:text-2xl font-mono font-black text-white">{horasAtivas}h</span>
@@ -2860,7 +2864,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               
               {/* Card de Dias de Jornada Customizado com Consistência Semanal Embutida */}
               <div className="bg-slate-900/40 border border-white/[0.02] p-2.5 rounded-xl flex flex-col gap-1.5 justify-center">
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5.5">
                   <div className="flex flex-col">
                     <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
@@ -2881,7 +2885,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
               </div>
 
-              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
+              <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-1.5.5">
                 <div className="text-amber-500 shrink-0"><Flame size={16} className="text-amber-500" /></div>
                 <div className="flex flex-col">
                   <span className="text-lg md:text-2xl font-mono font-black text-white">{streakDias}</span>
@@ -2894,7 +2898,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* CARD FINANCEIRO INTEGRADO E ORGANIZADO */}
             <div className="w-full px-0 mt-2 flex-initial">
-              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-amber-500/10 p-3 md:p-5 rounded-xl flex items-center justify-between gap-3 shadow-md">
+              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-amber-500/10 p-3 md:p-3 sm:p-5 rounded-xl flex items-center justify-between gap-1.5 shadow-md">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "STATUS DO PLANO" : idiomaSelecionado === "ES" ? "ESTADO DEL PLANO" : "PLAN STATUS"}
@@ -2924,11 +2928,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {/* 3. BLOCO DE CONQUISTAS */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2.5">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5.5">
               <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
                 {idiomaSelecionado === "PT" ? "Insígnias e Conquistas" : idiomaSelecionado === "ES" ? "Insignias y Logros" : "Badges & Achievements"}
               </h3>
-              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                 <div className="flex flex-col items-center gap-1 shrink-0">
                   <div className="w-11 h-11 md:w-14 md:h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-base"><Award size={16} className="text-emerald-400" /></div>
                   <span className="text-[10px] md:text-xs font-bold text-slate-400">
@@ -2952,11 +2956,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {/* 4. BLOCO DE APRENDIZAGEM */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5">
               <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
                 {idiomaSelecionado === "PT" ? "Desempenho por Área" : idiomaSelecionado === "ES" ? "Desempeño por Área" : "Performance by Area"}
               </h3>
-              <div className="flex flex-col gap-2 font-mono text-xs md:text-base">
+              <div className="flex flex-col gap-1.5 font-mono text-xs md:text-base">
                 <div className="flex justify-between text-white">
                   <span>{idiomaSelecionado === "PT" ? "Vocabulário" : idiomaSelecionado === "ES" ? "Vocabulario" : "Vocabulary"} (1.250 p.)</span>
                   <span className="text-slate-400">45h</span>
@@ -2969,7 +2973,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {/* 5. BLOCO DE EVOLUÇÃO */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-6 rounded-xl flex flex-col gap-2">
+            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5">
               <div className="flex justify-between items-baseline font-mono">
                 <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-black uppercase tracking-wider text-emerald-400">
                   {idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}
@@ -2993,7 +2997,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 onClick={() => setModalProgramaAberto(true)} 
                 className="w-full py-3.5 bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 rounded-xl px-4 flex items-center justify-between text-cyan-400 font-mono font-bold text-sm md:text-lg cursor-pointer transition-colors min-h-[48px] md:py-5"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   
                   <span>
                     {idiomaSelecionado === "PT" ? "Cronograma Completo" : idiomaSelecionado === "ES" ? "Programa Completo" : "Full Schedule"}
@@ -3007,7 +3011,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 onClick={() => setGavetaErroresAberta(true)} 
                 className="w-full py-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 flex items-center justify-between text-amber-400 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px] md:py-5"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   
                   <span>
                     {idiomaSelecionado === "PT" ? "Cofre de Erros" : idiomaSelecionado === "ES" ? "Cofre de Errores" : "Error Vault"}
@@ -3023,7 +3027,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 onClick={() => window.open("https://api.whatsapp.com/send/?phone=573239421071&text=Hello%21+I%27m+interested+in+learning+more+about+Escuela+Haas.&type=phone_number&app_absent=0", "_blank")}
                 className="w-full py-3.5 bg-emerald-500/5 border border-emerald-500/20 rounded-xl px-4 flex items-center justify-between text-emerald-400 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-emerald-500/10 transition-colors min-h-[48px] md:py-5"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span>
                     {idiomaSelecionado === "PT" ? "Atendimento ao Cliente" : idiomaSelecionado === "ES" ? "Atención al Cliente" : "Customer Service"}
                   </span>
@@ -3054,9 +3058,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       {modalIdiomaAberto && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex flex-col justify-end animate-fadeIn">
           <div className="absolute inset-0 -z-10" onClick={() => setModalIdiomaAberto(false)} />
-          <div className="bg-[#070d19] border-t border-white/10 rounded-t-3xl p-5 w-full max-w-[100vw] flex flex-col gap-4 shadow-2xl animate-slideUp">
+          <div className="bg-[#070d19] border-t border-white/10 rounded-t-3xl p-3 sm:p-5 w-full max-w-[100vw] flex flex-col gap-4 shadow-2xl animate-slideUp">
             <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3">
-              <div className="flex items-center gap-2 text-cyan-400">
+              <div className="flex items-center gap-1.5 text-cyan-400">
                 <Globe size={16} />
                 <h3 className="text-xs font-black uppercase tracking-wider">Select Dashboard Language</h3>
               </div>
@@ -3064,7 +3068,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 <X size={14} />
               </button>
             </div>
-            <div className="flex flex-col gap-2.5 my-2">
+            <div className="flex flex-col gap-1.5.5 my-2">
               {[
                 { code: 'EN', label: 'English (US/UK)' },
                 { code: 'PT', label: 'Português (BR)' },
@@ -3124,7 +3128,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       {modalCreditosAberto && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 999999 }}>
           <div style={{ position: 'absolute', inset: 0, zIndex: -1 }} onClick={() => setModalCreditosAberto(false)} />
-          <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
+          <div className="bg-[#070d19] border-t border-orange-500/30 rounded-t-3xl p-3 sm:p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
             <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3 mb-2">
               <span className="text-orange-500 font-mono font-black tracking-wider text-sm md:text-lg">HAAS ACADEMY</span>
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
@@ -3159,7 +3163,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             )}
 
             {etapaPagamento === 0 && (
-              <div className="flex flex-col gap-3 my-1">
+              <div className="flex flex-col gap-1.5 my-1">
                 <span className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-slate-400 block mb-2">
                   {idiomaSelecionado === "PT" ? "Selecione a Modalidade:" : idiomaSelecionado === "EN" ? "Select Modality:" : "Seleccione la Modalidad:"}
                 </span>
@@ -3235,11 +3239,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* SELETOR PLANO RECORRENTE (8, 12, 20) */}
                 {['grupo', 'particular', 'business'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col gap-1.5.5">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       {idiomaSelecionado === "PT" ? "Selecione a Intensidade Mensal:" : idiomaSelecionado === "EN" ? "Select Monthly Intensity:" : "Seleccione la Intensidad Mensual:"}
                     </span>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1.5">
                       {[8, 12, 20].map((cr) => (
                         <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-orange-500 to-amber-500 border-orange-500 text-slate-950 shadow-lg shadow-orange-500/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
                           {cr} {idiomaSelecionado === "PT" ? "AULAS" : idiomaSelecionado === "EN" ? "CLASSES" : "CLASES"}
@@ -3251,11 +3255,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                 {/* SELETOR PACKS (CONTADOR) */}
                 {['pack_grupo', 'pack_vip', 'flex'].includes(modalidadeSelecionada) && (
-                  <div className="flex flex-col gap-3 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
+                  <div className="flex flex-col gap-1.5 bg-[#0a1324] p-4 rounded-xl border border-white/5 items-center">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                       {idiomaSelecionado === "PT" ? "Quantidade de Aulas:" : idiomaSelecionado === "EN" ? "Amount of Classes:" : "Cantidad de Clases:"}
                     </span>
-                    <div className="flex items-center gap-6 my-1">
+                    <div className="flex items-center gap-3 sm:p-6 my-1">
                       <button onClick={() => setCreditosSelecionados(Math.max(1, creditosSelecionados - 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">-</button>
                       <span className="text-2xl font-mono font-black text-white">{creditosSelecionados}</span>
                       <button onClick={() => setCreditosSelecionados(Math.min(modalidadeSelecionada === 'pack_grupo' ? 8 : 20, creditosSelecionados + 1))} className="w-10 h-10 bg-[#070d19] border border-orange-500/30 rounded-xl flex items-center justify-center font-black text-lg text-orange-500 cursor-pointer active:bg-orange-500/10">+</button>
@@ -3286,7 +3290,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO CONTINUAR */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : idiomaSelecionado === "EN" ? "Continue to Payment" : "Continuar al Pago"}
                 </button>
               </div>
@@ -3305,7 +3309,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </span>
 
                 {/* CAIXA DE DETALHES DO PLANO */}
-                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2">
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-1.5">
                   <div className="flex justify-between items-center border-b border-white/[0.05] pb-2">
                     <span className="text-xs md:text-sm text-slate-400 font-medium">
                       {idiomaSelecionado === "PT" ? "Plano Selecionado:" : idiomaSelecionado === "EN" ? "Selected Plan:" : "Plan Seleccionado:"}
@@ -3357,7 +3361,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO PRINCIPAL DE PAGAMENTO */}
-                <button onClick={() => setEtapaPagamento(3)} className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(3)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Ir para o Pagamento Seguro" : idiomaSelecionado === "EN" ? "Proceed to Secure Payment" : "Ir al Pago Seguro"}
                 </button>
               </div>
@@ -3365,7 +3369,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* ETAPA 3: GATEWAY COLÔMBIA (CARDS EMPILHADOS) */}
             {etapaPagamento === 3 && (
-              <div className="flex flex-col gap-3.5 my-1 text-slate-100 w-full">
+              <div className="flex flex-col gap-1.5.5 my-1 text-slate-100 w-full">
                 {/* SELETOR LOCALIZAÇÃO */}
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
                   <span className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">
@@ -3379,11 +3383,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 {/* CAIXA DE VALIDAÇÃO DE CUPONS METICULOSA E NATIVA */}
 
                 {/* CAMPO DE CUPOM DE DESCONTO */}
-                <div className="w-full bg-[#0a1324] p-3 rounded-xl border border-white/[0.05] flex flex-col gap-2">
+                <div className="w-full bg-[#0a1324] p-3 rounded-xl border border-white/[0.05] flex flex-col gap-1.5">
                   <span className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">
                     {idiomaSelecionado === "PT" ? "Cupom de Desconto:" : idiomaSelecionado === "EN" ? "Coupon Code:" : "Cupón de Descuento:"}
                   </span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <input type="text" value={cupomTexto} onChange={(e) => setCupomTexto(e.target.value)} placeholder="HAAS10" className="flex-1 bg-[#070d19] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs md:text-sm font-mono uppercase text-white focus:outline-none focus:border-orange-500" />
                     <button onClick={() => { if(cupomTexto.toUpperCase() === "HAAS10") { setDescontoCupom(0.10); setCupomAplicado(true); } }} className="bg-orange-500 text-slate-950 px-5 py-2.5 rounded-lg text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer">
                       {cupomAplicado ? "✓" : (idiomaSelecionado === "PT" ? "Aplicar" : idiomaSelecionado === "EN" ? "Apply" : "Aplicar")}
@@ -3392,15 +3396,15 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* CARD 1: TARJETA WOMPI (+5%) */}
-                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-1.5.5">
                   <span className="text-xs md:text-base font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">● {idiomaSelecionado === "PT" ? "Cartão de Crédito / Débito" : idiomaSelecionado === "EN" ? "Credit / Debit Card" : "Tarjeta de Crédito / Débito"}</span>
                   <span className="text-[10px] md:text-xs text-slate-400 font-medium -mt-1 block">Pasarela segura Wompi / Nequi</span>
-                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-2 text-slate-300">
+                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-1.5 text-slate-300">
                     <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
                     <div className="flex justify-between text-rose-400"><span>Fee pasarela:</span><span>+ $ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 0.05).toLocaleString('de-DE')}</span></div>
                     <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-white text-sm md:text-lg"><span>Total:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom) * 1.05).toLocaleString('de-DE')}</span></div>
                   </div>
-                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 md:py-4.5 bg-[#10b981] hover:bg-[#0ea5e9] text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-emerald-500/10">
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-3.5 md:py-1.5.5 bg-[#10b981] hover:bg-[#0ea5e9] text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-emerald-500/10">
                     {idiomaSelecionado === "PT" ? "PAGAR VIA WOMPI / NEQUI" : idiomaSelecionado === "EN" ? "PAY VIA WOMPI / NEQUI" : "PAGAR VÍA WOMPI / NEQUI"}
                   </a>
                   <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center">
@@ -3409,13 +3413,13 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* CARD 2: LLAVE BRE-B (QR CODE - DESCONTO DO ROBÔ) */}
-                <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-2.5 relative overflow-hidden">
+                <div className="w-full p-4 bg-[#0a1324] border border-orange-500/20 rounded-xl flex flex-col gap-1.5.5 relative overflow-hidden">
                   <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
                   <span className="text-xs md:text-base font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
                   <div className="w-full flex justify-center my-1 bg-white p-2 rounded-xl max-w-[140px] mx-auto">
                     <img src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg" alt="QR Llave Bre-B" className="w-32 h-32 object-contain" />
                   </div>
-                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-2 text-slate-300">
+                  <div className="bg-[#070d19] p-4 rounded-lg text-xs md:text-sm font-mono flex flex-col gap-1.5 text-slate-300">
                     <div className="flex justify-between"><span>Base:</span><span>$ {Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)).toLocaleString('de-DE')}</span></div>
                     <div className="flex justify-between text-emerald-400"><span>Comisión:</span><span>$ 0 (¡Gratis!)</span></div>
                     <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-amber-400 text-sm md:text-lg"><span>A transferir:</span><span>$ {(Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) - 34).toLocaleString('de-DE')}</span></div>
@@ -3426,7 +3430,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 </div>
 
                 {/* BOTÃO FIXO DE FEEDBACK COMPRA */}
-                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 md:py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
                   {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
                 </button>
               </div>
@@ -3434,7 +3438,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* ETAPA 4: GATEWAY INTERNACIONAL (USD + 5%) */}
             {etapaPagamento === 4 && (
-              <div className="flex flex-col gap-3.5 my-1 text-slate-100">
+              <div className="flex flex-col gap-1.5.5 my-1 text-slate-100">
                 <div className="w-full flex justify-between items-center bg-[#0a1324] p-3 rounded-xl border border-white/[0.05]">
                   <span className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "¿Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
@@ -3444,7 +3448,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </button>
                 </div>
 
-                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-2.5">
+                <div className="w-full p-4 bg-[#0a1324] border border-white/[0.05] rounded-xl flex flex-col gap-1.5.5">
                   <span className="text-xs md:text-base font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">🌐 {idiomaSelecionado === "PT" ? "PAGAMENTOS INTERNACIONAIS HAAS" : idiomaSelecionado === "EN" ? "HAAS INTERNATIONAL PAYMENTS" : "PAGAMENTOS INTERNACIONAIS HAAS"}</span>
                   <span className="text-[10px] md:text-xs text-slate-400 font-medium leading-relaxed block">
                     {idiomaSelecionado === "PT" ? "Para transferências ou cartões do exterior, processe sua matrícula diretamente através do nosso módulo global integrado de alta segurança." : idiomaSelecionado === "EN" ? "For transfers or cards from abroad, process your enrollment directly through our high-security integrated global module." : "Para transferencias o tarjetas desde el exterior, procese su matrícula de manera directa a través de nuestro módulo global integrado de alta seguridad."}
@@ -3475,7 +3479,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </div>
                     );
                   })()}
-                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-1.5 md:py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-orange-500/10 hover:brightness-110">
                     {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
                   <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center mt-1">
@@ -3483,7 +3487,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </span>
                 </div>
 
-                <button onClick={() => setEtapaPagamento(5)} className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono">
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono">
                   {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
                 </button>
               </div>
@@ -3493,14 +3497,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {etapaPagamento === 5 && (
               <div className="flex flex-col gap-4 my-2 text-slate-100 text-center py-2">
                 <span className="text-sm md:text-lg font-black uppercase tracking-wider text-white font-mono block mb-1">NOTIFICACIÓN DE PAGO ENVIADA</span>
-                <div className="bg-[#0a1324] p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-slate-300 text-left leading-relaxed flex flex-col gap-3 shadow-inner">
+                <div className="bg-[#0a1324] p-3 sm:p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-slate-300 text-left leading-relaxed flex flex-col gap-1.5 shadow-inner">
                   <p>{idiomaSelecionado === "PT" ? "Registramos seu aviso de pagamento. O sistema iniciará a verificação dos valores com o desconto de identificação aplicado para validar a transação com o seu registro." : idiomaSelecionado === "EN" ? "We have registered your payment notice. The system will initiate verification of the values with the applied identification discount to validate the transaction with your record." : "Hemos registrado tu aviso de pago. El sistema iniciará la verificación de los valores con el descuento de identificación aplicado para validar a transación com o seu registro."}</p>
                 </div>
-                <div className="bg-[#0a1324] p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-left leading-relaxed flex flex-col gap-2.5 text-slate-400">
+                <div className="bg-[#0a1324] p-3 sm:p-5 rounded-xl border border-white/[0.05] text-xs md:text-sm text-left leading-relaxed flex flex-col gap-1.5.5 text-slate-400">
                   <p><strong className="text-white">¿Qué pasa ahora?</strong> {idiomaSelecionado === "PT" ? "Assim que o sistema validar o recebimento do valor, prosseguiremos com a ativação automática de sua matrícula." : idiomaSelecionado === "EN" ? "Once the system validates the receipt of the amount, we will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                   <p><strong className="text-white">Acceso Completo:</strong> {idiomaSelecionado === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso à plataforma será liberado." : idiomaSelecionado === "EN" ? "Upon successful confirmation, you will receive a notification email and your access to the platform will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acceso a la plataforma."}</p>
                 </div>
-                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-4 md:py-4.5 bg-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-orange-500/10 hover:brightness-110">
+                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-1.5 md:py-1.5.5 bg-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-orange-500/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "ENTENDIDO" : idiomaSelecionado === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                 </button>
               </div>
@@ -3533,7 +3537,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             
             {/* CABEÇALHO DA GAVETA */}
             <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Trophy size={16} className="text-amber-500" />
                 <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
                   {idiomaSelecionado === "PT" ? "Classificação Global" : idiomaSelecionado === "ES" ? "Clasificación Global" : "Global Standing"}
@@ -3548,14 +3552,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </div>
 
             {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-2 md:gap-3 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
+            <div className="flex-1 overflow-y-auto p-4 md:p-3 sm:p-6 flex flex-col gap-1.5 md:gap-1.5 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
               {topRankingMobile.length > 0 ? topRankingMobile.map((aluno, i) => {
                 const isFirst = i === 0;
                 const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';
                 const xp = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' PTS';
                 return (
                   <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-500/[0.04] border border-amber-500/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
                       <span className={`w-4 ${isFirst ? 'font-black text-amber-500 text-sm' : 'font-medium text-slate-400'}`}>{i + 1}</span>
                       <span className={isFirst ? 'text-white font-black' : 'text-slate-200'}>{nome}</span>
                     </div>
@@ -3570,7 +3574,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         </div>
       )}
 {/* GAVETINHA NOVA DE AVISO COMERCIAL - UPSELL TRILINGUE */}
-      <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
+      <div className={`fixed inset-x-0 bottom-0 z-[100] bg-[#0b1528] border-t border-white/10 rounded-t-3xl p-3 sm:p-6 shadow-2xl transition-transform duration-300 flex flex-col gap-4 font-sans ${gavetaAvisoCompraAberta ? 'translate-y-0' : 'translate-y-full'}`}>
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2 opacity-40 cursor-pointer" onClick={() => setGavetaAvisoCompraAberta(false)} />
         <div className="flex flex-col gap-1 text-center">
           <h3 className="text-base md:text-xl font-bold text-white uppercase tracking-wider">
@@ -3580,11 +3584,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {idiomaSelecionado === "PT" ? "Você não possui créditos ativos para este plano. Gostaria de adquirir um pacote?" : idiomaSelecionado === "ES" ? "No tienes créditos activos para este plan. ¿Te gustaría adquirir un paquete?" : "You do not have active credits for this plan. Would you like to purchase a package?"}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 md:py-4 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider cursor-pointer md:min-h-[54px]">
+        <div className="grid grid-cols-2 gap-1.5 mt-2">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 md:py-1.5 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Não" : "No"}
           </button>
-          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 md:py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 border-none rounded-xl text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer md:min-h-[54px]">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 md:py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 border-none rounded-xl text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Sim" : idiomaSelecionado === "ES" ? "Sí" : "Yes"}
           </button>
         </div>
