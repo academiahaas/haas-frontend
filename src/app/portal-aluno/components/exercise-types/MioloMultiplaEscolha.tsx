@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import { chamarGeminiInteligente } from './geminiService';
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
@@ -42,6 +43,9 @@ export default function MioloMultiplaEscolha({
   status = "IDLE",
   unidadeAtiva
 }: MioloProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const [correctOption, setCorrectOption] = useState<string>("");
@@ -68,7 +72,7 @@ export default function MioloMultiplaEscolha({
   const [isShortText, setIsShortText] = useState(true);
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle } from "lucide-react";
@@ -45,6 +46,9 @@ export default function MioloSpellingBee({
   onValidateResult, 
   onSelectionChange 
 }: MioloSpellingBeeProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [targetWord, setTargetWord] = useState("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
@@ -59,7 +63,7 @@ export default function MioloSpellingBee({
   const [feedbackIA, setFeedbackIA] = useState("");
   const [exerciseId, setExerciseId] = useState("");
 
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
   const accentRow = ["Á", "É", "Í", "Ó", "Ú", "Â", "Ê", "Ô", "Ã", "Õ", "Ç"];
 
   const keyboardRows = [

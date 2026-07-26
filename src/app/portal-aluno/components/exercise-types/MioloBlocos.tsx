@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
@@ -46,6 +47,9 @@ export default function MioloBlocos({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloBlocosProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [gabaritoFrase, setGabaritoFrase] = useState<string>("");
   const [fraseOriginalGabarito, setFraseOriginalGabarito] = useState<string>("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
@@ -63,7 +67,7 @@ export default function MioloBlocos({
   const [carregando, setCarregando] = useState(true);
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

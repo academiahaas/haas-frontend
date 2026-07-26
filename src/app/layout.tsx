@@ -1,3 +1,4 @@
+import { Providers } from "./Providers";
 import React from "react";
 import "./globals.css";
 
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="pt" className="dark">
       <body className="bg-slate-950 text-slate-100 antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

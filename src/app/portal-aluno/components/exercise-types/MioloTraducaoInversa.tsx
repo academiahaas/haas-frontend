@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
@@ -59,6 +60,9 @@ export default function MioloTraducaoInversa({
   streak = 0,
   getMultiplicador
 }: MioloProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [listaExercicios, setListaExercicios] = useState<any[]>([]);
   const [fraseMatrizPT, setFraseMatrizPT] = useState("Carregando desafio...");
   const [stringAlvoCorreta, setStringAlvoCorreta] = useState("");
@@ -80,7 +84,7 @@ export default function MioloTraducaoInversa({
   const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
   const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

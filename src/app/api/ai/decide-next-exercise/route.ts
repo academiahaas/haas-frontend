@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const { user_id, unit_id, score } = await request.json();
 
-    const finalUserId = user_id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+    const finalUserId = user_id;
     // Unidade fixa recuperada do seu banco caso venha nula ou um índice inválido do front
     const finalUnitId = (unit_id && unit_id.length > 5) ? unit_id : "b4a4526f-5ed8-4836-b1c1-8f18a5851b49";
 

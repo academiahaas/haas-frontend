@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import React, { useState, useEffect, useRef } from 'react';
 import { registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { Volume2, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
@@ -46,6 +47,9 @@ export default function MioloOrdenacao({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloOrdenacaoProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [listaExercicios, setListaExercicios] = useState<any[]>([]);
   const [indexAtual, setIndexAtual] = useState(0);
@@ -66,7 +70,7 @@ export default function MioloOrdenacao({
   const [carregando, setCarregando] = useState(true);
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

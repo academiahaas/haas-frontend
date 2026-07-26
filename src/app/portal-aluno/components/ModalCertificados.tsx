@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect, useState } from 'react';
 import { X, Shield, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -35,7 +36,7 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
 
         // Busca sem filtro de user por enquanto caso queira debugar generalizado,
         // ou filtrando pelo user.id caso autenticado
-        const userIdToQuery = user?.id || 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1';
+        const userIdToQuery = user?.id;
 
         const { data, error } = await supabase
           .from('certificados_alunos')

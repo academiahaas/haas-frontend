@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaLacunas, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
@@ -38,6 +39,9 @@ export default function DitadoLacunas({
   status: propStatus = 'IDLE', 
   unidadeAtiva 
 }: DitadoLacunasProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [inputValue, setInputValue] = useState("");
   const [inputValues, setInputValues] = useState<Record<number, string>>({});
   const [localStatus = 'IDLE', setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
@@ -59,7 +63,7 @@ export default function DitadoLacunas({
   const [carregando, setCarregando] = useState(true);
 
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

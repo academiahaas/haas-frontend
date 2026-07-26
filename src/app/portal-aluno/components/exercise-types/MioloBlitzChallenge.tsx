@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import React, { useState, useEffect, useRef } from 'react';
 import { registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
@@ -25,6 +26,9 @@ export default function MioloBlitzChallenge({
   unidadeAtiva,
   onValidateResult
 }: MioloBlitzChallengeProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [exerciseId, setExerciseId] = useState("");
   const [questions, setQuestions] = useState<BlitzQuestion[]>([
     { word: "CARREGANDO...", correct: "Carregando...", options: ["Carregando...", "...", "...", "..."] }
@@ -140,7 +144,7 @@ export default function MioloBlitzChallenge({
     // Dispara a telemetria em background para persistir o erro instantaneamente se errar
     try {
       registrarFeedbackEErro({
-        userId: "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
+        userId: authUser?.id,
         enunciado: `Desafio Blitz - Palavra Alvo: ${currentQuestion.word}`,
         respostaCorreta: currentQuestion.correct,
         respostaAluno: opcao,

@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { ArrowDown, CheckCircle, XCircle, Sparkles, HelpCircle } from 'lucide-react';
@@ -43,6 +44,9 @@ export default function MioloReordenacaoParagrafos({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloReordenacaoProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   const [items, setItems] = useState<ParagrafoItem[]>([]);
   const [gabaritoIds, setGabaritoIds] = useState<number[]>([]);
@@ -54,7 +58,7 @@ export default function MioloReordenacaoParagrafos({
   const [carregando, setCarregando] = useState(true);
   const [dadosExercicio, setDadosExercicio] = useState<any>(null);
 
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const obtenerLangKey = () => {
     const lang = idiomaNativoAluno?.toLowerCase() || "";

@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect, useRef } from 'react';
 import { translations } from '../idiomas';
@@ -28,6 +29,8 @@ interface ArenaProps {
 }
 
 export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
+  const { user: authUser } = useAuth();
+  const activeUserId = authUser?.id;
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
   if (baseLang.includes('PORTUGU')) baseLang = 'PT';
   const currentLang = baseLang;
@@ -358,7 +361,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
-        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = activeUserId || userId;
 
         // 1. Pega as etiquetas da unidade atual na tabela cheia
         const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level,unit_number`, {
@@ -400,7 +403,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const puxarProficienciaDoBanco = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=current_level`, { headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } });
         const dadosUser = await resUser.json();
@@ -424,7 +427,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const buscarCreditosIniciais = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
           headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
@@ -901,7 +904,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      const userIdFixo = activeUserId || userId;
       const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
 
       // 1. FASE DE VERIFICAÇÃO DE CRÉDITOS
@@ -995,7 +998,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       try {
         const novosCreditos = Math.max(0, (creditosPlano || 1) - 1);
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const userIdFixo = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         
         await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
@@ -1076,7 +1079,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-      const finalUserId = userId || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      const finalUserId = activeUserId || userId;
       if (!supabaseUrl) return;
 
       const targetUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
@@ -1091,7 +1094,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           "Prefer": "resolution=merge-duplicates"
         },
         body: JSON.stringify({
-          user_id: "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
+          user_id: activeUserId || userId,
           unit_id: targetUnitId,
           unit_xp: novoXpTotalDaUnidade,
           activity_type: (() => { const game = activityType || jogoSelecionado; const map: Record<string, string> = { escolha: "1", caca_erro: "2", blitz: "3", ditado: "4", blocos: "5", leitura_veloz: "6", leitura: "6", ordenacao: "7", paragrafos: "8", roleplay: "9", shadowing: "10", spelling: "11", traducao: "12", velocidade: "13" }; return map[game] || String(game || "geral"); })(),

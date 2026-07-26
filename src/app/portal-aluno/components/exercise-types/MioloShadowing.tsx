@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square, Sparkles, RotateCcw } from 'lucide-react';
@@ -77,6 +78,9 @@ function calcularSimilaridadeShadowing(target: string, spoken: string): number {
 }
 
 export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
+  const { user: authUser } = useAuth();
+  const USER_ID_ALVO = authUser?.id;
+  const userIdToQuery = authUser?.id;
   const [flowState, setFlowState] = useState<'IDLE' | 'RECORDING' | 'PLAYBACK' | 'ANALYZING' | 'DONE'>('IDLE');
   const [referencePhrase, setReferencePhrase] = useState('');
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState('');
@@ -93,7 +97,7 @@ export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidade
   const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
   const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
-  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+  // USER_ID_ALVO dinamico via useAuth
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
