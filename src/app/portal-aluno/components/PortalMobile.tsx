@@ -1,3 +1,4 @@
+import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
 import { fetchCentralPortalData } from "@/services/centralService";
 import ArenaImersivaTotal from "./ArenaImersivaTotal";
 import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
@@ -260,7 +261,23 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
     return 0;
   };
 
-export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+  const { metrics: metricsFromHook } = useAlunoMetrics();
+
+  // Consolidação automática: Prioriza dados válidos do Hook/View se a prop vier undefined
+  const alunoData = {
+    ...alunoDataProp,
+    id: metricsFromHook?.user_id || alunoDataProp?.id || alunoDataProp?.user_id,
+    name: metricsFromHook?.name || alunoDataProp?.name || alunoDataProp?.full_name,
+    full_name: metricsFromHook?.name || alunoDataProp?.full_name || alunoDataProp?.name,
+    nickname: metricsFromHook?.nickname || alunoDataProp?.nickname,
+    streak_days: metricsFromHook?.streak_days ?? alunoDataProp?.streak_days ?? 0,
+    clinical_precision: metricsFromHook?.clinical_precision ?? alunoDataProp?.clinical_precision ?? 0,
+    total_xp: metricsFromHook?.total_xp ?? alunoDataProp?.total_xp ?? 0,
+    chat_credits: metricsFromHook?.chat_credits ?? alunoDataProp?.chat_credits ?? 0,
+    active_vocabulary: metricsFromHook?.active_vocabulary ?? alunoDataProp?.active_vocabulary ?? 0,
+    current_level: metricsFromHook?.current_level || alunoDataProp?.current_level || "A1"
+  };
   const [precisaoSupabase, setPrecisaoSupabase] = React.useState<number | null>(null);
 
     React.useEffect(() => {

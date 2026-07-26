@@ -1,13 +1,12 @@
 "use client";
 
 import React from "react";
-import { Zap, Target, Flame, Trophy, Star, BookOpen, Video, MessageSquare } from "lucide-react";
-import { RobozinhoIconeAzul } from "./RobozinhoMascoteArena";
+import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
 
 interface ArenaHeaderMobileProps {
+  unidadeAtual?: string;
   precisao?: number;
   streak?: number;
-  unidadeAtual?: string;
   pts?: number;
   creditosIA?: number;
   onOpenLeitura?: () => void;
@@ -16,149 +15,67 @@ interface ArenaHeaderMobileProps {
   onRobotClick?: () => void;
 }
 
-export default function ArenaHeaderMobile({
-  precisao = 77,
-  streak = 1,
+export function ArenaHeaderMobile({
   unidadeAtual = "1/5",
-  pts = 3,
-  creditosIA = 499461,
+  precisao: precisaoProp,
+  streak: streakProp,
+  pts: ptsProp,
+  creditosIA: creditosIAProp,
   onOpenLeitura,
   onOpenVideo,
   onOpenChatIA,
   onRobotClick
 }: ArenaHeaderMobileProps) {
-  const [precisaoReal, setPrecisaoReal] = React.useState<number | undefined>(precisao);
+  const { metrics, loading } = useAlunoMetrics();
 
-  React.useEffect(() => {
-    async function buscarPrecisaoSupabase() {
-      try {
-        if (typeof window === "undefined") return;
+  // Prioriza os dados em tempo real do banco; se não houver ou estiver carregando, utiliza a prop enviada
+  const precisao = metrics?.clinical_precision ?? precisaoProp ?? 0;
+  const streak = metrics?.streak_days ?? streakProp ?? 0;
+  const pts = metrics?.total_xp ?? ptsProp ?? 0;
+  const creditosIA = metrics?.chat_credits ?? creditosIAProp ?? 0;
 
-        let uid = localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid") || localStorage.getItem("user_id");
-
-        if (!uid) {
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes("auth-token")) {
-              const item = localStorage.getItem(key);
-              if (item) {
-                const parsed = JSON.parse(item);
-                uid = parsed?.user?.id || parsed?.currentSession?.user?.id;
-                if (uid) break;
-              }
-            }
-          }
-        }
-
-        console.log("🔍 [DEBUG HEADER ARENA] UID do Aluno Localizado:", uid);
-
-        if (!uid) {
-          console.error("❌ [DEBUG HEADER ARENA] Nenhum UID encontrado no localStorage!");
-          return;
-        }
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-        if (!supabaseUrl || !supabaseAnonKey) {
-          console.error("❌ [DEBUG HEADER ARENA] Envs do Supabase nao configuradas no Header!");
-          return;
-        }
-
-        const url = `${supabaseUrl}/rest/v1/users?id=eq.${uid}&select=clinical_precision`;
-        console.log("🌐 [DEBUG HEADER ARENA] Requisitando URL:", url);
-
-        const res = await fetch(url, {
-          headers: {
-            "apikey": supabaseAnonKey,
-            "Authorization": `Bearer ${supabaseAnonKey}`
-          }
-        });
-
-        const dados = await res.json();
-        console.log("📊 [DEBUG HEADER ARENA] Resposta do Supabase:", dados);
-
-        if (dados && dados[0] && dados[0].clinical_precision !== undefined && dados[0].clinical_precision !== null) {
-          console.log("✅ [DEBUG HEADER ARENA] Sucesso! Valor de clinical_precision:", dados[0].clinical_precision);
-          setPrecisaoReal(Number(dados[0].clinical_precision));
-        } else {
-          console.warn("⚠️ [DEBUG HEADER ARENA] Campo clinical_precision nao veio nos dados do usuario!");
-        }
-      } catch (err) {
-        console.error("❌ [DEBUG HEADER ARENA] Erro durante a busca:", err);
-      }
-    }
-    buscarPrecisaoSupabase();
-  }, []);
   return (
-    <header className="w-full bg-[#030712]/95 border-b border-white/10 px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 flex items-center justify-between backdrop-blur-md gap-2 select-none">
-      
-      {/* LADO ESQUERDO: MÉTRICAS */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar">
-        {/* Créditos IA */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-amber-400 font-mono font-extrabold text-xs sm:text-sm md:text-base shrink-0">
-          <Zap size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-amber-400 text-amber-400" />
-          <span>{creditosIA}</span>
+    <header className="w-full bg-[#0a0f1d] text-white p-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={onRobotClick} 
+          className="relative text-2xl hover:scale-105 transition-transform"
+        >
+          🤖
+        </button>
+
+        <div className="flex flex-col">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider">Precisão</span>
+          <span className="text-sm font-bold text-emerald-400">
+            {loading ? "..." : `${precisao}%`}
+          </span>
         </div>
 
-        {/* Precisão */}
-        <div className="flex items-center gap-1 sm:gap-1.5 hidden sm:flex bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
-          <Target size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-cyan-400" />
-          <span>{precisaoReal ?? precisao}%</span>
-        </div>
-
-        {/* Off/Streak */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-orange-500/10 border border-orange-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-orange-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
-          <Flame size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-orange-400 text-orange-400" />
-          <span>x{streak}</span>
-        </div>
-
-        {/* Pontos */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-emerald-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
-          <Trophy size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-emerald-400" />
-          <span>+{pts}</span>
-        </div>
-
-        {/* Unidade */}
-        <div className="flex items-center gap-1 sm:gap-1.5 hidden md:flex bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
-          <Star size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-300" />
-          <span>{unidadeAtual}</span>
+        <div className="flex flex-col">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider">Ofensiva</span>
+          <span className="text-sm font-bold text-amber-400">
+            {loading ? "..." : `🔥 ${streak}d`}
+          </span>
         </div>
       </div>
 
-      {/* LADO DIREITO: OS 4 ELEMENTOS ORIGINAIS */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        {/* 1. Leitura */}
-        <button
-          onClick={onOpenLeitura}
-          className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
-          title="Material de Leitura"
-        >
-          <BookOpen size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
-        </button>
+      <div className="flex items-center gap-3">
+        <div className="flex flex-col text-right">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider">Pontos</span>
+          <span className="text-sm font-bold text-indigo-400">
+            {loading ? "..." : `${pts} XP`}
+          </span>
+        </div>
 
-        {/* 2. Vídeo */}
-        <button
-          onClick={onOpenVideo}
-          className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
-          title="Explicação em Vídeo"
-        >
-          <Video size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
-        </button>
-
-        {/* 3. Balão da Inteligência Artificial */}
-        <button
-          onClick={onOpenChatIA}
-          className="p-1.5 sm:p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 transition-all cursor-pointer"
-          title="Tutor IA"
-        >
-          <MessageSquare size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
-        </button>
-
-        {/* 4. Robozinho Oficial do Arena */}
-        <RobozinhoIconeAzul onClick={onRobotClick} />
+        <div className="flex flex-col text-right">
+          <span className="text-[10px] text-slate-400 uppercase tracking-wider">IA Credits</span>
+          <span className="text-sm font-bold text-cyan-400">
+            {loading ? "..." : (metrics?.ai_is_unlimited ? "∞" : creditosIA)}
+          </span>
+        </div>
       </div>
-
     </header>
   );
 }
+
+export default ArenaHeaderMobile;
