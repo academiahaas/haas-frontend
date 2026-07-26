@@ -39,7 +39,7 @@ export default function ArenaHeaderMobile({
         </div>
 
         {/* Precisão */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 hidden sm:flex bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
           <Target size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-cyan-400" />
           <span>{precisao}%</span>
         </div>
@@ -57,7 +57,7 @@ export default function ArenaHeaderMobile({
         </div>
 
         {/* Unidade */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 hidden md:flex bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
           <Star size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-300" />
           <span>{unidadeAtual}</span>
         </div>
