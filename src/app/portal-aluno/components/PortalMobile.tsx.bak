@@ -272,7 +272,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             if (dadosPortal.user.clinical_precision !== undefined) {
               setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
             }
-            const nomeReal = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+            const nomeReal = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
             if (nomeReal && typeof setNomeUsuarioDb === "function") {
               setNomeUsuarioDb(nomeReal);
             }
@@ -989,7 +989,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       try {
         const dadosPortal = await fetchCentralPortalData();
         if (dadosPortal && dadosPortal.user) {
-          const nomeReal = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+          const nomeReal = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
           if (nomeReal) {
             setNomeUsuarioDb(nomeReal);
           }
@@ -1030,29 +1030,27 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
   React.useEffect(() => {
-    async function carregarNomeReal() {
-      try {
-        const dadosPortal = await fetchCentralPortalData();
-        if (dadosPortal) {
-          if (dadosPortal.user) {
-            const nomeCompleto = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
-            if (nomeCompleto) setNomeUsuarioDb(nomeCompleto);
-            if (dadosPortal.user.current_level) setNivelAluno(dadosPortal.user.current_level);
-            if (dadosPortal.user.clinical_precision !== undefined) setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
-          }
-          if (dadosPortal.subscription) {
-            const sub = dadosPortal.subscription;
-            if (sub.plan_category) setPlanCategory(sub.plan_category);
-            if (sub.expiration_date) setExpirationDate(sub.expiration_date);
-            if (sub.class_credits_available !== undefined && sub.class_credits_available !== null) setCreditosRegulares(Number(sub.class_credits_available));
-            if (sub.replacement_credits !== undefined && sub.replacement_credits !== null) setCreditosReposicao(Number(sub.replacement_credits));
-          }
+      async function carregarNomeReal() {
+    try {
+      const dadosPortal = await fetchCentralPortalData();
+      if (dadosPortal) {
+        if (dadosPortal.user) {
+          const nomeCompleto = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+          if (nomeCompleto) setNomeUsuarioDb(nomeCompleto);
+          if (dadosPortal.user.current_level) setNivelAluno(dadosPortal.user.current_level);
+          if (dadosPortal.user.clinical_precision !== undefined) setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
         }
-      } catch (e) {
-        console.error("Erro ao carregar dados unificados do Mobile:", e);
+        if (dadosPortal.subscription) {
+          const sub = dadosPortal.subscription;
+          if (sub.plan_category) setPlanCategory(sub.plan_category);
+          if (sub.expiration_date) setExpirationDate(sub.expiration_date);
+          if (sub.class_credits_available !== undefined && sub.class_credits_available !== null) setCreditosRegulares(Number(sub.class_credits_available));
+          if (sub.replacement_credits !== undefined && sub.replacement_credits !== null) setCreditosReposicao(Number(sub.replacement_credits));
+        }
       }
+    } catch (e) {
+      console.error("Erro ao carregar dados unificados do Mobile:", e);
     }
-    carregarNomeReal();
   }, [alunoData]);
 
   const nomeBruto = nomeUsuarioDb || alunoData?.full_name || alunoData?.name || alunoData?.nome || "Aluno";
