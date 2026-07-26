@@ -1,5 +1,7 @@
-// @ts-nocheck
 'use client';
+import { useAuth } from "@/contexts/AuthContext";
+// @ts-nocheck
+
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -11,6 +13,7 @@ const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 
 export default function ArenaQuiz() {
+  const { user } = useAuth();
   const { tag } = useParams();
   const router = useRouter();
   
@@ -66,7 +69,7 @@ export default function ArenaQuiz() {
     setSendingBatch(true);
     try {
       await axios.post('/api/performance/ingest', {
-        id_aluno: '123e4567-e89b-12d3-a456-426614174000',
+        id_aluno: user?.id || "anonimo",
         tag_erro: quiz.tema_tag,
         detalhe_desvio: isCorrect 
           ? `Sucesso na fixação assíncrona da tag ${quiz.tema_tag}.` 
