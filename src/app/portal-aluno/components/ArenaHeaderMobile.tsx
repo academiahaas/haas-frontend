@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Zap, Target, Flame, Trophy, Star, BookOpen, Video, MessageSquare } from "lucide-react";
+import { RobozinhoIconeAzul } from "./RobozinhoMascoteArena";
 
 interface ArenaHeaderMobileProps {
   precisao?: number;
@@ -12,6 +13,7 @@ interface ArenaHeaderMobileProps {
   onOpenLeitura?: () => void;
   onOpenVideo?: () => void;
   onOpenChatIA?: () => void;
+  onRobotClick?: () => void;
 }
 
 export default function ArenaHeaderMobile({
@@ -22,14 +24,15 @@ export default function ArenaHeaderMobile({
   creditosIA = 499461,
   onOpenLeitura,
   onOpenVideo,
-  onOpenChatIA
+  onOpenChatIA,
+  onRobotClick
 }: ArenaHeaderMobileProps) {
   return (
     <header className="w-full bg-[#030712]/95 border-b border-white/10 px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 flex items-center justify-between backdrop-blur-md gap-2 select-none">
       
-      {/* LADO ESQUERDO: MOEDAS E METRICAS FLUIDAS */}
+      {/* LADO ESQUERDO: MÉTRICAS */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar">
-        {/* Creditos IA */}
+        {/* Créditos IA */}
         <div className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-amber-400 font-mono font-extrabold text-xs sm:text-sm md:text-base shrink-0">
           <Zap size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-amber-400 text-amber-400" />
           <span>{creditosIA}</span>
@@ -60,8 +63,9 @@ export default function ArenaHeaderMobile({
         </div>
       </div>
 
-      {/* LADO DIREITO: ACOES DE SUPORTE FLUIDAS */}
-      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+      {/* LADO DIREITO: OS 4 ELEMENTOS ORIGINAIS */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* 1. Leitura */}
         <button
           onClick={onOpenLeitura}
           className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
@@ -70,14 +74,16 @@ export default function ArenaHeaderMobile({
           <BookOpen size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
+        {/* 2. Vídeo */}
         <button
           onClick={onOpenVideo}
           className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
-          title="Explicacao em Video"
+          title="Explicação em Vídeo"
         >
           <Video size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
+        {/* 3. Balão da Inteligência Artificial */}
         <button
           onClick={onOpenChatIA}
           className="p-1.5 sm:p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 transition-all cursor-pointer"
@@ -85,6 +91,9 @@ export default function ArenaHeaderMobile({
         >
           <MessageSquare size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
+
+        {/* 4. Robozinho Oficial do Arena */}
+        <RobozinhoIconeAzul onClick={onRobotClick} />
       </div>
 
     </header>

@@ -151,6 +151,7 @@ export default function ArenaImersivaTotal({
           onOpenLeitura={() => alert("Abrir Leitura")}
           onOpenVideo={() => alert("Abrir Vídeo")}
           onOpenChatIA={() => setBalaoIaAberto(!balaoIaAberto)}
+          onRobotClick={() => {}}
         />
       </div>
 
