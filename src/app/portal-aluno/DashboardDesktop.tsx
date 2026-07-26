@@ -72,7 +72,7 @@ export default function DashboardDesktop() {
         const urlBase = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const headers = { "apikey": token, "Authorization": "Bearer " + token };
-        const uid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const { data: { session } } = await supabase.auth.getSession(); const uid = session?.user?.id;
 
         const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
         const dUser = await rUser.json();

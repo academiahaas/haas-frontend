@@ -4,7 +4,7 @@ export async function fetchCentralPortalData(): Promise<any> {
   try {
     // 1. Tenta pegar o ID da sessão ou usa o ID fixo de desenvolvimento
     const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData?.session?.user?.id || process.env.NEXT_PUBLIC_DEV_USER_ID || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+    const userId = sessionData?.session?.user?.id || process.env.NEXT_PUBLIC_DEV_USER_ID || null;
 
     console.log("🔍 [centralService] Buscando dados para o ID:", userId);
 
