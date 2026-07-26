@@ -7,7 +7,7 @@ export async function GET() {
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
   // ID do Vinicius Andrade que estamos usando
-  const userId = 'c1060b60-b92e-45f2-9ecd-9873568a9d50'; 
+  const userId = req.nextUrl?.searchParams?.get('userId') || ''; 
 
   const { data, error } = await supabase
     .from('users')

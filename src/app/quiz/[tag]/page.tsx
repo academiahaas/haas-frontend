@@ -69,7 +69,7 @@ export default function ArenaQuiz() {
     setSendingBatch(true);
     try {
       await axios.post('/api/performance/ingest', {
-        id_aluno: user?.id || "anonimo",
+        id_aluno: user?.id,
         tag_erro: quiz.tema_tag,
         detalhe_desvio: isCorrect 
           ? `Sucesso na fixação assíncrona da tag ${quiz.tema_tag}.` 
