@@ -16,11 +16,6 @@ interface QuizData {
 interface ArenaQuizMobileProps {
   quizzes: QuizData[];
   xpPorAcerto?: number;
-  creditosIA?: number;
-  streakInicial?: number;
-  xpInicial?: number;
-  unidadeAtual?: string;
-  precisaoInicial?: number;
   onFinalizarMissao: (scoreFinal: number) => void;
   onClose: () => void;
 }
@@ -28,11 +23,6 @@ interface ArenaQuizMobileProps {
 export default function ArenaQuizMobile({
   quizzes,
   xpPorAcerto = 10,
-  creditosIA = 0,
-  streakInicial = 0,
-  xpInicial = 0,
-  unidadeAtual = "1/5",
-  precisaoInicial = 77,
   onFinalizarMissao,
   onClose
 }: ArenaQuizMobileProps) {
@@ -41,8 +31,8 @@ export default function ArenaQuizMobile({
   const [respondido, setRespondido] = useState(false);
   const [isCorreto, setIsCorreto] = useState(false);
   
-  const [streak, setStreak] = useState(streakInicial);
-  const [xpAcumulado, setXpAcumulado] = useState(xpInicial);
+  const [streak, setStreak] = useState(0);
+  const [xpAcumulado, setXpAcumulado] = useState(0);
   const [totalAcertos, setTotalAcertos] = useState(0);
 
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -120,36 +110,27 @@ export default function ArenaQuizMobile({
   return (
     <div className="fixed inset-0 z-[9999] bg-[#040914] text-white flex flex-col p-4 font-sans select-none h-screen w-screen overflow-hidden">
       
-      {/* PAINEL CONECTADO AOS 5 CARDS DO SUPABASE */}
-      <div className="flex items-center justify-between gap-1.5 bg-[#081120] border border-white/[0.05] p-2.5 rounded-2xl mb-4 shadow-2xl overflow-x-auto no-scrollbar">
-        {/* 1. Creditos IA */}
-        <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-xl text-amber-400 font-mono font-extrabold text-xs shrink-0">
-          <Zap size={12} className="fill-amber-400 text-amber-400" />
-          <span>{creditosIA}</span>
+      <div className="grid grid-cols-3 gap-2 bg-[#081120] border border-white/[0.05] p-3 rounded-2xl text-center items-center mb-4 shadow-2xl">
+        <div className="flex flex-col items-center">
+          <div className="flex items-center gap-1 text-cyan-400 text-xs font-black font-mono">
+            <Target size={12} />
+            <span>{precisao}%</span>
+          </div>
+          <span className="text-[8px] font-mono tracking-widest text-slate-500 mt-0.5 uppercase">Precisão</span>
         </div>
-
-        {/* 2. Precisao */}
-        <div className="flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/20 px-2 py-1 rounded-xl text-cyan-400 font-mono font-extrabold text-xs shrink-0">
-          <Target size={12} />
-          <span>{precisaoInicial}%</span>
+        <div className="flex flex-col items-center border-x border-white/10">
+          <div className="flex items-center gap-1 text-orange-400 text-xs font-black font-mono animate-pulse">
+            <Zap size={12} fill="currentColor" />
+            <span>{streak}x</span>
+          </div>
+          <span className="text-[8px] font-mono tracking-widest text-slate-500 mt-0.5 uppercase">Combo</span>
         </div>
-
-        {/* 3. Streak / Ofensiva */}
-        <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-xl text-orange-400 font-mono font-extrabold text-xs shrink-0">
-          <Zap size={12} className="fill-orange-400 text-orange-400" />
-          <span>x{streak}</span>
-        </div>
-
-        {/* 4. Score / XP */}
-        <div className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-xl text-emerald-400 font-mono font-extrabold text-xs shrink-0">
-          <Trophy size={12} />
-          <span>+{xpAcumulado}</span>
-        </div>
-
-        {/* 5. Progresso Unidades */}
-        <div className="flex items-center gap-1 bg-purple-500/10 border border-purple-500/20 px-2 py-1 rounded-xl text-purple-400 font-mono font-extrabold text-xs shrink-0">
-          <span className="text-[10px]">⭐</span>
-          <span>{unidadeAtual}</span>
+        <div className="flex flex-col items-center">
+          <div className="flex items-center gap-1 text-emerald-400 text-xs font-black font-mono">
+            <Trophy size={12} />
+            <span>{xpAcumulado} XP</span>
+          </div>
+          <span className="text-[8px] font-mono tracking-widest text-slate-500 mt-0.5 uppercase">Score</span>
         </div>
       </div>
 

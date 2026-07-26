@@ -21,75 +21,12 @@ export default function ArenaHeaderMobile({
   streak = 1,
   unidadeAtual = "1/5",
   pts = 3,
-  creditosIA = 499461,
+  creditosIA = 0,
   onOpenLeitura,
   onOpenVideo,
   onOpenChatIA,
   onRobotClick
 }: ArenaHeaderMobileProps) {
-  const [precisaoReal, setPrecisaoReal] = React.useState<number | undefined>(precisao);
-
-  React.useEffect(() => {
-    async function buscarPrecisaoSupabase() {
-      try {
-        if (typeof window === "undefined") return;
-
-        let uid = localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid") || localStorage.getItem("user_id");
-
-        if (!uid) {
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes("auth-token")) {
-              const item = localStorage.getItem(key);
-              if (item) {
-                const parsed = JSON.parse(item);
-                uid = parsed?.user?.id || parsed?.currentSession?.user?.id;
-                if (uid) break;
-              }
-            }
-          }
-        }
-
-        console.log("🔍 [DEBUG HEADER ARENA] UID do Aluno Localizado:", uid);
-
-        if (!uid) {
-          console.error("❌ [DEBUG HEADER ARENA] Nenhum UID encontrado no localStorage!");
-          return;
-        }
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-        if (!supabaseUrl || !supabaseAnonKey) {
-          console.error("❌ [DEBUG HEADER ARENA] Envs do Supabase nao configuradas no Header!");
-          return;
-        }
-
-        const url = `${supabaseUrl}/rest/v1/users?id=eq.${uid}&select=clinical_precision`;
-        console.log("🌐 [DEBUG HEADER ARENA] Requisitando URL:", url);
-
-        const res = await fetch(url, {
-          headers: {
-            "apikey": supabaseAnonKey,
-            "Authorization": `Bearer ${supabaseAnonKey}`
-          }
-        });
-
-        const dados = await res.json();
-        console.log("📊 [DEBUG HEADER ARENA] Resposta do Supabase:", dados);
-
-        if (dados && dados[0] && dados[0].clinical_precision !== undefined && dados[0].clinical_precision !== null) {
-          console.log("✅ [DEBUG HEADER ARENA] Sucesso! Valor de clinical_precision:", dados[0].clinical_precision);
-          setPrecisaoReal(Number(dados[0].clinical_precision));
-        } else {
-          console.warn("⚠️ [DEBUG HEADER ARENA] Campo clinical_precision nao veio nos dados do usuario!");
-        }
-      } catch (err) {
-        console.error("❌ [DEBUG HEADER ARENA] Erro durante a busca:", err);
-      }
-    }
-    buscarPrecisaoSupabase();
-  }, []);
   return (
     <header className="w-full bg-[#030712]/95 border-b border-white/10 px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 flex items-center justify-between backdrop-blur-md gap-2 select-none">
       
@@ -104,7 +41,7 @@ export default function ArenaHeaderMobile({
         {/* Precisão */}
         <div className="flex items-center gap-1 sm:gap-1.5 hidden sm:flex bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
           <Target size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-cyan-400" />
-          <span>{precisaoReal ?? precisao}%</span>
+          <span>{precisao}%</span>
         </div>
 
         {/* Off/Streak */}

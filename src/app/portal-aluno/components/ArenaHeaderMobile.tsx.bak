@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Zap, Target, Flame, Trophy, Star, BookOpen, Video, MessageSquare } from "lucide-react";
-import { RobozinhoIconeAzul } from "./RobozinhoMascoteArena";
+import { Zap, Target, Flame, Trophy, Star, BookOpen, Video, MessageSquare, Bot } from "lucide-react";
 
 interface ArenaHeaderMobileProps {
   precisao?: number;
@@ -27,84 +26,21 @@ export default function ArenaHeaderMobile({
   onOpenChatIA,
   onRobotClick
 }: ArenaHeaderMobileProps) {
-  const [precisaoReal, setPrecisaoReal] = React.useState<number | undefined>(precisao);
-
-  React.useEffect(() => {
-    async function buscarPrecisaoSupabase() {
-      try {
-        if (typeof window === "undefined") return;
-
-        let uid = localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid") || localStorage.getItem("user_id");
-
-        if (!uid) {
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes("auth-token")) {
-              const item = localStorage.getItem(key);
-              if (item) {
-                const parsed = JSON.parse(item);
-                uid = parsed?.user?.id || parsed?.currentSession?.user?.id;
-                if (uid) break;
-              }
-            }
-          }
-        }
-
-        console.log("🔍 [DEBUG HEADER ARENA] UID do Aluno Localizado:", uid);
-
-        if (!uid) {
-          console.error("❌ [DEBUG HEADER ARENA] Nenhum UID encontrado no localStorage!");
-          return;
-        }
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-        if (!supabaseUrl || !supabaseAnonKey) {
-          console.error("❌ [DEBUG HEADER ARENA] Envs do Supabase nao configuradas no Header!");
-          return;
-        }
-
-        const url = `${supabaseUrl}/rest/v1/users?id=eq.${uid}&select=clinical_precision`;
-        console.log("🌐 [DEBUG HEADER ARENA] Requisitando URL:", url);
-
-        const res = await fetch(url, {
-          headers: {
-            "apikey": supabaseAnonKey,
-            "Authorization": `Bearer ${supabaseAnonKey}`
-          }
-        });
-
-        const dados = await res.json();
-        console.log("📊 [DEBUG HEADER ARENA] Resposta do Supabase:", dados);
-
-        if (dados && dados[0] && dados[0].clinical_precision !== undefined && dados[0].clinical_precision !== null) {
-          console.log("✅ [DEBUG HEADER ARENA] Sucesso! Valor de clinical_precision:", dados[0].clinical_precision);
-          setPrecisaoReal(Number(dados[0].clinical_precision));
-        } else {
-          console.warn("⚠️ [DEBUG HEADER ARENA] Campo clinical_precision nao veio nos dados do usuario!");
-        }
-      } catch (err) {
-        console.error("❌ [DEBUG HEADER ARENA] Erro durante a busca:", err);
-      }
-    }
-    buscarPrecisaoSupabase();
-  }, []);
   return (
     <header className="w-full bg-[#030712]/95 border-b border-white/10 px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 flex items-center justify-between backdrop-blur-md gap-2 select-none">
       
-      {/* LADO ESQUERDO: MÉTRICAS */}
+      {/* LADO ESQUERDO: MOEDAS E METRICAS FLUIDAS */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar">
-        {/* Créditos IA */}
+        {/* Creditos IA */}
         <div className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/10 border border-amber-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-amber-400 font-mono font-extrabold text-xs sm:text-sm md:text-base shrink-0">
           <Zap size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 fill-amber-400 text-amber-400" />
           <span>{creditosIA}</span>
         </div>
 
         {/* Precisão */}
-        <div className="flex items-center gap-1 sm:gap-1.5 hidden sm:flex bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-cyan-500/10 border border-cyan-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-cyan-400 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
           <Target size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-cyan-400" />
-          <span>{precisaoReal ?? precisao}%</span>
+          <span>{precisao}%</span>
         </div>
 
         {/* Off/Streak */}
@@ -120,13 +56,13 @@ export default function ArenaHeaderMobile({
         </div>
 
         {/* Unidade */}
-        <div className="flex items-center gap-1 sm:gap-1.5 hidden md:flex bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-purple-500/10 border border-purple-500/30 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl text-purple-300 font-mono font-bold text-xs sm:text-sm md:text-base shrink-0">
           <Star size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5 text-purple-300" />
           <span>{unidadeAtual}</span>
         </div>
       </div>
 
-      {/* LADO DIREITO: OS 4 ELEMENTOS ORIGINAIS */}
+      {/* LADO DIREITO: ACOES DE SUPORTE FLUIDAS */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* 1. Leitura */}
         <button
@@ -141,12 +77,12 @@ export default function ArenaHeaderMobile({
         <button
           onClick={onOpenVideo}
           className="p-1.5 sm:p-2 md:p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-slate-300 hover:text-white transition-all cursor-pointer"
-          title="Explicação em Vídeo"
+          title="Explicacao em Video"
         >
           <Video size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
-        {/* 3. Balão da Inteligência Artificial */}
+        {/* 3. Balão do Tutor IA (RESTARRADO E MANTIDO) */}
         <button
           onClick={onOpenChatIA}
           className="p-1.5 sm:p-2 md:p-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 transition-all cursor-pointer"
@@ -155,8 +91,14 @@ export default function ArenaHeaderMobile({
           <MessageSquare size={16} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
         </button>
 
-        {/* 4. Robozinho Oficial do Arena */}
-        <RobozinhoIconeAzul onClick={onRobotClick} />
+        {/* 4. O Robozinho Azul da Arena (AO LADO DO BALÃO) */}
+        <button
+          onClick={onRobotClick}
+          className="p-1.5 sm:p-2 md:p-2.5 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/40 rounded-full text-sky-400 hover:text-sky-300 shadow-[0_0_12px_rgba(56,189,248,0.25)] transition-all cursor-pointer"
+          title="Assistente HAAS"
+        >
+          <Bot size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
+        </button>
       </div>
 
     </header>

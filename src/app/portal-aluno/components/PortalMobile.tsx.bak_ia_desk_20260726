@@ -261,22 +261,28 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
   };
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
-  const [precisaoSupabase, setPrecisaoSupabase] = React.useState<number | null>(null);
-
+  // Sincronização centralizada com a mesma fonte do Desk
   React.useEffect(() => {
-    async function carregarPrecisaoMobile() {
+    async function carregarDadosCentral() {
       try {
-        const dadosPortal = await fetchCentralPortalData();
-        if (dadosPortal && dadosPortal.user && dadosPortal.user.clinical_precision !== undefined) {
-          setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
+        const dados: any = await fetchCentralPortalData();
+        if (dados) {
+          const reg = dados.subscriptionsRes?.class_credits_available ?? dados.creditosRegulares ?? dados.creditos;
+          const rep = dados.subscriptionsRes?.replacement_credits ?? dados.creditosReposicao;
+          const xp = dados.userRes?.total_xp ?? dados.totalXp ?? dados.xp;
+          const streak = dados.userRes?.streak_days ?? dados.streakDias ?? dados.streak;
+
+          if (reg !== undefined) setCreditosRegulares(Number(reg));
+          if (rep !== undefined) setCreditosReposicao(Number(rep));
+          if (xp !== undefined) setTotalXp(Number(xp));
+          if (streak !== undefined) setStreakDias(Number(streak));
         }
-      } catch (e) {
-        console.error("Erro ao buscar precisao no Mobile:", e);
+      } catch (err) {
+        console.error("Erro ao carregar dados centrais no Mobile:", err);
       }
     }
-    carregarPrecisaoMobile();
+    carregarDadosCentral();
   }, []);
-
   const [expirationDate, setExpirationDate] = React.useState<string>("");
   const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
@@ -1323,12 +1329,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   if (arenaAtiva) {
     return (
-      <ArenaImersivaTotal 
+      <ArenaImersivaTotal
         onFechar={() => setArenaAtiva(false)}
-        alunoData={{ ...alunoData, clinical_precision: precisaoSupabase ?? alunoData?.clinical_precision }}
         idiomaSelecionado={idiomaSelecionado}
         statusRespostaMobile={statusRespostaMobile}
         setStatusRespostaMobile={setStatusRespostaMobile}
+        streak={streakDias}
+        pts={totalXp}
+        creditosIA={creditosRegulares + creditosReposicao}
       />
     );
   }

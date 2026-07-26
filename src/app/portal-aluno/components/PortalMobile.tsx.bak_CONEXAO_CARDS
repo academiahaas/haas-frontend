@@ -261,22 +261,56 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
   };
 
 export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
-  const [precisaoSupabase, setPrecisaoSupabase] = React.useState<number | null>(null);
-
+  const [creditosIA, setCreditosIA] = React.useState<number>(0);
+  const [dicaArenaIA, setDicaArenaIA] = React.useState<string>("");
+  // Sincronização centralizada com a mesma fonte do Desk
   React.useEffect(() => {
-    async function carregarPrecisaoMobile() {
+    async function carregarDadosCentral() {
       try {
-        const dadosPortal = await fetchCentralPortalData();
-        if (dadosPortal && dadosPortal.user && dadosPortal.user.clinical_precision !== undefined) {
-          setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
+        const dados: any = await fetchCentralPortalData();
+        if (dados) {
+          const reg = dados.subscriptions?.class_credits_available ?? dados.creditosRegulares ?? dados.creditos;
+          const rep = dados.subscriptions?.replacement_credits ?? dados.creditosReposicao;
+          const xp = dados.userRes?.total_xp ?? dados.totalXp ?? dados.xp;
+          const streak = dados.userRes?.streak_days ?? dados.streakDias ?? dados.streak;
+
+          if (reg !== undefined) setCreditosRegulares(Number(reg));
+          if (rep !== undefined) setCreditosReposicao(Number(rep));
+          if (xp !== undefined) setTotalXp(Number(xp));
+          if (streak !== undefined) setStreakDias(Number(streak));
+          const totalCredsBanco = (dados.subscriptions?.class_credits_available ?? 0) + (dados.subscriptions?.replacement_credits ?? 0);
+          const iaCreds = totalCredsBanco > 0 ? totalCredsBanco : (dados.creditosRegulares ?? dados.creditos ?? 0);
+          setCreditosIA(Number(iaCreds));
+
+          // Vínculo inteligente da IA da Arena (mesma regra do Desk)
+          const comp = dados.competenciasRes || dados.user_competencias || {};
+          const listaComp = [
+            { key: "habla", nome: { PT: "Fala", EN: "Speaking", ES: "Habla" }, val: Number(comp.habla || 70), icone: "🗣️", treino: { PT: "treino de Fala", EN: "Speaking session", ES: "entrenamiento de Habla" } },
+            { key: "escucha", nome: { PT: "Escuta", EN: "Listening", ES: "Escucha" }, val: Number(comp.escucha || 65), icone: "🎧", treino: { PT: "treino de Escuta", EN: "Listening session", ES: "entrenamiento de Escucha" } },
+            { key: "lectura", nome: { PT: "Leitura", EN: "Reading", ES: "Lectura" }, val: Number(comp.lectura || 80), icone: "📖", treino: { PT: "treino de Leitura", EN: "Reading session", ES: "entrenamiento de Lectura" } },
+            { key: "escritura", nome: { PT: "Escrita", EN: "Writing", ES: "Escritura" }, val: Number(comp.escritura || 60), icone: "✍️", treino: { PT: "treino de Escrita", EN: "Writing session", ES: "entrenamiento de Escritura" } },
+            { key: "gramatica", nome: { PT: "Gramática", EN: "Grammar", ES: "Gramática" }, val: Number(comp.gramatica || 75), icone: "🧩", treino: { PT: "treino de Gramática", EN: "Grammar session", ES: "entrenamiento de Gramática" } }
+          ];
+          listaComp.sort((a, b) => a.val - b.val);
+          const pior = listaComp[0];
+
+          const lang = (idiomaInicial || "PT").toUpperCase();
+          const textoDica = lang === "ES" 
+            ? `${pior.icone} Tu puntuación más baja es ${pior.nome.ES} (${pior.val}%). ¿Qué tal un ${pior.treino.ES} en la Arena hoy?`
+            : lang === "EN"
+            ? `${pior.icone} Your lowest score is ${pior.nome.EN} (${pior.val}%). How about a ${pior.treino.EN} in the Arena today?`
+            : `${pior.icone} Sua menor pontuação é ${pior.nome.PT} (${pior.val}%). Que tal um ${pior.treino.PT} na Arena hoje?`;
+
+          if (setDicaArenaIA) {
+            setDicaArenaIA(textoDica);
+          }
         }
-      } catch (e) {
-        console.error("Erro ao buscar precisao no Mobile:", e);
+      } catch (err) {
+        console.error("Erro ao carregar dados centrais no Mobile:", err);
       }
     }
-    carregarPrecisaoMobile();
-  }, []);
-
+    carregarDadosCentral();
+  }, [idiomaInicial]);
   const [expirationDate, setExpirationDate] = React.useState<string>("");
   const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
@@ -1323,12 +1357,15 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   if (arenaAtiva) {
     return (
-      <ArenaImersivaTotal 
+      <ArenaImersivaTotal
         onFechar={() => setArenaAtiva(false)}
-        alunoData={{ ...alunoData, clinical_precision: precisaoSupabase ?? alunoData?.clinical_precision }}
         idiomaSelecionado={idiomaSelecionado}
         statusRespostaMobile={statusRespostaMobile}
         setStatusRespostaMobile={setStatusRespostaMobile}
+        streak={streakDias}
+        creditosIA={creditosRegulares + creditosReposicao}
+        pts={totalXp}
+        
       />
     );
   }
@@ -2862,7 +2899,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             </button> 
  
             {/* 2. Foco Estratégico - Hub Mentora HAAS */} 
-            <MobileMentorFocusCard
+            <MobileMentorFocusCard dicaArena={dicaArenaIA}
               idiomaSelecionado={idiomaSelecionado}
               primeiroNome={primeiroNome}
               totalXp={totalXp}

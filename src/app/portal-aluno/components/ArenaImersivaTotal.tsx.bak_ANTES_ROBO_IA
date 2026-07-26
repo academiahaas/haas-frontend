@@ -7,7 +7,6 @@ import RenderizadorMiolosArena, { TipoMioloExercico } from "./RenderizadorMiolos
 
 interface ArenaImersivaProps {
   onFechar: () => void;
-  alunoData?: any;
   idiomaSelecionado?: string;
   statusRespostaMobile?: "IDLE" | "CORRECT" | "WRONG";
   setStatusRespostaMobile?: React.Dispatch<React.SetStateAction<"IDLE" | "CORRECT" | "WRONG">>;
@@ -19,7 +18,6 @@ interface ArenaImersivaProps {
 
 export default function ArenaImersivaTotal({
   onFechar,
-  alunoData,
   idiomaSelecionado = "PT",
   statusRespostaMobile,
   setStatusRespostaMobile,
@@ -145,7 +143,7 @@ export default function ArenaImersivaTotal({
       {/* 2. HEADER DO TOPO */}
       <div className="w-full shrink-0 z-30">
         <ArenaHeaderMobile
-          precisao={alunoData?.clinical_precision}
+          precisao={77}
           streak={1}
           unidadeAtual="1/5"
           pts={3}
@@ -153,7 +151,6 @@ export default function ArenaImersivaTotal({
           onOpenLeitura={() => alert("Abrir Leitura")}
           onOpenVideo={() => alert("Abrir Vídeo")}
           onOpenChatIA={() => setBalaoIaAberto(!balaoIaAberto)}
-          onRobotClick={() => {}}
         />
       </div>
 
