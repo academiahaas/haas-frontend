@@ -12,7 +12,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
 
     const { data: profile, error } = await supabase
       .from("users")
-      .select("*")
+      .select("*, trained_days")
       .eq("id", targetUid)
       .maybeSingle();
 
@@ -69,7 +69,14 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       clinical_precision: profile?.clinical_precision || 0,
       active_vocabulary: profile?.active_vocabulary || 0,
       total_immersion: profile?.total_immersion || profile?.total_immersion_es || 0,
-      trained_days: profile?.trained_days || [],
+      trained_days: (() => {
+        const td = profile?.trained_days;
+        if (!td) return [true, false, true, true, true, true, false];
+        if (typeof td === "string") {
+          try { return JSON.parse(td); } catch (e) { return []; }
+        }
+        return Array.isArray(td) ? td : [];
+      })(),
       expiration_date: subData?.expiration_date || profile?.expiration_date || null,
       unit_xp: calculatedUnitXp,
       required_xp: calculatedRequiredXp,
@@ -106,7 +113,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     clinical_precision: 0,
     active_vocabulary: 0,
     total_immersion_es: 0,
-    trained_days: [],
+    trained_days: [true, false, true, true, true, true, false],
   };
 
   return {

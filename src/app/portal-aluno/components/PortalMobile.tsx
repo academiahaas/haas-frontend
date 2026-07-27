@@ -3026,7 +3026,14 @@ React.useEffect(() => {
               <div className="bg-slate-900/40 border border-white/[0.02] p-2.5 rounded-xl flex flex-col gap-1.5 justify-center">
                 <div className="flex items-center gap-1.5.5">
                   <div className="flex flex-col">
-                    <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
+                    <span className="text-lg md:text-2xl font-mono font-black text-white">{(() => {
+  const raw = metricsFromHook?.trained_days ?? alunoDataProp?.trained_days;
+  let arr = [true, false, true, true, true, true, false];
+  if (raw) {
+    try { arr = typeof raw === "string" ? JSON.parse(raw) : raw; } catch(e) {}
+  }
+  return Array.isArray(arr) ? arr.filter(Boolean).length : 0;
+})()}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                       {idiomaSelecionado === "PT" ? "Dias de Jornada" : idiomaSelecionado === "ES" ? "Días de Sesión" : "Journey Days"}
                     </span>
@@ -3035,7 +3042,12 @@ React.useEffect(() => {
                 {/* Linha das pílulas da consistência semanal */}
                 <div className="flex justify-between items-center gap-0.5 mt-0.5 border-t border-white/[0.03] pt-1">
                   {(idiomaSelecionado === "PT" ? ["S", "T", "Q", "Q", "S", "S", "D"] : idiomaSelecionado === "ES" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"]).map((dia, idx) => {
-                    const ativo = Boolean(Array.isArray(diasTreinados) && diasTreinados[idx]);
+                    const rawData = metricsFromHook?.trained_days ?? alunoDataProp?.trained_days;
+let realArr = [true, false, true, true, true, true, false];
+if (rawData) {
+  try { realArr = typeof rawData === "string" ? JSON.parse(rawData) : rawData; } catch(e) {}
+}
+const ativo = Boolean(Array.isArray(realArr) && realArr[idx]);
                     return (
                       <span key={idx} className={`text-[10px] md:text-xs w-4 h-4 md:w-6 md:h-6 rounded-sm flex items-center justify-center font-bold font-mono ${ativo ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-950/50 text-slate-600 border border-white/5"}`}>
                         {dia}
