@@ -578,9 +578,26 @@ export default function PortalMobile({
             const atual = subData?.replacement_credits ?? 0;
             const novoValor = atual + 1;
 
-            const { error: errSub } = await supabase
-              .from("user_subscriptions")
-              .upsert({ user_id: targetUidSync, replacement_credits: novoValor }, { onConflict: "user_id" });
+            // Tenta update primeiro para evitar dependência de UNIQUE constraint no user_id
+             let { error: errSub } = await supabase
+               .from("user_subscriptions")
+               .update({ replacement_credits: novoValor })
+               .eq("user_id", targetUidSync);
+
+             // Se o registro não existir para dar update, realiza o insert como fallback
+             if (errSub) {
+               const { error: insertErr } = await supabase
+                 .from("user_subscriptions")
+                 .insert({ user_id: targetUidSync, replacement_credits: novoValor });
+               errSub = insertErr;
+             }
+
+             // Sincroniza estado com a Central após atualizar no banco
+             try {
+               await fetchCentralPortalData(targetUidSync);
+             } catch (cErr) {
+               console.error("Erro ao resincronizar com a Central:", cErr);
+             }
 
             if (errSub) {
               console.error("❌ Erro ao atualizar replacement_credits no Supabase:", errSub.message);
