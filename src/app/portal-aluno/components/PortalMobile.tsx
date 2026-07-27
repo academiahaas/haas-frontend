@@ -382,7 +382,7 @@ export default function PortalMobile({
     carregarDadosMobile();
   }, []);
 
-  const [expirationDate, setExpirationDate] = React.useState<string>("");
+  const [expirationDate, setExpirationDate] = React.useState<string>("31/12/2026");
   const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
@@ -455,7 +455,52 @@ export default function PortalMobile({
     }
   };
 
-  const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
+  
+  // Sincroniza Plano e Data de Vencimento dinamicamente
+  React.useEffect(() => {
+    const rawCategory = alunoDataProp?.student_type || metricsFromHook?.student_type || alunoDataProp?.plan_category || metricsFromHook?.plan_category;
+    if (rawCategory && typeof setPlanCategory === "function") {
+      setPlanCategory(String(rawCategory));
+    }
+
+    const rawExp = alunoDataProp?.next_expiration_es || metricsFromHook?.next_expiration_es || alunoDataProp?.expiration_date || metricsFromHook?.expiration_date;
+    if (rawExp && typeof setExpirationDate === "function") {
+      setExpirationDate(String(rawExp));
+    }
+  }, [alunoDataProp, metricsFromHook]);
+
+  
+  // Busca dados oficiais da tabela user_subscriptions
+  React.useEffect(() => {
+    async function carregarAssinaturaOficial() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        const { data: sub } = await supabase
+          .from("user_subscriptions")
+          .select("plan_category, expiration_date, class_credits_available, replacement_credits")
+          .eq("user_id", targetId)
+          .maybeSingle();
+
+        if (sub) {
+          if (sub.plan_category) setPlanCategory(sub.plan_category);
+          if (sub.expiration_date) {
+            const dateObj = new Date(sub.expiration_date);
+            const formatted = !isNaN(dateObj.getTime()) 
+              ? `${String(dateObj.getDate()).padStart(2, "0")}/${String(dateObj.getMonth() + 1).padStart(2, "0")}/${dateObj.getFullYear()}`
+              : "31/12/2026";
+            setExpirationDate(formatted);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar user_subscriptions:", err);
+      }
+    }
+    carregarAssinaturaOficial();
+  }, [alunoDataProp?.id, supabase]);
+
+  const [planCategory, setPlanCategory] = React.useState<string>("Group");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
 
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
