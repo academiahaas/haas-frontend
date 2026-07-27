@@ -265,28 +265,7 @@ export default function PortalMobile({
  alunoData: alunoDataProp, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
   const [unitXp, setUnitXp] = useState<number>(0);
 
-  // Garante a busca do Módulo A2 na tabela modules_content
-  useEffect(() => {
-    async function fetchA2Module() {
-      try {
-        const { data } = await supabase
-          .from("modules_content")
-          .select("id, module_title")
-          .ilike("level_tag", "%A2%")
-          .limit(1)
-          .maybeSingle();
 
-        if (data?.id) {
-          console.log("🚀 Módulo A2 localizado:", data.id);
-          if (typeof setModuleIdDb === "function") setModuleIdDb(data.id);
-          if (typeof setModuleTitleDb === "function") setModuleTitleDb(data.module_title);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar Módulo A2:", err);
-      }
-    }
-    fetchA2Module();
-  }, []);
 
 
     // Hook relacional: busca progresso de unidades diretamente no Supabase
@@ -1057,6 +1036,31 @@ export default function PortalMobile({
   const [nomeTituloNivel, setNomeTituloNivel] = useState<string>('EXPLORADOR');
   const [nivelAluno, setNivelAluno] = React.useState<string>("B1");
 
+  // Busca o módulo dinamicamente baseado no nível real do aluno (sem race condition)
+  useEffect(() => {
+    async function fetchModuleByLevel() {
+      if (!nivelAluno) return;
+      try {
+        const { data } = await supabase
+          .from("modules_content")
+          .select("id, module_title")
+          .ilike("level_tag", `%${nivelAluno}%`)
+          .limit(1)
+          .maybeSingle();
+
+        if (data?.id) {
+          console.log(`🚀 Módulo do nível ${nivelAluno} localizado:`, data.id);
+          if (typeof setModuleIdDb === "function") setModuleIdDb(data.id);
+          if (typeof setModuleTitleDb === "function") setModuleTitleDb(data.module_title);
+          // setNomeModulo nao existe, moduleTitleDb faz o papel do titulo dinámico
+        }
+      } catch (err) {
+        console.error("Erro ao buscar Módulo por nível:", err);
+      }
+    }
+    fetchModuleByLevel();
+  }, [nivelAluno]);
+
   React.useEffect(() => {
     async function sincronizarPerfilMobile() {
       try {
@@ -1445,7 +1449,7 @@ export default function PortalMobile({
               )}
 
               <span className="text-[clamp(9px,2.5vw,13px)] font-mono font-black text-cyan-400 uppercase tracking-widest block mb-1">{idiomaSelecionado === "PT" ? "MÓDULO ATUAL" : idiomaSelecionado === "ES" ? "MÓDULO ACTUAL" : "CURRENT MODULE"}</span>
-              <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{nomeModulo}</h2>
+              <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{moduleTitleDb || nomeModulo}</h2>
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
