@@ -92,6 +92,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
         setCarregando(true);
 
         try {
+          if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).includes("undefined")) return;
           const resUser = await fetch(`${SUPABASE_USER_URL}?id=eq.${USER_ID_ALVO}&select=native_language`, {
             headers: { "apikey": SERVICE_KEY, "Authorization": "Bearer " + SERVICE_KEY }
           });

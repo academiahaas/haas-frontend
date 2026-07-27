@@ -74,6 +74,7 @@ export default function DashboardDesktop() {
         const headers = { "apikey": token, "Authorization": "Bearer " + token };
         const { data: { session } } = await supabase.auth.getSession(); const uid = session?.user?.id;
 
+        if (!uid || uid === "undefined" || String(uid).trim() === "") return;
         const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
         const dUser = await rUser.json();
         if (dUser && dUser[0]) {
@@ -102,6 +103,7 @@ export default function DashboardDesktop() {
           }
         }
 
+        if (!uid || uid === "undefined" || String(uid).trim() === "") return;
         const rProg = await fetch(urlBase + "/rest/v1/user_unit_progress?user_id=eq." + uid + "&select=unit_xp&order=completed_at.desc&limit=1", { headers });
         const dProg = await rProg.json();
         if (dProg && dProg[0]) setScoreAtivo(dProg[0].unit_xp || 50);

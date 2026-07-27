@@ -84,6 +84,7 @@ export default function MioloSpellingBee({
   const salvarNovaPalavraNoCache = async (palavra: string, nivel: string) => {
     try {
       const nomeUnidade = unidadeAtiva || "1.1";
+      if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
       await supabase
         .from('exercises')
         .insert({
@@ -102,6 +103,7 @@ export default function MioloSpellingBee({
     try {
       const prompt = `Gere uma única palavra curta em português com acentuação gráfica opcional para um jogo de soletrar. Nível: ${nivel}. Retorne estritamente apenas a palavra limpa em maiúsculas sem pontos. Deve ter entre 4 e 7 letras no máximo.`;
       
+      if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
       const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1);
       const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
       
@@ -130,6 +132,7 @@ export default function MioloSpellingBee({
       try {
         setCarregando(true);
         
+        if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
         const { data: userDados } = await supabase
           .from('users')
           .select('native_language')

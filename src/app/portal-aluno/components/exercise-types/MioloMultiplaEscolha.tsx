@@ -88,6 +88,8 @@ export default function MioloMultiplaEscolha({
       try {
         setCarregando(true);
         
+        if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).includes("undefined")) return;
+        if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
         const { data: userDados } = await supabase.from('users').select('native_language').eq('id', USER_ID_ALVO);
         if (userDados && userDados.length > 0) {
           setIdiomaNativoAluno(userDados[0].native_language || "Español");

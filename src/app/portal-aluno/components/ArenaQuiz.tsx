@@ -209,6 +209,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
         if (!supabaseUrl) return;
         
+        if (!userId || userId === "undefined") return;
+        if (!userId || userId === "undefined") return;
         const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=current_combo`, {
           headers: {
             "apikey": supabaseAnonKey,
@@ -241,6 +243,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         if (!supabaseUrl) return;
         
         // Faz o fetch direto via fetch clássico para evitar quebras de importação de arquivos internos
+        if (!userId || userId === "undefined") return;
+        if (!userId || userId === "undefined") return;
+        if (!userId || userId === "undefined" || String(userId).includes("undefined")) return;
         const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=clinical_precision,name,native_language,course_language`, {
           headers: {
             "apikey": supabaseAnonKey,
@@ -285,6 +290,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         // Puxa o progresso de unidade associado ao aluno ordenando pelo mais recente
         const targetUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
+        if (!userId || userId === "undefined") return;
         const res = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userId}&unit_id=eq.${targetUnitId}&select=unit_xp`, {
           headers: {
             "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
@@ -314,6 +320,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
         if (!supabaseUrl) return;
         
+        if (!userId || userId === "undefined") return;
+        if (!userId || userId === "undefined") return;
         const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=total_xp`, {
           headers: {
             "apikey": supabaseAnonKey,
@@ -386,6 +394,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         // 3. Verifica quantas dessas o aluno já completou
         if (unidadesDoBloco.length > 0) {
           const idsString = unidadesDoBloco.map((u: any) => u.id).join(",");
+          if (!userIdFixo || userIdFixo === "undefined") return;
           const resProgresso = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userIdFixo}&unit_id=in.(${idsString})&select=unit_id`, {
             headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
           });
@@ -405,9 +414,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        if (!userIdFixo || userIdFixo === "undefined") return;
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=current_level`, { headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } });
         const dadosUser = await resUser.json();
         if (dadosUser && dadosUser[0] && dadosUser[0].current_level) setAlunoNivel(dadosUser[0].current_level);
+        if (!userIdFixo || userIdFixo === "undefined") return;
         const resComp = await fetch(`${supabaseUrl}/rest/v1/user_competencias?user_id=eq.${userIdFixo}&select=habla,escucha,lectura,escritura,gramatica`, { headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } });
         const dadosComp = await resComp.json();
         if (dadosComp && dadosComp[0]) {
@@ -429,6 +440,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+        if (!userIdFixo || userIdFixo === "undefined") return;
         const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
           headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
         });
@@ -908,6 +920,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
 
       // 1. FASE DE VERIFICAÇÃO DE CRÉDITOS
+      if (!userIdFixo || userIdFixo === "undefined") return;
       const resUser = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}&select=chat_credits`, { 
         headers: { "apikey": cm, "Authorization": `Bearer ${cm}` } 
       });
@@ -922,6 +935,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       // 2. FASE DE CONSUMO (ATUALIZA NO SUPABASE)
       const novosCreditos = creditosAtuais - 1;
+      if (!userIdFixo || userIdFixo === "undefined") return;
       await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
         method: 'PATCH',
         headers: { 
@@ -1001,6 +1015,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const userIdFixo = activeUserId || userId;
         const cm = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         
+        if (!userIdFixo || userIdFixo === "undefined") return;
         await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userIdFixo}`, {
           method: "PATCH",
           headers: {

@@ -84,6 +84,7 @@ export default function MioloReordenacaoParagrafos({
         setCarregando(true); console.log("🔍 [REORDENACAO DEBUG] unidadeAtiva recebida:", unidadeAtiva);
         
         try {
+          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
           const { data: userDados } = await supabase
             .from('users')
             .select('native_language')
@@ -108,6 +109,7 @@ export default function MioloReordenacaoParagrafos({
           query = query.eq('unit_id', codigoUnidade);
         } else {
           // Se receber 0 ou algo inválido, busca o primeiro exercício do tipo 8 disponível no banco para não quebrar a tela
+          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
           const { data: firstActive } = await supabase.from('exercises').select('unit_id').eq('activity_type', 8).limit(1);
           if (firstActive && firstActive.length > 0) {
             query = query.eq('unit_id', firstActive[0].unit_id);

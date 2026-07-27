@@ -24,6 +24,7 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    if (!userId || userId === "undefined" || String(userId).includes("undefined")) return;
     const { data: userData } = await supabase.from('users').select('name, native_language, course_language').eq('id', userId).single();
     const { data: snapshot } = await supabase.from('user_ai_pedagogic_snapshot').select('foco_erros_recentes').eq('user_id', userId).single();
 
