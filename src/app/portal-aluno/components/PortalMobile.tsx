@@ -2778,7 +2778,7 @@ export default function PortalMobile({
               
               {/* Gráfico Radar Dinâmico Conectado à Tabela user_competencias */}
               <div className="flex-1 flex items-center justify-center relative w-full min-h-[220px]">
-                <RadarCompetenciasMobile idioma={idiomaSelecionado} />
+                <RadarCompetenciasMobile idioma={idiomaSelecionado} userId={(alunoData as any)?.id || (typeof window !== "undefined" ? localStorage.getItem("haas_uid") : null)} />
               </div>
 
               <p className="text-[clamp(11px,3.2vw,15px)] text-slate-400 font-medium text-center mt-2 shrink-0">{txt.radarDesc}</p>

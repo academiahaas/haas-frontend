@@ -12,9 +12,10 @@ import { supabase } from "@/lib/supabase";
 
 interface RadarProps {
   idioma: string;
+  userId?: string | null;
 }
 
-export default function RadarCompetenciasMobile({ idioma }: RadarProps) {
+export default function RadarCompetenciasMobile({ idioma, userId }: RadarProps) {
   const [competencias, setCompetencias] = useState({
     habla: 0,
     escucha: 0,
@@ -27,20 +28,18 @@ export default function RadarCompetenciasMobile({ idioma }: RadarProps) {
   useEffect(() => {
     async function carregarCompetencias() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        let userId = user?.id;
-
-        if (!userId) {
-          // Busca primeiro registro se auth não estiver ativo no cliente
-          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-          if (fallback) userId = fallback.id;
+        setLoading(true);
+        // Resolve o ID via prop ou via localStorage se nao for passado
+        let uid = userId;
+        if (!uid && typeof window !== "undefined") {
+          uid = localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid");
         }
 
-        if (userId) {
+        if (uid) {
           const { data, error } = await supabase
             .from("user_competencias")
             .select("habla, escucha, lectura, escritura, gramatica")
-            .eq("user_id", userId)
+            .eq("user_id", uid)
             .maybeSingle();
 
           if (!error && data) {
@@ -61,9 +60,8 @@ export default function RadarCompetenciasMobile({ idioma }: RadarProps) {
     }
 
     carregarCompetencias();
-  }, []);
+  }, [userId]);
 
-  // Mapeamento de rótulos por idioma
   const labels = {
     PT: { fala: "FALA", escuta: "ESCUTA", leitura: "LEITURA", escrita: "ESCRITA", gramatica: "GRAMÁTICA" },
     ES: { fala: "HABLA", escuta: "ESCUCHA", leitura: "LECTURA", escrita: "ESCRITURA", gramatica: "GRAMÁTICA" },
