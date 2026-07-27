@@ -91,28 +91,36 @@ export const ListaUnidadesMobile: React.FC<ListaUnidadesMobileProps> = ({
   React.useEffect(() => {
     console.log("🔍 [ListaUnidadesMobile] moduleId recebido:", moduleId);
     async function fetchUnits() {
-      try {
-        if (!moduleId) {
-          console.warn("⚠️ moduleId veio vazio. Cancelando busca total.");
-          setUnidadesDb([]);
-          return;
-        }
-        const { data, error } = await supabase
-          .from("units")
-          .select("*")
-          .eq("module_id", moduleId)
-          .select("id, unit_number, unit_title, pedagogical_objective")
-          .order("unit_number", { ascending: true });
-
-        if (!error && data && data.length > 0) {
-          setUnidadesDb(data);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar units do Supabase:", err);
+    try {
+      if (!moduleId) {
+        console.warn("⚠️ moduleId não fornecido para ListaUnidadesMobile");
+        return;
       }
+
+      let query = supabase
+        .from("units")
+        .select("id, unit_number, unit_title, pedagogical_objective");
+
+      // Se moduleId for UUID (contém hífen), filtra por module_id ou module_content_id
+      if (typeof moduleId === "string" && moduleId.includes("-")) {
+        query = query.eq("module_id", moduleId);
+      } else {
+        query = query.eq("module_number", Number(moduleId));
+      }
+
+      const { data, error } = await query.order("unit_number", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao carregar unidades filtradas:", error);
+      } else if (data) {
+        setUnidadesDb ? setUnidadesDb(data) : null;
+      }
+    } catch (err) {
+      console.error("Erro ao executar fetchUnits:", err);
     }
-    fetchUnits();
-  }, []);
+  }
+  fetchUnits();
+  }, [moduleId]);
 
   const toggleGaveta = (id: number) => {
     setUnidadeExpandida((prev) => (prev === id ? null : id));

@@ -261,7 +261,67 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
     return 0;
   };
 
-export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+export default function PortalMobile({
+ alunoData: alunoDataProp, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+  const [unitXp, setUnitXp] = useState<number>(0);
+
+  // Garante a busca do Módulo A2 na tabela modules_content
+  useEffect(() => {
+    async function fetchA2Module() {
+      try {
+        const { data } = await supabase
+          .from("modules_content")
+          .select("id, module_title")
+          .ilike("level_tag", "%A2%")
+          .limit(1)
+          .maybeSingle();
+
+        if (data?.id) {
+          console.log("🚀 Módulo A2 localizado:", data.id);
+          if (typeof setModuleIdDb === "function") setModuleIdDb(data.id);
+          if (typeof setModuleTitleDb === "function") setModuleTitleDb(data.module_title);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar Módulo A2:", err);
+      }
+    }
+    fetchA2Module();
+  }, []);
+
+
+    // Hook relacional: busca progresso de unidades diretamente no Supabase
+  useEffect(() => {
+    async function loadUnitXpForCurrentModule() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Traz os registros do usuário junto com os dados da unidade vinculada (units)
+        const { data: progressList, error } = await supabase
+          .from("user_unit_progress")
+          .select("unit_xp, units(module_id)")
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Erro ao buscar XP relacional:", error);
+          return;
+        }
+
+        if (progressList && progressList.length > 0) {
+          // Soma apenas os XPs onde existe vínculo válido
+          const totalModuloXP = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+          setUnitXp(totalModuloXP);
+        } else {
+          setUnitXp(0);
+        }
+      } catch (err) {
+        console.error("Erro na carga de XP relacional:", err);
+      }
+    }
+
+    loadUnitXpForCurrentModule();
+  }, []); // Dispara novamente sempre que o usuário trocar de módulo!
+
   const { metrics: metricsFromHook } = useAlunoMetrics();
 
   // Consolidação automática: Prioriza dados válidos do Hook/View se a prop vier undefined
@@ -276,7 +336,7 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
     total_xp: metricsFromHook?.total_xp ?? alunoDataProp?.total_xp ?? 0,
     chat_credits: metricsFromHook?.chat_credits ?? alunoDataProp?.chat_credits ?? 0,
     active_vocabulary: metricsFromHook?.active_vocabulary ?? alunoDataProp?.active_vocabulary ?? 0,
-    current_level: metricsFromHook?.current_level || alunoDataProp?.current_level || "A1"
+    current_level: metricsFromHook?.current_level || alunoDataProp?.current_level || "A2"
   };
   const [precisaoSupabase, setPrecisaoSupabase] = React.useState<number | null>(null);
 
@@ -284,6 +344,29 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
     async function carregarDadosMobile() {
       try {
         const dadosPortal = await fetchCentralPortalData();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
+        console.error("Erro ao carregar unit_xp:", err);
+      }
         if (dadosPortal) {
           if (dadosPortal.user) {
             if (dadosPortal.user.clinical_precision !== undefined) {
@@ -707,51 +790,25 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
     async function carregarMeusAgendamentos() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        let targetUid = user?.id;
-        if (!targetUid && typeof window !== "undefined") {
-          targetUid = localStorage.getItem("haas_uid");
-        }
-        if (!targetUid) {
-          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-          if (fallback?.id) targetUid = fallback.id;
-        }
-
-        if (!targetUid) return;
-
-        const { data, error } = await supabase
-          .from("user_agenda_appointments")
-          .select("id, appointment_date, appointment_type, status, canceled_at")
-          .eq("user_id", targetUid)
-          .gte("appointment_date", new Date(new Date().setHours(0,0,0,0)).toISOString())
-          .order("appointment_date", { ascending: true });
-
-        if (error) {
-          console.error("❌ Erro ao buscar agendamentos do Supabase:", error.message);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          const formatados = data.map((item) => {
-            const dt = new Date(item.appointment_date);
-            const dia = String(dt.getDate()).padStart(2, "0");
-            const mes = String(dt.getMonth() + 1).padStart(2, "0");
-            const ano = dt.getFullYear();
-            const horas = String(dt.getHours()).padStart(2, "0");
-            const minutos = String(dt.getMinutes()).padStart(2, "0");
-            const tipoUpper = (item.appointment_type || "REGULAR").toUpperCase();
-            return {
-              id: item.id,
-              tipo: tipoUpper,
-              dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`,
-              canceled_at: item.canceled_at,
-              status: item.status
-            };
-          });
-          setMeusAgendamentos(formatados);
-        } else {
-          setMeusAgendamentos([]);
-        }
-      } catch (err) {
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
         console.error("Exceção ao sincronizar agendamentos:", err);
       }
     }
@@ -1202,54 +1259,25 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
     try {
       // 1. Obter usuário logado
       const { data: { user } } = await supabase.auth.getUser();
-      let userIdFinal = user?.id;
-
-      if (!userIdFinal) {
-        const { data: fallbackUser } = await supabase.from('users').select('id').limit(1).maybeSingle();
-        userIdFinal = fallbackUser?.id;
-      }
-
-      if (!userIdFinal) {
-        throw new Error("Usuário não identificado para o envio.");
-      }
-
-      // 2. Processar cada arquivo selecionado
-      for (const file of arquivosSelecionados) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}_${Date.now()}.${fileExt}`;
-        const filePath = `tasks/${fileName}`;
-
-        // Upload no bucket student_tasks
-        const { error: uploadError } = await supabase.storage
-          .from("student_tasks")
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        // Obter URL pública
-        const { data: urlData } = supabase.storage
-          .from("student_tasks")
-          .getPublicUrl(filePath);
-
-        // Inserção na tabela assignments_submissions
-        const { error: dbError } = await supabase
-          .from("assignments_submissions")
-          .insert([
-            {
-              user_id: userIdFinal,
-              unit_id: null,
-              photo_url: urlData.publicUrl,
-              status: "pending"
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
             }
-          ]);
-
-        if (dbError) throw dbError;
-      }
-
-      setUploadSuccess(true);
-      setArquivosSelecionados([]);
-      setTimeout(() => setUploadSuccess(false), 5000);
-    } catch (err) {
+          }
+        } } catch (err) {
       console.error("Erro ao enviar tarefas:", err);
       alert(idiomaSelecionado === 'PT' ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
     } finally {
@@ -1384,7 +1412,7 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
-              <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
+            <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} {unitXp} PTS</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
                <div className="flex-1 flex flex-col gap-1.5 sm:gap-1.5.5 mt-3 w-full min-h-0">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
@@ -2636,52 +2664,25 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
                       (async () => {
                         try {
                           const { data: { user } } = await supabase.auth.getUser();
-                          let targetUid = user?.id;
-                          if (!targetUid) {
-                            const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-                            if (fallback?.id) targetUid = fallback.id;
-                          }
-                          if (!targetUid && typeof window !== "undefined") {
-                            targetUid = localStorage.getItem("haas_uid");
-                          }
-
-                          if (targetUid) {
-                            if (ehReposicao) {
-                              const novoSaldo = Math.max(0, creditosReposicao - 1);
-                              await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] replacement_credits atualizado para:", novoSaldo);
-                            } else {
-                              const novoSaldo = Math.max(0, creditosRegulares - 1);
-                              await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
-                            }
-
-                            // Inserção do agendamento no Supabase (MOVIDO PARA FORA DO ELSE)
-                            const [h, m] = (horarioSelecionado || "00:00").split(":");
-                            const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
-                            
-                            const { data: dataInserted, error: errInsert } = await supabase
-                              .from("user_agenda_appointments")
-                              .insert([{
-                                user_id: targetUid,
-                                appointment_date: fechaIso,
-                                appointment_type: ehReposicao ? "reposicao" : "regular",
-                                status: "agendada"
-                              }])
-                              .select();
-                            
-                            if (errInsert) {
-                              console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
-                            } else if (dataInserted && dataInserted[0]) {
-                              const realUuid = dataInserted[0].id;
-                              console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
-                              setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
-                              if (typeof window !== "undefined") {
-                                setAgendaRefreshKey(prev => prev + 1);
-                              }
-                            }
-                          }
-                        } catch (err) {
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
                           console.error("Erro ao atualizar creditos no Supabase:", err);
                         }
                       })();
@@ -3563,7 +3564,7 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
         isOpen={modalProgramaAberto}
         onClose={() => setModalProgramaAberto(false)}
         idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"}
-        nivelAluno={nivelAluno || "A1"}
+        nivelAluno={nivelAluno || "A2"}
         moduloAtualNumero={Number(moduloActual) || 1}
       />
                   {/* 🔐 BOTTOMSHEET: COFRE DE ERROS (ERROR VAULT - ISOLADO) */}
