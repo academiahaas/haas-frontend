@@ -836,27 +836,46 @@ export default function PortalMobile({
   React.useEffect(() => {
     async function carregarMeusAgendamentos() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: progressList } = await supabase
-            .from("user_unit_progress")
-            .select("unit_xp, user_id")
-            .eq("user_id", user.id);
-          
-          if (progressList && progressList.length > 0) {
-            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-            setUnitXp(totalXpCalculado);
-          } else {
-            const { data: fallbackList } = await supabase
-              .from("user_unit_progress")
-              .select("unit_xp");
-            if (fallbackList && fallbackList.length > 0) {
-              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-              setUnitXp(totalFallback);
-            }
-          }
-        } } catch (err) {
-        console.error("Exceção ao sincronizar agendamentos:", err);
+        const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        
+        const { data, error } = await supabase
+          .from("user_agenda_appointments")
+          .select("id, appointment_date, status, canceled_at")
+          .eq("user_id", targetUid)
+          .order("appointment_date", { ascending: true });
+
+        if (error) {
+          console.error("❌ Erro ao buscar agendamentos do banco:", error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const listaFormatada = data.map((item: any) => {
+            const dt = new Date(item.appointment_date);
+            const diaStr = String(dt.getDate()).padStart(2, "0");
+            const mesStr = String(dt.getMonth() + 1).padStart(2, "0");
+            const anoStr = dt.getFullYear();
+            const horaStr = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
+
+            const dataTexto = `${diaStr}/${mesStr}/${anoStr} a las ${horaStr}`;
+            const tipoFormatado = (item.status === "reposicao" || (item.status && item.status.toLowerCase().includes("reposic"))) ? "REPOSICAO" : "REGULAR";
+
+            return {
+              id: item.id,
+              tipo: tipoFormatado,
+              dataStr: dataTexto,
+              appointment_date: item.appointment_date,
+              status: item.status,
+              canceled_at: item.canceled_at
+            };
+          });
+
+          setMeusAgendamentos(listaFormatada);
+        } else {
+          setMeusAgendamentos([]);
+        }
+      } catch (err) {
+        console.error("❌ Exceção ao carregar meus agendamentos:", err);
       }
     }
 
@@ -891,9 +910,7 @@ export default function PortalMobile({
         (data || []).forEach((item: any) => {
           if (item.canceled_at || item.status === 'cancelada') return;
           const dt = new Date(item.appointment_date);
-          const hh = String(dt.getHours()).padStart(2, '0');
-          const mm = String(dt.getMinutes()).padStart(2, '0');
-          const slot = `${hh}:${mm}`;
+          const slot = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
           mapaOcupacao[slot] = (mapaOcupacao[slot] || 0) + 1;
         });
 
@@ -2851,7 +2868,7 @@ React.useEffect(() => {
                             const [hStr, mStr] = horarioSelecionado.split(":");
                             const mesFormatted = String(mesAgendamento).padStart(2, "0");
                             const diaFormatted = String(diaSelecionado).padStart(2, "0");
-                            const isoDate = `2026-${mesFormatted}-${diaFormatted}T${hStr}:${mStr}:00.000Z`;
+                            const isoDate = `2026-${mesFormatted}-${diaFormatted}T${hStr}:${mStr}:00-05:00`;
 
                             const { data: insertData, error: insertError } = await supabase
                               .from("user_agenda_appointments")
