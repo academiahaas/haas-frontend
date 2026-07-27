@@ -1054,6 +1054,8 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
             const nomeCompleto = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
             if (nomeCompleto) setNomeUsuarioDb(nomeCompleto);
             if (dadosPortal.user.current_level) setNivelAluno(dadosPortal.user.current_level);
+          if (dadosPortal.user.streak_days !== undefined && dadosPortal.user.streak_days !== null) setStreakDias(Number(dadosPortal.user.streak_days));
+          if (dadosPortal.user.total_xp !== undefined && dadosPortal.user.total_xp !== null) setTotalXp(Number(dadosPortal.user.total_xp));
             if (dadosPortal.user.clinical_precision !== undefined) setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
           }
           if (dadosPortal.subscription) {
