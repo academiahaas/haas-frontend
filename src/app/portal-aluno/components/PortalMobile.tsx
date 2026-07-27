@@ -492,6 +492,12 @@ export default function PortalMobile({
               : "31/12/2026";
             setExpirationDate(formatted);
           }
+          if (typeof setCreditosRegulares === "function" && sub.class_credits_available !== undefined) {
+            setCreditosRegulares(sub.class_credits_available);
+          }
+          if (typeof setCreditosReposicao === "function" && sub.replacement_credits !== undefined) {
+            setCreditosReposicao(sub.replacement_credits);
+          }
         }
       } catch (err) {
         console.error("Erro ao carregar user_subscriptions:", err);
