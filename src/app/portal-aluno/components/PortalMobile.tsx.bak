@@ -1,3 +1,4 @@
+import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
 import { fetchCentralPortalData } from "@/services/centralService";
 import ArenaImersivaTotal from "./ArenaImersivaTotal";
 import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
@@ -260,19 +261,97 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
     return 0;
   };
 
-export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+export default function PortalMobile({
+ alunoData: alunoDataProp, moduloActual, onIniciarQuiz, idioma: idiomaInicial, t }: any) {
+  const [unitXp, setUnitXp] = useState<number>(0);
+
+
+
+
+    // Hook relacional: busca progresso de unidades diretamente no Supabase
+  useEffect(() => {
+    async function loadUnitXpForCurrentModule() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Traz os registros do usuário junto com os dados da unidade vinculada (units)
+        const { data: progressList, error } = await supabase
+          .from("user_unit_progress")
+          .select("unit_xp, units(module_id)")
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Erro ao buscar XP relacional:", error);
+          return;
+        }
+
+        if (progressList && progressList.length > 0) {
+          // Soma apenas os XPs onde existe vínculo válido
+          const totalModuloXP = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+          setUnitXp(totalModuloXP);
+        } else {
+          setUnitXp(0);
+        }
+      } catch (err) {
+        console.error("Erro na carga de XP relacional:", err);
+      }
+    }
+
+    loadUnitXpForCurrentModule();
+  }, []); // Dispara novamente sempre que o usuário trocar de módulo!
+
+  const { metrics: metricsFromHook } = useAlunoMetrics();
+
+  // Consolidação automática: Prioriza dados válidos do Hook/View se a prop vier undefined
+  const alunoData = {
+    ...alunoDataProp,
+    id: metricsFromHook?.user_id || alunoDataProp?.id || alunoDataProp?.user_id,
+    name: metricsFromHook?.name || alunoDataProp?.name || alunoDataProp?.full_name,
+    full_name: metricsFromHook?.name || alunoDataProp?.full_name || alunoDataProp?.name,
+    nickname: metricsFromHook?.nickname || alunoDataProp?.nickname,
+    streak_days: metricsFromHook?.streak_days ?? alunoDataProp?.streak_days ?? 0,
+    clinical_precision: metricsFromHook?.clinical_precision ?? alunoDataProp?.clinical_precision ?? 0,
+    total_xp: metricsFromHook?.total_xp ?? alunoDataProp?.total_xp ?? 0,
+    chat_credits: metricsFromHook?.chat_credits ?? alunoDataProp?.chat_credits ?? 0,
+    active_vocabulary: metricsFromHook?.active_vocabulary ?? alunoDataProp?.active_vocabulary ?? 0,
+    current_level: metricsFromHook?.current_level || alunoDataProp?.current_level || "A2"
+  };
   const [precisaoSupabase, setPrecisaoSupabase] = React.useState<number | null>(null);
 
     React.useEffect(() => {
     async function carregarDadosMobile() {
       try {
         const dadosPortal = await fetchCentralPortalData();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
+        console.error("Erro ao carregar unit_xp:", err);
+      }
         if (dadosPortal) {
           if (dadosPortal.user) {
             if (dadosPortal.user.clinical_precision !== undefined) {
               setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
             }
-            const nomeReal = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+            const nomeReal = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
             if (nomeReal && typeof setNomeUsuarioDb === "function") {
               setNomeUsuarioDb(nomeReal);
             }
@@ -378,7 +457,6 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
-  console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
 
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
   React.useEffect(() => {
@@ -691,51 +769,25 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
     async function carregarMeusAgendamentos() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        let targetUid = user?.id;
-        if (!targetUid && typeof window !== "undefined") {
-          targetUid = localStorage.getItem("haas_uid");
-        }
-        if (!targetUid) {
-          const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-          if (fallback?.id) targetUid = fallback.id;
-        }
-
-        if (!targetUid) return;
-
-        const { data, error } = await supabase
-          .from("user_agenda_appointments")
-          .select("id, appointment_date, appointment_type, status, canceled_at")
-          .eq("user_id", targetUid)
-          .gte("appointment_date", new Date(new Date().setHours(0,0,0,0)).toISOString())
-          .order("appointment_date", { ascending: true });
-
-        if (error) {
-          console.error("❌ Erro ao buscar agendamentos do Supabase:", error.message);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          const formatados = data.map((item) => {
-            const dt = new Date(item.appointment_date);
-            const dia = String(dt.getDate()).padStart(2, "0");
-            const mes = String(dt.getMonth() + 1).padStart(2, "0");
-            const ano = dt.getFullYear();
-            const horas = String(dt.getHours()).padStart(2, "0");
-            const minutos = String(dt.getMinutes()).padStart(2, "0");
-            const tipoUpper = (item.appointment_type || "REGULAR").toUpperCase();
-            return {
-              id: item.id,
-              tipo: tipoUpper,
-              dataStr: `${dia}/${mes}/${ano} a las ${horas}:${minutos}`,
-              canceled_at: item.canceled_at,
-              status: item.status
-            };
-          });
-          setMeusAgendamentos(formatados);
-        } else {
-          setMeusAgendamentos([]);
-        }
-      } catch (err) {
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
         console.error("Exceção ao sincronizar agendamentos:", err);
       }
     }
@@ -984,12 +1036,37 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [nomeTituloNivel, setNomeTituloNivel] = useState<string>('EXPLORADOR');
   const [nivelAluno, setNivelAluno] = React.useState<string>("B1");
 
+  // Busca o módulo dinamicamente baseado no nível real do aluno (sem race condition)
+  useEffect(() => {
+    async function fetchModuleByLevel() {
+      if (!nivelAluno) return;
+      try {
+        const { data } = await supabase
+          .from("modules_content")
+          .select("id, module_title")
+          .ilike("level_tag", `%${nivelAluno}%`)
+          .limit(1)
+          .maybeSingle();
+
+        if (data?.id) {
+          console.log(`🚀 Módulo do nível ${nivelAluno} localizado:`, data.id);
+          if (typeof setModuleIdDb === "function") setModuleIdDb(data.id);
+          if (typeof setModuleTitleDb === "function") setModuleTitleDb(data.module_title);
+          // setNomeModulo nao existe, moduleTitleDb faz o papel do titulo dinámico
+        }
+      } catch (err) {
+        console.error("Erro ao buscar Módulo por nível:", err);
+      }
+    }
+    fetchModuleByLevel();
+  }, [nivelAluno]);
+
   React.useEffect(() => {
     async function sincronizarPerfilMobile() {
       try {
         const dadosPortal = await fetchCentralPortalData();
         if (dadosPortal && dadosPortal.user) {
-          const nomeReal = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+          const nomeReal = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
           if (nomeReal) {
             setNomeUsuarioDb(nomeReal);
           }
@@ -1030,27 +1107,31 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
   React.useEffect(() => {
-      async function carregarNomeReal() {
-    try {
-      const dadosPortal = await fetchCentralPortalData();
-      if (dadosPortal) {
-        if (dadosPortal.user) {
-          const nomeCompleto = dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
-          if (nomeCompleto) setNomeUsuarioDb(nomeCompleto);
-          if (dadosPortal.user.current_level) setNivelAluno(dadosPortal.user.current_level);
-          if (dadosPortal.user.clinical_precision !== undefined) setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
+    async function carregarNomeReal() {
+      try {
+        const dadosPortal = await fetchCentralPortalData();
+        if (dadosPortal) {
+          if (dadosPortal.user) {
+            const nomeCompleto = dadosPortal.user.name || dadosPortal.user.full_name || dadosPortal.user.first_name || dadosPortal.user.nome;
+            if (nomeCompleto) setNomeUsuarioDb(nomeCompleto);
+            if (dadosPortal.user.current_level) setNivelAluno(dadosPortal.user.current_level);
+          if (dadosPortal.user.streak_days !== undefined && dadosPortal.user.streak_days !== null) setStreakDias(Number(dadosPortal.user.streak_days));
+          if (dadosPortal.user.total_xp !== undefined && dadosPortal.user.total_xp !== null) setTotalXp(Number(dadosPortal.user.total_xp));
+            if (dadosPortal.user.clinical_precision !== undefined) setPrecisaoSupabase(Number(dadosPortal.user.clinical_precision));
+          }
+          if (dadosPortal.subscription) {
+            const sub = dadosPortal.subscription;
+            if (sub.plan_category) setPlanCategory(sub.plan_category);
+            if (sub.expiration_date) setExpirationDate(sub.expiration_date);
+            if (sub.class_credits_available !== undefined && sub.class_credits_available !== null) setCreditosRegulares(Number(sub.class_credits_available));
+            if (sub.replacement_credits !== undefined && sub.replacement_credits !== null) setCreditosReposicao(Number(sub.replacement_credits));
+          }
         }
-        if (dadosPortal.subscription) {
-          const sub = dadosPortal.subscription;
-          if (sub.plan_category) setPlanCategory(sub.plan_category);
-          if (sub.expiration_date) setExpirationDate(sub.expiration_date);
-          if (sub.class_credits_available !== undefined && sub.class_credits_available !== null) setCreditosRegulares(Number(sub.class_credits_available));
-          if (sub.replacement_credits !== undefined && sub.replacement_credits !== null) setCreditosReposicao(Number(sub.replacement_credits));
-        }
+      } catch (e) {
+        console.error("Erro ao carregar dados unificados do Mobile:", e);
       }
-    } catch (e) {
-      console.error("Erro ao carregar dados unificados do Mobile:", e);
     }
+    carregarNomeReal();
   }, [alunoData]);
 
   const nomeBruto = nomeUsuarioDb || alunoData?.full_name || alunoData?.name || alunoData?.nome || "Aluno";
@@ -1087,7 +1168,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       taskTitle: "ASSIGNMENTS PORTFOLIO",
       taskDesc: "Take a picture of your notebook page or upload up to 3 files directly for instructor feedback.",
       btnPhoto: "SUBMIT MY ASSIGNMENT",
-      btnUploading: "Uploading to Supabase...",
+      btnUploading: "Uploading...",
       btnSubmit: "Submit Assignments",
       uploadOk: "All files uploaded successfully! Instructor notified.",
       errorMax: "Maximum 3 files allowed at once.",
@@ -1110,8 +1191,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
       tabProfile: "Perfil",
       taskTitle: "PORTFÓLIO DE ENTREGAS",
       taskDesc: "Tire uma foto da página do seu caderno para enviar diretamente para a avaliação do instrutor.",
-      btnPhoto: "TIRAR FOTO / SELECIONAR ARQUIVOS",
-      btnUploading: "Enviando para o Supabase...",
+      btnPhoto: "ENVIAR TAREFA",
+      btnUploading: "Enviando...",
       btnSubmit: "Concluir Envio",
       uploadOk: "Todos os arquivos enviados com sucesso! Professor notificado.",
       errorMax: "Permitido no máximo 3 arquivos por vez.",
@@ -1174,68 +1255,76 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
   const [modalProgramaAberto, setModalProgramaAberto] = React.useState(false);
 
-  const handleEnviarFila = async () => {
-    if (arquivosSelecionados.length === 0) return;
-    setUploading(true);
-    setUploadSuccess(false);
+   const handleEnviarFila = async () => {
+     console.log("[HAAS UPLOAD] Clique detectado no botão Concluir Envio!");
+     if (arquivosSelecionados.length === 0) {
+       console.log("[HAAS UPLOAD] Nenhum arquivo selecionado.");
+       return;
+     }
 
-    try {
-      // 1. Obter usuário logado
-      const { data: { user } } = await supabase.auth.getUser();
-      let userIdFinal = user?.id;
+     setUploading(true);
+     setUploadSuccess(false);
 
-      if (!userIdFinal) {
-        const { data: fallbackUser } = await supabase.from('users').select('id').limit(1).maybeSingle();
-        userIdFinal = fallbackUser?.id;
-      }
+     try {
+       const currentUserId = (alunoData as any)?.id || (typeof window !== "undefined" ? localStorage.getItem("haas_uid") || localStorage.getItem("user_id") : null);
 
-      if (!userIdFinal) {
-        throw new Error("Usuário não identificado para o envio.");
-      }
+       console.log("[HAAS UPLOAD] ID do usuário resolvido:", currentUserId);
 
-      // 2. Processar cada arquivo selecionado
-      for (const file of arquivosSelecionados) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}_${Date.now()}.${fileExt}`;
-        const filePath = `tasks/${fileName}`;
+       if (!currentUserId) {
+         console.error("[HAAS UPLOAD] Usuário não identificado.");
+         alert(idiomaSelecionado === "PT" ? "Usuário não identificado. Por favor, faça login novamente." : "User not identified.");
+         return;
+       }
 
-        // Upload no bucket student_tasks
-        const { error: uploadError } = await supabase.storage
-          .from("student_tasks")
-          .upload(filePath, file);
+       for (const file of arquivosSelecionados) {
+         console.log("[HAAS UPLOAD] Processando arquivo:", file.name);
+         const fileExt = file.name.split(".").pop();
+         const fileName = `${currentUserId}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+         const filePath = `assignments/${fileName}`;
 
-        if (uploadError) throw uploadError;
+         console.log("[HAAS UPLOAD] Enviando para o bucket haas-academy path:", filePath);
+         const { error: uploadError } = await supabase.storage
+           .from("haas-academy")
+           .upload(filePath, file);
 
-        // Obter URL pública
-        const { data: urlData } = supabase.storage
-          .from("student_tasks")
-          .getPublicUrl(filePath);
+         if (uploadError) {
+           console.error("[HAAS UPLOAD] Erro no storage:", uploadError);
+           throw uploadError;
+         }
 
-        // Inserção na tabela assignments_submissions
-        const { error: dbError } = await supabase
-          .from("assignments_submissions")
-          .insert([
-            {
-              user_id: userIdFinal,
-              unit_id: null,
-              photo_url: urlData.publicUrl,
-              status: "pending"
-            }
-          ]);
+         const { data: publicUrlData } = supabase.storage
+           .from("haas-academy")
+           .getPublicUrl(filePath);
 
-        if (dbError) throw dbError;
-      }
+         const photoUrl = publicUrlData.publicUrl;
+         console.log("[HAAS UPLOAD] URL Pública gerada:", photoUrl);
 
-      setUploadSuccess(true);
-      setArquivosSelecionados([]);
-      setTimeout(() => setUploadSuccess(false), 5000);
-    } catch (err) {
-      console.error("Erro ao enviar tarefas:", err);
-      alert(idiomaSelecionado === 'PT' ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
-    } finally {
-      setUploading(false);
-    }
-  };
+         console.log("[HAAS UPLOAD] Inserindo na tabela assignments_submissions...");
+         const { error: dbError } = await supabase
+           .from("assignments_submissions")
+           .insert({
+             user_id: currentUserId,
+             photo_url: photoUrl,
+             status: "pending"
+           });
+
+         if (dbError) {
+           console.error("[HAAS UPLOAD] Erro no banco de dados:", dbError);
+           throw dbError;
+         }
+       }
+
+       console.log("[HAAS UPLOAD] Sucesso total no envio!");
+       setUploadSuccess(true);
+       setArquivosSelecionados([]);
+     } catch (err) {
+       console.error("[HAAS UPLOAD] Exceção capturada:", err);
+       alert(idiomaSelecionado === "PT" ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
+     } finally {
+       setUploading(false);
+     }
+   };
+
 
   if (arenaAtiva) {
     return (
@@ -1360,11 +1449,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               )}
 
               <span className="text-[clamp(9px,2.5vw,13px)] font-mono font-black text-cyan-400 uppercase tracking-widest block mb-1">{idiomaSelecionado === "PT" ? "MÓDULO ATUAL" : idiomaSelecionado === "ES" ? "MÓDULO ACTUAL" : "CURRENT MODULE"}</span>
-              <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{nomeModulo}</h2>
+              <h2 className="text-[clamp(14px,4.2vw,22px)] font-black text-white uppercase tracking-wide mb-3">{moduleTitleDb || nomeModulo}</h2>
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
-              <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} -{Math.max(0, requiredXp - totalXp)} PTS</span>
+            <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Detalhes da Unidade" : idiomaSelecionado === "ES" ? "Detalles de la Unidad" : "Unit Details"}</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
                <div className="flex-1 flex flex-col gap-1.5 sm:gap-1.5.5 mt-3 w-full min-h-0">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
@@ -2616,52 +2705,25 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       (async () => {
                         try {
                           const { data: { user } } = await supabase.auth.getUser();
-                          let targetUid = user?.id;
-                          if (!targetUid) {
-                            const { data: fallback } = await supabase.from("users").select("id").limit(1).maybeSingle();
-                            if (fallback?.id) targetUid = fallback.id;
-                          }
-                          if (!targetUid && typeof window !== "undefined") {
-                            targetUid = localStorage.getItem("haas_uid");
-                          }
-
-                          if (targetUid) {
-                            if (ehReposicao) {
-                              const novoSaldo = Math.max(0, creditosReposicao - 1);
-                              await supabase.from("user_subscriptions").update({ replacement_credits: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] replacement_credits atualizado para:", novoSaldo);
-                            } else {
-                              const novoSaldo = Math.max(0, creditosRegulares - 1);
-                              await supabase.from("user_subscriptions").update({ class_credits_available: novoSaldo }).eq("user_id", targetUid);
-                              console.log("✅ [SUPABASE] class_credits_available atualizado para:", novoSaldo);
-                            }
-
-                            // Inserção do agendamento no Supabase (MOVIDO PARA FORA DO ELSE)
-                            const [h, m] = (horarioSelecionado || "00:00").split(":");
-                            const fechaIso = new Date(2026, mesAgendamento - 1, Number(diaSelecionado), Number(h), Number(m)).toISOString();
-                            
-                            const { data: dataInserted, error: errInsert } = await supabase
-                              .from("user_agenda_appointments")
-                              .insert([{
-                                user_id: targetUid,
-                                appointment_date: fechaIso,
-                                appointment_type: ehReposicao ? "reposicao" : "regular",
-                                status: "agendada"
-                              }])
-                              .select();
-                            
-                            if (errInsert) {
-                              console.error("❌ Erro ao inserir em user_agenda_appointments:", errInsert.message);
-                            } else if (dataInserted && dataInserted[0]) {
-                              const realUuid = dataInserted[0].id;
-                              console.log("✅ [SUPABASE] Agendamento salvo com UUID:", realUuid);
-                              setMeusAgendamentos(prev => prev.map(a => a.dataStr === novaDataTexto ? { ...a, id: realUuid } : a));
-                              if (typeof window !== "undefined") {
-                                setAgendaRefreshKey(prev => prev + 1);
-                              }
-                            }
-                          }
-                        } catch (err) {
+        if (user) {
+          const { data: progressList } = await supabase
+            .from("user_unit_progress")
+            .select("unit_xp, user_id")
+            .eq("user_id", user.id);
+          
+          if (progressList && progressList.length > 0) {
+            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+            setUnitXp(totalXpCalculado);
+          } else {
+            const { data: fallbackList } = await supabase
+              .from("user_unit_progress")
+              .select("unit_xp");
+            if (fallbackList && fallbackList.length > 0) {
+              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
+              setUnitXp(totalFallback);
+            }
+          }
+        } } catch (err) {
                           console.error("Erro ao atualizar creditos no Supabase:", err);
                         }
                       })();
@@ -2715,7 +2777,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
               {/* FILA DE ARQUIVOS */}
               {arquivosSelecionados.length > 0 && (
-                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[110px] overflow-y-auto">
+                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[220px] overflow-y-auto">
                   <span className="text-[9px] font-mono font-black text-slate-400 uppercase tracking-widest">{txt.selectedFiles} ({arquivosSelecionados.length}/3):</span>
                   <div className="flex flex-col gap-1.5">
                     {arquivosSelecionados.map((file, idx) => (
@@ -2757,7 +2819,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               
               {/* Gráfico Radar Dinâmico Conectado à Tabela user_competencias */}
               <div className="flex-1 flex items-center justify-center relative w-full min-h-[220px]">
-                <RadarCompetenciasMobile idioma={idiomaSelecionado} />
+                <RadarCompetenciasMobile idioma={idiomaSelecionado} userId={(alunoData as any)?.id || (typeof window !== "undefined" ? localStorage.getItem("haas_uid") : null)} />
               </div>
 
               <p className="text-[clamp(11px,3.2vw,15px)] text-slate-400 font-medium text-center mt-2 shrink-0">{txt.radarDesc}</p>
@@ -2932,7 +2994,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     {idiomaSelecionado === "PT" ? "Vence em: " : idiomaSelecionado === "ES" ? "Vence el: " : "Expires on: "}
                     <span className="text-white font-mono font-bold">
                       {(() => {
-                        if (!vencimentoPlano) return "--/--/----";
+                        
+  console.log("🔍 [DIAGNOSTICO PERFIL] alunoDataProp:", alunoDataProp);
+  console.log("🔍 [DIAGNOSTICO PERFIL] vencimentoPlano:", vencimentoPlano);
+
+if (!vencimentoPlano) return "--/--/----";
                         const [ano, mes, dia] = vencimentoPlano.split("T")[0].split("-");
                         if (!ano || !mes || !dia) return vencimentoPlano;
                         return idiomaSelecionado === "EN" ? `${mes}/${dia}/${ano}` : `${dia}/${mes}/${ano}`;
@@ -3543,7 +3609,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
         isOpen={modalProgramaAberto}
         onClose={() => setModalProgramaAberto(false)}
         idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"}
-        nivelAluno={nivelAluno || "A1"}
+        nivelAluno={nivelAluno || "A2"}
         moduloAtualNumero={Number(moduloActual) || 1}
       />
                   {/* 🔐 BOTTOMSHEET: COFRE DE ERROS (ERROR VAULT - ISOLADO) */}

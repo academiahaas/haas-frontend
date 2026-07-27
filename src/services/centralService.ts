@@ -18,6 +18,13 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
 
     if (error) console.error("❌ Erro ao buscar dados na View:", error.message);
 
+    // Busca direta da assinatura para garantir o vencimento correto
+    const { data: subData } = await supabase
+      .from("user_subscriptions")
+      .select("expiration_date")
+      .eq("user_id", targetUid)
+      .maybeSingle();
+
     const userObj = {
       id: profile?.user_id || targetUid,
       name: profile?.name || "Seu Nome",
@@ -32,6 +39,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       active_vocabulary: profile?.active_vocabulary || 0,
       total_immersion_es: profile?.total_immersion_es || 0,
       trained_days: profile?.trained_days || [],
+      expiration_date: subData?.expiration_date || profile?.expiration_date || null,
     };
 
     const competenciasObj = profile?.competencias || {

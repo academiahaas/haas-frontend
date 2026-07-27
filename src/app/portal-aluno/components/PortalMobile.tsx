@@ -1106,6 +1106,30 @@ export default function PortalMobile({
   const [diasTreinados, setDiasTreinados] = React.useState<boolean[]>([false, false, false, false, false, false, false]);
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
+  // Carregamento da assinatura pelo ID do aluno no Supabase
+  React.useEffect(() => {
+    async function carregarVencimentoAssinatura() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        const { data: sub } = await supabase
+          .from("user_subscriptions")
+          .select("expiration_date")
+          .eq("user_id", targetId)
+          .maybeSingle();
+
+        if (sub && sub.expiration_date) {
+          setVencimentoPlano(sub.expiration_date);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar vencimento da assinatura:", err);
+      }
+    }
+    carregarVencimentoAssinatura();
+  }, [alunoDataProp?.id, supabase]);
+
+
   React.useEffect(() => {
     async function carregarNomeReal() {
       try {
@@ -2994,7 +3018,11 @@ export default function PortalMobile({
                     {idiomaSelecionado === "PT" ? "Vence em: " : idiomaSelecionado === "ES" ? "Vence el: " : "Expires on: "}
                     <span className="text-white font-mono font-bold">
                       {(() => {
-                        if (!vencimentoPlano) return "--/--/----";
+                        
+  console.log("🔍 [DIAGNOSTICO PERFIL] alunoDataProp:", alunoDataProp);
+  console.log("🔍 [DIAGNOSTICO PERFIL] vencimentoPlano:", vencimentoPlano);
+
+if (!vencimentoPlano) return "--/--/----";
                         const [ano, mes, dia] = vencimentoPlano.split("T")[0].split("-");
                         if (!ano || !mes || !dia) return vencimentoPlano;
                         return idiomaSelecionado === "EN" ? `${mes}/${dia}/${ano}` : `${dia}/${mes}/${ano}`;
