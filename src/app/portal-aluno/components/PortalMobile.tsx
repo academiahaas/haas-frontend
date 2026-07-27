@@ -395,7 +395,6 @@ export default function PortalMobile({ alunoData: alunoDataProp, moduloActual, o
 
   const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
-  console.log("🕵️ Dados do Aluno no Portal:", alunoData, "| moduloActual:", moduloActual);
 
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
   React.useEffect(() => {

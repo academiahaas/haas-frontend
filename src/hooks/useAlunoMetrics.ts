@@ -20,15 +20,7 @@ export function useAlunoMetrics() {
         }
 
         if (!targetUid) {
-          const { data: firstRow } = await supabase
-            .from("vw_aluno_dashboard")
-            .select("user_id")
-            .limit(1)
-            .maybeSingle();
-
-          if (firstRow?.user_id) {
-            targetUid = firstRow.user_id;
-          }
+          targetUid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         }
 
         if (!targetUid) {
