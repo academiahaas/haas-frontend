@@ -11,9 +11,9 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     console.log("📡 Buscando dados no banco para o ID:", targetUid);
 
     const { data: profile, error } = await supabase
-      .from("vw_aluno_dashboard")
+      .from("users")
       .select("*")
-      .eq("user_id", targetUid)
+      .eq("id", targetUid)
       .maybeSingle();
 
     if (error) console.error("❌ Erro ao buscar dados na View:", error.message);
@@ -22,11 +22,11 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     const { data: subData } = await supabase
       .from("user_subscriptions")
       .select("expiration_date")
-      .eq("user_id", targetUid)
+      .eq("id", targetUid)
       .maybeSingle();
 
     const userObj = {
-      id: profile?.user_id || targetUid,
+      id: profile?.id || targetUid,
       name: profile?.name || "Seu Nome",
       full_name: profile?.full_name || profile?.name || "Seu Nome Completo",
       nickname: profile?.nickname || "Seu Apelido",
@@ -37,7 +37,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       student_type: profile?.student_type || "padrao",
       clinical_precision: profile?.clinical_precision || 0,
       active_vocabulary: profile?.active_vocabulary || 0,
-      total_immersion_es: profile?.total_immersion_es || 0,
+      total_immersion: profile?.total_immersion || profile?.total_immersion_es || 0,
       trained_days: profile?.trained_days || [],
       expiration_date: subData?.expiration_date || profile?.expiration_date || null,
     };

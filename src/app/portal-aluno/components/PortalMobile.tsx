@@ -1102,7 +1102,15 @@ export default function PortalMobile({
   const [streakDias, setStreakDias] = React.useState<number>(12);
   const [totalXp, setTotalXp] = React.useState<number>(150);
   const [requiredXp, setRequiredXp] = React.useState<number>(0);
-  const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
+  const horasCalculadas = Number(alunoDataProp?.total_immersion || alunoDataProp?.total_immersion_es || metricsFromHook?.total_immersion || 0);
+const [horasAtivas, setHorasAtivas] = React.useState<number>(horasCalculadas);
+
+React.useEffect(() => {
+  const val = Number(alunoDataProp?.total_immersion || alunoDataProp?.total_immersion_es || metricsFromHook?.total_immersion || 0);
+  if (!isNaN(val)) {
+    setHorasAtivas(val);
+  }
+}, [alunoDataProp, metricsFromHook]);
   const [diasTreinados, setDiasTreinados] = React.useState<boolean[]>([false, false, false, false, false, false, false]);
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
 
