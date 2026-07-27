@@ -1100,7 +1100,48 @@ export default function PortalMobile({
   }, [nivelAluno]);
 
   const [streakDias, setStreakDias] = React.useState<number>(12);
-  const [totalXp, setTotalXp] = React.useState<number>(150);
+  
+  // Carregamento direto de XP do progresso e meta da unidade
+  React.useEffect(() => {
+    async function carregarProgressoUnidade() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        // 1. Busca soma de unit_xp na user_unit_progress
+        const { data: progressData } = await supabase
+          .from("user_unit_progress")
+          .select("unit_xp, unit_id")
+          .eq("user_id", targetId);
+
+        if (progressData && progressData.length > 0) {
+          const somaXp = progressData.reduce((acc, curr) => acc + (Number(curr.unit_xp) || 0), 0);
+          if (typeof setTotalXp === "function") setTotalXp(somaXp);
+          if (typeof setUnitXp === "function") setUnitXp(somaXp);
+
+          // 2. Puxa required_xp da tabela units
+          const unitId = progressData[0].unit_id;
+          if (unitId) {
+            const { data: unitData } = await supabase
+              .from("units")
+              .select("required_xp")
+              .eq("id", unitId)
+              .maybeSingle();
+
+            if (unitData && unitData.required_xp && typeof setRequiredXp === "function") {
+              setRequiredXp(Number(unitData.required_xp));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar progresso da unidade:", err);
+      }
+    }
+
+    carregarProgressoUnidade();
+  }, [alunoDataProp?.id, supabase]);
+
+const [totalXp, setTotalXp] = React.useState<number>(150);
   const [requiredXp, setRequiredXp] = React.useState<number>(0);
   const horasCalculadas = Number(alunoDataProp?.total_immersion || alunoDataProp?.total_immersion_es || metricsFromHook?.total_immersion || 0);
 const [horasAtivas, setHorasAtivas] = React.useState<number>(horasCalculadas);

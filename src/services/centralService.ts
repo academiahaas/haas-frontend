@@ -25,6 +25,37 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       .eq("id", targetUid)
       .maybeSingle();
 
+    
+    // Busca do progresso do aluno na unidade
+    const { data: unitProgressData } = await supabase
+      .from("user_unit_progress")
+      .select("unit_xp, unit_id")
+      .eq("user_id", targetUid);
+
+    const calculatedUnitXp = (unitProgressData || []).reduce((acc: number, curr: any) => acc + (Number(curr.unit_xp) || 0), 0);
+    const lastUnitId = unitProgressData && unitProgressData.length > 0 ? unitProgressData[unitProgressData.length - 1].unit_id : null;
+
+    let calculatedRequiredXp = 1000;
+    if (lastUnitId) {
+      const { data: unitInfo } = await supabase
+        .from("units")
+        .select("required_xp")
+        .eq("id", lastUnitId)
+        .maybeSingle();
+      if (unitInfo && unitInfo.required_xp) {
+        calculatedRequiredXp = Number(unitInfo.required_xp);
+      }
+    } else {
+      const { data: firstUnit } = await supabase
+        .from("units")
+        .select("required_xp")
+        .limit(1)
+        .maybeSingle();
+      if (firstUnit && firstUnit.required_xp) {
+        calculatedRequiredXp = Number(firstUnit.required_xp);
+      }
+    }
+
     const userObj = {
       id: profile?.id || targetUid,
       name: profile?.name || "Seu Nome",
@@ -40,6 +71,8 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       total_immersion: profile?.total_immersion || profile?.total_immersion_es || 0,
       trained_days: profile?.trained_days || [],
       expiration_date: subData?.expiration_date || profile?.expiration_date || null,
+      unit_xp: calculatedUnitXp,
+      required_xp: calculatedRequiredXp,
     };
 
     const competenciasObj = profile?.competencias || {
