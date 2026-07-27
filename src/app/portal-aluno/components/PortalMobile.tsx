@@ -2825,11 +2825,45 @@ React.useEffect(() => {
                         });
                       }
 
-                      // Atualiza dinamicamente no Supabase
+                      // Grava o agendamento no Supabase vinculando ao aluno
                       (async () => {
                         try {
-                          const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+                          const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+                          
+                          if (horarioSelecionado) {
+                            const [hStr, mStr] = horarioSelecionado.split(":");
+                            const mesFormatted = String(mesAgendamento).padStart(2, "0");
+                            const diaFormatted = String(diaSelecionado).padStart(2, "0");
+                            const isoDate = `2026-${mesFormatted}-${diaFormatted}T${hStr}:${mStr}:00.000Z`;
+
+                            const { data: insertData, error: insertError } = await supabase
+                              .from("user_agenda_appointments")
+                              .insert([{
+                                user_id: targetUid,
+                                appointment_date: isoDate,
+                                status: "agendada"                                
+                              }])
+                              .select();
+
+                            if (insertError) {
+                              console.error("❌ Erro ao salvar agendamento no Supabase:", insertError.message);
+                            } else {
+                              console.log("✅ Agendamento salvo com sucesso no Supabase:", insertData);
+                            }
+
+                            // Atualiza saldo na tabela user_subscriptions
+                            const colCredit = ehReposicao ? "replacement_credits" : "class_credits_available";
+                            const currentVal = ehReposicao ? creditosReposicao : creditosRegulares;
+                            const newVal = Math.max(0, currentVal - 1);
+
+                            await supabase
+                              .from("user_subscriptions")
+                              .update({ [colCredit]: newVal })
+                              .eq("user_id", targetUid);
+                          }
+
+                          const user = { id: targetUid };
+                          if (user) {
           const { data: progressList } = await supabase
             .from("user_unit_progress")
             .select("unit_xp, user_id")

@@ -77,7 +77,10 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
         }
         return Array.isArray(td) ? td : [];
       })(),
-      expiration_date: subData?.expiration_date || profile?.expiration_date || null,
+      expiration_date: (subData as any)?.expiration_date || profile?.expiration_date || null,
+        plan_category: (subData as any)?.plan_category || profile?.plan_category || "Pack Group",
+        class_credits_available: (subData as any)?.class_credits_available ?? 20,
+        replacement_credits: (subData as any)?.replacement_credits ?? 10,
       unit_xp: calculatedUnitXp,
       required_xp: calculatedRequiredXp,
     };
