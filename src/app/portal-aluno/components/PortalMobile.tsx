@@ -1412,7 +1412,7 @@ export default function PortalMobile({
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/[0.05] mb-2">
                 <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
               </div>
-            <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Progresso da Unidade:" : idiomaSelecionado === "ES" ? "Progreso de la Unidad:" : "Unit Progress:"} {unitXp} PTS</span>
+            <span className="text-[clamp(10px,2.8vw,14px)] text-slate-400 font-bold block mt-1.5 mb-1">{idiomaSelecionado === "PT" ? "Detalhes da Unidade" : idiomaSelecionado === "ES" ? "Detalles de la Unidad" : "Unit Details"}</span>
                {/* --- NOVO CONTAINER DE UNIDADES COMPONENTIZADO --- */}
                <div className="flex-1 flex flex-col gap-1.5 sm:gap-1.5.5 mt-3 w-full min-h-0">
                  <ListaUnidadesMobile idioma={(idiomaSelecionado as "PT" | "ES" | "EN") || "PT"} moduleId={moduleIdDb || moduloActual} />
