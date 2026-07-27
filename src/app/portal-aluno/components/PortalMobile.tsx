@@ -1251,39 +1251,76 @@ export default function PortalMobile({
 
   const [modalProgramaAberto, setModalProgramaAberto] = React.useState(false);
 
-  const handleEnviarFila = async () => {
-    if (arquivosSelecionados.length === 0) return;
-    setUploading(true);
-    setUploadSuccess(false);
+   const handleEnviarFila = async () => {
+     console.log("[HAAS UPLOAD] Clique detectado no botão Concluir Envio!");
+     if (arquivosSelecionados.length === 0) {
+       console.log("[HAAS UPLOAD] Nenhum arquivo selecionado.");
+       return;
+     }
 
-    try {
-      // 1. Obter usuário logado
-      const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: progressList } = await supabase
-            .from("user_unit_progress")
-            .select("unit_xp, user_id")
-            .eq("user_id", user.id);
-          
-          if (progressList && progressList.length > 0) {
-            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-            setUnitXp(totalXpCalculado);
-          } else {
-            const { data: fallbackList } = await supabase
-              .from("user_unit_progress")
-              .select("unit_xp");
-            if (fallbackList && fallbackList.length > 0) {
-              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-              setUnitXp(totalFallback);
-            }
-          }
-        } } catch (err) {
-      console.error("Erro ao enviar tarefas:", err);
-      alert(idiomaSelecionado === 'PT' ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
-    } finally {
-      setUploading(false);
-    }
-  };
+     setUploading(true);
+     setUploadSuccess(false);
+
+     try {
+       const currentUserId = (alunoData as any)?.id || (typeof window !== "undefined" ? localStorage.getItem("haas_uid") || localStorage.getItem("user_id") : null);
+
+       console.log("[HAAS UPLOAD] ID do usuário resolvido:", currentUserId);
+
+       if (!currentUserId) {
+         console.error("[HAAS UPLOAD] Usuário não identificado.");
+         alert(idiomaSelecionado === "PT" ? "Usuário não identificado. Por favor, faça login novamente." : "User not identified.");
+         return;
+       }
+
+       for (const file of arquivosSelecionados) {
+         console.log("[HAAS UPLOAD] Processando arquivo:", file.name);
+         const fileExt = file.name.split(".").pop();
+         const fileName = `${currentUserId}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+         const filePath = `assignments/${fileName}`;
+
+         console.log("[HAAS UPLOAD] Enviando para o bucket haas-academy path:", filePath);
+         const { error: uploadError } = await supabase.storage
+           .from("haas-academy")
+           .upload(filePath, file);
+
+         if (uploadError) {
+           console.error("[HAAS UPLOAD] Erro no storage:", uploadError);
+           throw uploadError;
+         }
+
+         const { data: publicUrlData } = supabase.storage
+           .from("haas-academy")
+           .getPublicUrl(filePath);
+
+         const photoUrl = publicUrlData.publicUrl;
+         console.log("[HAAS UPLOAD] URL Pública gerada:", photoUrl);
+
+         console.log("[HAAS UPLOAD] Inserindo na tabela assignments_submissions...");
+         const { error: dbError } = await supabase
+           .from("assignments_submissions")
+           .insert({
+             user_id: currentUserId,
+             photo_url: photoUrl,
+             status: "pending"
+           });
+
+         if (dbError) {
+           console.error("[HAAS UPLOAD] Erro no banco de dados:", dbError);
+           throw dbError;
+         }
+       }
+
+       console.log("[HAAS UPLOAD] Sucesso total no envio!");
+       setUploadSuccess(true);
+       setArquivosSelecionados([]);
+     } catch (err) {
+       console.error("[HAAS UPLOAD] Exceção capturada:", err);
+       alert(idiomaSelecionado === "PT" ? "Erro ao enviar tarefa. Tente novamente." : "Error uploading file.");
+     } finally {
+       setUploading(false);
+     }
+   };
+
 
   if (arenaAtiva) {
     return (
@@ -2736,7 +2773,7 @@ export default function PortalMobile({
 
               {/* FILA DE ARQUIVOS */}
               {arquivosSelecionados.length > 0 && (
-                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[110px] overflow-y-auto">
+                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[220px] overflow-y-auto">
                   <span className="text-[9px] font-mono font-black text-slate-400 uppercase tracking-widest">{txt.selectedFiles} ({arquivosSelecionados.length}/3):</span>
                   <div className="flex flex-col gap-1.5">
                     {arquivosSelecionados.map((file, idx) => (
