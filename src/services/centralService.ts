@@ -81,6 +81,8 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
         plan_category: (subData as any)?.plan_category || profile?.plan_category || "Pack Group",
         class_credits_available: (subData as any)?.class_credits_available ?? 20,
         replacement_credits: (subData as any)?.replacement_credits ?? 10,
+      course_language: profile?.course_language || "pt",
+      target_level: profile?.target_level || "C1",
       unit_xp: calculatedUnitXp,
       required_xp: calculatedRequiredXp,
     };

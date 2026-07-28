@@ -425,11 +425,17 @@ export default function DashboardDesktop() {
             setTrainSat(!!dbUser.trained_days[5]);
             setTrainSun(!!dbUser.trained_days[6]);
           }
-            const langMap: Record<string, string> = { pt: "PORTUGUÉS", en: "INGLÉS", es: "ESPAÑOL" };
-            const langKey = (dbUser.course_language || "").toLowerCase();
-            const idiomaReal = langMap[langKey] || (dbUser.course_language ? dbUser.course_language.toUpperCase() : "");
-            const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "";
-            setIdiomaCurso(idiomaReal);
+            const langNameMap: Record<string, Record<string, string>> = {
+    pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },
+    en: { PT: "INGLÊS", EN: "ENGLISH", ES: "INGLÉS" },
+    es: { PT: "ESPANHOL", EN: "SPANISH", ES: "ESPAÑOL" }
+  };
+  const courseCode = (dbUser.course_language || "pt").toLowerCase();
+  const currentUiLang = (idioma || "ES").toUpperCase();
+  const idiomaReal = langNameMap[courseCode]?.[currentUiLang] || dbUser.course_language?.toUpperCase() || "";
+                                    const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "";
+            setIdiomaCurso(dbUser.course_language || "pt");
+      if (dbUser.target_level) setNivelObjetivo(dbUser.target_level.toUpperCase());
             setNivelObjetivo(nivelReal);
           if (dadosPortal.submissions) setListaEntregas(dadosPortal.submissions);
           if (typeof window !== "undefined") {
@@ -644,7 +650,25 @@ export default function DashboardDesktop() {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
-                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{(idiomaCurso && idiomaCurso !== "SEM IDIOMA") ? idiomaCurso : "PORTUGUÉS"} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {(nivelObjetivo && nivelObjetivo !== "SEM NÍVEL") ? nivelObjetivo : "C1"}</span>
+                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{
+  (() => {
+    const rawLang = (idiomaCurso || "pt").toLowerCase();
+    const uiLang = (idioma || "ES").toUpperCase();
+    
+    let code = "pt";
+    if (rawLang.includes("en")) code = "en";
+    else if (rawLang.includes("es")) code = "es";
+    else if (rawLang.includes("pt")) code = "pt";
+
+    const labelMap: Record<string, Record<string, string>> = {
+      pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },
+      en: { PT: "INGLÊS", EN: "ENGLISH", ES: "INGLÉS" },
+      es: { PT: "ESPANHOL", EN: "SPANISH", ES: "ESPAÑOL" }
+    };
+
+    return labelMap[code]?.[uiLang] || "PORTUGUÉS";
+  })()
+} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {(nivelObjetivo && nivelObjetivo !== "SEM NÍVEL") ? nivelObjetivo : "C1"}</span>
               </div>
             </div>
           </div>
