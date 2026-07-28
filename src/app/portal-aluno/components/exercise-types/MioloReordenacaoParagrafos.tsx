@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
 import { ArrowDown, CheckCircle, XCircle, Sparkles, HelpCircle } from 'lucide-react';
+import { getExerciseByActivityType } from '@/services/centralService';
 import { supabase } from '@/lib/supabase';
 
 interface ParagrafoItem {
@@ -69,103 +70,135 @@ export default function MioloReordenacaoParagrafos({
 
   const t = traducoesAbas[obtenerLangKey()] || traducoesAbas.es;
 
+  
+  
+  
   useEffect(() => {
-    if (propStatus === 'IDLE') {
-      setLocalStatus('IDLE');
-      setFeedbackIA('');
-    } else {
-      setLocalStatus(propStatus);
-    }
-  }, [propStatus]);
-
-  useEffect(() => {
-    async function carregarEFracionarTexto() {
+    async function carregar() {
       try {
-        setCarregando(true); console.log("🔍 [REORDENACAO DEBUG] unidadeAtiva recebida:", unidadeAtiva);
-        
-        try {
-          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
-          const { data: userDados } = await supabase
-            .from('users')
-            .select('native_language')
-            .eq('id', USER_ID_ALVO);
-          if (userDados && userDados.length > 0) {
-            setIdiomaNativoAluno(userDados[0].native_language || "Español");
-          }
-        } catch (e) { console.error(e); }
-
-        // Usa o código real da unidade (ex: "1.1") para cruzar com a coluna 'unit' do banco
-        const codigoUnidade = unidadeAtiva;
-        if (!codigoUnidade) {
-          setCarregando(false);
-          return;
+        setCarregando(true);
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
         }
-        
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
-        
-        let query = supabase.from('exercises').select('*').eq('activity_type', 8);
-        
-        if (isUUID) {
-          query = query.eq('unit_id', codigoUnidade);
+
+        console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
+        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const dados = res.success && res.data ? res.data : [];
+
+        if (dados.length > 0) {
+          const exe = dados[0];
+          setDadosExercicio(exe);
+
+          let frasesOriginais: string[] = [];
+
+          // 1. Tenta extrair de alternative_options
+          if (exe.alternative_options) {
+            try {
+              frasesOriginais = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              console.warn("Aviso ao parsear alternative_options:", e);
+            }
+          }
+
+          // 2. Fallback para correct_answer se alternative_options for vazio
+          if ((!frasesOriginais || frasesOriginais.length === 0) && exe.correct_answer) {
+            frasesOriginais = String(exe.correct_answer).split("|").map((s: string) => s.trim());
+          }
+
+          // Mapeia para a interface ParagrafoItem
+          if (Array.isArray(frasesOriginais) && frasesOriginais.length > 0) {
+            const itemsMapeados: ParagrafoItem[] = frasesOriginais.map((text: string, idx: number) => ({
+              id: idx + 1,
+              text
+            }));
+            setItems(itemsMapeados);
+            setGabaritoIds(itemsMapeados.map(item => item.id));
+            if (exe.correct_answer) {
+              setTextoGabaritoInteiro(exe.correct_answer);
+            }
+          }
         } else {
-          // Se receber 0 ou algo inválido, busca o primeiro exercício do tipo 8 disponível no banco para não quebrar a tela
-          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
-          const { data: firstActive } = await supabase.from('exercises').select('unit_id').eq('activity_type', 8).limit(1);
-          if (firstActive && firstActive.length > 0) {
-            query = query.eq('unit_id', firstActive[0].unit_id);
-          } else {
-            query = query.eq('unit', "1.1");
-          }
+          console.warn("⚠️ Nenhum exercício do tipo 8 encontrado.");
         }
-        
-        const { data: dados, error } = await query;
-
-        if (error) throw error;
-        if (dados && dados.length > 0) setDadosExercicio(dados[0]);
-
-        let frasesOriginais: string[] = [];
-        let exe = dados && dados.length > 0 ? dados[0] : null;
-
-        // Tenta puxar de alternative_options ou correct_answer
-        if (exe) {
-          const altOpts = exe.alternative_options || exe.alternativas;
-          const corrAns = exe.correct_answer;
-
-          if (altOpts && Array.isArray(altOpts) && altOpts.length > 0) {
-            frasesOriginais = altOpts.map(s => String(s).trim()).filter(Boolean);
-          } else if (corrAns && typeof corrAns === 'string' && corrAns.includes('|')) {
-            frasesOriginais = corrAns.split('|').map(s => s.trim()).filter(Boolean);
-          }
-        }
-
-        // Validação de Emergência Dinâmica em Espanhol (nunca deixa a tela em branco se o registro no banco estiver nulo/vazio)
-        if (frasesOriginais.length < 2) {
-          console.warn("⚠️ [CONCURSO DE EMERGENCIA] Usando frases de segurança em espanhol.");
-          frasesOriginais = [
-            "Primero, abrimos la terminal de comandos para iniciar el sistema.",
-            "Luego, ejecutamos el script de migración para sincronizar la base de datos.",
-            "Finalmente, validamos si todos los registros fueron guardados con éxito."
-          ];
-        }
-
-        setTextoGabaritoInteiro(frasesOriginais.join(" "));
-        
-        // Mapeia a ordem correta baseada no array original
-        const itensMontados = frasesOriginais.map((txt, idx) => ({ id: idx + 1, text: txt }));
-        setGabaritoIds(itensMontados.map(it => it.id));
-        
-        // Embaralha dinamicamente para o aluno ordenar
-        setItems([...itensMontados].sort(() => Math.random() - 0.5));
-        
-        if (onSelectionChange) onSelectionChange(true);
       } catch (err) {
-        console.error("Erro ao processar quebra do tipo 10:", err);
+        console.error("❌ Erro ao carregar Reordenação de Parágrafos:", err);
       } finally {
         setCarregando(false);
       }
     }
-    carregarEFracionarTexto();
+    carregar();
   }, [unidadeAtiva]);
+
+
+
+
+  
+  
+  
+  useEffect(() => {
+    async function carregar() {
+      try {
+        setCarregando(true);
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
+        }
+
+        console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
+        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const dados = res.success && res.data ? res.data : [];
+
+        if (dados.length > 0) {
+          const exe = dados[0];
+          setDadosExercicio(exe);
+
+          let frasesOriginais: string[] = [];
+
+          // 1. Tenta extrair de alternative_options
+          if (exe.alternative_options) {
+            try {
+              frasesOriginais = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              console.warn("Aviso ao parsear alternative_options:", e);
+            }
+          }
+
+          // 2. Fallback para correct_answer se alternative_options for vazio
+          if ((!frasesOriginais || frasesOriginais.length === 0) && exe.correct_answer) {
+            frasesOriginais = String(exe.correct_answer).split("|").map((s: string) => s.trim());
+          }
+
+          // Mapeia para a interface ParagrafoItem
+          if (Array.isArray(frasesOriginais) && frasesOriginais.length > 0) {
+            const itemsMapeados: ParagrafoItem[] = frasesOriginais.map((text: string, idx: number) => ({
+              id: idx + 1,
+              text
+            }));
+            setItems(itemsMapeados);
+            setGabaritoIds(itemsMapeados.map(item => item.id));
+            if (exe.correct_answer) {
+              setTextoGabaritoInteiro(exe.correct_answer);
+            }
+          }
+        } else {
+          console.warn("⚠️ Nenhum exercício do tipo 8 encontrado.");
+        }
+      } catch (err) {
+        console.error("❌ Erro ao carregar Reordenação de Parágrafos:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregar();
+  }, [unidadeAtiva]);
+
+
+
 
   const dispararSomClique = () => {
     try {
@@ -234,13 +267,70 @@ export default function MioloReordenacaoParagrafos({
     setAnalisando(false);
   };
 
+  
+  
+  
   useEffect(() => {
-    const escutarSubmitGlobal = () => {
-      hackerValidarIA();
-    };
-    window.addEventListener("haas:validate", escutarSubmitGlobal);
-    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
-  }, [items, localStatus, analisando, gabaritoIds, textoGabaritoInteiro]);
+    async function carregar() {
+      try {
+        setCarregando(true);
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
+        }
+
+        console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
+        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const dados = res.success && res.data ? res.data : [];
+
+        if (dados.length > 0) {
+          const exe = dados[0];
+          setDadosExercicio(exe);
+
+          let frasesOriginais: string[] = [];
+
+          // 1. Tenta extrair de alternative_options
+          if (exe.alternative_options) {
+            try {
+              frasesOriginais = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              console.warn("Aviso ao parsear alternative_options:", e);
+            }
+          }
+
+          // 2. Fallback para correct_answer se alternative_options for vazio
+          if ((!frasesOriginais || frasesOriginais.length === 0) && exe.correct_answer) {
+            frasesOriginais = String(exe.correct_answer).split("|").map((s: string) => s.trim());
+          }
+
+          // Mapeia para a interface ParagrafoItem
+          if (Array.isArray(frasesOriginais) && frasesOriginais.length > 0) {
+            const itemsMapeados: ParagrafoItem[] = frasesOriginais.map((text: string, idx: number) => ({
+              id: idx + 1,
+              text
+            }));
+            setItems(itemsMapeados);
+            setGabaritoIds(itemsMapeados.map(item => item.id));
+            if (exe.correct_answer) {
+              setTextoGabaritoInteiro(exe.correct_answer);
+            }
+          }
+        } else {
+          console.warn("⚠️ Nenhum exercício do tipo 8 encontrado.");
+        }
+      } catch (err) {
+        console.error("❌ Erro ao carregar Reordenação de Parágrafos:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregar();
+  }, [unidadeAtiva]);
+
+
+
 
   if (carregando) {
     return (

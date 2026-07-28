@@ -219,3 +219,39 @@ export async function submitTeacherReview(payload: TeacherReviewPayload) {
     return { success: false, error: err };
   }
 }
+
+export async function getExerciseByActivityType(unitId: string | undefined, activityType: number) {
+  try {
+    const DEFAULT_UNIT_ID = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+    let targetUnit = (unitId && String(unitId).trim() !== "0" && String(unitId).length > 10) ? String(unitId) : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+
+    // Tenta buscar o exercicio para o unit_id recebido
+    let { data, error } = await supabase
+      .from("exercises")
+      .select("*")
+      .eq("unit_id", targetUnit)
+      .eq("activity_type", activityType);
+
+    // Se nao encontrar para a unidade atual ou a unidade nao for UUID valido, usa o fallback principal
+    if ((!data || data.length === 0) && targetUnit !== DEFAULT_UNIT_ID) {
+      const fallback = await supabase
+        .from("exercises")
+        .select("*")
+        .eq("unit_id", DEFAULT_UNIT_ID)
+        .eq("activity_type", activityType);
+
+      data = fallback.data;
+      error = fallback.error;
+    }
+
+    if (error) {
+      console.error(`❌ [CentralService] Erro ao buscar atividade ${activityType}:`, error.message);
+      return { success: false, data: [], error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (err) {
+    console.error(`❌ [CentralService] Exceção em getExerciseByActivityType:`, err);
+    return { success: false, data: [], error: err };
+  }
+}

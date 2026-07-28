@@ -289,7 +289,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         if (!supabaseUrl) return;
         
         // Puxa o progresso de unidade associado ao aluno ordenando pelo mais recente
-        const targetUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
+        const targetUnitId = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (!userId || userId === "undefined") return;
         const res = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userId}&unit_id=eq.${targetUnitId}&select=unit_xp`, {
           headers: {
@@ -368,7 +368,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const puxarEstrelasDoBanco = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
+        const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         const userIdFixo = activeUserId || userId;
 
         // 1. Pega as etiquetas da unidade atual na tabela cheia
@@ -1097,7 +1097,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const finalUserId = activeUserId || userId;
       if (!supabaseUrl) return;
 
-      const targetUnitId = "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79";
+      const targetUnitId = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
 
       // Chamada HTTP via POST com a flag de ON CONFLICT do Supabase para fazer Upsert automático
       await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?on_conflict=user_id,unit_id`, {
@@ -1182,7 +1182,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
-    { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "e9b8fc2c-5d21-45d8-a86e-a21fc1bb4b79")} /> },
+    { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} /> },
     { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
