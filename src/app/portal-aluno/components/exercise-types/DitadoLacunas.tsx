@@ -1,4 +1,5 @@
 'use client';
+import { getExerciseByActivityType } from "@/services/centralService";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaLacunas, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
@@ -91,13 +92,14 @@ export default function DitadoLacunas({
         setCarregando(true);
         
         try {
-          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
-          const { data: userDados } = await supabase
-            .from('users')
-            .select('native_language')
-            .eq('id', USER_ID_ALVO);
-          if (userDados && userDados.length > 0) {
-            setIdiomaNativoAluno(userDados[0].native_language || "Español");
+          if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {
+            const { data: userDados } = await supabase
+              .from("users")
+              .select("native_language")
+              .eq("id", USER_ID_ALVO);
+            if (userDados && userDados.length > 0) {
+              setIdiomaNativoAluno(userDados[0].native_language || "Español");
+            }
           }
         } catch (e) { console.error(e); }
 
@@ -108,23 +110,15 @@ export default function DitadoLacunas({
 
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
 
-        let query = supabase.from("exercises").select("*").eq("activity_type", 4);
-        if (isUUID) {
-          query = query.eq("unit_id", nomeUnidade);
-        } else {
-          query = query.eq("unit", nomeUnidade);
-        }
-
-        const { data: dados, error } = await query;
-        if (error) throw error;
+        const response = await getExerciseByActivityType(nomeUnidade, 4);
+        const exe = (response && response.data && response.data.length > 0) ? response.data[0] : null;
         
         // Ativação da camada de contingência em caso de dados corrompidos ou vazios
         let textoFinal = "";
         let respostaFinal = "";
         let audioFinal = "";
 
-        if (dados && dados.length > 0) {
-          const exe = dados[0];
+        if (exe) {
           setFeedbackCorretoBanco(exe.correct_feedback || "");
           setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
           if (exe?.id) setExerciseId(String(exe.id));
