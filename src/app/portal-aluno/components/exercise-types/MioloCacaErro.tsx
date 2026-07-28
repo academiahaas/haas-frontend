@@ -10,7 +10,7 @@ import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from "lucide-react";
 interface MioloProps {
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
-  status?: "IDLE" | "CORRECT" | "WRONG";
+  status?: string;
   unidadeAtiva?: string;
 }
 
@@ -40,7 +40,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloCacaErro({ onSelectionChange, onValidateResult, status = "IDLE", unidadeAtiva }: MioloProps) {
+export default function MioloCacaErro({ onSelectionChange, onValidateResult, status, unidadeAtiva }: MioloProps) {
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -49,6 +49,13 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [carregando, setCarregando] = useState(true);
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
+
+  useEffect(() => {
+    if (status === "CHECKING") {
+      executarValidacaoInterna();
+    }
+  }, [status]);
+
   const [localStatus, setLocalStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
   const [isShortText, setIsShortText] = useState(true);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
@@ -320,7 +327,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
 
     try {
       const resultado = await registrarFeedbackEErro({
-        userId: USER_ID_ALVO,
+        userId: USER_ID_ALVO || "anonymous-user",
         enunciado: "Exercício Caça-Erro: Identificar a frase gramaticalmente correta.",
         respostaCorreta: correctOption,
         respostaAluno: selecionado,
@@ -378,7 +385,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
               key={idx}
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
-              onClick={() => handleSelect(op.texto)}
+              onClick={() => { handleSelect(op.texto); setTimeout(() => { executarValidacaoInterna(); }, 50); }}
               className={`w-full text-left py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center justify-start h-full leading-normal break-words ${optStyle}`}
             >
               <span className="leading-relaxed flex-1">{op.texto}</span>

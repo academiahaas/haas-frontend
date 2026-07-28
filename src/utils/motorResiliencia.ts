@@ -4,7 +4,8 @@ export async function resilienciaTextoCompleto(textoAtual: string, contexto: str
   try {
     const prompt = `Gere um texto curto, claro e imponente em português nativo para um exercício do tipo: ${contexto}. Não use formatações complexas ou markdown.`;
     const textoIA = await chamarGeminiInteligente(prompt);
-    return textoIA || "Pronto para o próximo desafio estrutural.";
+    const resultadoFinal = typeof textoIA === "object" && textoIA !== null ? ((textoIA as any).feedback || JSON.stringify(textoIA)) : textoIA;
+    return (resultadoFinal as string) || "Pronto para o próximo desafio estrutural.";
   } catch (e) {
     console.error("Erro na contingência de texto:", e);
     return "Pronto para o próximo desafio estrutural.";
@@ -20,7 +21,8 @@ export async function resilienciaOpcoes(correta: string, erradas: string[], cont
     try {
       const prompt = `Com base na resposta correta "${correta}", gere ${alvo - lista.length} alternativas incorretas plausíveis para o contexto "${contexto}". Retorne apenas as palavras separadas por vírgula, sem numeração ou markdown.`;
       const textoIA = await chamarGeminiInteligente(prompt);
-      const geradas = textoIA.split(',').map((s: string) => s.trim()).filter(Boolean);
+      const strIA = typeof textoIA === 'string' ? textoIA : (textoIA as any)?.feedback || String(textoIA || '');
+      const geradas = strIA.split(',').map((s: string) => s.trim()).filter(Boolean);
       geradas.forEach(g => { if (lista.length < alvo && !lista.includes(g)) lista.push(g); });
     } catch (e) {
       console.error("Erro na contingência de opções:", e);
@@ -49,13 +51,14 @@ interface LogFeedbackParams {
 }
 
 export async function registrarFeedbackEErro({
-  userId,
+  userId: rawUserId,
   enunciado,
   respostaCorreta,
   respostaAluno,
   idiomaNativoAluno
 }: LogFeedbackParams): Promise<{ acertou: boolean; feedback: string }> {
   
+  const userId = rawUserId || "anonymous-user";
   const acertouLocal = respostaAluno.trim().toLowerCase() === respostaCorreta.trim().toLowerCase();
   let feedbackFinal = acertouLocal ? "Excelente! Resposta correta." : `Ajuste necessário. O esperado era: ${respostaCorreta}`;
   let conteudoErroDetectado = "";
@@ -74,14 +77,15 @@ export async function registrarFeedbackEErro({
     Retorne apenas o JSON puro, sem markdown ou blocos de código.`;
 
     const textoIA = await chamarGeminiInteligente(prompt);
+    const strFeedback = typeof textoIA === 'string' ? textoIA : (textoIA as any)?.feedback || JSON.stringify(textoIA);
     try {
-      const jsonLimpo = textoIA.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
+      const jsonLimpo = strFeedback.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
       const resultado = JSON.parse(jsonLimpo);
       if (resultado.feedback) feedbackFinal = resultado.feedback;
       if (resultado.conteudo_erro) conteudoErroDetectado = resultado.conteudo_erro;
     } catch (parseErr) {
       console.warn("⚠️ Falha ao parsear JSON da IA, usando texto puro como feedback.");
-      feedbackFinal = textoIA.trim();
+      feedbackFinal = strFeedback.trim();
     }
   } catch (errIA) {
     console.warn("Falha no feedback da IA, usando padrão.", errIA);

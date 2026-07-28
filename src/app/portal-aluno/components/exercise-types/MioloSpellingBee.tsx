@@ -109,7 +109,6 @@ export default function MioloSpellingBee({
       const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
       
       const res = await Promise.resolve(new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "{\"status\": \"ok\", \"feedback\": \"Resposta registrada!\"}" }] } }] })))
-      });
       
       if (res.ok) {
         const data = await res.json();
@@ -133,8 +132,7 @@ export default function MioloSpellingBee({
         // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
         let userDados = null;
         if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
-          const res = if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") return;
-    await supabase.from("users").select("native_language").eq("id", USER_ID_ALVO);
+          const res = await supabase.from("users").select("native_language").eq("id", USER_ID_ALVO);
           userDados = res.data;
         }
         

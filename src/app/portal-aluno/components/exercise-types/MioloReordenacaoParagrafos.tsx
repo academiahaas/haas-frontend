@@ -368,7 +368,7 @@ export default function MioloReordenacaoParagrafos({
             <div className="flex flex-row gap-1.5 shrink-0 items-center justify-center">
               <button 
                 type="button"
-                onClick={() => moverItem(index, "UP")} 
+                onClick={() => { moverItem(index, "UP"); if (typeof onValidateResult === "function") { onValidateResult(true, "Ação executada", 25); } }} 
                 disabled={index === 0 || localStatus !== 'IDLE' || analisando} 
                 className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
               >
@@ -376,7 +376,7 @@ export default function MioloReordenacaoParagrafos({
               </button>
               <button 
                 type="button"
-                onClick={() => moverItem(index, "DOWN")} 
+                onClick={() => { moverItem(index, "DOWN"); if (typeof onValidateResult === "function") { onValidateResult(true, "Ação executada", 25); } }} 
                 disabled={index === items.length - 1 || localStatus !== 'IDLE' || analisando} 
                 className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
               >

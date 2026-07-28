@@ -95,7 +95,8 @@ export default function MioloBlocos({
         
         try {
           if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {
-            const { data: userDados } = if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") return;
+            if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") return;
+            const { data: userDados } =
     await supabase
               .from("users")
               .select("native_language")

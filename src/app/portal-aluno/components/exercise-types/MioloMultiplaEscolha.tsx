@@ -186,7 +186,7 @@ export default function MioloMultiplaEscolha({
 
     try {
       const resultado = await registrarFeedbackEErro({
-        userId: USER_ID_ALVO,
+        userId: USER_ID_ALVO || "anonymous-user",
         enunciado: pergunta,
         respostaCorreta: correctOption,
         respostaAluno: selecionado,
@@ -262,7 +262,7 @@ export default function MioloMultiplaEscolha({
               key={idx}
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
-              onClick={() => handleSelect(opcao)}
+              onClick={() => { handleSelect(opcao); }}
               className={`w-full py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center min-h-[48px] md:min-h-[56px] h-auto leading-normal break-words ${
                 isShortText ? 'text-center justify-center' : 'text-left justify-start'
               } ${optStyle}`}
