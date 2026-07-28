@@ -15,7 +15,7 @@ import XpCardButton from './components/XpCardButton';
 import { getLastNameInitial } from './components/nameUtils';
 import XPButton from './components/XPButton';
 import { supabase } from '@/lib/supabase';
-import { fetchCentralPortalData } from "@/services/centralService";
+import { fetchCentralPortalData, getTopRanking } from "@/services/centralService";
 import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
@@ -129,26 +129,20 @@ export default function DashboardDesktop() {
         }
       } catch (e) { console.error("Erro ao carregar métricas:", e); }
 
-        // FETCH ISOLADO: Ranking Global com credenciais diretas do ambiente
+        // FETCH CENTRALIZADO: Ranking Global via Central Service
         try {
-          const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-          const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-          if (sUrl && sKey) {
-            const rRanking = await fetch(sUrl + "/rest/v1/users?select=id,nickname,total_xp&order=total_xp.desc&limit=10", {
-              headers: {
-                "apikey": sKey,
-                "Authorization": "Bearer " + sKey,
-                "Content-Type": "application/json"
-              }
-            });
-            const dRanking = await rRanking.json();
-            if (dRanking && Array.isArray(dRanking)) {
-              setTopTen(dRanking);
-            }
+          const dRanking = await getTopRanking(10);
+          if (dRanking && Array.isArray(dRanking)) {
+            setTopTen(dRanking);
           }
         } catch (errRank) { console.error("Erro ao carregar Ranking Global:", errRank); }
     };
     carregarMetricasDashboard();
+    getTopRanking(10).then(data => {
+      if (data && data.length > 0) {
+        setTopTen(data);
+      }
+    }).catch(err => console.error('Erro ao popular topTen:', err));
   }, []);
 
   const [isTrilhaOpen, setIsTrilhaOpen] = useState(false);

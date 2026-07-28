@@ -1,5 +1,5 @@
 import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
-import { fetchCentralPortalData } from "@/services/centralService";
+import { fetchCentralPortalData, getTopRanking } from "@/services/centralService";
 import ArenaImersivaTotal from "./ArenaImersivaTotal";
 import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
 import { ModalCofreErrosMobile } from "./ModalCofreErrosMobile";
@@ -928,18 +928,18 @@ export default function PortalMobile({
   const [topRankingMobile, setTopRankingMobile] = React.useState<any[]>([]);
   React.useEffect(() => {
     const fetchRanking = async () => {
-      try {
-        const sUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hnqylikpzhvymvbdvujg.supabase.co';
-        const sKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (!sKey) return;
-        const res = await fetch(`${sUrl}/rest/v1/users?select=id,name,nickname,total_xp&order=total_xp.desc&limit=10`, {
-          headers: { 'apikey': sKey, 'Authorization': `Bearer ${sKey}` }
-        });
-        const data = await res.json();
-        if (Array.isArray(data)) setTopRankingMobile(data);
-      } catch (e) { console.error(e); }
-    };
-    fetchRanking();
+    try {
+      console.log('🚀 [MOBILE RANKING] Buscando via centralService...');
+      const data = await getTopRanking(10);
+      console.log('🔥 [MOBILE RANKING DADOS]:', data);
+      if (Array.isArray(data) && data.length > 0) {
+        setTopRankingMobile(data);
+      }
+    } catch (e) {
+      console.error('❌ Erro no ranking mobile:', e);
+    }
+  };
+  fetchRanking();
   }, []);
   const [gavetaErroresAberta, setGavetaErroresAberta] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);

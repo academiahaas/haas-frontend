@@ -132,3 +132,25 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     return { user: null };
   }
 }
+
+export async function getTopRanking(limit: number = 10) {
+  try {
+    console.log('🔍 [DEBUG RANKING] Iniciando busca no Supabase...');
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, name, nickname, total_xp')
+      .order('total_xp', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('❌ [DEBUG RANKING ERRO SUPABASE]:', error);
+      return [];
+    }
+
+    console.log('🔥 [DEBUG RANKING DADOS RETORNADOS]:', data);
+    return data || [];
+  } catch (err) {
+    console.error('❌ [DEBUG RANKING EXCEÇÃO]:', err);
+    return [];
+  }
+}
