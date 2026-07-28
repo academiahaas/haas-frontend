@@ -458,7 +458,7 @@ export default function PortalMobile({
   
   // Sincroniza Plano e Data de Vencimento dinamicamente
   React.useEffect(() => {
-    const rawCategory = alunoDataProp?.student_type || metricsFromHook?.student_type || alunoDataProp?.plan_category || metricsFromHook?.plan_category;
+    const rawCategory = alunoDataProp?.plan_category || metricsFromHook?.plan_category || alunoDataProp?.student_type || metricsFromHook?.student_type;
     if (rawCategory && typeof setPlanCategory === "function") {
       setPlanCategory(String(rawCategory));
     }
@@ -485,6 +485,7 @@ export default function PortalMobile({
 
         if (sub) {
           if (sub.plan_category) setPlanCategory(sub.plan_category);
+    if (alunoDataProp?.plan_category) setPlanCategory(alunoDataProp.plan_category);
           if (sub.expiration_date) {
             const dateObj = new Date(sub.expiration_date);
             const formatted = !isNaN(dateObj.getTime()) 
@@ -506,7 +507,7 @@ export default function PortalMobile({
     carregarAssinaturaOficial();
   }, [alunoDataProp?.id, supabase]);
 
-  const [planCategory, setPlanCategory] = React.useState<string>("Group");
+  const [planCategory, setPlanCategory] = React.useState<string>(alunoDataProp?.plan_category || "Pack Group");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
 
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
@@ -1280,6 +1281,7 @@ React.useEffect(() => {
           if (dadosPortal.subscription) {
             const sub = dadosPortal.subscription;
             if (sub.plan_category) setPlanCategory(sub.plan_category);
+    if (alunoDataProp?.plan_category) setPlanCategory(alunoDataProp.plan_category);
             if (sub.expiration_date) setExpirationDate(sub.expiration_date);
             if (sub.class_credits_available !== undefined && sub.class_credits_available !== null) setCreditosRegulares(Number(sub.class_credits_available));
             if (sub.replacement_credits !== undefined && sub.replacement_credits !== null) setCreditosReposicao(Number(sub.replacement_credits));

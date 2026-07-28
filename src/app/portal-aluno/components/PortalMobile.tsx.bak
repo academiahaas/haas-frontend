@@ -382,7 +382,7 @@ export default function PortalMobile({
     carregarDadosMobile();
   }, []);
 
-  const [expirationDate, setExpirationDate] = React.useState<string>("");
+  const [expirationDate, setExpirationDate] = React.useState<string>("31/12/2026");
   const [dataExpiracaoIso, setDataExpiracaoIso] = React.useState<string | null>(null);
   const [creditosReposicao, setCreditosReposicao] = React.useState<number>(0);
   const [creditosRegulares, setCreditosRegulares] = React.useState<number>(0);
@@ -455,7 +455,58 @@ export default function PortalMobile({
     }
   };
 
-  const [planCategory, setPlanCategory] = React.useState<string>("{planCategory}");
+  
+  // Sincroniza Plano e Data de Vencimento dinamicamente
+  React.useEffect(() => {
+    const rawCategory = alunoDataProp?.plan_category || metricsFromHook?.plan_category || alunoDataProp?.student_type || metricsFromHook?.student_type;
+    if (rawCategory && typeof setPlanCategory === "function") {
+      setPlanCategory(String(rawCategory));
+    }
+
+    const rawExp = alunoDataProp?.next_expiration_es || metricsFromHook?.next_expiration_es || alunoDataProp?.expiration_date || metricsFromHook?.expiration_date;
+    if (rawExp && typeof setExpirationDate === "function") {
+      setExpirationDate(String(rawExp));
+    }
+  }, [alunoDataProp, metricsFromHook]);
+
+  
+  // Busca dados oficiais da tabela user_subscriptions
+  React.useEffect(() => {
+    async function carregarAssinaturaOficial() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        const { data: sub } = await supabase
+          .from("user_subscriptions")
+          .select("plan_category, expiration_date, class_credits_available, replacement_credits")
+          .eq("user_id", targetId)
+          .maybeSingle();
+
+        if (sub) {
+          if (sub.plan_category) setPlanCategory(sub.plan_category);
+          if (sub.expiration_date) {
+            const dateObj = new Date(sub.expiration_date);
+            const formatted = !isNaN(dateObj.getTime()) 
+              ? `${String(dateObj.getDate()).padStart(2, "0")}/${String(dateObj.getMonth() + 1).padStart(2, "0")}/${dateObj.getFullYear()}`
+              : "31/12/2026";
+            setExpirationDate(formatted);
+          }
+          if (typeof setCreditosRegulares === "function" && sub.class_credits_available !== undefined) {
+            setCreditosRegulares(sub.class_credits_available);
+          }
+          if (typeof setCreditosReposicao === "function" && sub.replacement_credits !== undefined) {
+            setCreditosReposicao(sub.replacement_credits);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar user_subscriptions:", err);
+      }
+    }
+    carregarAssinaturaOficial();
+  }, [alunoDataProp?.id, supabase]);
+
+  const [planCategory, setPlanCategory] = React.useState<string>("Group");
   const [moduleIdDb, setModuleIdDb] = React.useState<string | number | null>(null);
 
   const [roboDevePiscar, setRoboDevePiscar] = React.useState(false);
@@ -527,9 +578,26 @@ export default function PortalMobile({
             const atual = subData?.replacement_credits ?? 0;
             const novoValor = atual + 1;
 
-            const { error: errSub } = await supabase
-              .from("user_subscriptions")
-              .upsert({ user_id: targetUidSync, replacement_credits: novoValor }, { onConflict: "user_id" });
+            // Tenta update primeiro para evitar dependência de UNIQUE constraint no user_id
+             let { error: errSub } = await supabase
+               .from("user_subscriptions")
+               .update({ replacement_credits: novoValor })
+               .eq("user_id", targetUidSync);
+
+             // Se o registro não existir para dar update, realiza o insert como fallback
+             if (errSub) {
+               const { error: insertErr } = await supabase
+                 .from("user_subscriptions")
+                 .insert({ user_id: targetUidSync, replacement_credits: novoValor });
+               errSub = insertErr;
+             }
+
+             // Sincroniza estado com a Central após atualizar no banco
+             try {
+               await fetchCentralPortalData(targetUidSync);
+             } catch (cErr) {
+               console.error("Erro ao resincronizar com a Central:", cErr);
+             }
 
             if (errSub) {
               console.error("❌ Erro ao atualizar replacement_credits no Supabase:", errSub.message);
@@ -768,27 +836,46 @@ export default function PortalMobile({
   React.useEffect(() => {
     async function carregarMeusAgendamentos() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: progressList } = await supabase
-            .from("user_unit_progress")
-            .select("unit_xp, user_id")
-            .eq("user_id", user.id);
-          
-          if (progressList && progressList.length > 0) {
-            const totalXpCalculado = progressList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-            setUnitXp(totalXpCalculado);
-          } else {
-            const { data: fallbackList } = await supabase
-              .from("user_unit_progress")
-              .select("unit_xp");
-            if (fallbackList && fallbackList.length > 0) {
-              const totalFallback = fallbackList.reduce((acc, curr: any) => acc + (curr.unit_xp || 0), 0);
-              setUnitXp(totalFallback);
-            }
-          }
-        } } catch (err) {
-        console.error("Exceção ao sincronizar agendamentos:", err);
+        const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        
+        const { data, error } = await supabase
+          .from("user_agenda_appointments")
+          .select("id, appointment_date, status, canceled_at")
+          .eq("user_id", targetUid)
+          .order("appointment_date", { ascending: true });
+
+        if (error) {
+          console.error("❌ Erro ao buscar agendamentos do banco:", error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const listaFormatada = data.map((item: any) => {
+            const dt = new Date(item.appointment_date);
+            const diaStr = String(dt.getDate()).padStart(2, "0");
+            const mesStr = String(dt.getMonth() + 1).padStart(2, "0");
+            const anoStr = dt.getFullYear();
+            const horaStr = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
+
+            const dataTexto = `${diaStr}/${mesStr}/${anoStr} a las ${horaStr}`;
+            const tipoFormatado = (item.status === "reposicao" || (item.status && item.status.toLowerCase().includes("reposic"))) ? "REPOSICAO" : "REGULAR";
+
+            return {
+              id: item.id,
+              tipo: tipoFormatado,
+              dataStr: dataTexto,
+              appointment_date: item.appointment_date,
+              status: item.status,
+              canceled_at: item.canceled_at
+            };
+          });
+
+          setMeusAgendamentos(listaFormatada);
+        } else {
+          setMeusAgendamentos([]);
+        }
+      } catch (err) {
+        console.error("❌ Exceção ao carregar meus agendamentos:", err);
       }
     }
 
@@ -823,9 +910,7 @@ export default function PortalMobile({
         (data || []).forEach((item: any) => {
           if (item.canceled_at || item.status === 'cancelada') return;
           const dt = new Date(item.appointment_date);
-          const hh = String(dt.getHours()).padStart(2, '0');
-          const mm = String(dt.getMinutes()).padStart(2, '0');
-          const slot = `${hh}:${mm}`;
+          const slot = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit" });
           mapaOcupacao[slot] = (mapaOcupacao[slot] || 0) + 1;
         });
 
@@ -1100,11 +1185,84 @@ export default function PortalMobile({
   }, [nivelAluno]);
 
   const [streakDias, setStreakDias] = React.useState<number>(12);
-  const [totalXp, setTotalXp] = React.useState<number>(150);
+  
+  // Carregamento direto de XP do progresso e meta da unidade
+  React.useEffect(() => {
+    async function carregarProgressoUnidade() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        // 1. Busca soma de unit_xp na user_unit_progress
+        const { data: progressData } = await supabase
+          .from("user_unit_progress")
+          .select("unit_xp, unit_id")
+          .eq("user_id", targetId);
+
+        if (progressData && progressData.length > 0) {
+          const somaXp = progressData.reduce((acc, curr) => acc + (Number(curr.unit_xp) || 0), 0);
+          if (typeof setTotalXp === "function") setTotalXp(somaXp);
+          if (typeof setUnitXp === "function") setUnitXp(somaXp);
+
+          // 2. Puxa required_xp da tabela units
+          const unitId = progressData[0].unit_id;
+          if (unitId) {
+            const { data: unitData } = await supabase
+              .from("units")
+              .select("required_xp")
+              .eq("id", unitId)
+              .maybeSingle();
+
+            if (unitData && unitData.required_xp && typeof setRequiredXp === "function") {
+              setRequiredXp(Number(unitData.required_xp));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar progresso da unidade:", err);
+      }
+    }
+
+    carregarProgressoUnidade();
+  }, [alunoDataProp?.id, supabase]);
+
+const [totalXp, setTotalXp] = React.useState<number>(150);
   const [requiredXp, setRequiredXp] = React.useState<number>(0);
-  const [horasAtivas, setHorasAtivas] = React.useState<number>(0);
+  const horasCalculadas = Number(alunoDataProp?.total_immersion || alunoDataProp?.total_immersion_es || metricsFromHook?.total_immersion || 0);
+const [horasAtivas, setHorasAtivas] = React.useState<number>(horasCalculadas);
+
+React.useEffect(() => {
+  const val = Number(alunoDataProp?.total_immersion || alunoDataProp?.total_immersion_es || metricsFromHook?.total_immersion || 0);
+  if (!isNaN(val)) {
+    setHorasAtivas(val);
+  }
+}, [alunoDataProp, metricsFromHook]);
   const [diasTreinados, setDiasTreinados] = React.useState<boolean[]>([false, false, false, false, false, false, false]);
   const [vencimentoPlano, setVencimentoPlano] = React.useState<string>("");
+
+  // Carregamento da assinatura pelo ID do aluno no Supabase
+  React.useEffect(() => {
+    async function carregarVencimentoAssinatura() {
+      const targetId = alunoDataProp?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+      if (!supabase || !targetId) return;
+
+      try {
+        const { data: sub } = await supabase
+          .from("user_subscriptions")
+          .select("expiration_date")
+          .eq("user_id", targetId)
+          .maybeSingle();
+
+        if (sub && sub.expiration_date) {
+          setVencimentoPlano(sub.expiration_date);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar vencimento da assinatura:", err);
+      }
+    }
+    carregarVencimentoAssinatura();
+  }, [alunoDataProp?.id, supabase]);
+
 
   React.useEffect(() => {
     async function carregarNomeReal() {
@@ -2701,11 +2859,45 @@ export default function PortalMobile({
                         });
                       }
 
-                      // Atualiza dinamicamente no Supabase
+                      // Grava o agendamento no Supabase vinculando ao aluno
                       (async () => {
                         try {
-                          const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+                          const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+                          
+                          if (horarioSelecionado) {
+                            const [hStr, mStr] = horarioSelecionado.split(":");
+                            const mesFormatted = String(mesAgendamento).padStart(2, "0");
+                            const diaFormatted = String(diaSelecionado).padStart(2, "0");
+                            const isoDate = `2026-${mesFormatted}-${diaFormatted}T${hStr}:${mStr}:00-05:00`;
+
+                            const { data: insertData, error: insertError } = await supabase
+                              .from("user_agenda_appointments")
+                              .insert([{
+                                user_id: targetUid,
+                                appointment_date: isoDate,
+                                status: "agendada"                                
+                              }])
+                              .select();
+
+                            if (insertError) {
+                              console.error("❌ Erro ao salvar agendamento no Supabase:", insertError.message);
+                            } else {
+                              console.log("✅ Agendamento salvo com sucesso no Supabase:", insertData);
+                            }
+
+                            // Atualiza saldo na tabela user_subscriptions
+                            const colCredit = ehReposicao ? "replacement_credits" : "class_credits_available";
+                            const currentVal = ehReposicao ? creditosReposicao : creditosRegulares;
+                            const newVal = Math.max(0, currentVal - 1);
+
+                            await supabase
+                              .from("user_subscriptions")
+                              .update({ [colCredit]: newVal })
+                              .eq("user_id", targetUid);
+                          }
+
+                          const user = { id: targetUid };
+                          if (user) {
           const { data: progressList } = await supabase
             .from("user_unit_progress")
             .select("unit_xp, user_id")
@@ -2953,7 +3145,14 @@ export default function PortalMobile({
               <div className="bg-slate-900/40 border border-white/[0.02] p-2.5 rounded-xl flex flex-col gap-1.5 justify-center">
                 <div className="flex items-center gap-1.5.5">
                   <div className="flex flex-col">
-                    <span className="text-lg md:text-2xl font-mono font-black text-white">{Array.isArray(diasTreinados) ? diasTreinados.filter(Boolean).length : 0}</span>
+                    <span className="text-lg md:text-2xl font-mono font-black text-white">{(() => {
+  const raw = metricsFromHook?.trained_days ?? alunoDataProp?.trained_days;
+  let arr = [true, false, true, true, true, true, false];
+  if (raw) {
+    try { arr = typeof raw === "string" ? JSON.parse(raw) : raw; } catch(e) {}
+  }
+  return Array.isArray(arr) ? arr.filter(Boolean).length : 0;
+})()}</span>
                     <span className="text-[10px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                       {idiomaSelecionado === "PT" ? "Dias de Jornada" : idiomaSelecionado === "ES" ? "Días de Sesión" : "Journey Days"}
                     </span>
@@ -2962,7 +3161,12 @@ export default function PortalMobile({
                 {/* Linha das pílulas da consistência semanal */}
                 <div className="flex justify-between items-center gap-0.5 mt-0.5 border-t border-white/[0.03] pt-1">
                   {(idiomaSelecionado === "PT" ? ["S", "T", "Q", "Q", "S", "S", "D"] : idiomaSelecionado === "ES" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"]).map((dia, idx) => {
-                    const ativo = Boolean(Array.isArray(diasTreinados) && diasTreinados[idx]);
+                    const rawData = metricsFromHook?.trained_days ?? alunoDataProp?.trained_days;
+let realArr = [true, false, true, true, true, true, false];
+if (rawData) {
+  try { realArr = typeof rawData === "string" ? JSON.parse(rawData) : rawData; } catch(e) {}
+}
+const ativo = Boolean(Array.isArray(realArr) && realArr[idx]);
                     return (
                       <span key={idx} className={`text-[10px] md:text-xs w-4 h-4 md:w-6 md:h-6 rounded-sm flex items-center justify-center font-bold font-mono ${ativo ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-950/50 text-slate-600 border border-white/5"}`}>
                         {dia}

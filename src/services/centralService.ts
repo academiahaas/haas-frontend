@@ -18,11 +18,13 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
 
     if (error) console.error("❌ Erro ao buscar dados na View:", error.message);
 
-    // Busca direta da assinatura para garantir o vencimento correto
+    // Busca a assinatura ativa vinculada ao user_id
     const { data: subData } = await supabase
       .from("user_subscriptions")
-      .select("expiration_date")
-      .eq("id", targetUid)
+      .select("expiration_date, plan_category, class_credits_available, replacement_credits")
+      .eq("user_id", targetUid)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     

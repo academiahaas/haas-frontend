@@ -171,7 +171,7 @@ export default function DashboardDesktop() {
           if (data && !error) {
             setAluno1(data.nome || "Alpha_Leader");
             if (data.nivel_atual) setNivelAtual(data.nivel_atual.toUpperCase());
-            if (data.tipo_aluno) setTipoAluno(data.tipo_aluno.toLowerCase());
+            // Set de tipo_aluno legado desativado em prol da Central
           } else {
             setAluno1(user.user_metadata?.nome || user.email?.split('@')[0] || "Aluno");
           }
@@ -384,7 +384,8 @@ export default function DashboardDesktop() {
           console.log("=== CONTEUDO REAL DE TRAINED_DAYS NO BANCO ===>", dbUser.trained_days);
           setAluno1(dbUser.name || "Alpha_Leader");
           if (dbUser.current_level) setNivelAtual(dbUser.current_level.toUpperCase());
-          if (dbUser.student_type) setTipoAluno(dbUser.student_type.toLowerCase());
+          const catCentral = dbUser.plan_category || dbUser.student_type || "Pack Group";
+        setTipoAluno(catCentral.toLowerCase());
           if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
           if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) setImersaoTotal(String(dbUser.total_immersion_es) + "h");
           if (dbUser.active_vocabulary !== undefined) setVocabularioAtivo(dbUser.active_vocabulary);
@@ -1114,13 +1115,18 @@ export default function DashboardDesktop() {
               </div>
               <div className="mt-1 flex gap-1 flex-wrap">
                 {(() => {
-                  const tipoCurso = tipoAluno; 
-                  let textoBadge = '';
-                  if (tipoCurso === 'particular') { textoBadge = idioma === 'PT' ? 'Particular' : idioma === 'ES' ? 'Particular' : 'Private'; }
-                  else if (tipoCurso === 'grupo') { textoBadge = idioma === 'PT' ? 'Em Grupo' : idioma === 'ES' ? 'En Grupo' : 'Group Class'; }
-                  else if (tipoCurso === 'corporativo') { textoBadge = idioma === 'PT' ? 'Corporativo' : idioma === 'ES' ? 'Corporativo' : 'Corporate'; }
-                  else if (tipoCurso === 'particular_corporativo') { textoBadge = idioma === 'PT' ? 'Particular Corporativo' : idioma === 'ES' ? 'Particular Corporativo' : 'Private Corporate'; }
-                  else { textoBadge = idioma === 'PT' ? 'Regular' : idioma === 'ES' ? 'Regular' : 'Regular'; }
+                  const rawCat = String(tipoAluno || "").toLowerCase();
+            let textoBadge = String(tipoAluno || "Particular").toUpperCase();
+
+            if (rawCat.includes("pack_grupo") || rawCat.includes("pack group")) {
+              textoBadge = "PACK GROUP";
+            } else if (rawCat.includes("pack_vip") || rawCat.includes("pack vip")) {
+              textoBadge = "PACK VIP";
+            } else if (rawCat === "grupo" || rawCat === "group") {
+              textoBadge = idioma === "PT" ? "EM GRUPO" : idioma === "ES" ? "EN GRUPO" : "GROUP CLASS";
+            } else if (rawCat === "particular" || rawCat === "private") {
+              textoBadge = idioma === "PT" ? "PARTICULAR" : idioma === "ES" ? "PARTICULAR" : "PRIVATE";
+            }
                   return (
                     <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[#00E5FF] font-mono text-[8px] font-black uppercase tracking-wider shadow-sm">
                       {textoBadge}
