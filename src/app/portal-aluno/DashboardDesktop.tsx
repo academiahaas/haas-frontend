@@ -388,7 +388,8 @@ export default function DashboardDesktop() {
         setTipoAluno(catCentral.toLowerCase());
           if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
           if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) setImersaoTotal(String(dbUser.total_immersion_es) + "h");
-          if (dbUser.active_vocabulary !== undefined) setVocabularioAtivo(dbUser.active_vocabulary);
+          const valActivos = dbUser.active_days ?? dbUser.active_vocabulary ?? 0;
+          setVocabularioAtivo(valActivos);
           
           if (dadosPortal && dadosPortal.error_logs) {
             setErrorLogs(dadosPortal.error_logs || []);
@@ -414,7 +415,12 @@ export default function DashboardDesktop() {
               setProximoVencimento(dateStr);
             }
           }
-          if (dbUser.total_xp) setXpTotal(String(dbUser.total_xp));
+          if (dbUser.total_xp !== undefined && dbUser.total_xp !== null) {
+            const xpVal = Number(dbUser.total_xp);
+            setXpTotal(String(xpVal));
+            setTotalXp(xpVal);
+            setUserTotalXp(xpVal);
+          }
           setNicknameAluno(dbUser.nickname || dbUser.name || "Alpha_Leader");
           if (dbUser.streak_days !== undefined && dbUser.streak_days !== null) setStreakDays(Number(dbUser.streak_days));
           if (dbUser.trained_days && Array.isArray(dbUser.trained_days)) {
