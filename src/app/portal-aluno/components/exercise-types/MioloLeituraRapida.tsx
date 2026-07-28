@@ -1,4 +1,5 @@
 'use client';
+import { getExerciseByActivityType } from "@/services/centralService";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
@@ -98,13 +99,14 @@ export default function MioloLeituraRapida({
         setCarregando(true);
         
         try {
-          if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
-          const { data: userDados } = await supabase
-            .from('users')
-            .select('native_language')
-            .eq('id', USER_ID_ALVO);
-          if (userDados && userDados.length > 0) {
-            setIdiomaNativoAluno(userDados[0].native_language || "Español");
+          if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {
+            const { data: userDados } = await supabase
+              .from("users")
+              .select("native_language")
+              .eq("id", USER_ID_ALVO);
+            if (userDados && userDados.length > 0) {
+              setIdiomaNativoAluno(userDados[0].native_language || "Español");
+            }
           }
         } catch (e) { console.error(e); }
 
@@ -115,16 +117,10 @@ export default function MioloLeituraRapida({
 
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
 
-        let query = supabase.from("exercises").select("*").eq("activity_type", 6);
-        if (isUUID) {
-          query = query.eq("unit_id", nomeUnidade);
-        } else {
-          query = query.eq("unit", nomeUnidade);
-        }
+        const response = await getExerciseByActivityType(nomeUnidade, 6);
+        const dados = (response && response.data) ? response.data : [];
 
-        const { data: dados, error } = await query;
-
-        if (error) throw error;
+        
 
         let textoBase = dados && dados.length > 0 ? (dados[0].reading_text || dados[0].correct_answer || "") : "";
         if (dados && dados.length > 0) {
