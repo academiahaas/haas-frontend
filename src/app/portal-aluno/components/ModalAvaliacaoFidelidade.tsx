@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { ShieldCheck, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { submitTeacherReview } from "@/services/centralService";
 
 interface Props {
   isOpen: boolean;
@@ -94,7 +94,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
       const mediaStars = Math.round((teacherScore + materialScore) / 2);
 
       // Insere na tabela correta com as colunas certas mapeadas do banco
-      await supabase.from("teacher_reviews").insert({
+      await submitTeacherReview({
         user_id: uid,
         teacher_name: "Professor",
         rating_stars: mediaStars,

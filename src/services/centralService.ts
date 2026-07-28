@@ -185,3 +185,37 @@ export async function getUserErrorLogs(userId?: string) {
     return [];
   }
 }
+
+export interface TeacherReviewPayload {
+  user_id?: string | null;
+  teacher_name?: string;
+  rating_stars: number;
+  comment?: string;
+  class_date: string;
+}
+
+export async function submitTeacherReview(payload: TeacherReviewPayload) {
+  try {
+    const { data, error } = await supabase
+      .from("teacher_reviews")
+      .insert([
+        {
+          user_id: payload.user_id || null,
+          teacher_name: payload.teacher_name || "Professor",
+          rating_stars: payload.rating_stars,
+          comment: payload.comment || "",
+          class_date: payload.class_date
+        }
+      ]);
+
+    if (error) {
+      console.error("❌ [CentralService] Erro ao salvar teacher_review:", error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("❌ [CentralService] Exceção em submitTeacherReview:", err);
+    return { success: false, error: err };
+  }
+}
