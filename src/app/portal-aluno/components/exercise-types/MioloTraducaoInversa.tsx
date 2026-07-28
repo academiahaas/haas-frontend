@@ -98,10 +98,20 @@ export default function MioloTraducaoInversa({
   useEffect(() => {
     async function carregarExerciciosDoBanco() {
       try {
+        let userDados = [];
+        if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
+          if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") {
+          console.warn("⚠️ USER_ID_ALVO ainda nao inicializado. Abortando busca em users.");
+          return;
+        }
         const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
-        });
-        const userDados = await userRes.json();
+            headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+          });
+          if (userRes.ok) {
+            userDados = await userRes.json();
+          }
+        }
+        
         if (userDados && userDados.length > 0) {
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
@@ -187,7 +197,7 @@ export default function MioloTraducaoInversa({
       }
     }
     carregarExerciciosDoBanco();
-  }, [unidadeAtiva]);
+  }, [unidadeAtiva, USER_ID_ALVO]);
 
   const dispararSomClique = () => {
     try {

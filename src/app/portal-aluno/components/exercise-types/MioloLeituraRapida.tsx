@@ -100,7 +100,8 @@ export default function MioloLeituraRapida({
         
         try {
           if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {
-            const { data: userDados } = await supabase
+            const { data: userDados } = if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") return;
+    await supabase
               .from("users")
               .select("native_language")
               .eq("id", USER_ID_ALVO);
