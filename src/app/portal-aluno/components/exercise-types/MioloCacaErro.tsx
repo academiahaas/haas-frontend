@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
+import { getExerciseByActivityType } from "@/services/centralService";
 import { supabase } from "@/lib/supabase";
 import { chamarGeminiInteligente } from './geminiService';
 import React, { useState, useEffect } from "react";
@@ -58,13 +59,80 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
 
+  
   useEffect(() => {
-    const escutarSubmitGlobal = () => {
-      executarValidacaoInterna();
-    };
-    window.addEventListener("haas:validate", escutarSubmitGlobal);
-    return () => window.removeEventListener("haas:validate", escutarSubmitGlobal);
-  }, [selecionado, analisando, correctOption]);
+    async function carregar() {
+      try {
+        setCarregando(true);
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
+        }
+
+        console.log("🔍 [CAÇA ERRO RESOLVIDO] Buscando para UUID:", unitParaBusca);
+        // Tenta buscar pelo tipo 2 (Caça Erro na SQL oficial) e fallback pro 7
+        let res = await getExerciseByActivityType(unitParaBusca, 2);
+        if (!res.success || !res.data || res.data.length === 0) {
+          res = await getExerciseByActivityType(unitParaBusca, 7);
+        }
+
+        const dados = res.success && res.data ? res.data : [];
+
+        if (dados.length > 0) {
+          const exe = dados[0];
+          if (exe.id) setExerciseId(exe.id);
+
+          const respCorreta = exe.correct_answer || "";
+          setCorrectOption(respCorreta);
+
+          let optsDistracao: string[] = [];
+          if (exe.alternative_options) {
+            try {
+              optsDistracao = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              console.warn("Aviso ao parsear alternative_options no Caça Erro:", e);
+            }
+          }
+
+          // Junta a resposta que contém o erro com as opções de distração
+          let todasOpcoes: string[] = [];
+          if (respCorreta && !optsDistracao.includes(respCorreta)) {
+            todasOpcoes = [respCorreta, ...optsDistracao];
+          } else {
+            todasOpcoes = optsDistracao;
+          }
+
+          // Mapeia garantindo o identificador da resposta que contém o erro
+          if (todasOpcoes.length > 0) {
+            const opcoesMapeadas: OpcaoJogo[] = todasOpcoes.map((texto: string) => ({
+              texto,
+              isCorreta: String(texto).trim().toLowerCase() === String(respCorreta).trim().toLowerCase()
+            }));
+            
+            // Embaralha levemente para a correta não ficar sempre em primeiro
+            const opcoesEmbaralhadas = [...opcoesMapeadas].sort(() => Math.random() - 0.5);
+            setOpcoes(opcoesEmbaralhadas);
+          }
+
+          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
+          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
+          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
+          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
+
+        } else {
+          console.warn("⚠️ Nenhum exercício do Caça Erro encontrado.");
+        }
+      } catch (err) {
+        console.error("❌ Erro ao carregar Caça Erro:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregar();
+  }, [unidadeAtiva]);
+
 
   const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises";
   const SUPABASE_USER_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/users";
@@ -86,141 +154,157 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     return limpo.replace(/^["'\s“‘]+|["'\s”’]+$/g, "").replace(/```json/g, "").replace(/```/g, "").trim();
   };
 
+  
+  
   useEffect(() => {
-    async function carregarDadosCompletos() {
+    async function carregar() {
       try {
         setCarregando(true);
-
-        try {
-          if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).includes("undefined")) return;
-          const resUser = await fetch(`${SUPABASE_USER_URL}?id=eq.${USER_ID_ALVO}&select=native_language`, {
-            headers: { "apikey": SERVICE_KEY, "Authorization": "Bearer " + SERVICE_KEY }
-          });
-          const userDados = await resUser.json();
-          if (userDados && userDados.length > 0) {
-            setIdiomaNativoAluno(userDados[0].native_language || "Español");
-          }
-        } catch (e) { console.error("Erro idioma:", e); }
-
-        let nomeUnidade = unidadeAtiva;
-        if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto") || nomeUnidade.includes("Primeiro")) {
-          nomeUnidade = "1.1";
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
         }
 
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
-
-        let query = supabase.from("exercises").select("*").eq("activity_type", 2);
-        if (isUUID) {
-          query = query.eq("unit_id", nomeUnidade);
-        } else {
-          query = query.eq("unit", nomeUnidade);
+        console.log("🔍 [CAÇA ERRO RESOLVIDO] Buscando para UUID:", unitParaBusca);
+        // Tenta buscar pelo tipo 2 (Caça Erro na SQL oficial) e fallback pro 7
+        let res = await getExerciseByActivityType(unitParaBusca, 2);
+        if (!res.success || !res.data || res.data.length === 0) {
+          res = await getExerciseByActivityType(unitParaBusca, 7);
         }
 
-        const { data: dados, error: errorCaca } = await query.limit(1);
-        console.log("🔍 [PROVA REAL CAÇA ERRO] Dados retornados do Supabase:", { dados, error: errorCaca });
+        const dados = res.success && res.data ? res.data : [];
 
-        if (dados && dados.length > 0) {
+        if (dados.length > 0) {
           const exe = dados[0];
-          
-          // No Caça Erro (Tipo 2), "correct_answer" guarda o gabarito (frase errada que o aluno deve caçar)
-          const fraseComErro = exe.correct_answer || "";
-          setCorrectOption(fraseComErro);
-          setFeedbackCorretoBanco(exe.correct_feedback || "");
-          setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
-          if (exe?.id) setExerciseId(String(exe.id));
-          setIncentivoCorretoBanco(exe.correct_incentive || "");
-          setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
-          
-          let distratoresFinais: string[] = [];
+          if (exe.id) setExerciseId(exe.id);
+
+          const respCorreta = exe.correct_answer || "";
+          setCorrectOption(respCorreta);
+
+          let optsDistracao: string[] = [];
           if (exe.alternative_options) {
-            if (Array.isArray(exe.alternative_options)) {
-              distratoresFinais = exe.alternative_options;
-            } else {
-              try {
-                const cache = JSON.parse(exe.alternative_options);
-                if (Array.isArray(cache)) {
-                  distratoresFinais = cache.map((item: any) => item.t || item.texto || item).filter(Boolean);
-                }
-              } catch(e) {
-                distratoresFinais = [];
-              }
-            }
-          }
-
-          // Define fraseCorreta (baseline limpo) a partir das alternativas corretas para manter o Gemini funcionando
-          const fraseCorreta = distratoresFinais[0] || "";
-
-          // Monta a lista unificada contendo a frase errada (alvo) e as frases sem erro
-          let listaUnificada = Array.from(new Set([fraseComErro, ...distratoresFinais])).filter(Boolean);
-
-          if (listaUnificada.length === 3) {
             try {
-              const promptQuarta = `Com base na frase correta "${fraseCorreta}", gere um distrator gramatical incorreto plausível em português de no máximo 8 palavras. Retorne ESTRITAMENTE um objeto JSON no formato: {"texto": "frase incorreta aqui"}`;
-              // 🧠 Pool de chaves gratuito com rodízio automático
-              const textoQuartaGerada = await chamarGeminiInteligente(promptQuarta);
-              const dataQuarta = { candidates: [{ content: { parts: [{ text: textoQuartaGerada }] } }] };
-              const resQuarta = { ok: true, json: async () => dataQuarta };
-              
-              let inseridoComSucesso = false;
-              if (resQuarta.ok) {
-                const qData = await resQuarta.json();
-                let textoCru = qData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-                let textoFinalOpcao = "";
-                
-                try {
-                  let limpado = textoCru.replace("```json", "").replace("```", "").trim();
-                  let parsedQuarta = JSON.parse(limpado);
-                  if (parsedQuarta && parsedQuarta.texto) textoFinalOpcao = parsedQuarta.texto.trim();
-                } catch(jsonErr) {
-                  textoFinalOpcao = textoCru.replace("```json", "").replace("```", "").trim();
-                }
-
-                if (textoFinalOpcao && textoFinalOpcao.length > 2 && !listaUnificada.includes(textoFinalOpcao)) {
-                  listaUnificada.push(textoFinalOpcao);
-                  inseridoComSucesso = true;
-                }
-              }
-              
-              if (!inseridoComSucesso) {
-                // Força um distrator sintático básico garantindo que ele não colida com o Set
-                listaUnificada.push(fraseCorreta + " modificada.");
-              }
+              optsDistracao = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
             } catch (e) {
-              listaUnificada.push(fraseCorreta + " incorreta.");
+              console.warn("Aviso ao parsear alternative_options no Caça Erro:", e);
             }
           }
 
-          // Remove duplicadas absolutas geradas por fallbacks ou IA antes de limitar o array
-          const listaLimpaSemDuplicadas = Array.from(new Set(listaUnificada)).filter(Boolean);
-          const listaFinal = listaLimpaSemDuplicadas.slice(0, 4);
-          
-          const opcoesMontadas = listaFinal.map(texto => ({
-            texto,
-            isCorreta: texto === fraseCorreta
-          }));
+          // Junta a resposta que contém o erro com as opções de distração
+          let todasOpcoes: string[] = [];
+          if (respCorreta && !optsDistracao.includes(respCorreta)) {
+            todasOpcoes = [respCorreta, ...optsDistracao];
+          } else {
+            todasOpcoes = optsDistracao;
+          }
 
-          opcoesMontadas.sort(() => Math.random() - 0.5);
-          setOpcoes(opcoesMontadas);
+          // Mapeia garantindo o identificador da resposta que contém o erro
+          if (todasOpcoes.length > 0) {
+            const opcoesMapeadas: OpcaoJogo[] = todasOpcoes.map((texto: string) => ({
+              texto,
+              isCorreta: String(texto).trim().toLowerCase() === String(respCorreta).trim().toLowerCase()
+            }));
+            
+            // Embaralha levemente para a correta não ficar sempre em primeiro
+            const opcoesEmbaralhadas = [...opcoesMapeadas].sort(() => Math.random() - 0.5);
+            setOpcoes(opcoesEmbaralhadas);
+          }
 
-          const maiorTexto = listaFinal.reduce((max, current) => current.length > max.length ? current : max, "");
-          setIsShortText(maiorTexto.length < 25);
+          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
+          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
+          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
+          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
+
+        } else {
+          console.warn("⚠️ Nenhum exercício do Caça Erro encontrado.");
         }
       } catch (err) {
-        console.error(err);
+        console.error("❌ Erro ao carregar Caça Erro:", err);
       } finally {
         setCarregando(false);
       }
     }
-    carregarDadosCompletos();
+    carregar();
   }, [unidadeAtiva]);
 
+
+
+  
   useEffect(() => {
-    if (status === "IDLE") {
-      setLocalStatus("IDLE");
-      setSelecionado(null);
-      setFeedbackIA("");
+    async function carregar() {
+      try {
+        setCarregando(true);
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
+          unitParaBusca = String(unidadeAtiva);
+        }
+
+        console.log("🔍 [CAÇA ERRO RESOLVIDO] Buscando para UUID:", unitParaBusca);
+        // Tenta buscar pelo tipo 2 (Caça Erro na SQL oficial) e fallback pro 7
+        let res = await getExerciseByActivityType(unitParaBusca, 2);
+        if (!res.success || !res.data || res.data.length === 0) {
+          res = await getExerciseByActivityType(unitParaBusca, 7);
+        }
+
+        const dados = res.success && res.data ? res.data : [];
+
+        if (dados.length > 0) {
+          const exe = dados[0];
+          if (exe.id) setExerciseId(exe.id);
+
+          const respCorreta = exe.correct_answer || "";
+          setCorrectOption(respCorreta);
+
+          let optsDistracao: string[] = [];
+          if (exe.alternative_options) {
+            try {
+              optsDistracao = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
+                : exe.alternative_options;
+            } catch (e) {
+              console.warn("Aviso ao parsear alternative_options no Caça Erro:", e);
+            }
+          }
+
+          // Junta a resposta que contém o erro com as opções de distração
+          let todasOpcoes: string[] = [];
+          if (respCorreta && !optsDistracao.includes(respCorreta)) {
+            todasOpcoes = [respCorreta, ...optsDistracao];
+          } else {
+            todasOpcoes = optsDistracao;
+          }
+
+          // Mapeia garantindo o identificador da resposta que contém o erro
+          if (todasOpcoes.length > 0) {
+            const opcoesMapeadas: OpcaoJogo[] = todasOpcoes.map((texto: string) => ({
+              texto,
+              isCorreta: String(texto).trim().toLowerCase() === String(respCorreta).trim().toLowerCase()
+            }));
+            
+            // Embaralha levemente para a correta não ficar sempre em primeiro
+            const opcoesEmbaralhadas = [...opcoesMapeadas].sort(() => Math.random() - 0.5);
+            setOpcoes(opcoesEmbaralhadas);
+          }
+
+          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
+          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
+          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
+          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
+
+        } else {
+          console.warn("⚠️ Nenhum exercício do Caça Erro encontrado.");
+        }
+      } catch (err) {
+        console.error("❌ Erro ao carregar Caça Erro:", err);
+      } finally {
+        setCarregando(false);
+      }
     }
-  }, [status]);
+    carregar();
+  }, [unidadeAtiva]);
+
 
   const handleSelect = (texto: string) => {
     if (localStatus === "CORRECT" || analisando) return;
