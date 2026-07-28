@@ -51,6 +51,16 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     }
 
     // Estrutura unificada puramente baseada nos dados REAIS do Supabase
+    
+    // 4. Busca Módulos e Unidades para a Trilha
+    const { data: modulesContentData } = await supabase
+      .from("modules_content")
+      .select("*");
+
+    const { data: unitsData } = await supabase
+      .from("units")
+      .select("*");
+
     const userObj = {
       id: profile?.id || targetUid,
       name: profile?.name || null,
@@ -96,7 +106,11 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       user: userObj,
       ...userObj,
       error_logs: profile?.error_logs || [],
+      
       competencias: competenciasObj,
+      modules_content: modulesContentData || [],
+      units: unitsData || [],
+      unit_progress: unitProgressData || [],
       ...profile,
     };
   } catch (err) {
