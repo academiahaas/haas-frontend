@@ -92,10 +92,16 @@ export default function MioloVelocidadeProgressiva({
     async function carregarDados() {
       try {
         setCarregando(true);
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
-        });
-        const userDados = await userRes.json();
+        let userDados = [];
+        if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
+          const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
+            headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+          });
+          if (userRes.ok) {
+            userDados = await userRes.json();
+          }
+        }
+        
         if (userDados && userDados.length > 0) {
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
         }
@@ -179,7 +185,7 @@ export default function MioloVelocidadeProgressiva({
       }
     }
     carregarDados();
-  }, [unidadeAtiva]);
+  }, [unidadeAtiva, USER_ID_ALVO]);
 
   const playAudio = (speed: 'slow' | 'normal' | 'native', rate: number) => {
     setActiveSpeed(speed);
