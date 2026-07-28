@@ -15,6 +15,13 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
 
     if (error) console.error("❌ Erro ao buscar dados na tabela users:", error.message);
 
+    // 1.1 Competencias do usuario
+    const { data: compData } = await supabase
+      .from("user_competencias")
+      .select("*")
+      .eq("user_id", targetUid)
+      .maybeSingle();
+
     // 2. Assinatura ativa vinculada
     const { data: subData } = await supabase
       .from("user_subscriptions")
@@ -95,11 +102,18 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       required_xp: calculatedRequiredXp,
     };
 
-    const competenciasObj = profile?.competencias || {
-      habla: profile?.habla ?? 0,
-      escucha: profile?.escucha ?? 0,
-      lectura: profile?.lectura ?? 0,
-      escritura: profile?.escritura ?? 0,
+    let rawComp = profile?.competencias;
+    if (typeof rawComp === "string") {
+      try { rawComp = JSON.parse(rawComp); } catch (e) { rawComp = null; }
+    }
+
+    const baseScore = Number(profile?.placement_test_score ?? profile?.clinical_precision ?? 70);
+    const competenciasObj = {
+      habla: Number(compData?.habla ?? rawComp?.habla ?? profile?.habla ?? 0),
+      escucha: Number(compData?.escucha ?? rawComp?.escucha ?? profile?.escucha ?? 0),
+      gramatica: Number(compData?.gramatica ?? rawComp?.gramatica ?? profile?.gramatica ?? 0),
+      escritura: Number(compData?.escritura ?? rawComp?.escritura ?? profile?.escritura ?? 0),
+      lectura: Number(compData?.lectura ?? rawComp?.lectura ?? profile?.lectura ?? 0),
     };
 
     return {
@@ -107,11 +121,11 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       ...userObj,
       error_logs: profile?.error_logs || [],
       
-      competencias: competenciasObj,
+      ...profile,
       modules_content: modulesContentData || [],
       units: unitsData || [],
       unit_progress: unitProgressData || [],
-      ...profile,
+      competencias: competenciasObj,
     };
   } catch (err) {
     console.error("❌ Erro ao processar Central Data:", err);
