@@ -65,48 +65,69 @@ export default function MioloMultiplaEscolha({
 
   
   
+  
+  
+  
+  
+
+
+
+
+
+  
   useEffect(() => {
     async function carregar() {
       try {
         setCarregando(true);
-        setPergunta("Carregando desafio...");
-        
         let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
 
-        console.log("🔍 [MULTIPLA ESCOLHA RESOLVIDA] Buscando para UUID:", unitParaBusca);
+        console.log("🔍 [MÚLTIPLA ESCOLHA ÚNICO] Buscando para UUID:", unitParaBusca);
         const res = await getExerciseByActivityType(unitParaBusca, 1);
         const dados = res.success && res.data ? res.data : [];
 
         if (dados.length > 0) {
           const exe = dados[0];
           if (exe.id) setExerciseId(exe.id);
-          
-          // Extração do enunciado
-          const promptTxt = exe.prompt_text || exe.prompt || exe.question || "Selecione a opção correta:";
-          setPergunta(promptTxt);
 
-          // Extração das opções
-          let opcoes: string[] = [];
+          const respCorreta = (exe.correct_answer || "").trim();
+          setCorrectOption(respCorreta);
+
+          let optsDistracao: string[] = [];
           if (exe.alternative_options) {
             try {
-              opcoes = typeof exe.alternative_options === "string"
-                ? JSON.parse(exe.alternative_options)
+              optsDistracao = typeof exe.alternative_options === "string" 
+                ? JSON.parse(exe.alternative_options) 
                 : exe.alternative_options;
             } catch (e) {
               console.warn("Aviso ao parsear alternative_options:", e);
             }
           }
 
-          if (Array.isArray(opcoes) && opcoes.length > 0) {
-            setOptions(opcoes);
+          if (Array.isArray(optsDistracao)) {
+            optsDistracao = optsDistracao.map(o => String(o).trim());
+          } else {
+            optsDistracao = [];
           }
 
-          if (exe.correct_answer) {
-            setCorrectOption(exe.correct_answer);
+          const jaExiste = optsDistracao.some(o => o.toLowerCase() === respCorreta.toLowerCase());
+
+          let todasOpcoes: string[] = [];
+          if (respCorreta && !jaExiste) {
+            todasOpcoes = [respCorreta, ...optsDistracao];
+          } else {
+            todasOpcoes = optsDistracao;
           }
+
+          if (todasOpcoes.length > 0) {
+            const opcoesEmbaralhadas = [...todasOpcoes].sort(() => Math.random() - 0.5);
+            setOptions(opcoesEmbaralhadas);
+          }
+
+          const textoPergunta = exe.reading_text || exe.prompt || exe.prompt_text || exe.question || exe.activity_name || "Selecione a opção correta:";
+          setPergunta(textoPergunta);
 
           if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
           if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
@@ -114,19 +135,16 @@ export default function MioloMultiplaEscolha({
           if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
 
         } else {
-          console.warn("⚠️ Nenhum exercício do tipo 1 encontrado.");
-          setPergunta("Nenhum exercício encontrado para esta unidade.");
+          console.warn("⚠️ Nenhum exercício de Múltipla Escolha encontrado.");
         }
       } catch (err) {
         console.error("❌ Erro ao carregar Múltipla Escolha:", err);
-        setPergunta("Erro ao carregar o exercício.");
       } finally {
         setCarregando(false);
       }
     }
     carregar();
   }, [unidadeAtiva]);
-
 
   const [isShortText, setIsShortText] = useState(true);
 
@@ -144,133 +162,13 @@ export default function MioloMultiplaEscolha({
 
   
   
-  useEffect(() => {
-    async function carregar() {
-      try {
-        setCarregando(true);
-        setPergunta("Carregando desafio...");
-        
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
-          unitParaBusca = String(unidadeAtiva);
-        }
-
-        console.log("🔍 [MULTIPLA ESCOLHA RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 1);
-        const dados = res.success && res.data ? res.data : [];
-
-        if (dados.length > 0) {
-          const exe = dados[0];
-          if (exe.id) setExerciseId(exe.id);
-          
-          // Extração do enunciado
-          const promptTxt = exe.prompt_text || exe.prompt || exe.question || "Selecione a opção correta:";
-          setPergunta(promptTxt);
-
-          // Extração das opções
-          let opcoes: string[] = [];
-          if (exe.alternative_options) {
-            try {
-              opcoes = typeof exe.alternative_options === "string"
-                ? JSON.parse(exe.alternative_options)
-                : exe.alternative_options;
-            } catch (e) {
-              console.warn("Aviso ao parsear alternative_options:", e);
-            }
-          }
-
-          if (Array.isArray(opcoes) && opcoes.length > 0) {
-            setOptions(opcoes);
-          }
-
-          if (exe.correct_answer) {
-            setCorrectOption(exe.correct_answer);
-          }
-
-          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
-          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
-          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
-          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
-
-        } else {
-          console.warn("⚠️ Nenhum exercício do tipo 1 encontrado.");
-          setPergunta("Nenhum exercício encontrado para esta unidade.");
-        }
-      } catch (err) {
-        console.error("❌ Erro ao carregar Múltipla Escolha:", err);
-        setPergunta("Erro ao carregar o exercício.");
-      } finally {
-        setCarregando(false);
-      }
-    }
-    carregar();
-  }, [unidadeAtiva]);
+  
 
 
 
   
   
-  useEffect(() => {
-    async function carregar() {
-      try {
-        setCarregando(true);
-        setPergunta("Carregando desafio...");
-        
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
-          unitParaBusca = String(unidadeAtiva);
-        }
-
-        console.log("🔍 [MULTIPLA ESCOLHA RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 1);
-        const dados = res.success && res.data ? res.data : [];
-
-        if (dados.length > 0) {
-          const exe = dados[0];
-          if (exe.id) setExerciseId(exe.id);
-          
-          // Extração do enunciado
-          const promptTxt = exe.prompt_text || exe.prompt || exe.question || "Selecione a opção correta:";
-          setPergunta(promptTxt);
-
-          // Extração das opções
-          let opcoes: string[] = [];
-          if (exe.alternative_options) {
-            try {
-              opcoes = typeof exe.alternative_options === "string"
-                ? JSON.parse(exe.alternative_options)
-                : exe.alternative_options;
-            } catch (e) {
-              console.warn("Aviso ao parsear alternative_options:", e);
-            }
-          }
-
-          if (Array.isArray(opcoes) && opcoes.length > 0) {
-            setOptions(opcoes);
-          }
-
-          if (exe.correct_answer) {
-            setCorrectOption(exe.correct_answer);
-          }
-
-          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
-          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
-          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
-          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
-
-        } else {
-          console.warn("⚠️ Nenhum exercício do tipo 1 encontrado.");
-          setPergunta("Nenhum exercício encontrado para esta unidade.");
-        }
-      } catch (err) {
-        console.error("❌ Erro ao carregar Múltipla Escolha:", err);
-        setPergunta("Erro ao carregar o exercício.");
-      } finally {
-        setCarregando(false);
-      }
-    }
-    carregar();
-  }, [unidadeAtiva]);
+  
 
 
 
@@ -318,67 +216,7 @@ export default function MioloMultiplaEscolha({
 
     
   
-  useEffect(() => {
-    async function carregar() {
-      try {
-        setCarregando(true);
-        setPergunta("Carregando desafio...");
-        
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
-          unitParaBusca = String(unidadeAtiva);
-        }
-
-        console.log("🔍 [MULTIPLA ESCOLHA RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 1);
-        const dados = res.success && res.data ? res.data : [];
-
-        if (dados.length > 0) {
-          const exe = dados[0];
-          if (exe.id) setExerciseId(exe.id);
-          
-          // Extração do enunciado
-          const promptTxt = exe.prompt_text || exe.prompt || exe.question || "Selecione a opção correta:";
-          setPergunta(promptTxt);
-
-          // Extração das opções
-          let opcoes: string[] = [];
-          if (exe.alternative_options) {
-            try {
-              opcoes = typeof exe.alternative_options === "string"
-                ? JSON.parse(exe.alternative_options)
-                : exe.alternative_options;
-            } catch (e) {
-              console.warn("Aviso ao parsear alternative_options:", e);
-            }
-          }
-
-          if (Array.isArray(opcoes) && opcoes.length > 0) {
-            setOptions(opcoes);
-          }
-
-          if (exe.correct_answer) {
-            setCorrectOption(exe.correct_answer);
-          }
-
-          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
-          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
-          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
-          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
-
-        } else {
-          console.warn("⚠️ Nenhum exercício do tipo 1 encontrado.");
-          setPergunta("Nenhum exercício encontrado para esta unidade.");
-        }
-      } catch (err) {
-        console.error("❌ Erro ao carregar Múltipla Escolha:", err);
-        setPergunta("Erro ao carregar o exercício.");
-      } finally {
-        setCarregando(false);
-      }
-    }
-    carregar();
-  }, [unidadeAtiva]);
+  
 
 
 
