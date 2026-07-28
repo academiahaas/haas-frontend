@@ -374,7 +374,9 @@ export default function DashboardDesktop() {
     let isMounted = true;
     async function carregarDadosCentralizados() {
       try {
-        const dadosPortal = await fetchCentralPortalData("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+      const dynamicUid = authUser?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || "";
+      const dadosPortal = await fetchCentralPortalData(dynamicUid);
         if (!isMounted) return;
         if (dadosPortal && dadosPortal.user) {
           const dbUser = dadosPortal.user;
@@ -423,10 +425,12 @@ export default function DashboardDesktop() {
             setTrainSat(!!dbUser.trained_days[5]);
             setTrainSun(!!dbUser.trained_days[6]);
           }
-          const idiomaReal = dbUser.course_language ? dbUser.course_language.toUpperCase() : "INGLÉS";
-          const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "B1";
-          setIdiomaCurso(idiomaReal);
-          setNivelObjetivo(nivelReal);
+            const langMap: Record<string, string> = { pt: "PORTUGUÉS", en: "INGLÉS", es: "ESPAÑOL" };
+            const langKey = (dbUser.course_language || "").toLowerCase();
+            const idiomaReal = langMap[langKey] || (dbUser.course_language ? dbUser.course_language.toUpperCase() : "");
+            const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "";
+            setIdiomaCurso(idiomaReal);
+            setNivelObjetivo(nivelReal);
           if (dadosPortal.submissions) setListaEntregas(dadosPortal.submissions);
           if (typeof window !== "undefined") {
             (window as any).__dadosBanco = {
@@ -640,7 +644,7 @@ export default function DashboardDesktop() {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
-                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{idiomaCurso} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {nivelObjetivo}</span>
+                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{(idiomaCurso && idiomaCurso !== "SEM IDIOMA") ? idiomaCurso : "PORTUGUÉS"} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {(nivelObjetivo && nivelObjetivo !== "SEM NÍVEL") ? nivelObjetivo : "C1"}</span>
               </div>
             </div>
           </div>
