@@ -69,6 +69,9 @@ export default function MioloBlitzChallenge({
           query = query.eq("unit", nomeUnidade);
         }
 
+        // Garante filtro dinâmico de ordenação para entregar conteúdos do A1 ao C1 em sequência
+        query = query.order("created_at", { ascending: true });
+
         const { data: dados, error } = await query;
 
         if (error) throw error;
