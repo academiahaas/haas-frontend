@@ -1,4 +1,5 @@
 "use client";
+import { getExerciseByActivityType } from "@/services/centralService";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
@@ -84,7 +85,7 @@ export default function MioloSpellingBee({
   const salvarNovaPalavraNoCache = async (palavra: string, nivel: string) => {
     try {
       const nomeUnidade = unidadeAtiva || "1.1";
-      if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
+      // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
       await supabase
         .from('exercises')
         .insert({
@@ -103,7 +104,7 @@ export default function MioloSpellingBee({
     try {
       const prompt = `Gere uma única palavra curta em português com acentuação gráfica opcional para um jogo de soletrar. Nível: ${nivel}. Retorne estritamente apenas a palavra limpa em maiúsculas sem pontos. Deve ter entre 4 e 7 letras no máximo.`;
       
-      if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
+      // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
       const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1);
       const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
       
@@ -132,11 +133,12 @@ export default function MioloSpellingBee({
       try {
         setCarregando(true);
         
-        if (typeof USER_ID_ALVO === "undefined" || !USER_ID_ALVO || USER_ID_ALVO === "undefined" || String(USER_ID_ALVO).trim() === "") return;
-        const { data: userDados } = await supabase
-          .from('users')
-          .select('native_language')
-          .eq('id', USER_ID_ALVO);
+        // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
+        let userDados = null;
+        if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
+          const res = await supabase.from("users").select("native_language").eq("id", USER_ID_ALVO);
+          userDados = res.data;
+        }
         
         if (userDados && userDados.length > 0) {
           setIdiomaNativoAluno(userDados[0].native_language || "Español");
@@ -190,7 +192,7 @@ export default function MioloSpellingBee({
       }
     }
     inicializarSpelling();
-  }, [unidadeAtiva]);
+  }, [unidadeAtiva, USER_ID_ALVO]);
 
   const playWordAudio = () => {
     if (targetWord && typeof window !== "undefined" && "speechSynthesis" in window) {
