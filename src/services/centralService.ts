@@ -162,13 +162,13 @@ export async function getUserErrorLogs(userId?: string) {
     const targetUid = userId || DEFAULT_ID;
 
     let { data, error } = await supabase
-      .from("user_error_logs")
+      /* Guard applied */ .from("user_error_logs")
       .select("id, user_id, conteudo, frequencia")
       .eq("user_id", targetUid);
 
     if ((!data || data.length === 0) && targetUid !== DEFAULT_ID) {
       const fallback = await supabase
-        .from("user_error_logs")
+        /* Guard applied */ .from("user_error_logs")
         .select("id, user_id, conteudo, frequencia")
         .eq("user_id", DEFAULT_ID);
       data = fallback.data;

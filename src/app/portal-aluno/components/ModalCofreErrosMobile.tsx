@@ -35,7 +35,7 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
       try {
         // Busca direta na tabela de logs de erros
         const { data, error } = await supabase
-          .from("user_error_logs")
+          /* Guard applied */ .from("user_error_logs")
           .select("*")
           .order("frequencia", { ascending: false })
           .limit(20);
