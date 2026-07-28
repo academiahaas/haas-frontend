@@ -119,7 +119,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     return {
       user: userObj,
       ...userObj,
-      error_logs: profile?.error_logs || [],
+      error_logs: await getUserErrorLogs(targetUid),
       
       ...profile,
       modules_content: modulesContentData || [],
@@ -151,6 +151,37 @@ export async function getTopRanking(limit: number = 10) {
     return data || [];
   } catch (err) {
     console.error('❌ [DEBUG RANKING EXCEÇÃO]:', err);
+    return [];
+  }
+}
+
+
+export async function getUserErrorLogs(userId?: string) {
+  try {
+    const DEFAULT_ID = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+    const targetUid = userId || DEFAULT_ID;
+
+    let { data, error } = await supabase
+      .from("user_error_logs")
+      .select("id, user_id, conteudo, frequencia")
+      .eq("user_id", targetUid);
+
+    if ((!data || data.length === 0) && targetUid !== DEFAULT_ID) {
+      const fallback = await supabase
+        .from("user_error_logs")
+        .select("id, user_id, conteudo, frequencia")
+        .eq("user_id", DEFAULT_ID);
+      data = fallback.data;
+    }
+
+    if (error) {
+      console.error("❌ [CentralService] Erro user_error_logs:", error.message);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("❌ [CentralService] Excecao em getUserErrorLogs:", err);
     return [];
   }
 }
