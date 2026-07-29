@@ -172,6 +172,17 @@ export default function MioloMultiplaEscolha({
 
 
 
+  
+  useEffect(() => {
+    const handleGlobalValidate = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", handleGlobalValidate);
+    return () => {
+      window.removeEventListener("haas:validate", handleGlobalValidate);
+    };
+  }, [selecionado, correctOption, options]);
+
   const handleSelect = (opcao: string) => {
     if (localStatus === "CORRECT" || analisando) return; 
     setSelecionado(opcao);
