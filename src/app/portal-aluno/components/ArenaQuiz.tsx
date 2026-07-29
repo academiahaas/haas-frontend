@@ -1,4 +1,6 @@
 "use client";
+import { buscarProgressoAlunoCentral } from "../../../services/centralService";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect, useRef } from 'react';
@@ -25,10 +27,11 @@ interface ArenaProps {
   userId?: string;
   idiomaAtivo?: string;
   subUnidadeTipo?: 'gramatica' | 'vocabulario' | null;
-  subUnidadeIndex?: number | null;
+  subUnidadeIndex?: number | string | null;
+  unidadeId?: string | null;
 }
 
-export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
+export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex, unidadeId }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
   const { user: authUser } = useAuth();
   const activeUserId = authUser?.id;
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
@@ -365,51 +368,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [numeroUnidadeReal, setNumeroUnidadeReal] = useState("");
 
   useEffect(() => {
-    const puxarEstrelasDoBanco = async () => {
+    const carregarDaCentral = async () => {
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const unitStr = String(subUnidadeIndex || ""); const currentUnitId = (unitStr.length > 20) ? unitStr : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-        const userIdFixo = activeUserId || userId;
-
-        // 1. Pega as etiquetas da unidade atual na tabela cheia
-        const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level,unit_number`, {
-          headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
-        });
-        const dadosUnidade = await resUnidade.json();
-        if (!dadosUnidade || dadosUnidade.length === 0) return;
+        const uid = typeof activeUserId !== "undefined" ? activeUserId : userId;
+        if (!uid) return;
         
-        const modNum = dadosUnidade[0].module_number;
-        const lvl = dadosUnidade[0].level;
-        if (dadosUnidade[0].unit_number !== undefined && dadosUnidade[0].unit_number !== null) {
-          setNumeroUnidadeReal(String(dadosUnidade[0].unit_number).padStart(2, "0"));
-        }
-
-        // 2. Filtra o tabelão gigante pegando apenas o bloco correspondente (Descobre o total Y)
-        const resFiltrado = await fetch(`${supabaseUrl}/rest/v1/units?module_number=eq.${modNum}&level=eq.${lvl}&select=id`, {
-          headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
-        });
-        const unidadesDoBloco = await resFiltrado.json();
-        setTotalUnidadesModulo(unidadesDoBloco.length || 0);
-
-        // 3. Verifica quantas dessas o aluno já completou
-        if (unidadesDoBloco.length > 0) {
-          const idsString = unidadesDoBloco.map((u: any) => u.id).join(",");
-          if (!userIdFixo || userIdFixo === "undefined") return;
-          const resProgresso = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userIdFixo}&unit_id=in.(${idsString})&select=unit_id`, {
-            headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
-          });
-          const progresso = await resProgresso.json();
-          console.log("🔥 [ARENA-SUPABASE] Unidade ID ativa:", currentUnitId);
-          console.log("🔥 [ARENA-SUPABASE] Total de unidades do Bloco/Módulo:", unidadesDoBloco.length);
-          console.log("🔥 [ARENA-SUPABASE] Progresso do aluno (concluídas):", progresso.length);
-          setUnidadesConcluidas(progresso.length || 0);
+        // 🔥 CHAMA A CENTRAL SERVICE DE FORMA LIMPA E ARQUITETADA 🔥
+        const progresso = await buscarProgressoAlunoCentral(uid);
+        console.log("🌟 [CENTRAL -> ARENA] Dados roteados corretamente:", progresso);
+        
+        if (progresso) {
+            setUnidadesConcluidas(Number(progresso.exercicios_concluidos) || 0);
+            setTotalUnidadesModulo(Number(progresso.total_unidades_modulo) || 5);
         }
       } catch (err) {
-        console.error("Erro no motor de estrelas:", err);
+        console.error("Erro na integração com a CentralService:", err);
       }
     };
-    puxarEstrelasDoBanco();
-  }, [userId, xpUnidade]);
+    carregarDaCentral();
+  }, [userId, unidadeId, subUnidadeIndex]);
   const [gameStatus, setGameStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   useEffect(() => {
     const puxarProficienciaDoBanco = async () => {

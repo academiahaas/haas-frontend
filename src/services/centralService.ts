@@ -255,3 +255,19 @@ export async function getExerciseByActivityType(unitId: string | undefined, acti
     return { success: false, data: [], error: err };
   }
 }
+
+
+export async function buscarProgressoAlunoCentral(userId: string) {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+    if (!userId) return null;
+    const res = await fetch(`${supabaseUrl}/rest/v1/users?id=eq.${userId}&select=exercicios_concluidos,meta_exercicios,total_unidades_modulo,current_unit_id`, {
+      headers: { "apikey": key, "Authorization": "Bearer " + key }
+    });
+    const data = await res.json();
+    return data && data.length > 0 ? data[0] : null;
+  } catch (e) {
+    return null;
+  }
+}
