@@ -48,6 +48,9 @@ export default function MioloOrdenacao({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloOrdenacaoProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -101,6 +104,10 @@ export default function MioloOrdenacao({
     async function carregarOrdenacao() {
       try {
         setCarregando(true);
+          
+
+          
+          
         
         try {
           if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {

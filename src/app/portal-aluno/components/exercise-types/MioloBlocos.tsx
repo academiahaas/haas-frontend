@@ -48,6 +48,9 @@ export default function MioloBlocos({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloBlocosProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -92,6 +95,10 @@ export default function MioloBlocos({
     async function carregarBlocosDoBanco() {
       try {
         setCarregando(true);
+          
+
+          
+          
         
         try {
           if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {

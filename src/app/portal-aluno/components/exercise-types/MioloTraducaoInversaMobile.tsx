@@ -17,6 +17,9 @@ export default function MioloTraducaoInversaMobile({
   onValidateResult,
   status = 'IDLE'
 }: MioloProps) {
+
+  
+
   const [listaExercicios, setListaExercicios] = useState<any[]>([]);
   const [indexAtual, setIndexAtual] = useState(0);
   const [fraseMatrizPT, setFraseMatrizPT] = useState("Carregando desafio...");

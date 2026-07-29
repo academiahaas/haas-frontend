@@ -60,6 +60,9 @@ export default function MioloTraducaoInversa({
   streak = 0,
   getMultiplicador
 }: MioloProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;

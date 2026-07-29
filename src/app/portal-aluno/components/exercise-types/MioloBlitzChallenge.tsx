@@ -26,6 +26,9 @@ export default function MioloBlitzChallenge({
   unidadeAtiva,
   onValidateResult
 }: MioloBlitzChallengeProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;

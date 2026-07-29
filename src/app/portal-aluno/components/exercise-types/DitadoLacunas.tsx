@@ -40,6 +40,9 @@ export default function DitadoLacunas({
   status: propStatus = 'IDLE', 
   unidadeAtiva 
 }: DitadoLacunasProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -90,6 +93,10 @@ export default function DitadoLacunas({
     async function carregarDitadoDoBanco() {
       try {
         setCarregando(true);
+          
+
+          
+           
         
         try {
           if (typeof USER_ID_ALVO !== "undefined" && USER_ID_ALVO && String(USER_ID_ALVO).trim() !== "") {

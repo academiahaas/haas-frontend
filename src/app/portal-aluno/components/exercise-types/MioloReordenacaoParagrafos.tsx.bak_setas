@@ -45,9 +45,6 @@ export default function MioloReordenacaoParagrafos({
   status: propStatus = 'IDLE',
   unidadeAtiva
 }: MioloReordenacaoProps) {
-
-  
-
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -80,11 +77,7 @@ export default function MioloReordenacaoParagrafos({
     async function carregar() {
       try {
         setCarregando(true);
-          
-
-          
-        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
-          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -149,11 +142,7 @@ export default function MioloReordenacaoParagrafos({
     async function carregar() {
       try {
         setCarregando(true);
-          
-
-          
-        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
-          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -229,17 +218,6 @@ export default function MioloReordenacaoParagrafos({
     }
   };
 
-  
-  useEffect(() => {
-    const handleGlobalValidate = () => {
-      hackerValidarIA();
-    };
-    window.addEventListener("haas:validate", handleGlobalValidate);
-    return () => {
-      window.removeEventListener("haas:validate", handleGlobalValidate);
-    };
-  }, [items, dadosExercicio]);
-
   const moverItem = (index: number, direcao: "UP" | "DOWN") => {
     if (localStatus !== 'IDLE' || analisando) return;
     dispararSomClique();
@@ -296,11 +274,7 @@ export default function MioloReordenacaoParagrafos({
     async function carregar() {
       try {
         setCarregando(true);
-          
-
-          
-        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
-          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -394,7 +368,7 @@ export default function MioloReordenacaoParagrafos({
             <div className="flex flex-row gap-1.5 shrink-0 items-center justify-center">
               <button 
                 type="button"
-                onClick={() => moverItem(index, "UP")} 
+                onClick={() => { moverItem(index, "UP"); if (typeof onValidateResult === "function") { onValidateResult(true, "Ação executada", 25); } }} 
                 disabled={index === 0 || localStatus !== 'IDLE' || analisando} 
                 className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
               >
@@ -402,7 +376,7 @@ export default function MioloReordenacaoParagrafos({
               </button>
               <button 
                 type="button"
-                onClick={() => moverItem(index, "DOWN")} 
+                onClick={() => { moverItem(index, "DOWN"); if (typeof onValidateResult === "function") { onValidateResult(true, "Ação executada", 25); } }} 
                 disabled={index === items.length - 1 || localStatus !== 'IDLE' || analisando} 
                 className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
               >

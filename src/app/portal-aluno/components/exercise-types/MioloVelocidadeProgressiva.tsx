@@ -53,6 +53,9 @@ export default function MioloVelocidadeProgressiva({
   unidadeAtiva,
   onValidateResult
 }: MioloProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -92,6 +95,10 @@ export default function MioloVelocidadeProgressiva({
     async function carregarDados() {
       try {
         setCarregando(true);
+          
+
+          
+          
         let userDados = [];
         if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
           if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") {

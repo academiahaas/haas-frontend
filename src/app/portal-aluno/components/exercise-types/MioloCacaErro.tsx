@@ -41,6 +41,9 @@ const traducoesAbas: Record<string, Record<string, string>> = {
 };
 
 export default function MioloCacaErro({ onSelectionChange, onValidateResult, status, unidadeAtiva }: MioloProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -50,11 +53,29 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
 
+  const executarRef = React.useRef<(() => void) | null>(null);
+
   useEffect(() => {
-    if (status === "CHECKING") {
-      executarValidacaoInterna();
+    const handleGlobalValidate = () => {
+      if (executarRef.current) executarRef.current();
+    };
+    window.addEventListener("haas:validate", handleGlobalValidate);
+    return () => {
+      window.removeEventListener("haas:validate", handleGlobalValidate);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (status === "CHECKING" && executarRef.current) {
+      executarRef.current();
     }
   }, [status]);
+
+  
+
+
+
+
 
   const [localStatus, setLocalStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
   const [isShortText, setIsShortText] = useState(true);
@@ -71,7 +92,11 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     async function carregar() {
       try {
         setCarregando(true);
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+          
+
+          
+        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
+          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -167,7 +192,11 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     async function carregar() {
       try {
         setCarregando(true);
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+          
+
+          
+        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
+          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -243,7 +272,11 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     async function carregar() {
       try {
         setCarregando(true);
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+          
+
+          
+        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
+          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -320,6 +353,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     if (onSelectionChange) onSelectionChange(true);
   };
 
+  executarRef.current = () => executarValidacaoInterna();
   const executarValidacaoInterna = async () => {
     if (!selecionado || analisando) return;
     setAnalisando(true);

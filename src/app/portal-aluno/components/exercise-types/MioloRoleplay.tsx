@@ -167,6 +167,9 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
 }
 
 export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloRoleplayProps) {
+
+  
+
   const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "ANALYZING" | "DONE">("IA_SPEAKING");
   const [phraseIA, setPhraseIA] = useState("...");
   const [transcricaoAluno, setTranscricaoAluno] = useState("");
@@ -196,6 +199,10 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
     async function carregarCenarioHiperpersonalizado() {
       try {
         setCarregando(true);
+          
+
+          
+          
         const codigoUnidade = unidadeAtiva || "1.1";
         const { data: exeDados, error } = await supabase
           .from("exercises")

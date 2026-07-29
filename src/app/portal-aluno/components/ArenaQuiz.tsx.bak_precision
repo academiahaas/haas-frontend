@@ -1,6 +1,4 @@
 "use client";
-import { buscarProgressoAlunoCentral } from "../../../services/centralService";
-
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect, useRef } from 'react';
@@ -27,11 +25,10 @@ interface ArenaProps {
   userId?: string;
   idiomaAtivo?: string;
   subUnidadeTipo?: 'gramatica' | 'vocabulario' | null;
-  subUnidadeIndex?: number | string | null;
-  unidadeId?: string | null;
+  subUnidadeIndex?: number | null;
 }
 
-export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex, unidadeId }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
+export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
   const { user: authUser } = useAuth();
   const activeUserId = authUser?.id;
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
@@ -292,8 +289,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         if (!supabaseUrl) return;
         
         // Puxa o progresso de unidade associado ao aluno ordenando pelo mais recente
-        const targetUnitId = (typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || "";
-        if (!targetUnitId || targetUnitId.length < 20) return;
+        const targetUnitId = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (!userId || userId === "undefined") return;
         const res = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userId}&unit_id=eq.${targetUnitId}&select=unit_xp`, {
           headers: {
@@ -369,25 +365,48 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [numeroUnidadeReal, setNumeroUnidadeReal] = useState("");
 
   useEffect(() => {
-    const carregarDaCentral = async () => {
+    const puxarEstrelasDoBanco = async () => {
       try {
-        const uid = typeof activeUserId !== "undefined" ? activeUserId : userId;
-        if (!uid) return;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        const userIdFixo = activeUserId || userId;
+
+        // 1. Pega as etiquetas da unidade atual na tabela cheia
+        const resUnidade = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${currentUnitId}&select=module_number,level,unit_number`, {
+          headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
+        });
+        const dadosUnidade = await resUnidade.json();
+        if (!dadosUnidade || dadosUnidade.length === 0) return;
         
-        // 🔥 CHAMA A CENTRAL SERVICE DE FORMA LIMPA E ARQUITETADA 🔥
-        const progresso = await buscarProgressoAlunoCentral(uid);
-        console.log("🌟 [CENTRAL -> ARENA] Dados roteados corretamente:", progresso);
-        
-        if (progresso) {
-            setUnidadesConcluidas(Number(progresso.exercicios_concluidos) || 0);
-            setTotalUnidadesModulo(Number(progresso.total_unidades_modulo) || 5);
+        const modNum = dadosUnidade[0].module_number;
+        const lvl = dadosUnidade[0].level;
+        if (dadosUnidade[0].unit_number !== undefined && dadosUnidade[0].unit_number !== null) {
+          setNumeroUnidadeReal(String(dadosUnidade[0].unit_number).padStart(2, "0"));
+        }
+
+        // 2. Filtra o tabelão gigante pegando apenas o bloco correspondente (Descobre o total Y)
+        const resFiltrado = await fetch(`${supabaseUrl}/rest/v1/units?module_number=eq.${modNum}&level=eq.${lvl}&select=id`, {
+          headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
+        });
+        const unidadesDoBloco = await resFiltrado.json();
+        setTotalUnidadesModulo(unidadesDoBloco.length || 0);
+
+        // 3. Verifica quantas dessas o aluno já completou
+        if (unidadesDoBloco.length > 0) {
+          const idsString = unidadesDoBloco.map((u: any) => u.id).join(",");
+          if (!userIdFixo || userIdFixo === "undefined") return;
+          const resProgresso = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${userIdFixo}&unit_id=in.(${idsString})&select=unit_id`, {
+            headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
+          });
+          const progresso = await resProgresso.json();
+          setUnidadesConcluidas(progresso.length || 0);
         }
       } catch (err) {
-        console.error("Erro na integração com a CentralService:", err);
+        console.error("Erro no motor de estrelas:", err);
       }
     };
-    carregarDaCentral();
-  }, [userId, unidadeId, subUnidadeIndex]);
+    puxarEstrelasDoBanco();
+  }, [userId, xpUnidade]);
   const [gameStatus, setGameStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
   useEffect(() => {
     const puxarProficienciaDoBanco = async () => {
@@ -1078,8 +1097,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const finalUserId = activeUserId || userId;
       if (!supabaseUrl) return;
 
-      const targetUnitId = (typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || "";
-        if (!targetUnitId || targetUnitId.length < 20) return;
+      const targetUnitId = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
 
       // Chamada HTTP via POST com a flag de ON CONFLICT do Supabase para fazer Upsert automático
       await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?on_conflict=user_id,unit_id`, {
@@ -1095,7 +1113,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           unit_id: targetUnitId,
           unit_xp: novoXpTotalDaUnidade,
           activity_type: (() => { const game = activityType || jogoSelecionado; const map: Record<string, string> = { escolha: "1", caca_erro: "2", blitz: "3", ditado: "4", blocos: "5", leitura_veloz: "6", leitura: "6", ordenacao: "7", paragrafos: "8", roleplay: "9", shadowing: "10", spelling: "11", traducao: "12", velocidade: "13" }; return map[game] || String(game || "geral"); })(),
-          exercise_id: ["shadowing", "spelling", "traducao", "velocidade", "escolha", "caca_erro", "blitz", "ditado", "blocos", "leitura_veloz", "leitura", "ordenacao", "roleplay"].includes(activityType || jogoSelecionado) ? String(dynamicExerciseId || (typeof subUnidadeIndex === "string" ? subUnidadeIndex : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))) : (dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || "8")),
+          exercise_id: ["shadowing", "spelling", "traducao", "velocidade", "escolha", "caca_erro", "blitz", "ditado", "blocos", "leitura_veloz", "leitura", "ordenacao", "roleplay"].includes(activityType || jogoSelecionado) ? String(dynamicExerciseId || (typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")) : (dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || "8")),
           score: scoreObtido ?? 0,
           completed_at: new Date().toISOString()
         })
@@ -1134,7 +1152,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     if (xpGanho > 0) {
       setXpAcumulado(prev => prev + xpGanho);
     }
-    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado === "roleplay" ? "9" : jogoSelecionado, xpGanho, jogoSelecionado === "roleplay" ? (typeof subUnidadeIndex === "string" ? subUnidadeIndex : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || "")) : (exerciseId && exerciseId !== "roleplay" ? exerciseId : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || "")));
+    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado === "roleplay" ? "9" : jogoSelecionado, xpGanho, jogoSelecionado === "roleplay" ? (typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0") : (exerciseId && exerciseId !== "roleplay" ? exerciseId : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0"));
     // Notifica conclusão do exercício no Supabase para Reordenação e outros módulos
     if (isCorrect) {
       console.log("🚀 [ARENA QUIZ] Notificando Supabase sobre conclusão do jogo:", jogoSelecionado);
@@ -1148,7 +1166,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     } else {
       setGameStatus('WRONG');
       tocarSom('error');
-      // setPrecision mantida fiel ao banco clinical_precision
+      setPrecision(prev => Math.max(prev - 4, 60));
       if (streak > 0) {
         setComboQuebrado(true);
         setStreak(0);
@@ -1157,19 +1175,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} /> },
-    { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === 'number' ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== 'undefined' && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ''))} /> },
-    { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> }
+    { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> },
+    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === 'number' ? String(subUnidadeIndex) : (subUnidadeIndex || '09adf4ff-71ed-4b2b-982e-07c22fcd2cf0')} /> },
+    { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0")} /> }
   ];
 
   const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[7];

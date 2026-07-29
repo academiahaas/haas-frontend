@@ -78,6 +78,9 @@ function calcularSimilaridadeShadowing(target: string, spoken: string): number {
 }
 
 export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -170,6 +173,10 @@ Regras Estritas:
         async function carregarCenarioShadowing() {
       try {
         setCarregando(true);
+          
+
+          
+          
         let codigoUnidade = unidadeAtiva;
 
         // Se a unidade não vier definida ou for inválida, busca a primeira ativa do banco

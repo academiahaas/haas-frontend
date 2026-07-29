@@ -44,9 +44,6 @@ export default function MioloMultiplaEscolha({
   status = "IDLE",
   unidadeAtiva
 }: MioloProps) {
-
-  
-
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -82,11 +79,7 @@ export default function MioloMultiplaEscolha({
     async function carregar() {
       try {
         setCarregando(true);
-          
-
-          
-        let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
-          if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
+        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
           unitParaBusca = String(unidadeAtiva);
         }
@@ -178,17 +171,6 @@ export default function MioloMultiplaEscolha({
   
 
 
-
-  
-  useEffect(() => {
-    const handleGlobalValidate = () => {
-      executarValidacaoInterna();
-    };
-    window.addEventListener("haas:validate", handleGlobalValidate);
-    return () => {
-      window.removeEventListener("haas:validate", handleGlobalValidate);
-    };
-  }, [selecionado, correctOption, options]);
 
   const handleSelect = (opcao: string) => {
     if (localStatus === "CORRECT" || analisando) return; 

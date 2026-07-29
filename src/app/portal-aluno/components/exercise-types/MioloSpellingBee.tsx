@@ -47,6 +47,9 @@ export default function MioloSpellingBee({
   onValidateResult, 
   onSelectionChange 
 }: MioloSpellingBeeProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -128,6 +131,10 @@ export default function MioloSpellingBee({
     async function inicializarSpelling() {
       try {
         setCarregando(true);
+          
+
+          
+          
         
         // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
         let userDados = null;

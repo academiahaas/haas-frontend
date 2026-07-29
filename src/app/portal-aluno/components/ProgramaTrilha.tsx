@@ -5,7 +5,7 @@ import { ChevronDown, Lock, CheckCircle2, PlayCircle } from 'lucide-react';
 
 interface ProgramaTrilhaProps {
   idiomaAtivo: 'PT' | 'EN' | 'ES';
-  aoAbrirArena?: () => void;
+  aoAbrirArena?: (unidadeId?: any) => void;
 }
 
 export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTrilhaProps) {
@@ -148,7 +148,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                 <div className="flex flex-col gap-2">
                   {licoesVisiveis.length > 0 ? (
                     licoesVisiveis.map((m) => (
-                      <div key={m.id} onClick={() => !isBloqueado && aoAbrirArena?.()} className={"p-4 rounded-xl border flex justify-between items-center transition-all duration-300 transform " + (isBloqueado ? 'border-white/[0.02] opacity-40 bg-black/10 select-none' : 'border-white/[0.05] bg-[#111c2e] hover:bg-[#16253d] hover:scale-[1.005] cursor-pointer')}>
+                      <div key={m.id} onClick={() => { console.log("👀 [TRILHA] Dados da lição clicada:", m); !isBloqueado && aoAbrirArena?.(m.unit_id || m.uuid || m.id_unidade || m.id); }} className={"p-4 rounded-xl border flex justify-between items-center transition-all duration-300 transform " + (isBloqueado ? 'border-white/[0.02] opacity-40 bg-black/10 select-none' : 'border-white/[0.05] bg-[#111c2e] hover:bg-[#16253d] hover:scale-[1.005] cursor-pointer')}>
                         <div className="flex items-center gap-4">
                           <div className="flex-shrink-0">
                             {isConcluido ? <CheckCircle2 size={14} className="text-emerald-500" /> : isAtual ? <PlayCircle size={14} className="text-amber-500 animate-pulse" /> : <Lock size={14} className="text-slate-500" />}
