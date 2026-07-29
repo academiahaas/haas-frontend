@@ -1219,7 +1219,7 @@ export default function DashboardDesktop() {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
-            <ProgramaTrilha idiomaAtivo={idioma} aoAbrirArena={() => { setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
+            <ProgramaTrilha idiomaAtivo={idioma} aoAbrirArena={(unidId) => { setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
           </div>
         </div>
       </div>

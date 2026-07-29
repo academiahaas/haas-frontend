@@ -368,7 +368,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     const puxarEstrelasDoBanco = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const currentUnitId = typeof subUnidadeIndex === "string" ? subUnidadeIndex : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
+        const unitStr = String(subUnidadeIndex || ""); const currentUnitId = (unitStr.length > 20) ? unitStr : "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
         const userIdFixo = activeUserId || userId;
 
         // 1. Pega as etiquetas da unidade atual na tabela cheia
@@ -399,6 +399,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             headers: { "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4" }
           });
           const progresso = await resProgresso.json();
+          console.log("🔥 [ARENA-SUPABASE] Unidade ID ativa:", currentUnitId);
+          console.log("🔥 [ARENA-SUPABASE] Total de unidades do Bloco/Módulo:", unidadesDoBloco.length);
+          console.log("🔥 [ARENA-SUPABASE] Progresso do aluno (concluídas):", progresso.length);
           setUnidadesConcluidas(progresso.length || 0);
         }
       } catch (err) {
@@ -1166,7 +1169,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     } else {
       setGameStatus('WRONG');
       tocarSom('error');
-      setPrecision(prev => Math.max(prev - 4, 60));
+      // setPrecision mantida fiel ao banco clinical_precision
       if (streak > 0) {
         setComboQuebrado(true);
         setStreak(0);
