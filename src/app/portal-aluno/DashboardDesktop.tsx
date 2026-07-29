@@ -1,5 +1,5 @@
 'use client';
-import { buscarProgressoAlunoCentral } from "../../services/centralService";
+import { buscarProgressoAlunoCentral, buscarInfoModuloContent } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
@@ -67,17 +67,30 @@ export default function DashboardDesktop() {
   const [nivelUserCentral, setNivelUserCentral] = useState('');
 
   useEffect(() => {
-    async function carregarModuloNivelUser() {
+    async function carregarDadosCentral() {
       try {
         const uid = (typeof window !== "undefined" && (window as any).activeUserId) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         const dados = await buscarProgressoAlunoCentral(uid);
         if (dados) {
-          if (dados.modulo_atual) setModuloUserCentral(String(dados.modulo_atual).padStart(2, '0'));
-          if (dados.current_level) setNivelUserCentral(String(dados.current_level));
+          const lvl = String(dados.current_level || 'A1');
+          const modNum = dados.modulo_atual || 1;
+          
+          setModuloUserCentral(String(modNum).padStart(2, '0'));
+          setNivelUserCentral(lvl);
+
+          // Busca título oficial em modules_content
+          const infoModulo = await buscarInfoModuloContent(lvl, modNum);
+          if (infoModulo && infoModulo.module_title) {
+            setNomeModulo(infoModulo.module_title);
+          } else {
+            setNomeModulo("Módulo " + String(modNum).padStart(2, '0'));
+          }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Erro ao carregar dados da central:", e);
+      }
     }
-    carregarModuloNivelUser();
+    carregarDadosCentral();
   }, []);
 
       const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
