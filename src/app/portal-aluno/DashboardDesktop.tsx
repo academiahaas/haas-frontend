@@ -1,5 +1,5 @@
 'use client';
-import { buscarProgressoAlunoCentral, buscarInfoModuloContent } from "../../services/centralService";
+import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
@@ -84,6 +84,16 @@ export default function DashboardDesktop() {
             setNomeModulo(infoModulo.module_title);
           } else {
             setNomeModulo("Módulo " + String(modNum).padStart(2, '0'));
+          }
+
+          // Carrega as unidades oficiais da tabela units
+          try {
+            const unidadesBanco = await buscarUnidadesModuloCentral(lvl, modNum);
+            if (unidadesBanco && unidadesBanco.length > 0 && typeof setListaUnidades !== 'undefined') {
+              setListaUnidades(unidadesBanco);
+            }
+          } catch (errUnidades) {
+            console.error("Erro ao carregar lista de unidades:", errUnidades);
           }
         }
       } catch (e) {

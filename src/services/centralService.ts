@@ -271,3 +271,49 @@ export async function buscarProgressoAlunoCentral(userId: string) {
     return null;
   }
 }
+
+
+function intVal(v: any): number { const n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+
+export async function buscarInfoModuloContent(levelTag: string, moduleNumber: number | string) {
+  try {
+    const num = intVal(moduleNumber) || 1;
+    const { data, error } = await supabase
+      .from("modules_content")
+      .select("module_title, pedagogical_objective, thematic_content")
+      .eq("level_tag", levelTag)
+      .eq("module_number", num)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro na busca de modules_content:", error);
+      return null;
+    }
+    return data;
+  } catch (e) {
+    console.error("Exceção ao buscar modules_content:", e);
+    return null;
+  }
+}
+
+
+export async function buscarUnidadesModuloCentral(levelTag: string, moduleNumber: number | string) {
+  try {
+    const num = intVal(moduleNumber) || 1;
+    const { data, error } = await supabase
+      .from("units")
+      .select("id, unit_number, unit_title, estimated_hours, level, module_number")
+      .eq("level", levelTag)
+      .eq("module_number", num)
+      .order("unit_number", { ascending: true });
+
+    if (error) {
+      console.error("Erro na busca de units:", error);
+      return [];
+    }
+    return data || [];
+  } catch (e) {
+    console.error("Exceção ao buscar units:", e);
+    return [];
+  }
+}
