@@ -1,4 +1,5 @@
 'use client';
+import { buscarProgressoAlunoCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
@@ -25,6 +26,9 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
     EN: 'HAAS MENTOR',
     ES: 'MENTORA HAAS'
   };
+  
+  
+
   return (
     <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
       <svg viewBox="0 0 64 64" className="w-10 h-10 xl:w-12 xl:h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,7 +62,25 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 }
 
 export default function DashboardDesktop() {
-  const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
+
+  const [moduloUserCentral, setModuloUserCentral] = useState('');
+  const [nivelUserCentral, setNivelUserCentral] = useState('');
+
+  useEffect(() => {
+    async function carregarModuloNivelUser() {
+      try {
+        const uid = (typeof window !== "undefined" && (window as any).activeUserId) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const dados = await buscarProgressoAlunoCentral(uid);
+        if (dados) {
+          if (dados.modulo_atual) setModuloUserCentral(String(dados.modulo_atual).padStart(2, '0'));
+          if (dados.current_level) setNivelUserCentral(String(dados.current_level));
+        }
+      } catch (e) {}
+    }
+    carregarModuloNivelUser();
+  }, []);
+
+      const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
           const [scoreAtivo, setScoreAtivo] = useState(50);
   const [tempoModulo, setTempoModulo] = useState(15);
   const [nomeModulo, setNomeModulo] = useState("Carregando módulo...");
@@ -717,10 +739,10 @@ export default function DashboardDesktop() {
                   <div className="mt-2 flex flex-col gap-1">
                     <div className="flex items-center gap-2.5">
                       <span className="text-[10px] font-black text-amber-500 font-mono tracking-widest uppercase">
-                        {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
+                        {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {moduloUserCentral || moduloUserCentral || String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
                       </span>
                       <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase">
-                        {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {listaUnidades[0]?.level || 'A1'}
+                        {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {nivelUserCentral || nivelUserCentral || listaUnidades[0]?.level || 'A1'}
                       </span>
                     </div>
                     <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight mt-0.5">{nomeModulo}</h2>
