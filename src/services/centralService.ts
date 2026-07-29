@@ -302,7 +302,7 @@ export async function buscarUnidadesModuloCentral(levelTag: string, moduleNumber
     const num = intVal(moduleNumber) || 1;
     const { data, error } = await supabase
       .from("units")
-      .select("id, unit_number, unit_title, estimated_hours, level, module_number")
+      .select("id, unit_number, unit_title, estimated_hours, level, module_number, pedagogical_objective")
       .eq("level", levelTag)
       .eq("module_number", num)
       .order("unit_number", { ascending: true });
