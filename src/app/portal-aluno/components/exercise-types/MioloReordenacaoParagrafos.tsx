@@ -16,6 +16,7 @@ interface MioloReordenacaoProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
