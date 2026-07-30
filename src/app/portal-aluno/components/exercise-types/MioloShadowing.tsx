@@ -8,6 +8,7 @@ interface MioloShadowingProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  nivelAtivo?: string;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
@@ -77,7 +78,8 @@ function calcularSimilaridadeShadowing(target: string, spoken: string): number {
   return Math.round((acertos / palavrasAlvo.length) * 100);
 }
 
-export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva, onValidateResult }: MioloShadowingProps) {
+export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva,
+  nivelAtivo, onValidateResult }: MioloShadowingProps) {
 
   
 
@@ -177,17 +179,11 @@ Regras Estritas:
 
           
           
-        let codigoUnidade = unidadeAtiva;
-
-        // Se a unidade não vier definida ou for inválida, busca a primeira ativa do banco
-        if (!codigoUnidade || codigoUnidade === "0" || codigoUnidade === "undefined") {
-          const { data: primeiraAtiva } = await supabase
-            .from("exercises")
-            .select("unit")
-            .eq("activity_type", 10)
-            .limit(1);
-          codigoUnidade = primeiraAtiva && primeiraAtiva.length > 0 ? primeiraAtiva[0].unit : "1.1";
-        }
+        if (!unidadeAtiva) {
+        console.log("🔍 [SHADOWING] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
+      let codigoUnidade = unidadeAtiva;
 
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
         let query = supabase.from("exercises").select("*").eq("activity_type", 10);
