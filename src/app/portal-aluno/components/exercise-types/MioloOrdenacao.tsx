@@ -130,7 +130,7 @@ export default function MioloOrdenacao({
 
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
 
-        const response = await getExerciseByActivityType(nomeUnidade, 5);
+        const response = await getExerciseByActivityType(nomeUnidade, 7);
         const dados = (response && response.data) ? response.data : [];
 
         
