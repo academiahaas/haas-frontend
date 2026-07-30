@@ -71,19 +71,30 @@ export default function MioloMultiplaEscolha({
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    console.log("📥 [MIOLO ESCOLHA] Prop exerciseData recebida:", exerciseData);
     if (exerciseData) {
-      setPergunta(exerciseData.enunciado || exerciseData.question || exerciseData.pergunta || "Selecione a alternativa correta:");
-      setCorrectOption(exerciseData.resposta_correta || exerciseData.correct_option || "");
-      
+      console.log("📥 [MIOLO ESCOLHA - TIPO 1] Objeto bruto recebido:", exerciseData);
+
+      // Enunciado
+      setPergunta(exerciseData.reading_text || exerciseData.enunciado || "Selecione a opção correta:");
+
+      // Alternativas (Garante array de 4 opções sem truncamento)
+      let rawOpts = exerciseData.alternative_options || exerciseData.options || [];
       let opts = [];
-      if (Array.isArray(exerciseData.opcoes)) opts = exerciseData.opcoes;
-      else if (Array.isArray(exerciseData.options)) opts = exerciseData.options;
-      else if (typeof exerciseData.opcoes === "string") {
-        try { opts = JSON.parse(exerciseData.opcoes); } catch(e) {}
+      if (Array.isArray(rawOpts)) {
+        opts = rawOpts;
+      } else if (typeof rawOpts === "string") {
+        try { opts = JSON.parse(rawOpts); } catch(e) { opts = []; }
       }
       setOptions(opts);
-      
+
+      // Resposta Correta (Leitura direta da coluna correct_answer)
+      const correctVal = exerciseData.correct_answer !== undefined ? exerciseData.correct_answer : (exerciseData.resposta_correta || "");
+      setCorrectOption(String(correctVal).trim());
+
+      // Feedbacks
+      if (exerciseData.correct_feedback) setFeedbackCorretoBanco(exerciseData.correct_feedback);
+      if (exerciseData.incorrect_feedback) setFeedbackIncorretoBanco(exerciseData.incorrect_feedback);
+
       if (exerciseData.id) setExerciseId(String(exerciseData.id));
       setCarregando(false);
     }

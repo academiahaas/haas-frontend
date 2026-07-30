@@ -2,16 +2,18 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { chamarGeminiInteligente } from './geminiService';
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
-import { getExerciseByActivityType } from '@/services/centralService';
+
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'lucide-react';
 
 interface MioloProps {
+  exerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: "IDLE" | "CORRECT" | "WRONG";
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -38,12 +40,17 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloMultiplaEscolha({ 
+export default function MioloMultiplaEscolha({
+  exerciseData,
+ 
   onSelectionChange,
   onValidateResult,
   status = "IDLE",
   unidadeAtiva
 }: MioloProps) {
+
+  
+
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
@@ -63,6 +70,45 @@ export default function MioloMultiplaEscolha({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  useEffect(() => {
+    if (exerciseData) {
+      console.log("📥 [MIOLO ESCOLHA] Dados recebidos do pai:", exerciseData);
+
+      // Enunciado
+      const enun = exerciseData.reading_text || exerciseData.enunciado || exerciseData.prompt || "Selecione a alternativa correta:";
+      setPergunta(enun);
+
+      // Opções
+      let rawOpts = exerciseData.alternative_options || exerciseData.options || exerciseData.opcoes || [];
+      let opts = [];
+      if (Array.isArray(rawOpts)) {
+        opts = rawOpts;
+      } else if (typeof rawOpts === "string") {
+        try { opts = JSON.parse(rawOpts); } catch(e) { opts = []; }
+      }
+      setOptions(opts);
+
+      // Resposta correta
+      const correctStr = exerciseData.correct_answer || exerciseData.resposta_correta || "";
+      setCorrectOption(typeof correctStr === "string" ? correctStr.trim() : String(correctStr));
+
+      // Feedbacks
+      if (exerciseData.correct_feedback) setFeedbackCorretoBanco(exerciseData.correct_feedback);
+      if (exerciseData.incorrect_feedback) setFeedbackIncorretoBanco(exerciseData.incorrect_feedback);
+      if (exerciseData.correct_incentive) setIncentivoCorretoBanco(exerciseData.correct_incentive);
+      if (exerciseData.incorrect_incentive) setIncentivoIncorretoBanco(exerciseData.incorrect_incentive);
+
+      if (exerciseData.id) setExerciseId(String(exerciseData.id));
+
+      // LIBERA A TELA (sai do estado de carregando)
+      setCarregando(false);
+    } else {
+      // Se não houver dados, também encerra o carregando para não travar a UI
+      setCarregando(false);
+    }
+  }, [exerciseData]);
+
+
   
   
   
@@ -76,75 +122,14 @@ export default function MioloMultiplaEscolha({
 
   
   useEffect(() => {
-    async function carregar() {
-      try {
-        setCarregando(true);
-        let unitParaBusca = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-        if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
-          unitParaBusca = String(unidadeAtiva);
-        }
-
-        console.log("🔍 [MÚLTIPLA ESCOLHA ÚNICO] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 1);
-        const dados = res.success && res.data ? res.data : [];
-
-        if (dados.length > 0) {
-          const exe = dados[0];
-          if (exe.id) setExerciseId(exe.id);
-
-          const respCorreta = (exe.correct_answer || "").trim();
-          setCorrectOption(respCorreta);
-
-          let optsDistracao: string[] = [];
-          if (exe.alternative_options) {
-            try {
-              optsDistracao = typeof exe.alternative_options === "string" 
-                ? JSON.parse(exe.alternative_options) 
-                : exe.alternative_options;
-            } catch (e) {
-              console.warn("Aviso ao parsear alternative_options:", e);
-            }
-          }
-
-          if (Array.isArray(optsDistracao)) {
-            optsDistracao = optsDistracao.map(o => String(o).trim());
-          } else {
-            optsDistracao = [];
-          }
-
-          const jaExiste = optsDistracao.some(o => o.toLowerCase() === respCorreta.toLowerCase());
-
-          let todasOpcoes: string[] = [];
-          if (respCorreta && !jaExiste) {
-            todasOpcoes = [respCorreta, ...optsDistracao];
-          } else {
-            todasOpcoes = optsDistracao;
-          }
-
-          if (todasOpcoes.length > 0) {
-            const opcoesEmbaralhadas = [...todasOpcoes].sort(() => Math.random() - 0.5);
-            setOptions(opcoesEmbaralhadas);
-          }
-
-          const textoPergunta = exe.reading_text || exe.prompt || exe.prompt_text || exe.question || exe.activity_name || "Selecione a opção correta:";
-          setPergunta(textoPergunta);
-
-          if (exe.correct_feedback) setFeedbackCorretoBanco(exe.correct_feedback);
-          if (exe.incorrect_feedback) setFeedbackIncorretoBanco(exe.incorrect_feedback);
-          if (exe.correct_incentive) setIncentivoCorretoBanco(exe.correct_incentive);
-          if (exe.incorrect_incentive) setIncentivoIncorretoBanco(exe.incorrect_incentive);
-
-        } else {
-          console.warn("⚠️ Nenhum exercício de Múltipla Escolha encontrado.");
-        }
-      } catch (err) {
-        console.error("❌ Erro ao carregar Múltipla Escolha:", err);
-      } finally {
-        setCarregando(false);
-      }
+    // Componente passivo: quando status reseta para IDLE ou novos dados chegam, reseta selecao
+    if (status === "IDLE" || exerciseData) {
+      setSelecionado(null);
+      setLocalStatus("IDLE");
+      setFeedbackIA("");
+      if (onSelectionChange) onSelectionChange(false);
     }
-    carregar();
-  }, [unidadeAtiva]);
+  }, [status, exerciseData]);;;
 
   const [isShortText, setIsShortText] = useState(true);
 
@@ -171,6 +156,17 @@ export default function MioloMultiplaEscolha({
   
 
 
+
+  
+  useEffect(() => {
+    const handleGlobalValidate = () => {
+      executarValidacaoInterna();
+    };
+    window.addEventListener("haas:validate", handleGlobalValidate);
+    return () => {
+      window.removeEventListener("haas:validate", handleGlobalValidate);
+    };
+  }, [selecionado, correctOption, options]);
 
   const handleSelect = (opcao: string) => {
     if (localStatus === "CORRECT" || analisando) return; 

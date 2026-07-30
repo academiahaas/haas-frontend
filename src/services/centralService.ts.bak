@@ -225,19 +225,17 @@ export async function getExerciseByActivityType(unitId: string | undefined, acti
     const DEFAULT_UNIT_ID = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
     let targetUnit = (unitId && String(unitId).trim() !== "0" && String(unitId).length > 10) ? String(unitId) : DEFAULT_UNIT_ID;
 
-    console.log(`🔍 [CentralService] Buscando exercicio activityType=${activityType} para unit_id=${targetUnit}`);
-
+    // Tenta buscar o exercicio base
     let { data, error } = await supabase
       .from("exercises")
-      .select("id, lesson_id, activity_type, difficulty_level, reading_text, correct_answer, alternative_options, correct_feedback, incorrect_feedback, correct_incentive, incorrect_incentive, unit_id")
+      .select("*")
       .eq("unit_id", targetUnit)
       .eq("activity_type", activityType);
 
     if ((!data || data.length === 0) && targetUnit !== DEFAULT_UNIT_ID) {
-      console.log("⚠️ [CentralService] Sem dados para a unidade atual. Tentando unidade padrao fallback...");
       const fallback = await supabase
         .from("exercises")
-        .select("id, lesson_id, activity_type, difficulty_level, reading_text, correct_answer, alternative_options, correct_feedback, incorrect_feedback, correct_incentive, incorrect_incentive, unit_id")
+        .select("*")
         .eq("unit_id", DEFAULT_UNIT_ID)
         .eq("activity_type", activityType);
 
@@ -246,11 +244,13 @@ export async function getExerciseByActivityType(unitId: string | undefined, acti
     }
 
     if (error) {
-      console.error(`❌ [CentralService] Erro na consulta do Supabase:`, error.message);
+      console.error(`❌ [CentralService] Erro ao buscar atividade ${activityType}:`, error.message);
       return { success: false, data: [], error };
     }
 
-    console.log("📦 [CentralService] Dados retornados do banco com sucesso:", data);
+    // Se for Multipla Escolha (type 1), busca o detalhe na tabela correspondente
+    
+
     return { success: true, data: data || [] };
   } catch (err) {
     console.error(`❌ [CentralService] Exceção em getExerciseByActivityType:`, err);
