@@ -1116,40 +1116,44 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
     // Sincroniza o ganho de XP da unidade com o Supabase usando UPSERT
   const sincronizarXpUnidadeComBanco = async (novoXpTotalDaUnidade: number, activityType?: string, scoreObtido?: number, dynamicExerciseId?: string) => {
-    // Atualiza imediatamente o estado visual local para dar fluidez e não travar as próximas questões
+    // Incrementa visualmente a sessão atual
     setXpUnidade(novoXpTotalDaUnidade);
+    
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
       const finalUserId = activeUserId || userId;
-      if (!supabaseUrl) return;
+      const targetUnitId = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : "");
 
-      const targetUnitId = (typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || "";
-        if (!targetUnitId || targetUnitId.length < 20) return;
+      if (!supabaseUrl || !finalUserId || !targetUnitId) return;
 
-      // Chamada HTTP via POST com a flag de ON CONFLICT do Supabase para fazer Upsert automático
-      await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?on_conflict=user_id,unit_id`, {
+      // Garante UUID do exercicio se fornecido, senao deixa nulo/vazio e nao string aleatoria
+      const finalExerciseId = (dynamicExerciseId && dynamicExerciseId.length > 10) ? dynamicExerciseId : null;
+
+      const payload = {
+        user_id: String(finalUserId),
+        unit_id: String(targetUnitId),
+        unit_xp: Number(novoXpTotalDaUnidade || 0),
+        activity_type: String(activityType || jogoSelecionado || "1"),
+        exercise_id: finalExerciseId,
+        score: Number(scoreObtido ?? 100),
+        completed_at: new Date().toISOString()
+      };
+
+      console.log("🚀 [SYNCRONIZER] Enviando progresso para user_unit_progress:", payload);
+
+      await fetch(`${supabaseUrl}/rest/v1/user_unit_progress`, {
         method: "POST",
         headers: {
           "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
           "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
           "Content-Type": "application/json",
-          "Prefer": "resolution=merge-duplicates"
+          "Prefer": "return=minimal"
         },
-        body: JSON.stringify({
-          user_id: activeUserId || userId,
-          unit_id: targetUnitId,
-          unit_xp: novoXpTotalDaUnidade,
-          activity_type: (() => { const game = activityType || jogoSelecionado; const map: Record<string, string> = { escolha: "1", caca_erro: "2", blitz: "3", ditado: "4", blocos: "5", leitura_veloz: "6", leitura: "6", ordenacao: "7", paragrafos: "8", roleplay: "9", shadowing: "10", spelling: "11", traducao: "12", velocidade: "13" }; return map[game] || String(game || "geral"); })(),
-          exercise_id: ["shadowing", "spelling", "traducao", "velocidade", "escolha", "caca_erro", "blitz", "ditado", "blocos", "leitura_veloz", "leitura", "ordenacao", "roleplay"].includes(activityType || jogoSelecionado) ? String(dynamicExerciseId || (typeof subUnidadeIndex === "string" ? subUnidadeIndex : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))) : (dynamicExerciseId ? String(dynamicExerciseId) : String(jogoSelecionado || "8")),
-          score: scoreObtido ?? 0,
-          completed_at: new Date().toISOString()
-        })
+        body: JSON.stringify(payload)
       });
-      
-      
+
     } catch (err) {
-      console.error("Erro ao sincronizar XP com o Supabase:", err);
+      console.error("❌ Erro ao registrar user_unit_progress no Supabase:", err);
     }
   };
 
