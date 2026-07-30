@@ -7,7 +7,6 @@ import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle } from "lucide-rea
 import { supabase } from '@/lib/supabase';
 
 interface MioloSpellingBeeProps {
-  exerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
@@ -41,8 +40,7 @@ const traducoes: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloSpellingBee({
-  exerciseData, 
+export default function MioloSpellingBee({ 
   onSelectCorrect, 
   onSelectWrong, 
   unidadeAtiva,
@@ -66,22 +64,6 @@ status: propStatus = 'IDLE',
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [status, setStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
   const [carregando, setCarregando] = useState(true);
-
-  useEffect(() => {
-    if (exerciseData) {
-      console.log("📥 [MIOLO SPELLING] Dados recebidos do banco:", exerciseData);
-      const palavra = exerciseData.correct_answer || exerciseData.reading_text || exerciseData.palavra || "";
-      if (palavra) setTargetWord(String(palavra).trim().toUpperCase());
-
-      if (exerciseData.correct_feedback) setFeedbackCorretoBanco(exerciseData.correct_feedback);
-      if (exerciseData.incorrect_feedback) setFeedbackIncorretoBanco(exerciseData.incorrect_feedback);
-      if (exerciseData.correct_incentive) setIncentivoCorretoBanco(exerciseData.correct_incentive);
-      if (exerciseData.incorrect_incentive) setIncentivoIncorretoBanco(exerciseData.incorrect_incentive);
-
-      setCarregando(false);
-    }
-  }, [exerciseData]);
-
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
   const [analisando, setAnalisando] = useState(false);
   const [feedbackIA, setFeedbackIA] = useState("");

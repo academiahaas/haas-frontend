@@ -374,7 +374,26 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [unitIdCentral, setUnitIdCentral] = useState<string>("");
 
   const [exerciseEscolha, setExerciseEscolha] = useState<any>(null);
+  const [exerciseSpelling, setExerciseSpelling] = useState<any>(null);
 
+  
+  useEffect(() => {
+    async function carregarSpelling() {
+      const targetUnitId = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
+      console.log("🎯 [ARENA -> SPELLING BEE] Disparando busca para UNIT_ID:", targetUnitId);
+      if (targetUnitId) {
+        const res = await getExerciseByActivityType(String(targetUnitId), 11);
+        console.log("📦 [ARENA -> SPELLING BEE] Retorno do tipo 11 da Central:", res);
+        if (res.success && res.data && res.data.length > 0) {
+          setExerciseSpelling(res.data[0]);
+        } else {
+          console.warn("⚠️ [ARENA -> SPELLING BEE] Nenhum exercicio retornado para activityType 11 na unidade:", targetUnitId);
+        }
+      }
+    }
+    carregarSpelling();
+  }, [unitIdCentral, unidadeId, subUnidadeIndex]);
+  
   useEffect(() => {
     async function carregarExercicioEscolha() {
       const uId = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
@@ -1184,7 +1203,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
     { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
@@ -1194,7 +1213,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
-    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
+    { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee exerciseData={exerciseSpelling} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
     { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> }
   ];
