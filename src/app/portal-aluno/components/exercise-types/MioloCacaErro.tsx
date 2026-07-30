@@ -12,6 +12,7 @@ interface MioloProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: string;
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 interface OpcaoJogo {
@@ -63,7 +64,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
     return () => {
       window.removeEventListener("haas:validate", handleGlobalValidate);
     };
-  }, []);
+  }, [unidadeAtiva]);
 
   useEffect(() => {
     if (status === "CHECKING" && executarRef.current) {
@@ -90,6 +91,10 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
   
   useEffect(() => {
     async function carregar() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloCacaErro.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           

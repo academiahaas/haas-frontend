@@ -3,6 +3,7 @@ import { buscarProgressoAlunoCentral } from "../../../services/centralService";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from '@/lib/supabase';
+import { getExerciseByActivityType } from "@/services/centralService";
 import React, { useState, useEffect, useRef } from 'react';
 import { translations } from '../idiomas';
 import { Mic, ArrowUp, Flame, Target, Award, Zap, Bot, Video, BookOpen, X, AlertCircle, Star, Trophy, CheckCircle2, TrendingUp, Gift, Sparkles } from 'lucide-react';
@@ -50,6 +51,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     }, 1500);
     return () => clearTimeout(timer);
   }, [userId]);
+
+  
+  
 
   const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
@@ -368,6 +372,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [totalUnidadesModulo, setTotalUnidadesModulo] = useState(0);
   const [numeroUnidadeReal, setNumeroUnidadeReal] = useState("");
   const [unitIdCentral, setUnitIdCentral] = useState<string>("");
+
+  const [exerciseEscolha, setExerciseEscolha] = useState<any>(null);
+
+  useEffect(() => {
+    async function carregarExercicioEscolha() {
+      const uId = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
+      console.log("🎯 [ARENA -> MÚLTIPLA ESCOLHA] Disparando busca para UUID:", uId);
+      if (uId) {
+        const res = await getExerciseByActivityType(String(uId), 1);
+        console.log("📦 [ARENA -> MÚLTIPLA ESCOLHA] Retorno da Central:", res);
+        if (res.success && res.data && res.data.length > 0) {
+          setExerciseEscolha(res.data[0]);
+        } else {
+          console.warn("⚠️ [ARENA -> MÚLTIPLA ESCOLHA] Nenhum exercicio retornado para activityType 1!");
+        }
+      }
+    }
+    carregarExercicioEscolha();
+  }, [unitIdCentral, unidadeId, subUnidadeIndex]);
   const [levelCentral, setLevelCentral] = useState<string>("");
 
   useEffect(() => {
@@ -1161,19 +1184,19 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
+    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'leitura', label: 'LEITURA VELOZ', title: 'SPRINT FLUIDEZ', component: <MioloLeituraRapida onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'ordenacao', label: 'ORDENAÇÃO DE FRASES', title: 'SINTAXE DE ALTO PADRÃO', component: <MioloOrdenacao status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'paragrafos', label: 'REORDENAÇÃO DE PARÁGRAFOS', title: 'COESÃO TEXTUAL AVANÇADA', component: <MioloReordenacaoParagrafos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> },
-    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === 'number' ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== 'undefined' && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ''))} /> },
-    { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={typeof subUnidadeIndex === "number" ? String(subUnidadeIndex) : (subUnidadeIndex || ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""))} /> }
+    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> }
   ];
 
   const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[7];

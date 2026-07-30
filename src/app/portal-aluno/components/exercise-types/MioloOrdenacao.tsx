@@ -16,6 +16,7 @@ interface MioloOrdenacaoProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -102,6 +103,10 @@ export default function MioloOrdenacao({
 
   useEffect(() => {
     async function carregarOrdenacao() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloOrdenacao.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           

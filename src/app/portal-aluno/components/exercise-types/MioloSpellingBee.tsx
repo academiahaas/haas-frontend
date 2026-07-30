@@ -10,6 +10,7 @@ interface MioloSpellingBeeProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  nivelAtivo?: string;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   onSelectionChange?: (hasItems: boolean) => void;
@@ -42,8 +43,9 @@ const traducoes: Record<string, Record<string, string>> = {
 export default function MioloSpellingBee({ 
   onSelectCorrect, 
   onSelectWrong, 
-  unidadeAtiva, 
-  status: propStatus = 'IDLE', 
+  unidadeAtiva,
+  nivelAtivo,
+status: propStatus = 'IDLE', 
   onValidateResult, 
   onSelectionChange 
 }: MioloSpellingBeeProps) {
@@ -129,6 +131,10 @@ export default function MioloSpellingBee({
 
   useEffect(() => {
     async function inicializarSpelling() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloSpellingBee.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           
@@ -195,7 +201,9 @@ export default function MioloSpellingBee({
       }
     }
     inicializarSpelling();
-  }, [unidadeAtiva, USER_ID_ALVO]);
+  }, [unidadeAtiva,
+  nivelAtivo,
+USER_ID_ALVO]);
 
   const playWordAudio = () => {
     if (targetWord && typeof window !== "undefined" && "speechSynthesis" in window) {

@@ -11,6 +11,7 @@ interface MioloBlocosProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 interface BlocoItem {
@@ -93,6 +94,10 @@ export default function MioloBlocos({
 
   useEffect(() => {
     async function carregarBlocosDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloBlocos.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           

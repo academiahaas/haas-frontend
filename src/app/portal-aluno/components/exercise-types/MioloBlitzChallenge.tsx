@@ -10,6 +10,7 @@ interface MioloBlitzChallengeProps {
   onSelectWrong?: () => void;
   triggerGlow?: boolean;
   unidadeAtiva?: string;
+  nivelAtivo?: string;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
@@ -24,6 +25,7 @@ export default function MioloBlitzChallenge({
   onSelectWrong,
   triggerGlow,
   unidadeAtiva,
+  nivelAtivo,
   onValidateResult
 }: MioloBlitzChallengeProps) {
 
@@ -57,6 +59,10 @@ export default function MioloBlitzChallenge({
 
     useEffect(() => {
     async function carregarBlitzDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloBlitzChallenge.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         let nomeUnidade = unidadeAtiva;
         if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Labirinto") || nomeUnidade.includes("Primeiro")) {

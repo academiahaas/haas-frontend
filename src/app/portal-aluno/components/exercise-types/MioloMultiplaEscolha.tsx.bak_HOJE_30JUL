@@ -2,13 +2,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { chamarGeminiInteligente } from './geminiService';
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
-
+import { getExerciseByActivityType } from '@/services/centralService';
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'lucide-react';
 
 interface MioloProps {
-  exerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: "IDLE" | "CORRECT" | "WRONG";
@@ -40,9 +39,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloMultiplaEscolha({
-  exerciseData,
- 
+export default function MioloMultiplaEscolha({ 
   onSelectionChange,
   onValidateResult,
   status = "IDLE",
@@ -70,47 +67,53 @@ export default function MioloMultiplaEscolha({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+  
   useEffect(() => {
-    console.log("📥 [MIOLO ESCOLHA] Prop exerciseData recebida:", exerciseData);
-    if (exerciseData) {
-      setPergunta(exerciseData.enunciado || exerciseData.question || exerciseData.pergunta || "Selecione a alternativa correta:");
-      setCorrectOption(exerciseData.resposta_correta || exerciseData.correct_option || "");
-      
-      let opts = [];
-      if (Array.isArray(exerciseData.opcoes)) opts = exerciseData.opcoes;
-      else if (Array.isArray(exerciseData.options)) opts = exerciseData.options;
-      else if (typeof exerciseData.opcoes === "string") {
-        try { opts = JSON.parse(exerciseData.opcoes); } catch(e) {}
+    async function carregarExercicioDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloMultiplaEscolha.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
       }
-      setOptions(opts);
-      
-      if (exerciseData.id) setExerciseId(String(exerciseData.id));
-      setCarregando(false);
+      try {
+        setCarregando(true);
+        let nomeUnidade = unidadeAtiva;
+        const response = await getExerciseByActivityType(nomeUnidade, 1);
+        const dados = (response && response.data) ? response.data : [];
+
+        if (dados && dados.length > 0) {
+          const ex = dados[0];
+          if (ex.id) setExerciseId(String(ex.id));
+          setPergunta(ex.question_text || ex.prompt_text || "");
+          
+          const rawOpts = ex.alternative_options;
+          const parsedOpts = typeof rawOpts === 'string' ? JSON.parse(rawOpts) : (rawOpts || []);
+          setOptions(parsedOpts);
+          
+          setCorrectOption(ex.correct_answer || "");
+          setFeedbackCorretoBanco(ex.correct_feedback || "");
+          setFeedbackIncorretoBanco(ex.incorrect_feedback || "");
+          if (ex.correct_incentive) setIncentivoCorretoBanco(ex.correct_incentive);
+          if (ex.incorrect_incentive) setIncentivoIncorretoBanco(ex.incorrect_incentive);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar Múltipla Escolha do Supabase:", err);
+      } finally {
+        setCarregando(false);
+      }
     }
-  }, [exerciseData]);
-
-
-  
-  
-  
-  
-  
-  
-
-
-
-
-
-  
-  useEffect(() => {
-    // Componente passivo: quando status reseta para IDLE ou novos dados chegam, reseta selecao
-    if (status === "IDLE" || exerciseData) {
-      setSelecionado(null);
-      setLocalStatus("IDLE");
-      setFeedbackIA("");
-      if (onSelectionChange) onSelectionChange(false);
-    }
-  }, [status, exerciseData]);;;
+    carregarExercicioDoBanco();
+  }, [unidadeAtiva]);;;
 
   const [isShortText, setIsShortText] = useState(true);
 

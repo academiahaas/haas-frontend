@@ -14,6 +14,7 @@ interface MioloProps {
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
+  nivelAtivo?: string;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
 }
 
@@ -51,7 +52,8 @@ export default function MioloVelocidadeProgressiva({
   onSelectCorrect,
   onSelectWrong,
   unidadeAtiva,
-  onValidateResult
+  nivelAtivo,
+onValidateResult
 }: MioloProps) {
 
   
@@ -93,6 +95,10 @@ export default function MioloVelocidadeProgressiva({
 
   useEffect(() => {
     async function carregarDados() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloVelocidadeProgressiva.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           
@@ -196,7 +202,7 @@ export default function MioloVelocidadeProgressiva({
       }
     }
     carregarDados();
-  }, [unidadeAtiva, USER_ID_ALVO]);
+  }, [unidadeAtiva, nivelAtivo]);
 
   const playAudio = (speed: 'slow' | 'normal' | 'native', rate: number) => {
     setActiveSpeed(speed);

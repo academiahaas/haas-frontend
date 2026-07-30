@@ -1,4 +1,6 @@
 "use client";
+
+const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
@@ -15,6 +17,7 @@ interface MioloProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
   streak?: number;
   getMultiplicador?: () => number;
 }
@@ -57,7 +60,8 @@ export default function MioloTraducaoInversa({
   onValidateResult,
   status = 'IDLE',
   unidadeAtiva,
-  streak = 0,
+  nivelAtivo,
+streak = 0,
   getMultiplicador
 }: MioloProps) {
 
@@ -100,6 +104,10 @@ export default function MioloTraducaoInversa({
 
   useEffect(() => {
     async function carregarExerciciosDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloTraducaoInversa.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         let userDados = [];
         if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
@@ -123,7 +131,9 @@ export default function MioloTraducaoInversa({
         if (!nomeUnidade || nomeUnidade === "0" || nomeUnidade === "1" || nomeUnidade === "undefined" || nomeUnidade.includes("Primeiro Impacto")) {
           nomeUnidade = "1.1";
         }
-        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.12&limit=1`;
+        const isUUIDUnit = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
+        const unitParam = isUUIDUnit ? `unit_id=eq.${encodeURIComponent(nomeUnidade)}` : `unit=eq.${encodeURIComponent(nomeUnidade)}`;
+        const url = `${SUPABASE_URL}/exercises?${unitParam}&activity_type=eq.12&limit=1`;
         
         const res = await fetch(url, {
           headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
@@ -200,7 +210,7 @@ export default function MioloTraducaoInversa({
       }
     }
     carregarExerciciosDoBanco();
-  }, [unidadeAtiva, USER_ID_ALVO]);
+  }, [unidadeAtiva, nivelAtivo]);
 
   const dispararSomClique = () => {
     try {

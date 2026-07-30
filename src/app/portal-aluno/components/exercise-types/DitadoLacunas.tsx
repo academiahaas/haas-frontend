@@ -11,6 +11,7 @@ interface DitadoLacunasProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -91,6 +92,10 @@ export default function DitadoLacunas({
 
   useEffect(() => {
     async function carregarDitadoDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [DitadoLacunas.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           

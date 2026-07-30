@@ -11,6 +11,7 @@ interface MioloLeituraRapidaProps {
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
   unidadeAtiva?: string;
+  nivelAtivo?: string;
 }
 
 const traducoesAbas: Record<string, Record<string, string>> = {
@@ -98,6 +99,10 @@ export default function MioloLeituraRapida({
 
   useEffect(() => {
     async function carregarLeituraDoBanco() {
+      if (!unidadeAtiva) {
+        console.log("🔍 [MioloLeituraRapida.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+        return;
+      }
       try {
         setCarregando(true);
           
