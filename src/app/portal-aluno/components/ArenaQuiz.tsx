@@ -1133,7 +1133,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         user_id: String(finalUserId),
         unit_id: String(targetUnitId),
         unit_xp: Number(novoXpTotalDaUnidade || 0),
-        activity_type: String(activityType || jogoSelecionado || "1"),
+        activity_type: ((act) => act === "paragrafos" ? "8" : String(act || "1"))(activityType || jogoSelecionado),
         exercise_id: finalExerciseId,
         score: Number(scoreObtido ?? 100),
         completed_at: new Date().toISOString()
@@ -1141,16 +1141,36 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       console.log("🚀 [SYNCRONIZER] Enviando progresso para user_unit_progress:", payload);
 
-      await fetch(`${supabaseUrl}/rest/v1/user_unit_progress`, {
-        method: "POST",
-        headers: {
-          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
-          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
-          "Content-Type": "application/json",
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify(payload)
-      });
+      const apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+      const headers = {
+        "apikey": apiKey,
+        "Authorization": "Bearer " + apiKey,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      };
+
+      // 1. Verifica se ja existe registro para user_id + unit_id
+      const checkRes = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${finalUserId}&unit_id=eq.${targetUnitId}&select=id`, { headers });
+      const checkData = await checkRes.json();
+
+      if (Array.isArray(checkData) && checkData.length > 0 && checkData[0].id) {
+        // 2. Se existe, faz UPDATE (PATCH)
+        const recordId = checkData[0].id;
+        await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?id=eq.${recordId}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify(payload)
+        });
+        console.log("✅ [SYNCRONIZER] Progresso atualizado via PATCH para id:", recordId);
+      } else {
+        // 3. Se nao existe, faz INSERT (POST)
+        await fetch(`${supabaseUrl}/rest/v1/user_unit_progress`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        });
+        console.log("✅ [SYNCRONIZER] Novo progresso criado via POST");
+      }
 
     } catch (err) {
       console.error("❌ Erro ao registrar user_unit_progress no Supabase:", err);
