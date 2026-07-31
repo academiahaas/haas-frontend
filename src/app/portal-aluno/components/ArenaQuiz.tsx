@@ -202,7 +202,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const tArena = arenaDict[currentLang] || arenaDict.PT;
 
-  const [jogoSelecionado, setJogoSelecionado] = useState('paragrafos');
+  const [jogoSelecionado, setJogoSelecionado] = useState(() => { const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade']; return ids[Math.floor(Math.random() * ids.length)]; });
   const [alunoNivel, setAlunoNivel] = useState("A1");
   const [proficienciaMedia, setProficienciaMedia] = useState(0);
   const [menuDevAberto, setMenuDevAberto] = useState(false);
@@ -1114,6 +1114,14 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     tipo: "UNIDADE",
     nivel: (levelCentral as NivelCurso) || "A1",
   });
+
+  // Reseta para um jogo aleatorio sempre que a Arena abre
+  useEffect(() => {
+    if (isOpen) {
+      const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
+      setJogoSelecionado(ids[Math.floor(Math.random() * ids.length)]);
+    }
+  }, [isOpen]);
 
   // Auto-Gatilho de Vídeo Inteligente (Apenas para novos acessos à unidade)
   useEffect(() => {
