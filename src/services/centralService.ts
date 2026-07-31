@@ -220,29 +220,59 @@ export async function submitTeacherReview(payload: TeacherReviewPayload) {
   }
 }
 
-export async function getExerciseByActivityType(unitId: string | undefined, activityType: number) {
+export async function getExerciseByActivityType(unitId: string | undefined, activityType: number, excludeIds: string[] = []) {
   try {
-    const DEFAULT_UNIT_ID = "09adf4ff-71ed-4b2b-982e-07c22fcd2cf0";
-    let targetUnit = (unitId && String(unitId).trim() !== "0" && String(unitId).length > 10) ? String(unitId) : DEFAULT_UNIT_ID;
+    let targetUnit = (unitId && String(unitId).trim() !== "0" && String(unitId).length > 10) ? String(unitId) : null;
 
-    console.log(`🔍 [CentralService] Buscando exercicio activityType=${activityType} para unit_id=${targetUnit}`);
+    if (!targetUnit) {
+      console.log("ℹ️ [CentralService] Aguardando inicialização do unit_id do aluno...");
+      return { success: true, data: [] };
+    }
 
-    let { data, error } = await supabase
+    console.log(`🔍 [CentralService] Buscando exercicio activityType=${activityType} para unit_id=${targetUnit || 'Dinamica'} (excluir ${excludeIds.length} id(s))`);
+
+    // Se nao tiver unitId valido informado, busca dinamicamente a primeira unidade ativa no banco
+    if (!targetUnit) {
+      const { data: activeUnit } = await supabase
+        .from("units")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+      if (activeUnit) {
+        targetUnit = activeUnit.id;
+      }
+    }
+
+    if (!targetUnit) {
+      console.warn("⚠️ [CentralService] Nenhuma unidade valida foi informada ou encontrada.");
+      return { success: false, data: [], error: "Unidade nao encontrada" };
+    }
+
+    // 1. Tentar buscar exercicios ineditos da unidade do aluno
+    let query = supabase
       .from("exercises")
       .select("id, lesson_id, activity_type, difficulty_level, reading_text, correct_answer, alternative_options, correct_feedback, incorrect_feedback, correct_incentive, incorrect_incentive, unit_id")
       .eq("unit_id", targetUnit)
       .eq("activity_type", activityType);
 
-    if ((!data || data.length === 0) && targetUnit !== DEFAULT_UNIT_ID) {
-      console.log("⚠️ [CentralService] Sem dados para a unidade atual. Tentando unidade padrao fallback...");
-      const fallback = await supabase
+    if (excludeIds.length > 0) {
+      query = query.not("id", "in", `(${excludeIds.join(",")})`);
+    }
+
+    let { data, error } = await query;
+
+    // 2. Se ineditos esgotaram, recicla acervo da MESMA unidade do aluno para Grind de XP
+    if ((!data || data.length === 0) && excludeIds.length > 0) {
+      console.log("🔄 [CentralService] Exercicios ineditos esgotados nesta unidade. Reciclando acervo para Grind de XP...");
+      const recycleQuery = await supabase
         .from("exercises")
         .select("id, lesson_id, activity_type, difficulty_level, reading_text, correct_answer, alternative_options, correct_feedback, incorrect_feedback, correct_incentive, incorrect_incentive, unit_id")
-        .eq("unit_id", DEFAULT_UNIT_ID)
+        .eq("unit_id", targetUnit)
         .eq("activity_type", activityType);
 
-      data = fallback.data;
-      error = fallback.error;
+      data = recycleQuery.data;
+      error = recycleQuery.error;
     }
 
     if (error) {
@@ -250,7 +280,7 @@ export async function getExerciseByActivityType(unitId: string | undefined, acti
       return { success: false, data: [], error };
     }
 
-    console.log("📦 [CentralService] Dados retornados do banco com sucesso:", data);
+    console.log("📦 [CentralService] Exercicios retornados:", data ? data.length : 0);
     return { success: true, data: data || [] };
   } catch (err) {
     console.error(`❌ [CentralService] Exceção em getExerciseByActivityType:`, err);
