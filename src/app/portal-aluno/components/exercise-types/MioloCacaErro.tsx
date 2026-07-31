@@ -8,6 +8,8 @@ import { registrarFeedbackEErro } from "@/utils/motorResiliencia";
 import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from "lucide-react";
 
 interface MioloProps {
+  initialExerciseData?: any;
+  onComplete?: () => void;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: string;
@@ -41,7 +43,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloCacaErro({ onSelectionChange, onValidateResult, status, unidadeAtiva }: MioloProps) {
+export default function MioloCacaErro({ initialExerciseData, onComplete, onSelectionChange, onValidateResult, status, unidadeAtiva }: MioloProps) {
 
   
 
@@ -113,7 +115,7 @@ export default function MioloCacaErro({ onSelectionChange, onValidateResult, sta
           res = await getExerciseByActivityType(unitParaBusca, 7);
         }
 
-        const dados = res.success && res.data ? res.data : [];
+        const dados = initialExerciseData ? [initialExerciseData] : (res.success && res.data ? res.data : []);
 
         if (dados.length > 0) {
           const exe = dados[0];

@@ -349,3 +349,36 @@ export async function buscarUnidadesModuloCentral(levelTag: string, moduleNumber
     return [];
   }
 }
+
+export async function fetchNextExerciseForUser(userId: string) {
+  try {
+    if (!userId) return null;
+
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('next_exercise_id')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (userError || !user?.next_exercise_id) {
+      console.warn('[Adaptive] Nenhum next_exercise_id pendente para o usuário:', userId);
+      return null;
+    }
+
+    const { data: exercise, error: exError } = await supabase
+      .from('exercises')
+      .select('*')
+      .eq('id', user.next_exercise_id)
+      .maybeSingle();
+
+    if (exError || !exercise) {
+      console.error('[Adaptive] Erro ao carregar exercício por ID:', user.next_exercise_id, exError);
+      return null;
+    }
+
+    return exercise;
+  } catch (err) {
+    console.error('[Adaptive] Exceção em fetchNextExerciseForUser:', err);
+    return null;
+  }
+}

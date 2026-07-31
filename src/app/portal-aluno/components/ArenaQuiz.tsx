@@ -1,6 +1,6 @@
 "use client";
 import ModalConclusao, { TipoConclusao, NivelCurso, IdiomaPlataforma } from "./ModalConclusao";
-import { buscarProgressoAlunoCentral } from "../../../services/centralService";
+import { buscarProgressoAlunoCentral, fetchNextExerciseForUser } from "../../../services/centralService";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from '@/lib/supabase';
@@ -23,6 +23,23 @@ import MioloSpellingBee from './exercise-types/MioloSpellingBee';
 import MioloTraducaoInversa from './exercise-types/MioloTraducaoInversa';
 import MioloVelocidadeProgressiva from './exercise-types/MioloVelocidadeProgressiva';
 
+const MAPA_JOGOS_ADAPTATIVO: Record<number, string> = {
+  1:  "escolha",     // Múltipla Escolha
+  2:  "caca_erro",   // Caça Erros
+  3:  "blitz",       // Desafio Blitz
+  4:  "ditado",      // Palavra Oculta
+  5:  "blocos",      // Bloco de Gramática
+  6:  "leitura",     // Leitura Veloz
+  7:  "ordenacao",   // Ordenação de Frases
+  8:  "paragrafos",  // Reordenação de Parágrafos
+  9:  "roleplay",    // Prática de Conversação
+  10: "shadowing",   // Treino de Fala
+  11: "spelling",    // Spelling Bee
+  12: "traducao",    // Tradução Inversa
+  13: "velocidade"   // Marchas de Áudio
+};
+
+
 interface ArenaProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -36,6 +53,7 @@ interface ArenaProps {
 export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbrirPedagogo, subUnidadeTipo, subUnidadeIndex, unidadeId }: ArenaProps & { onAbrirPedagogo?: (tipo: "TEXTO" | "VIDEO") => void }) {
   const { user: authUser } = useAuth();
   const activeUserId = authUser?.id;
+  const [adaptiveExerciseData, setAdaptiveExerciseData] = useState<any>(null);
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
   if (baseLang.includes('PORTUGU')) baseLang = 'PT';
   const currentLang = baseLang;
@@ -1115,13 +1133,32 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     nivel: (levelCentral as NivelCurso) || "A1",
   });
 
-  // Reseta para um jogo aleatorio sempre que a Arena abre
+  // Direciona a Arena para o próximo exercício configurado no users.next_exercise_id
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+
+    const targetUid = userId || activeUserId;
+    if (targetUid && targetUid !== "anonymous-user") {
+      fetchNextExerciseForUser(targetUid).then((exercise) => {
+        if (exercise && exercise.activity_type) {
+          const activityType = Number(exercise.activity_type);
+          const gameId = MAPA_JOGOS_ADAPTATIVO[activityType];
+          if (gameId) {
+            console.log("🎯 [ARENA] Redirecionando para exercise_id:", exercise.id, "Tipo:", activityType);
+            setAdaptiveExerciseData(exercise);
+            setJogoSelecionado(gameId);
+            return;
+          }
+        }
+        console.warn("⚠️ [ARENA] Nenhum next_exercise_id válido encontrado. Usando aleatório.");
+        const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
+        setJogoSelecionado(ids[Math.floor(Math.random() * ids.length)]);
+      });
+    } else {
       const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
       setJogoSelecionado(ids[Math.floor(Math.random() * ids.length)]);
     }
-  }, [isOpen]);
+  }, [isOpen, userId, activeUserId]);
 
   // Auto-Gatilho de Vídeo Inteligente (Apenas para novos acessos à unidade)
   useEffect(() => {
@@ -1260,7 +1297,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const todosOsJogos = [
     { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
-    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro initialExerciseData={adaptiveExerciseData} status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'blocos', label: 'BLOCOS DE GRAMÁTICA', title: 'CONSTRUÇÃO ESTRUTURAL', component: <MioloBlocos status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
