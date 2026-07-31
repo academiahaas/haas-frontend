@@ -202,6 +202,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const tArena = arenaDict[currentLang] || arenaDict.PT;
 
   const [jogoSelecionado, setJogoSelecionado] = useState('paragrafos');
+  const [jogosEmbaralhados, setJogosEmbaralhados] = useState<any[]>([]);
   const [alunoNivel, setAlunoNivel] = useState("A1");
   const [proficienciaMedia, setProficienciaMedia] = useState(0);
   const [menuDevAberto, setMenuDevAberto] = useState(false);
@@ -1206,6 +1207,21 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     }
   };
 
+  
+  // Efeito de embaralhamento da Arena ao abrir
+  useEffect(() => {
+    if (isOpen) {
+      const arr = [...todosOsJogos];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      setJogosEmbaralhados(arr);
+      // O primeiro jogo da lista sorteada se torna o jogo inicial!
+      setJogoSelecionado(arr[0].id);
+    }
+  }, [isOpen]);
+
   const todosOsJogos = [
     { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
     { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
@@ -1236,7 +1252,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         </button>
         {menuDevAberto && (
           <div className="bg-[#162235] border border-[#48627D]/40 p-3 rounded-bl-2xl w-56 shadow-2xl flex flex-col gap-1 max-h-[60vh] overflow-y-auto">
-            {todosOsJogos.map((j) => (
+            {(jogosEmbaralhados.length > 0 ? jogosEmbaralhados : todosOsJogos).map((j) => (
               <button
                 key={j.id}
                 onClick={() => { tocarSom('click'); setJogoSelecionado(j.id); setGameStatus('IDLE'); setComboQuebrado(false); }}

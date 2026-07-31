@@ -1,3 +1,13 @@
+
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 import { supabase } from "@/lib/supabase";
 
 const MEU_ID_USUARIO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
@@ -251,7 +261,8 @@ export async function getExerciseByActivityType(unitId: string | undefined, acti
     }
 
     console.log("📦 [CentralService] Dados retornados do banco com sucesso:", data);
-    return { success: true, data: data || [] };
+    const shuffledData = data && data.length > 0 ? shuffleArray(data) : [];
+     return { success: true, data: shuffledData };
   } catch (err) {
     console.error(`❌ [CentralService] Exceção em getExerciseByActivityType:`, err);
     return { success: false, data: [], error: err };
