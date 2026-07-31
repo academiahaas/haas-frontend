@@ -1,4 +1,5 @@
 "use client";
+import ModalConclusao, { TipoConclusao, NivelCurso, IdiomaPlataforma } from "./ModalConclusao";
 import { buscarProgressoAlunoCentral } from "../../../services/centralService";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -1101,6 +1102,28 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       setIsThinking(false);
     }
   };
+
+  
+  // State do ModalConclusao
+  const [modalConclusaoState, setModalConclusaoState] = useState<{
+    aberto: boolean;
+    tipo: TipoConclusao;
+    nivel: NivelCurso;
+  }>({
+    aberto: false,
+    tipo: "UNIDADE",
+    nivel: (levelCentral as NivelCurso) || "A1",
+  });
+
+  // Auto-Gatilho de Vídeo ao entrar em Unidade Nova
+  useEffect(() => {
+    const unitTarget = unitIdCentral || unidadeId;
+    if (isOpen && unitTarget) {
+      // Se possui conteúdo de video/trilha, ativa player automatico
+      setVideoSelecionado({ id: 1, title: "Apresentação da Unidade" });
+      setVisualizacaoAtiva("PLAYER_VIDEO");
+    }
+  }, [isOpen, unitIdCentral, unidadeId]);
 
   const [modalPedagogo, setModalPedagogo] = useState<{ aberto: boolean; tipo: 'VIDEO' | 'TEXTO' | null }>({
     aberto: false,
@@ -2207,6 +2230,24 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       </div>
 
       
+
+
+      {/* Modal de Conclusao Nivel / Modulo / Unidade */}
+      <ModalConclusao
+        isOpen={modalConclusaoState.aberto}
+        tipo={modalConclusaoState.tipo}
+        nivel={(levelCentral as NivelCurso) || "A1"}
+        lang={(idiomaAtivo?.toUpperCase() as IdiomaPlataforma) || "PT"}
+        unidadeNome={`Unidade ${unitIdCentral || unidadeId || 1}`}
+        onContinuar={() => setModalConclusaoState(prev => ({ ...prev, aberto: false }))}
+        onIniciarProvaEscrita={() => {
+          setModalConclusaoState(prev => ({ ...prev, aberto: false }));
+          if (typeof window !== "undefined") {
+            window.location.href = "/portal-aluno?tab=prova-escrita";
+          }
+        }}
+        onClose={() => setModalConclusaoState(prev => ({ ...prev, aberto: false }))}
+      />
 
     </div>
   );
