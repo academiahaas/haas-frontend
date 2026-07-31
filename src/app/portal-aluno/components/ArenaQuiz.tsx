@@ -1115,15 +1115,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     nivel: (levelCentral as NivelCurso) || "A1",
   });
 
-  // Auto-Gatilho de Vídeo ao entrar em Unidade Nova
+  // Auto-Gatilho de Vídeo Inteligente (Apenas para novos acessos à unidade)
   useEffect(() => {
     const unitTarget = unitIdCentral || unidadeId;
-    if (isOpen && unitTarget) {
-      // Se possui conteúdo de video/trilha, ativa player automatico
+    // Dispara o vídeo somente se for o primeiro acesso do aluno à unidade (sem exercícios concluídos)
+    if (isOpen && unitTarget && unidadesConcluidas === 0) {
       setVideoSelecionado({ id: 1, title: "Apresentação da Unidade" });
       setVisualizacaoAtiva("PLAYER_VIDEO");
     }
-  }, [isOpen, unitIdCentral, unidadeId]);
+  }, [isOpen, unitIdCentral, unidadeId, unidadesConcluidas]);
 
   const [modalPedagogo, setModalPedagogo] = useState<{ aberto: boolean; tipo: 'VIDEO' | 'TEXTO' | null }>({
     aberto: false,
@@ -1206,10 +1206,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     setGameStatus('IDLE');
     setComboQuebrado(false);
     setCaixaAberta(false);
-    const idx = todosOsJogos.findIndex(j => j.id === jogoSelecionado);
-    const proximoIdx = idx === -1 || idx === todosOsJogos.length - 1 ? 0 : idx + 1;
+    // Seleção Aleatória do Próximo Miolo sem Repetir o Atual
+    const jogosDisponiveis = todosOsJogos.filter(j => j.id !== jogoSelecionado);
+    const proximoJogo = jogosDisponiveis[Math.floor(Math.random() * jogosDisponiveis.length)];
     setJogoSelecionado('');
-    setTimeout(() => setJogoSelecionado(todosOsJogos[proximoIdx].id), 10);
+    setTimeout(() => setJogoSelecionado(proximoJogo ? proximoJogo.id : todosOsJogos[0].id), 10);
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
@@ -1265,7 +1266,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> }
   ];
 
-  const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[7];
+  // Fallback dinâmico aleatório para início da rodada
+  const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[Math.floor(Math.random() * todosOsJogos.length)];
 
   return (
     <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
