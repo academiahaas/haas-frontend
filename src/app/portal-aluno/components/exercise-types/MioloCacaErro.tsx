@@ -93,6 +93,22 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
   
   useEffect(() => {
     async function carregar() {
+      if (initialExerciseData) {
+        console.log("🎯 [MioloCacaErro] Usando EXCLUSIVAMENTE o initialExerciseData (ID:", initialExerciseData.id, ")");
+        if (initialExerciseData.id) setExerciseId(initialExerciseData.id);
+        const resp = initialExerciseData.correct_answer || "";
+        setCorrectOption(resp);
+        let opts = [];
+        if (initialExerciseData.alternative_options) {
+          try {
+            opts = typeof initialExerciseData.alternative_options === "string" ? JSON.parse(initialExerciseData.alternative_options) : initialExerciseData.alternative_options;
+          } catch(e) {}
+        }
+        let todas = (resp && !opts.includes(resp)) ? [resp, ...opts] : opts;
+        setOpcoes(todas.map(texto => ({ texto, isCorreta: String(texto).trim().toLowerCase() === String(resp).trim().toLowerCase() })));
+        setCarregando(false);
+        return;
+      }
       if (!unidadeAtiva) {
         console.log("🔍 [MioloCacaErro.tsx] Aguardando UUID/UnidadeAtiva da Central...");
         return;
@@ -102,6 +118,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
           
 
           
+        if (initialExerciseData) return; // Trava adaptativa: impede que buscas legadas por unidade sobrescrevam o exercício carregado
         let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
           if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
@@ -202,6 +219,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
           
 
           
+        if (initialExerciseData) return; // Trava adaptativa: impede que buscas legadas por unidade sobrescrevam o exercício carregado
         let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
           if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
@@ -282,6 +300,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
           
 
           
+        if (initialExerciseData) return; // Trava adaptativa: impede que buscas legadas por unidade sobrescrevam o exercício carregado
         let unitParaBusca = (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : null);
           if (!unitParaBusca || unitParaBusca.length < 20) unitParaBusca = null;
         if (unidadeAtiva && String(unidadeAtiva).trim() !== "0" && String(unidadeAtiva).length > 10) {
