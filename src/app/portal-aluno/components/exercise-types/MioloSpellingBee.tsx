@@ -7,6 +7,7 @@ import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle } from "lucide-rea
 import { supabase } from '@/lib/supabase';
 
 interface MioloSpellingBeeProps {
+  initialExerciseData?: any;
   exerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
@@ -42,7 +43,7 @@ const traducoes: Record<string, Record<string, string>> = {
 };
 
 export default function MioloSpellingBee({
-  exerciseData, 
+  exerciseData, initialExerciseData, 
   onSelectCorrect, 
   onSelectWrong, 
   unidadeAtiva,
@@ -178,7 +179,27 @@ status: propStatus = 'IDLE',
         
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
         
-        let query = supabase.from("exercises").select("*").eq("activity_type", 11);
+        
+          // --- BYPASS: USA DADOS DA ARENA SE EXISTIREM ---
+          const payload = initialExerciseData || exerciseData;
+          if (payload && (payload.id || payload.word || payload.correct_answer || payload.reading_text)) {
+            console.log("🔒 [SPELLING BEE] Usando dados da Arena:", payload.id);
+            const exeDados = [payload];
+            const item = exeDados[0];
+            const palavra = String(item.word || item.correct_answer || item.reading_text || "").toUpperCase().trim();
+            if (typeof setTargetWord === 'function') setTargetWord(palavra);
+            if (typeof setFeedbackCorretoBanco === 'function') setFeedbackCorretoBanco(item.correct_feedback || "");
+            if (typeof setFeedbackIncorretoBanco === 'function') setFeedbackIncorretoBanco(item.incorrect_feedback || "");
+            if (typeof setIncentivoCorretoBanco === 'function') setIncentivoCorretoBanco(item.correct_incentive || "");
+            if (typeof setIncentivoIncorretoBanco === 'function') setIncentivoIncorretoBanco(item.incorrect_incentive || "");
+            if (typeof setExerciseId === 'function' && item.id) setExerciseId(String(item.id));
+            if (typeof setUserInput === 'function') setUserInput(new Array(palavra.length).fill(""));
+            if (typeof setCurrentIndex === 'function') setCurrentIndex(0);
+            if (typeof setCarregando === 'function') setCarregando(false);
+            return;
+          }
+          // ------------------------------------------------
+          let query = supabase.from("exercises").select("*").eq("activity_type", 11);
         if (isUUID) {
           query = query.eq("unit_id", nomeUnidade);
         } else {
