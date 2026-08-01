@@ -1381,7 +1381,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <Flame size={13} fill="currentColor" /> 
             {comboQuebrado ? "COMBO QUEBRADO" : `${streak || 0}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
           </span>
-          <span className="flex items-center gap-1 text-[#38BDF8]"><Target size={13} /> {precision}% {tArena.precisionLabel}</span>
           <span className="flex items-center gap-1 text-[#22C55E]"><Award size={13} /> {xpAcumulado} PTS TOTAL</span>
         </div>
         
