@@ -1778,11 +1778,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
         <div className="flex w-full md:w-[32%] h-auto md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.03] rounded-[24px] backdrop-blur-md shadow-2xl p-5 flex flex-col justify-between relative overflow-hidden mt-4 md:mt-0">
           
-          <div className="flex-1 w-full flex flex-col items-center justify-center gap-4 py-4 min-h-0 relative">
+          <div className="flex-1 w-full flex flex-col min-h-0 relative">
             
 
 
-            <div className="w-full flex-1 bg-[#070d19] border border-white/[0.04] p-4 rounded-2xl relative text-left shadow-xl flex flex-col justify-between z-10 overflow-hidden">
+            <div className="w-full flex-1 bg-[#070d19]/60 border border-[#38BDF8]/10 p-5 rounded-2xl relative text-left shadow-2xl flex flex-col justify-between z-10 overflow-hidden backdrop-blur-md">
               
               <div className="w-full flex items-center justify-between border-b border-[#38BDF8]/20 pb-3 mb-4 shrink-0">
                 <span className="text-[10px] font-black font-mono text-[#38BDF8] tracking-widest uppercase">
