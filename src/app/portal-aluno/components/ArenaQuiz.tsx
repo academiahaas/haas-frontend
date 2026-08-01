@@ -1305,7 +1305,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     if (xpGanho > 0) {
       setXpAcumulado(prev => prev + xpGanho);
     }
-    sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado === "roleplay" ? "9" : jogoSelecionado, xpGanho, jogoSelecionado === "roleplay" ? (typeof subUnidadeIndex === "string" ? subUnidadeIndex : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || "")) : (exerciseId && exerciseId !== "roleplay" ? exerciseId : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || "")));
+      sincronizarXpUnidadeComBanco(xpUnidade + xpGanho, jogoSelecionado === "roleplay" ? "9" : jogoSelecionado, xpGanho, exerciseId ? exerciseId : ((typeof window !== "undefined" && (window as any).__dadosBanco?.current_unit_id) || unidadeId || ""));
     // Notifica conclusão do exercício no Supabase para Reordenação e outros módulos
     if (isCorrect) {
       console.log("🚀 [ARENA QUIZ] Notificando Supabase sobre conclusão do jogo:", jogoSelecionado);
