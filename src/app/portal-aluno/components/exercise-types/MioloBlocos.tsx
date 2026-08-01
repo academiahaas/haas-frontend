@@ -7,6 +7,7 @@ import { CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface MioloBlocosProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -44,6 +45,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
 };
 
 export default function MioloBlocos({
+  initialExerciseData,
   onSelectionChange,
   onValidateResult,
   status: propStatus = 'IDLE',
@@ -71,6 +73,52 @@ export default function MioloBlocos({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  // Sync Adaptativo Determinístico - Blocos
+  useEffect(() => {
+    if (initialExerciseData) {
+      console.log("⚡ [MioloBlocos] Hydrating adaptative exercise:", initialExerciseData);
+      const ex = initialExerciseData;
+      setExerciseId(ex.id || "");
+      
+      const correctString = String(ex.correct_answer || ex.text || "").trim();
+      setGabaritoFrase(correctString);
+      setFraseOriginalGabarito(correctString);
+      
+      let parsedOptions = [];
+      try {
+        if (Array.isArray(ex.options) && ex.options.length > 0) {
+          parsedOptions = ex.options;
+        } else if (typeof ex.options === 'string' && ex.options.trim().startsWith('[')) {
+          parsedOptions = JSON.parse(ex.options);
+        } else if (ex.alternative_options) {
+           const altOpts = typeof ex.alternative_options === 'string' ? JSON.parse(ex.alternative_options) : ex.alternative_options;
+           if (Array.isArray(altOpts) && altOpts.length > 0) parsedOptions = altOpts;
+        }
+      } catch(e) {
+        console.error("Erro ao fazer parse dos blocos:", e);
+      }
+      
+      if (parsedOptions.length === 0 && correctString) {
+        parsedOptions = correctString.split(' ').map(w => w.trim()).filter(Boolean);
+        parsedOptions.sort(() => Math.random() - 0.5);
+      }
+
+      const blocosFormatados = parsedOptions.map((texto, i) => ({
+        id: `bloco-adapt-${i}`,
+        texto: String(texto).trim()
+      }));
+
+      setBlocosDisponiveis(blocosFormatados);
+      setBlocosMontados([]);
+      
+      setFeedbackCorretoBanco(ex.explanation || ex.feedback_correct || "");
+      setFeedbackIncorretoBanco(ex.feedback_incorrect || "");
+      setLocalStatus('IDLE');
+      setCarregando(false);
+    }
+  }, [initialExerciseData]);
+
+
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   // USER_ID_ALVO dinamico via useAuth
 
@@ -94,6 +142,11 @@ export default function MioloBlocos({
 
   useEffect(() => {
     async function carregarBlocosDoBanco() {
+      if (initialExerciseData && (initialExerciseData.id || initialExerciseData.correct_answer)) {
+        console.log("🔒 [MioloBlocos] MODO ADAPTATIVO ATIVO. Bloqueando busca generica. ExID:", initialExerciseData.id);
+        setCarregando(false);
+        return;
+      }
       if (!unidadeAtiva) {
         console.log("🔍 [MioloBlocos.tsx] Aguardando UUID/UnidadeAtiva da Central...");
         return;
