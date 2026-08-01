@@ -1383,12 +1383,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           </span>
           <span className="flex items-center gap-1 text-[#22C55E]"><Award size={13} /> {xpAcumulado} PTS TOTAL</span>
         </div>
-        
-        <div className="absolute left-1/2 transform -translate-x-1/2 text-center hidden lg:block">
-          <span className="text-[12px] font-black text-[#38BDF8] tracking-widest font-mono uppercase bg-[#38BDF8]/10 px-5 py-1.5 rounded-full border border-[#38BDF8]/20 shadow-[0_0_15px_rgba(56,189,248,0.1)]">
-            {jogoAtual.title}
-          </span>
-        </div>
 
         {onClose && (
           <button onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} className="text-[9.5px] font-black font-mono tracking-widest px-3 py-1.5 bg-transparent text-[#f59e0b] rounded-xl border border-[#f59e0b]/40 cursor-pointer hover:text-white hover:bg-[#f59e0b]/10 transition-all hover:border-[#f59e0b]/70">
