@@ -12,6 +12,7 @@ interface FragmentItem {
 }
 
 interface MioloOrdenacaoProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -44,6 +45,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
 };
 
 export default function MioloOrdenacao({
+  initialExerciseData,
   onSelectionChange,
   onValidateResult,
   status: propStatus = 'IDLE',
@@ -74,6 +76,72 @@ export default function MioloOrdenacao({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  // Sync Adaptativo Determinístico - Ordenação (REDE AMPLA + DEBUG)
+  useEffect(() => {
+    if (initialExerciseData) {
+      const ex = initialExerciseData;
+      
+      console.log("🐛 [DEBUG ORDENACAO] Dados brutos recebidos:", {
+        correct_answer: ex.correct_answer,
+        text: ex.text,
+        question: ex.question,
+        options: ex.options,
+        alternative_options: ex.alternative_options
+      });
+
+      // 1. Mapeia a frase correta (Buscando em todas as colunas possíveis de texto)
+      const correctString = String(ex.correct_answer || ex.text || ex.question || "").trim();
+      setReferencePhrase(correctString);
+      setTextoParaFalar(correctString);
+      
+      // 2. Extrai e processa as opções (Buscando em alternative_options ou options)
+      let parsedOptions = [];
+      const rawOptions = ex.alternative_options || ex.options;
+
+      try {
+        if (rawOptions) {
+          if (Array.isArray(rawOptions)) {
+            parsedOptions = rawOptions;
+          } else if (typeof rawOptions === 'string') {
+            try {
+              parsedOptions = JSON.parse(rawOptions);
+            } catch(err) {
+              parsedOptions = rawOptions.split(',').map(w => w.trim()).filter(Boolean);
+            }
+          }
+        }
+      } catch(e) {
+        console.error("Erro ao processar as opções de blocos:", e);
+      }
+      
+      // 3. Fallback: Se não vieram opções nos arrays, quebra a frase correta em palavras
+      if ((!parsedOptions || parsedOptions.length === 0) && correctString) {
+        console.log("⚠️ [DEBUG ORDENACAO] Fallback ativado. Quebrando frase:", correctString);
+        parsedOptions = correctString.split(' ').map(w => w.trim()).filter(Boolean);
+        parsedOptions.sort(() => Math.random() - 0.5); // Embaralha as palavras
+      }
+
+      console.log("✅ [DEBUG ORDENACAO] Blocos finais gerados:", parsedOptions);
+
+      // 4. Formata para o estado bank/deposit exigido pela UI
+      const fragmentsFormatados = parsedOptions.map((texto, i) => ({
+        id: i,
+        text: String(texto).trim()
+      }));
+
+      setBank(fragmentsFormatados);
+      setInitialFragments(fragmentsFormatados.map(f => f.text));
+      setDeposit([]);
+      
+      setFeedbackCorretoBanco(ex.explanation || ex.feedback_correct || "");
+      setFeedbackIncorretoBanco(ex.feedback_incorrect || "");
+      
+      setLocalStatus('IDLE');
+      setCarregando(false);
+    }
+  }, [initialExerciseData]);
+
+
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   // USER_ID_ALVO dinamico via useAuth
 
@@ -90,18 +158,23 @@ export default function MioloOrdenacao({
     if (propStatus === 'IDLE') {
       setLocalStatus('IDLE');
       setFeedbackIA('');
-      if (listaExercicios.length > 0) {
+      if (listaExercicios && listaExercicios.length > 0) {
         configurarExercicio(listaExercicios[indexAtual]);
-      } else {
+      } else if (initialFragments && initialFragments.length > 0) {
         setBank(initialFragments.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
         setDeposit([]);
       }
-    } else {
+    } else if (propStatus) {
       setLocalStatus(propStatus);
     }
-  }, [propStatus]);
+  }, [propStatus, initialFragments, listaExercicios, indexAtual]);
 
   useEffect(() => {
+    if (initialExerciseData && (initialExerciseData.id || initialExerciseData.correct_answer)) {
+      console.log("🔒 [MioloOrdenacao] MODO ADAPTATIVO ATIVO (Bypass efetuado).");
+      setCarregando(false);
+      return;
+    }
     async function carregarOrdenacao() {
       if (!unidadeAtiva) {
         console.log("🔍 [MioloOrdenacao.tsx] Aguardando UUID/UnidadeAtiva da Central...");
