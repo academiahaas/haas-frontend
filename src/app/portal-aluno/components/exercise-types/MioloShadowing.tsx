@@ -329,7 +329,7 @@ Regras Estritas:
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
       if (onValidateResult) {
-        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 1.5, unidadeAtiva);
+        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 1.5, initialExerciseData?.id);
       }
       return;
     }
@@ -389,7 +389,7 @@ Regras Estritas:
         const incTexto = aprovado ? incentivoCorretoBanco : incentivoIncorretoBanco;
         const feedbackFinalMentora = (incTexto && incTexto.trim().length > 0) ? incTexto : msgPersonalizada;
         const notaFinal = Number((notaCalculada / 10).toFixed(1));
-          onValidateResult(aprovado, feedbackFinalMentora, notaFinal, unidadeAtiva);
+          onValidateResult(aprovado, feedbackFinalMentora, notaFinal, initialExerciseData?.id);
       }
 
       if (aprovado) {
