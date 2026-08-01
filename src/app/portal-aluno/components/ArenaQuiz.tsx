@@ -98,6 +98,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       return;
     }
 
+    // [BYPASS ARQUITETURA PASSIVA] Pula a busca no banco e injeta a URL na telinha (iframe)
+    if (videoSelecionado.id === -1 && (videoSelecionado.video_url || videoSelecionado.url)) {
+      const linkBruto = videoSelecionado.video_url || videoSelecionado.url;
+      const urlConvertida = obterEmbedYoutube(linkBruto);
+      console.log("🟩 [Bypass Passivo] URL Injetada diretamente na telinha:", urlConvertida);
+      setUrlEmbedAtiva(urlConvertida);
+      return;
+    }
+
     async function buscarVideoBanco() {
       try {
         setCarregandoVideo(true);
@@ -1164,15 +1173,34 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     }
   }, [isOpen, userId, activeUserId]);
 
-  // Auto-Gatilho de Vídeo Inteligente (Apenas para novos acessos à unidade)
+  // Auto-Gatilho Reativo de Vídeo (Orientado 100% ao Supabase: users.unit_video_url)
   useEffect(() => {
-    const unitTarget = unitIdCentral || unidadeId;
-    // Dispara o vídeo somente se for o primeiro acesso do aluno à unidade (sem exercícios concluídos)
-    if (isOpen && unitTarget && unidadesConcluidas === 0) {
-      setVideoSelecionado({ id: 1, title: "Apresentação da Unidade" });
-      setVisualizacaoAtiva("PLAYER_VIDEO");
+    if (!isOpen) return;
+    const targetUid = userId || activeUserId;
+    if (!targetUid || targetUid === "anonymous-user") return;
+
+    async function checkUnitVideo() {
+      try {
+        // Faz a leitura direta e segura da coluna no Supabase
+        const { data, error } = await supabase
+          .from('users')
+          .select('unit_video_url')
+          .eq('id', targetUid)
+          .single();
+
+        if (!error && data?.unit_video_url && data.unit_video_url.trim() !== '') {
+          console.log("🎬 [ArenaQuiz] unit_video_url detectado no Supabase:", data.unit_video_url);
+          // Passamos id: -1 para não conflitar com índices de vídeo antigos
+          setVideoSelecionado({ id: -1, title: "Vídeo da Unidade", url: data.unit_video_url, video_url: data.unit_video_url });
+          setVisualizacaoAtiva("PLAYER_VIDEO");
+        }
+      } catch (err) {
+        console.error("Erro ao checar unit_video_url:", err);
+      }
     }
-  }, [isOpen, unitIdCentral, unidadeId, unidadesConcluidas]);
+
+    checkUnitVideo();
+  }, [isOpen, userId, activeUserId]);
 
   const [modalPedagogo, setModalPedagogo] = useState<{ aberto: boolean; tipo: 'VIDEO' | 'TEXTO' | null }>({
     aberto: false,
