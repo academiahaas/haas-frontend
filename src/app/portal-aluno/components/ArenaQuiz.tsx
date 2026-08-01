@@ -1250,16 +1250,44 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const handleNextMission = () => {
+    /* CHAMADA_CENTRAL_NO_AVANCO */
     setDesafioIniciado(false);
     setContagem(0);
     setGameStatus('IDLE');
     setComboQuebrado(false);
     setCaixaAberta(false);
-    // Seleção Aleatória do Próximo Miolo sem Repetir o Atual
-    const jogosDisponiveis = todosOsJogos.filter(j => j.id !== jogoSelecionado);
-    const proximoJogo = jogosDisponiveis[Math.floor(Math.random() * jogosDisponiveis.length)];
     setJogoSelecionado('');
-    setTimeout(() => setJogoSelecionado(proximoJogo ? proximoJogo.id : todosOsJogos[0].id), 10);
+
+    const targetUid = typeof userId !== 'undefined' ? userId : (typeof activeUserId !== 'undefined' ? activeUserId : "");
+    
+    if (targetUid && typeof fetchNextExerciseForUser === 'function') {
+      fetchNextExerciseForUser(targetUid).then((exercise) => {
+        if (exercise && exercise.activity_type) {
+          const activityType = Number(exercise.activity_type);
+          const gameId = typeof MAPA_JOGOS_ADAPTATIVO !== 'undefined' ? MAPA_JOGOS_ADAPTATIVO[activityType] : null;
+          if (gameId) {
+            console.log("🎯 [ARENA AVANÇO] Próximo exercise_id:", exercise.id, "Tipo:", activityType);
+            setAdaptiveExerciseData(exercise);
+            setTimeout(() => setJogoSelecionado(gameId), 10);
+            return;
+          }
+        }
+        fallbackAleatorio();
+      }).catch((e) => {
+        console.warn("Erro ao buscar próximo da CentralService", e);
+        fallbackAleatorio();
+      });
+    } else {
+      fallbackAleatorio();
+    }
+
+    function fallbackAleatorio() {
+      const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
+      const current = typeof jogoSelecionado !== 'undefined' ? jogoSelecionado : '';
+      const jogosDisponiveis = ids.filter(id => id !== current);
+      const proximoJogo = jogosDisponiveis[Math.floor(Math.random() * jogosDisponiveis.length)];
+      setTimeout(() => setJogoSelecionado(proximoJogo), 10);
+    }
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
