@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square, Sparkles, RotateCcw } from 'lucide-react';
 
 interface MioloShadowingProps {
+  initialExerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
@@ -78,8 +79,8 @@ function calcularSimilaridadeShadowing(target: string, spoken: string): number {
   return Math.round((acertos / palavrasAlvo.length) * 100);
 }
 
-export default function MioloShadowing({ onSelectCorrect, onSelectWrong, unidadeAtiva,
-  nivelAtivo, onValidateResult }: MioloShadowingProps) {
+export default function MioloShadowing({onSelectCorrect, onSelectWrong, unidadeAtiva,
+  nivelAtivo, onValidateResult , initialExerciseData}: MioloShadowingProps) {
 
   
 
@@ -185,16 +186,28 @@ Regras Estritas:
       }
       let codigoUnidade = unidadeAtiva;
 
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
-        let query = supabase.from("exercises").select("*").eq("activity_type", 10);
-
-        if (isUUID) {
-          query = query.eq("unit_id", codigoUnidade);
-        } else {
-          query = query.eq("unit", codigoUnidade);
-        }
-
-        const { data: exeDados, error } = await query.limit(1);
+        let exeDados = [];
+          let error = null;
+          
+          // --- BYPASS: USA DADOS DA ARENA SE EXISTIREM ---
+          if (typeof initialExerciseData !== 'undefined' && initialExerciseData && (initialExerciseData.id || initialExerciseData.audio_transcript || initialExerciseData.correct_answer)) {
+            console.log("🔒 [SHADOWING] Usando dados da Arena:", initialExerciseData.id);
+            exeDados = [initialExerciseData];
+          } else {
+            const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codigoUnidade);
+            let query = supabase.from("exercises").select("*").eq("activity_type", 10);
+            
+            if (isUUID) {
+              query = query.eq("unit_id", codigoUnidade);
+            } else {
+              query = query.eq("unit", codigoUnidade);
+            }
+            
+            const res = await query.limit(1);
+            exeDados = res.data;
+            error = res.error;
+          }
+          // ------------------------------------------------
         if (error) throw error;
 
         if (exeDados && exeDados.length > 0) {
