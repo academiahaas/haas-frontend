@@ -884,7 +884,6 @@ export default function DashboardDesktop() {
 
         <div className="w-full xl:w-auto bg-[#061324] pt-5 pb-5 px-5 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between xl:h-full border border-white/5 relative min-h-[580px] xl:min-h-0 overflow-hidden shrink-0">
           <div className="w-full flex flex-col gap-2 shrink-0">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{t.radarTitle}</span>
             <div className="w-full h-[165px] shrink-0 bg-[#04101e] rounded-2xl flex items-center justify-center overflow-hidden p-1 border border-white/5 shadow-inner">
               {mounted ? (
                 <ResponsiveContainer width="100%" height="100%">
