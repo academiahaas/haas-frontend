@@ -208,7 +208,7 @@ export default function MioloOrdenacao({
 
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
 
-        const response = await getExerciseByActivityType(nomeUnidade, 7);
+        const response = (initialExerciseData && initialExerciseData.id) ? { success: true, data: [initialExerciseData] } : await getExerciseByActivityType(nomeUnidade, 7);
         const dados = (response && response.data) ? response.data : [];
 
         
@@ -346,7 +346,7 @@ export default function MioloOrdenacao({
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       if (onValidateResult) {
         const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente ordenação de sentença!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "Atenção à ordem sintática dos elementos.");
-        onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+        onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, initialExerciseData?.id || listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
       }
     } catch (e) {
       const fraseMontadaAlunoLimpa = deposit.map(d => d.text).join(" ").trim().toLowerCase();
@@ -357,7 +357,7 @@ export default function MioloOrdenacao({
       setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação sintática!") : (feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância."));
       if (onValidateResult) {
         const textoMentora2 = acertou ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente ordenação sintática!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "A ordem dos blocos possui desvios de concordância.");
-        onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
+        onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, initialExerciseData?.id || listaExercicios[indexAtual]?.id || listaExercicios[indexAtual]?.exercise_id || unidadeAtiva);
       }
     } finally {
       setAnalisando(false);
