@@ -7,6 +7,7 @@ import { Timer, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-
 import { supabase } from '@/lib/supabase';
 
 interface MioloLeituraRapidaProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -39,6 +40,7 @@ const traducoesAbas: Record<string, Record<string, string>> = {
 };
 
 export default function MioloLeituraRapida({
+  initialExerciseData,
   onSelectionChange,
   onValidateResult,
   status: propStatus = 'IDLE',
@@ -67,6 +69,36 @@ export default function MioloLeituraRapida({
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
+
+  // Sync Adaptativo Determinístico - Leitura Rápida
+  useEffect(() => {
+    if (initialExerciseData) {
+      console.log("⚡ [MioloLeituraRapida] Hydrating adaptative exercise:", initialExerciseData);
+      const ex = initialExerciseData;
+      setExerciseId(ex.id || "");
+      
+      const respostaCorreta = String(ex.correct_answer || "").trim();
+      // Tenta buscar de campos comuns e, se falhar, assume que o texto é o próprio gabarito
+      const textoParaLer = String(ex.reading_text || ex.text || ex.question || ex.correct_answer || "").trim();
+      
+      setTextoLongo(textoParaLer);
+      setTextoGabarito(respostaCorreta);
+      
+      // Cálculo dinâmico do tempo caso não venha estipulado (mínimo de 30s)
+      const numPalavras = textoParaLer.split(/\s+/).length;
+      const tempoCalculado = Math.max(30, Math.ceil(numPalavras * 0.5)); // ~120 PPM
+      setTimeLeft(ex.timer || tempoCalculado);
+
+      setFeedbackCorretoBanco(ex.explanation || ex.feedback_correct || "");
+      setFeedbackIncorretoBanco(ex.feedback_incorrect || "");
+      
+      setFase('LEITURA');
+      setInputValue("");
+      setLocalStatus('IDLE');
+      setCarregando(false);
+    }
+  }, [initialExerciseData]);
+
 
   const timerRef = useRef<any>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -98,6 +130,11 @@ export default function MioloLeituraRapida({
   }, [propStatus]);
 
   useEffect(() => {
+    if (initialExerciseData && (initialExerciseData.id || initialExerciseData.text)) {
+      console.log("🔒 [MioloLeituraRapida] MODO ADAPTATIVO ATIVO (Bypass efetuado).");
+      setCarregando(false);
+      return;
+    }
     async function carregarLeituraDoBanco() {
       if (!unidadeAtiva) {
         console.log("🔍 [MioloLeituraRapida.tsx] Aguardando UUID/UnidadeAtiva da Central...");
