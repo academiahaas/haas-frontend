@@ -1737,12 +1737,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
           <div className="w-full pt-4 border-t border-white/[0.03] flex justify-between items-center gap-4">
             <button 
-              onClick={() => { tocarSom('click'); handleNextMission(); }}
-              disabled={visualizacaoAtiva !== "EXERCICIO"} className="disabled:opacity-20 disabled:cursor-not-allowed px-5 py-2.5 bg-[#070d19] hover:bg-[#0B1528] text-slate-500 border border-[#0B1528] text-[10.5px] font-black tracking-wider rounded-xl cursor-pointer transition-all shadow-md uppercase"
-            >
-              {tArena.skip}
-            </button>
-            <button 
               onClick={() => {
                 if (visualizacaoAtiva !== "EXERCICIO") return;
                 // Se for o Spelling Bee validando, não toca o clique sintético para não atropelar o som premium
