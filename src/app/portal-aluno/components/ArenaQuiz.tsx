@@ -171,7 +171,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const arenaDict = {
     PT: {
-      mentorName: "⚛︎ MENTORA HAAS",
+      mentorName: "CENTRAL DE APOIO",
       precisionLabel: "PRECISÃO",
       mentorFire: "Como posso te ajudar com este desafio hoje? Tire suas dúvidas comigo!",
       chatPlaceholder: "Tire suas dúvidas aqui...",
@@ -187,7 +187,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       media: "Conteúdo Audiovisual"
     },
     EN: {
-      mentorName: "⚛︎ HAAS MENTOR",
+      mentorName: "SUPPORT CENTER",
       precisionLabel: "PRECISION",
       mentorFire: "How can I help you with this challenge today? Ask me any questions!",
       chatPlaceholder: "Ask your questions here...",
@@ -202,7 +202,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       guide: "Textual Rules Guide"
     },
     ES: {
-      mentorName: "⚛︎ MENTORA HAAS",
+      mentorName: "CENTRO DE APOYO",
       precisionLabel: "PRECISIÓN",
       mentorFire: "¿Cómo puedo ayudarte con este desafío hoy? ¡Resuelve tus dudas conmigo!",
       chatPlaceholder: "Resuelva sus dudas aquí...",
@@ -1778,29 +1778,21 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
         <div className="flex w-full md:w-[32%] h-auto md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.03] rounded-[24px] backdrop-blur-md shadow-2xl p-5 flex flex-col justify-between relative overflow-hidden mt-4 md:mt-0">
           
-          <div className="w-full bg-[#070d19] border border-[#38BDF8]/20 py-2 px-4 rounded-xl flex items-center justify-between font-mono text-[11px] font-black tracking-wider text-slate-200 shadow-lg shrink-0">
-            <span className="flex items-center gap-1"><Target size={12} className="text-[#38BDF8]" /> {precision}%</span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1"><Flame size={12} className={`text-[#FF8A2B] ${streak >= 3 ? 'text-amber-500 font-black' : ''}`} fill="currentColor" /> {streak}</span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1"><Star size={12} className="text-[#22C55E]" /> {unidadesConcluidas}/{totalUnidadesModulo}</span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1"><TrendingUp size={12} className="text-[#A855F7]" /> {alunoNivel} • {proficienciaMedia}%</span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1 text-[#22C55E]"><Trophy size={12} /> +{xpUnidade} PTS</span>
-            <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1 text-amber-400 font-mono">
-              <Zap size={12} className="fill-amber-400 stroke-amber-400" /> {creditosPlano !== null ? `${creditosPlano} REQS` : "..."}
-            </span>
-          </div>
-
           <div className="flex-1 w-full flex flex-col items-center justify-center gap-4 py-4 min-h-0 relative">
             
 
 
             <div className="w-full flex-1 bg-[#070d19] border border-white/[0.04] p-4 rounded-2xl relative text-left shadow-xl flex flex-col justify-between z-10 overflow-hidden">
               
-              <span className="w-full text-[9px] font-black text-[#38BDF8] tracking-widest uppercase block border-b border-white/5 pb-1 select-none shrink-0 mb-2">{tArena.mentorName}</span>
+              <div className="w-full flex items-center justify-between border-b border-[#38BDF8]/20 pb-3 mb-4 shrink-0">
+                <span className="text-[10px] font-black font-mono text-[#38BDF8] tracking-widest uppercase">
+                  {tArena.mentorName}
+                </span>
+                <div className="flex items-center gap-1.5 text-[10px] font-black font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-md tracking-wider">
+                  <Zap size={12} className="fill-amber-400 stroke-amber-400" />
+                  <span>{creditosPlano !== null ? `${creditosPlano} REQS` : "..."}</span>
+                </div>
+              </div>
               
               <div className="flex flex-col flex-1 overflow-y-auto mb-3 pr-1 max-h-[460px] [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div className="text-[13px] font-sans font-medium leading-relaxed text-slate-100 mt-1">
