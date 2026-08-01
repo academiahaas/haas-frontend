@@ -12,6 +12,7 @@ interface ParagrafoItem {
 }
 
 interface MioloReordenacaoProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -45,7 +46,7 @@ export default function MioloReordenacaoParagrafos({
   onValidateResult,
   status: propStatus = 'IDLE',
   unidadeAtiva
-}: MioloReordenacaoProps) {
+, initialExerciseData}: MioloReordenacaoProps) {
 
   
 
@@ -79,6 +80,37 @@ export default function MioloReordenacaoParagrafos({
   
   useEffect(() => {
     async function carregar() {
+      // --- BYPASS: USA DADOS DA ARENA SE EXISTIREM ---
+      if (initialExerciseData && (initialExerciseData.id || initialExerciseData.options || initialExerciseData.correct_order)) {
+        console.log("🔒 [MioloReordenacaoParagrafos] Usando dados da Arena:", initialExerciseData.id);
+        
+        setDadosExercicio(initialExerciseData);
+        
+        let frasesOriginais: string[] = [];
+        const exe = initialExerciseData;
+        
+        if (exe.options) {
+            try { frasesOriginais = typeof exe.options === "string" ? JSON.parse(exe.options) : exe.options; } catch(e){}
+        } else if (exe.correct_order) {
+            try { frasesOriginais = typeof exe.correct_order === "string" ? JSON.parse(exe.correct_order) : exe.correct_order; } catch(e){}
+        } else if (exe.alternative_options) {
+            try { frasesOriginais = typeof exe.alternative_options === "string" ? JSON.parse(exe.alternative_options) : exe.alternative_options; } catch(e){}
+        } else if (exe.correct_answer) {
+             frasesOriginais = String(exe.correct_answer).split("|").map((s: string) => s.trim());
+        }
+
+        if (Array.isArray(frasesOriginais) && frasesOriginais.length > 0) {
+          const itemsMapeados: ParagrafoItem[] = frasesOriginais.map((text: string, idx: number) => ({ id: idx + 1, text }));
+          setItems(itemsMapeados);
+          setGabaritoIds(itemsMapeados.map(item => item.id));
+          if (exe.correct_answer) setTextoGabaritoInteiro(exe.correct_answer);
+        }
+        
+        setCarregando(false);
+        return; // Aborta a busca por unidade
+      }
+      // ------------------------------------------------
+      
       try {
         setCarregando(true);
           
@@ -91,7 +123,9 @@ export default function MioloReordenacaoParagrafos({
         }
 
         console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const res = (initialExerciseData && (initialExerciseData.id || initialExerciseData.correct_order)) 
+            ? { success: true, data: [initialExerciseData] } 
+            : await getExerciseByActivityType(unitParaBusca, 8);
         const dados = res.success && res.data ? res.data : [];
 
         if (dados.length > 0) {
@@ -160,7 +194,9 @@ export default function MioloReordenacaoParagrafos({
         }
 
         console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const res = (initialExerciseData && (initialExerciseData.id || initialExerciseData.correct_order)) 
+            ? { success: true, data: [initialExerciseData] } 
+            : await getExerciseByActivityType(unitParaBusca, 8);
         const dados = res.success && res.data ? res.data : [];
 
         if (dados.length > 0) {
@@ -307,7 +343,9 @@ export default function MioloReordenacaoParagrafos({
         }
 
         console.log("🔍 [REORDENACAO RESOLVIDA] Buscando para UUID:", unitParaBusca);
-        const res = await getExerciseByActivityType(unitParaBusca, 8);
+        const res = (initialExerciseData && (initialExerciseData.id || initialExerciseData.correct_order)) 
+            ? { success: true, data: [initialExerciseData] } 
+            : await getExerciseByActivityType(unitParaBusca, 8);
         const dados = res.success && res.data ? res.data : [];
 
         if (dados.length > 0) {
