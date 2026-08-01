@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Mic, Loader2, Volume2, HelpCircle } from "lucide-react";
 
 interface MioloRoleplayProps {
+  initialExerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
@@ -168,7 +169,7 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
 }
 
 export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva,
-  nivelAtivo, onValidateResult }: MioloRoleplayProps) {
+  nivelAtivo, onValidateResult , initialExerciseData}: MioloRoleplayProps) {
 
   
 
@@ -208,15 +209,25 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         console.log("🔍 [ROLEPLAY] Buscando exercicio do tipo 9 para UUID/Unit:", unidadeAtiva);
 
         // Busca por unit_id (UUID da Central) ou fallback por unit
-        let query = supabase.from("exercises").select("*").eq("activity_type", 9);
-        
-        if (unidadeAtiva.includes("-")) {
-          query = query.eq("unit_id", unidadeAtiva);
-        } else {
-          query = query.eq("unit", unidadeAtiva);
-        }
-
-        const { data: exeDados, error } = await query;
+        let exeDados = [];
+          let error = null;
+          
+          // --- BYPASS: USA DADOS DA ARENA SE EXISTIREM ---
+          if (initialExerciseData && (initialExerciseData.id || initialExerciseData.audio_transcript)) {
+            console.log("🔒 [ROLEPLAY] Usando dados da Arena:", initialExerciseData.id);
+            exeDados = [initialExerciseData];
+          } else {
+            let query = supabase.from("exercises").select("*").eq("activity_type", 9);
+            if (unidadeAtiva.includes("-")) {
+              query = query.eq("unit_id", unidadeAtiva);
+            } else {
+              query = query.eq("unit", unidadeAtiva);
+            }
+            const res = await query;
+            exeDados = res.data;
+            error = res.error;
+          }
+          // ------------------------------------------------
         
         if (error) throw error;
         
