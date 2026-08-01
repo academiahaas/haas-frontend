@@ -1396,7 +1396,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-widest text-[#94A3B8] uppercase">{tArena.unit} {numeroUnidadeReal || (typeof subUnidadeIndex === "number" ? String(subUnidadeIndex + 1).padStart(2, "0") : "01")}</span>
               {visualizacaoAtiva === "EXERCICIO" && (
                 <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
               )}
