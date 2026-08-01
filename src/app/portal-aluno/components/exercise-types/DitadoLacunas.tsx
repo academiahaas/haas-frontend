@@ -7,6 +7,7 @@ import { Volume2, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucid
 import { supabase } from '@/lib/supabase';
 
 interface DitadoLacunasProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -35,7 +36,8 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function DitadoLacunas({ 
+export default function DitadoLacunas({
+  initialExerciseData, 
   onSelectionChange, 
   onValidateResult, 
   status: propStatus = 'IDLE', 
@@ -67,6 +69,31 @@ export default function DitadoLacunas({
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
+  // Sync Adaptativo Determinístico - Ditado / Palavra Oculta
+  useEffect(() => {
+    if (initialExerciseData) {
+      console.log("⚡ [DitadoLacunas] Hydrating adaptative exercise:", initialExerciseData);
+      const ex = initialExerciseData;
+      const targetId = ex.id || "";
+
+      let text = ex.prompt || ex.reading_text || ex.text || "";
+      text = text.replace(/\[lacuna\]/gi, "___");
+      const targetWordVal = String(ex.correct_answer || ex.target_word || "").trim();
+
+      setExerciseId(targetId);
+      setTargetWord(targetWordVal);
+      setFraseEstruturada(text);
+      setTextoParaFalar(text || targetWordVal);
+      setInputValue("");
+      setInputValues({});
+      setLocalStatus('IDLE');
+      setFeedbackCorretoBanco(ex.explanation || ex.feedback_correct || "");
+      setFeedbackIncorretoBanco(ex.feedback_incorrect || "");
+      setCarregando(false);
+    }
+  }, [initialExerciseData]);
+
+
   const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
   // USER_ID_ALVO dinamico via useAuth
 
@@ -92,6 +119,11 @@ export default function DitadoLacunas({
 
   useEffect(() => {
     async function carregarDitadoDoBanco() {
+      if (initialExerciseData && (initialExerciseData.id || initialExerciseData.prompt || initialExerciseData.reading_text)) {
+        console.log("🔒 [DitadoLacunas] MODO ADAPTATIVO ATIVO. Bloqueando busca generica por unidade. ExID:", initialExerciseData.id);
+        setCarregando(false);
+        return;
+      }
       if (!unidadeAtiva) {
         console.log("🔍 [DitadoLacunas.tsx] Aguardando UUID/UnidadeAtiva da Central...");
         return;
