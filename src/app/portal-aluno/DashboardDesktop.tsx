@@ -783,11 +783,7 @@ export default function DashboardDesktop() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 xl:gap-4 mt-4 bg-[#040e1b] p-3 rounded-xl border border-white/5 text-white/90 font-mono text-[9px] xl:text-[10px] font-black shadow-inner shrink-0">
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ EN: "ACTIVE SCORE", ES: "SCORE ACTIVO", PT: "SCORE ATIVO" }[(idioma || "PT").toUpperCase()] || "SCORE ATIVO")}: +{scoreAtivo} PTS</span></div>
-                <div className="flex items-center gap-1.5 text-slate-200"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{(t.time || "TEMPO:").split(":")[0].toUpperCase()}: {tempoModulo} MIN</span></div>
-                <div className="flex items-center gap-1.5 text-white"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] inline-block shrink-0" /> <span className="truncate">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")}: {(() => { const d = { "Explorador": { PT: "EXPLORADOR", ES: "EXPLORADOR", EN: "EXPLORER" }, "Pioneiro": { PT: "PIONEIRO", ES: "PIONERO", EN: "PIONEER" }, "Conquistador": { PT: "CONQUISTADOR", ES: "CONQUISTADOR", EN: "CONQUEROR" }, "Estrategista": { PT: "ESTRATEGISTA", ES: "ESTRATEGA", EN: "STRATEGIST" }, "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" } }; return (d[patenteBruta] ? (d[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase(); })()}</span></div>
-              </div>
+              
 
               <div className="mt-5 mb-2 w-full flex flex-col gap-2 select-none xl:flex-1 min-h-0">
 
