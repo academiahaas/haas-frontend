@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Zap, ShieldAlert, Award } from 'lucide-react';
 
 interface MioloBlitzChallengeProps {
+  initialExerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   triggerGlow?: boolean;
@@ -21,6 +22,7 @@ interface BlitzQuestion {
 }
 
 export default function MioloBlitzChallenge({
+  initialExerciseData,
   onSelectCorrect,
   onSelectWrong,
   triggerGlow,
@@ -45,6 +47,52 @@ export default function MioloBlitzChallenge({
   const [feedback, setFeedback] = useState<{ id: string; text: string; color: string } | null>(null);
   const [clickedOption, setClickedOption] = useState<string | null>(null);
 
+  // Sync Adaptativo Determinístico - Desafio Blitz
+  useEffect(() => {
+    if (initialExerciseData) {
+      console.log("⚡ [MioloBlitzChallenge] Hydrating adaptative exercise:", initialExerciseData);
+      const ex = initialExerciseData;
+      const targetId = ex.id || "";
+
+      const word = ex.prompt || ex.reading_text || ex.activity_name || "Desafio Blitz";
+
+      let rawOptions = ex.alternative_options || ex.options || [];
+      if (typeof rawOptions === 'string') {
+        try { rawOptions = JSON.parse(rawOptions); } catch (e) { rawOptions = []; }
+      }
+      if (!Array.isArray(rawOptions)) rawOptions = [];
+
+      let cleanOpts = rawOptions.map((item: any) =>
+        typeof item === 'object' && item !== null ? (item.text || item.option || item.label || JSON.stringify(item)) : String(item)
+      );
+
+      const correct = String(ex.correct_answer || "").trim();
+      if (correct && !cleanOpts.some((o: string) => o.trim().toLowerCase() === correct.toLowerCase())) {
+        cleanOpts.push(correct);
+      }
+      cleanOpts = cleanOpts.sort(() => 0.5 - Math.random());
+
+      const formattedQuestion: BlitzQuestion = {
+        word,
+        correct,
+        options: cleanOpts
+      };
+
+      setExerciseId(targetId);
+      setQuestions([formattedQuestion]);
+      setCurrentIndex(0);
+      setTimeLeft(30);
+      setGameOver(false);
+      setTotalXp(0);
+      setFeedback(null);
+      setClickedOption(null);
+    }
+  }, [initialExerciseData]);
+
+
+  
+
+
   const timerRef = useRef<any>(null);
   const validadoRef = useRef<boolean>(false);
 
@@ -58,9 +106,10 @@ export default function MioloBlitzChallenge({
   
 
     useEffect(() => {
+    
     async function carregarBlitzDoBanco() {
-      if (!unidadeAtiva) {
-        console.log("🔍 [MioloBlitzChallenge.tsx] Aguardando UUID/UnidadeAtiva da Central...");
+      if (initialExerciseData && (initialExerciseData.id || initialExerciseData.prompt || initialExerciseData.reading_text)) {
+        console.log("🔒 [MioloBlitzChallenge] MODO ADAPTATIVO ATIVO. Bloqueando busca generica da unidade. ExID:", initialExerciseData.id);
         return;
       }
       try {
