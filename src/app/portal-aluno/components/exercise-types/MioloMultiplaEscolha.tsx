@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Sparkles, Send, RefreshCw, HelpCircle } from 'lucide-react';
 
 interface MioloProps {
+  initialExerciseData?: any;
   exerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
@@ -40,14 +41,18 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloMultiplaEscolha({
-  exerciseData,
+export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData,
  
   onSelectionChange,
   onValidateResult,
   status = "IDLE",
   unidadeAtiva
 }: MioloProps) {
+
+  
+  
+
+
 
   
 
@@ -69,6 +74,56 @@ export default function MioloMultiplaEscolha({
   const [feedbackIA, setFeedbackIA] = useState("");
   const [analisando, setAnalisando] = useState(false);
   const [carregando, setCarregando] = useState(true);
+
+  
+  // Sync Adaptativo Genérico e Escalável (Suporta qualquer registro da tabela exercises)
+  useEffect(() => {
+    if (initialExerciseData) {
+      console.log("⚡ [MioloMultiplaEscolha] Carregando exercício adaptativo ID:", initialExerciseData.id);
+      
+      const ex = initialExerciseData;
+
+      // 1. Extração dinâmica da pergunta (prompt ou reading_text)
+      const enunciado = ex.prompt || ex.reading_text || "";
+
+      // 2. Extração e Normalização das Opções (alternative_options ou options)
+      let rawDistractors = ex.alternative_options || ex.options || [];
+      if (typeof rawDistractors === 'string') {
+        try { rawDistractors = JSON.parse(rawDistractors); } catch (e) { rawDistractors = []; }
+      }
+      if (!Array.isArray(rawDistractors)) rawDistractors = [];
+
+      // Converte itens para string simples caso venham como objeto
+      let distractorsClean = rawDistractors.map((item: any) => 
+        typeof item === 'object' && item !== null ? (item.text || item.option || item.label || JSON.stringify(item)) : String(item)
+      );
+
+      const respostaCorreta = String(ex.correct_answer || "").trim();
+
+      // 3. Consolidação: Junta a resposta correta com os distratores e remove duplicatas
+      let allOptions = [...distractorsClean];
+      if (respostaCorreta && !allOptions.some(opt => opt.trim().toLowerCase() === respostaCorreta.toLowerCase())) {
+        allOptions.push(respostaCorreta);
+      }
+
+      // 4. Embaralhamento determinístico (Shuffle) para não ficar a resposta sempre no final
+      allOptions = allOptions.sort(() => 0.5 - Math.random());
+
+      // 5. Hidratação dos estados
+      setPergunta(enunciado);
+      setOptions(allOptions);
+      setCorrectOption(respostaCorreta);
+      setExerciseId(ex.id || "");
+      setFeedbackCorretoBanco(ex.correct_feedback || "");
+      setFeedbackIncorretoBanco(ex.incorrect_feedback || "");
+      setIncentivoCorretoBanco(ex.correct_incentive || "");
+      setIncentivoIncorretoBanco(ex.incorrect_incentive || "");
+      
+      setCarregando(false);
+    }
+  }, [initialExerciseData]);
+
+
 
   useEffect(() => {
     if (exerciseData) {

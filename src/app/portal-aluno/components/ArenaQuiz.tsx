@@ -54,6 +54,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const { user: authUser } = useAuth();
   const activeUserId = authUser?.id;
   const [adaptiveExerciseData, setAdaptiveExerciseData] = useState<any>(null);
+  const [isEvaluatingAdaptive, setIsEvaluatingAdaptive] = useState<boolean>(true);
   let baseLang = (idiomaAtivo || (typeof window !== 'undefined' ? localStorage.getItem('language') || localStorage.getItem('lang') || 'PT' : 'PT')).toUpperCase();
   if (baseLang.includes('PORTUGU')) baseLang = 'PT';
   const currentLang = baseLang;
@@ -1139,6 +1140,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
     const targetUid = userId || activeUserId;
     if (targetUid && targetUid !== "anonymous-user") {
+      setIsEvaluatingAdaptive(true);
       fetchNextExerciseForUser(targetUid).then((exercise) => {
         if (exercise && exercise.activity_type) {
           const activityType = Number(exercise.activity_type);
@@ -1147,13 +1149,15 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             console.log("🎯 [ARENA] Redirecionando para exercise_id:", exercise.id, "Tipo:", activityType);
             setAdaptiveExerciseData(exercise);
             setJogoSelecionado(gameId);
+            setIsEvaluatingAdaptive(false);
             return;
           }
         }
         console.warn("⚠️ [ARENA] Nenhum next_exercise_id válido encontrado. Usando aleatório.");
         const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
         setJogoSelecionado(ids[Math.floor(Math.random() * ids.length)]);
-      });
+        setIsEvaluatingAdaptive(false);
+      }).catch(() => setIsEvaluatingAdaptive(false));
     } else {
       const ids = ['escolha', 'caca_erro', 'blitz', 'ditado', 'blocos', 'leitura', 'ordenacao', 'paragrafos', 'roleplay', 'shadowing', 'spelling', 'traducao', 'velocidade'];
       setJogoSelecionado(ids[Math.floor(Math.random() * ids.length)]);
@@ -1296,7 +1300,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const todosOsJogos = [
-    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha exerciseData={exerciseEscolha} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
+    { id: 'escolha', label: 'MÚLTIPLA ESCOLHA', title: 'SELEÇÃO CONTEXTUAL', component: <MioloMultiplaEscolha initialExerciseData={adaptiveExerciseData} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
     { id: 'caca_erro', label: 'CAÇA ERRO', title: 'CORREÇÃO SINTÁTICA', component: <MioloCacaErro initialExerciseData={adaptiveExerciseData} status={gameStatus} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'blitz', label: 'DESAFIO BLITZ', title: 'RECONHECIMENTO RÁPIDO', component: <MioloBlitzChallenge onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'ditado', label: 'PALAVRA OCULTA', title: 'FIXAÇÃO ACÚSTICA', component: <DitadoLacunas onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
