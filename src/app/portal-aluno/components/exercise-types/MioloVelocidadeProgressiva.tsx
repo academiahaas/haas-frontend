@@ -11,6 +11,8 @@ interface OptionItem {
 }
 
 interface MioloProps {
+  initialExerciseData?: any;
+  exerciseData?: any;
   onSelectCorrect?: () => void;
   onSelectWrong?: () => void;
   unidadeAtiva?: string;
@@ -48,13 +50,13 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloVelocidadeProgressiva({
+export default function MioloVelocidadeProgressiva({ initialExerciseData, exerciseData, 
   onSelectCorrect,
   onSelectWrong,
   unidadeAtiva,
   nivelAtivo,
 onValidateResult
-}: MioloProps) {
+ }: MioloProps) {
 
   
 
@@ -130,14 +132,25 @@ onValidateResult
         
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
         
-        let query = supabase.from("exercises").select("*").eq("activity_type", 13);
-        if (isUUID) {
-          query = query.eq("unit_id", nomeUnidade);
-        } else {
-          query = query.eq("unit", nomeUnidade);
-        }
-        
-        const { data: dados, error } = await query.limit(1);
+        // --- BYPASS MESTRE: USA DADOS DA ARENA ---
+          const payload = initialExerciseData || exerciseData;
+          let dados = null;
+          let error = null;
+
+          if (payload && (payload.id || payload.reading_text || payload.correct_answer)) {
+            console.log("🔒 [MARCHAS DE ÁUDIO 13] Usando dados da Arena:", payload.id);
+            dados = [payload];
+          } else {
+            let query = supabase.from("exercises").select("*").eq("activity_type", 13);
+            if (isUUID) {
+              query = query.eq("unit_id", nomeUnidade);
+            } else {
+              query = query.eq("unit", nomeUnidade);
+            }
+            const resSupabase = await query.limit(1);
+            dados = resSupabase.data;
+            error = resSupabase.error;
+          }
         console.log("🔍 [PROVA REAL MARCHAS] Dados retornados do Supabase:", { dados, error });
         
         let exe = null;
