@@ -756,9 +756,6 @@ export default function DashboardDesktop() {
             <div className="w-full xl:flex-1 flex flex-col min-h-0">
               <div className="flex flex-col md:flex-row justify-between items-start border-b border-white/10 pb-3 gap-4 shrink-0">
                 <div>
-                  <span className="text-[10px] font-black text-slate-100/80 uppercase font-mono tracking-widest flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#f59e0b] inline-block shrink-0" /> {t.missionTag}
-                  </span>
                   <div className="mt-2 flex flex-col gap-1">
                     <div className="flex items-center gap-2.5">
                       <span className="text-[10px] font-black text-amber-500 font-mono tracking-widest uppercase">
