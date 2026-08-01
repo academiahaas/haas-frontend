@@ -13,6 +13,7 @@ interface PieceItem {
 }
 
 interface MioloProps {
+  initialExerciseData?: any;
   onSelectionChange?: (hasItems: boolean) => void;
   onValidateResult?: (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => void;
   status?: 'IDLE' | 'CORRECT' | 'WRONG';
@@ -55,15 +56,14 @@ const traducoesAbas: Record<string, Record<string, string>> = {
   }
 };
 
-export default function MioloTraducaoInversa({
-  onSelectionChange,
+export default function MioloTraducaoInversa({onSelectionChange,
   onValidateResult,
   status = 'IDLE',
   unidadeAtiva,
   nivelAtivo,
 streak = 0,
   getMultiplicador
-}: MioloProps) {
+, initialExerciseData}: MioloProps) {
 
   
 
@@ -133,19 +133,26 @@ streak = 0,
         }
         const isUUIDUnit = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nomeUnidade);
         const unitParam = isUUIDUnit ? `unit_id=eq.${encodeURIComponent(nomeUnidade)}` : `unit=eq.${encodeURIComponent(nomeUnidade)}`;
-        const url = `${SUPABASE_URL}/exercises?${unitParam}&activity_type=eq.12&limit=1`;
-        
-        const res = await fetch(url, {
-          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
-        });
-        
         let dadoExercicio = null;
-        if (res.ok) {
-          const dados = await res.json();
-          if (dados && dados.length > 0) {
-            dadoExercicio = dados[0];
+          // --- BYPASS: USA DADOS DA ARENA SE EXISTIREM ---
+          if (initialExerciseData && (initialExerciseData.id || initialExerciseData.reading_text || initialExerciseData.correct_answer || initialExerciseData.audio_transcript)) {
+            console.log("🔒 [TRADUÇÃO INVERSA] Usando dados da Arena:", initialExerciseData.id);
+            dadoExercicio = initialExerciseData;
+          } else {
+            const url = `${SUPABASE_URL}/exercises?${unitParam}&activity_type=eq.12&limit=1`;
+            const res = await fetch(url, {
+              headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+            });
+            if (res.ok) {
+              const dados = await res.json();
+              if (dados && dados.length > 0) {
+                dadoExercicio = dados[0];
+              }
+            }
           }
-        }
+          // ------------------------------------------------
+        
+        // Replaced by Bypass
 
         let textoOriginal = dadoExercicio?.reading_text || dadoExercicio?.texto || "";
         let respostaCerta = dadoExercicio?.correct_answer || dadoExercicio?.correta || "";

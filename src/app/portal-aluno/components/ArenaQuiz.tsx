@@ -1311,7 +1311,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     { id: 'roleplay', label: 'PRÁTICA DE CONVERSAÇÃO', title: 'ROLEPLAY COGNITIVO', component: <MioloRoleplay initialExerciseData={adaptiveExerciseData} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'shadowing', label: 'TREINO DE FALA', title: 'TREINO DE FALA', component: <MioloShadowing initialExerciseData={adaptiveExerciseData} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ''} nivelAtivo={levelCentral || ''} /> },
     { id: 'spelling', label: 'SPELLING BEE', title: 'SOLETRANDO VOCABULÁRIO', component: <MioloSpellingBee initialExerciseData={adaptiveExerciseData} exerciseData={exerciseSpelling} status={gameStatus} onValidateResult={handleValidationResult} onSelectionChange={(hasItems) => setDesafioIniciado(hasItems)} unidadeAtiva={unitIdCentral || unidadeId || ""} /> },
-    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
+    { id: 'traducao', label: 'TRADUÇÃO INVERSA', title: 'ENGENHARIA REVERSA', component: <MioloTraducaoInversa initialExerciseData={adaptiveExerciseData} onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> },
     { id: 'velocidade', label: 'MARCHAS DE ÁUDIO', title: 'SPRINT DE COMPREENSÃO', component: <MioloVelocidadeProgressiva onValidateResult={handleValidationResult} unidadeAtiva={unitIdCentral || unidadeId || ""} nivelAtivo={levelCentral || ""} /> }
   ];
 
