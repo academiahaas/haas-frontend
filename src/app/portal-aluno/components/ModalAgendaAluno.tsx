@@ -161,11 +161,20 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     { id: "test_bloqueio", data: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().split('T')[0], horario: new Date(Date.now() + 2 * 60 * 60 * 1000).toTimeString().split(' ')[0].substring(0, 5), tipo: "regular", status: "agendada" }
   ]);
 
-  const listaHorarios = [
-    "08:00", "09:00", "10:00", "11:00", "12:00", 
-    "14:00", "15:00", "16:00", "17:00", "18:00", 
-    "19:00", "20:00", "21:00"
-  ];
+  const listaHorariosGrupo = ["07:00", "08:00", "09:00", "18:00", "19:00", "20:00"];
+  const listaHorariosRegulares = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
+  
+  // Decide qual lista renderizar na interface
+  const listaHorarios = (tipoAula === "group" || tipoAula === "pack_group") ? listaHorariosGrupo : listaHorariosRegulares;
+
+  // Trava de Segurança: Se o usuário mudar o tipo de aula e o horário antigo não existir na nova grade, reseta para o primeiro horário disponível
+  useEffect(() => {
+    const isGroup = tipoAula === "group" || tipoAula === "pack_group";
+    const validList = isGroup ? listaHorariosGrupo : listaHorariosRegulares;
+    if (!validList.includes(selectedHorario)) {
+      setSelectedHorario(validList[0]);
+    }
+  }, [tipoAula, selectedHorario]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
