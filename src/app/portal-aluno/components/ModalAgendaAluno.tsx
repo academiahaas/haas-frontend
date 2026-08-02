@@ -142,14 +142,22 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       if (!error && data) {
         const mapa: Record<string, boolean> = {};
         data.forEach(aula => {
-          // Converte a data UTC do banco para o fuso da Colombia para bater com as strings "08:00"
+          // Garante a conversao para string de 5 posicoes: "08:00" (pt-BR resolve isso nativamente)
           const dateObj = new Date(aula.data_hora_inicio);
-          const horaLocal = dateObj.toLocaleTimeString("es-CO", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: false });
+          const horaLocal = dateObj.toLocaleTimeString("pt-BR", { 
+            timeZone: "America/Bogota", 
+            hour: "2-digit", 
+            minute: "2-digit",
+            hour12: false
+          }).substring(0, 5); // Garante que seja HH:mm mesmo se o browser endoidar
           
           if (aula.status === "LOTADO" || aula.status === "CANCELADO" || aula.vagas_ocupadas >= limite) {
             mapa[horaLocal] = true;
           }
         });
+        
+        console.log("🔄 [POLLING DESK MAPA ATUALIZADO]: ", mapa);
+        // O React substitui o objeto inteiro. Se o horário saiu do IF acima, ele não existirá no novo mapa e a trava sumirá!
         setOcupacaoHorarios(mapa);
       }
     };
