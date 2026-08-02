@@ -32,7 +32,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       const jaViuLembrete = sessionStorage.getItem("haas_lembrete_visto_aba");
       if (!jaViuLembrete) {
         sessionStorage.setItem("haas_lembrete_visto_aba", "true");
-        setIsLembreteOpen(true);
+        setIsLembreteOpen(false);
       } else {
         setIsLembreteOpen(false);
       }
