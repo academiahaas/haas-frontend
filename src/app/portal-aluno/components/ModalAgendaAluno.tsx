@@ -591,7 +591,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
               className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-amber-500/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
             >
               <div className="flex items-center gap-2">
-                <span className="text-amber-500 font-mono text-sm font-black">⚠️</span>
+                
                 <span className="text-[#FF9F1C] text-[11px] font-mono font-black uppercase tracking-wider">
                   {idioma === "EN" ? "SESSION RULES" : idioma === "ES" ? "REGLAMENTO DE SESIONES" : "REGULAMENTO DE SESSÕES"}
                 </span>
