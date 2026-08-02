@@ -130,9 +130,11 @@ export default function DashboardDesktop() {
         setXpTotalUnidade(userStats.meta_ponto || 0);
         // -----------------------------------------------------
 
-        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
+        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,level_xp,name", { headers });
         const dUser = await rUser.json();
         if (dUser && dUser[0]) {
+            setXpAtual(dUser[0].total_xp || 0);
+            setXpTotal(dUser[0].level_xp || 1);
             if (dUser[0].name) setUserName(dUser[0].name);
             if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
             if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
@@ -464,7 +466,7 @@ export default function DashboardDesktop() {
           }
           if (dbUser.total_xp !== undefined && dbUser.total_xp !== null) {
             const xpVal = Number(dbUser.total_xp);
-            setXpTotal(String(xpVal));
+            // setXpTotal(String(xpVal)); // 🚫 Sabotador neutralizado!
             setTotalXp(xpVal);
             setUserTotalXp(xpVal);
           }
@@ -867,7 +869,7 @@ export default function DashboardDesktop() {
               <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
                 <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal)) * 100), 100)}%` }} /></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(scoreAtivo) / Number(xpTotalUnidade || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
 
@@ -884,7 +886,7 @@ export default function DashboardDesktop() {
                     };
                     return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
                   })()}</span><span className="text-amber-500 font-mono font-bold">-{Math.max(0, Number(xpTotal) - Number(xpAtual))} PTS</span></div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((scoreAtivo / xpTotalUnidade) * 100), 100)}%` }} /></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
           </div>
