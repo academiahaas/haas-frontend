@@ -90,7 +90,13 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   const [tipoAviso, setTipoAviso] = useState("marketing");
   const [mensagem, setMensagem] = useState<{ tipo: "sucesso" | "erro", texto: string } | null>(null);
 
-  const [tipoAula, setTipoAula] = useState<"regular" | "reposicao">("regular");
+  const [tipoAula, setTipoAula] = useState<string>(planoAluno.slug);
+  useEffect(() => {
+    if (planoAluno?.slug) {
+      setTipoAula(planoAluno.slug);
+    }
+  }, [planoAluno.slug]);
+
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [selectedHorario, setSelectedHorario] = useState("08:00");
 
@@ -246,10 +252,10 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   }
 
   function getNomeModalidade(slug: string) {
-    if (slug === "grupo") return t.optGrupo;
+    if (slug === "group" || slug === "grupo") return t.optGrupo;
     if (slug === "vip_std") return t.optVipStd;
     if (slug === "vip_pro") return t.optVipPro;
-    if (slug === "pack_grupo") return t.optPackGrupo;
+    if (slug === "pack_group" || slug === "pack_grupo") return t.optPackGrupo;
     if (slug === "pack_vip_std") return t.optPackVipStd;
     if (slug === "reposicao") return t.optReposicion;
     return t.optFlex;
@@ -765,7 +771,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         
                         {isTipoDropdownOpen && (
                           <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-hidden z-50 shadow-2xl">
-                            {["grupo", "vip_std", "vip_pro", "pack_grupo", "pack_vip_std", "flex"].map((m) => (
+                            {["group", "vip_std", "vip_pro", "pack_group", "pack_vip_std", "flex"].map((m) => (
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
