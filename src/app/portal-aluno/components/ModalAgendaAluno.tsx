@@ -203,7 +203,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       btnEntendido: "Got it", btnSim: "Yes", btnNao: "No", avisoReposicaoTitulo: "MAKEUP CREDITS", avisoReposicaoTexto: "Your makeup credits have run out. Don't let your learning stop! How about getting more classes now to keep growing?", btnQueroAulas: "Yes, I want more classes"
     },
     ES: {
-      title: "AGENDA DE CLASES", tab1: "Mis Clases", tab2: "Agendar Clase", cancel: "Cancelar",
+      title: "AGENDA", tab1: "Mis Clases", tab2: "Agendar Clase", cancel: "Cancelar",
       close: "CERRAR", qDate: "FECHA DE LA CLASE", selectDateBtn: "Seleccionar Fecha",
       mainCredits: "Créditos de Clase", repCredits: "Créditos de Reposición",
       noCreditsError: "No tienes Créditos de Clase.", calTitle: "SELECCIONE FECHA", noClasses: "Ninguna clase programada.",
