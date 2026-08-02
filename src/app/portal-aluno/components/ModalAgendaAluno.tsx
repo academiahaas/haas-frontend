@@ -113,6 +113,60 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   const podeAgendarData = (planoValidoData && temCreditoAulas) || temCreditoReposicao;
 
 
+
+  const [ocupacaoHorarios, setOcupacaoHorarios] = useState<Record<string, boolean>>({});
+
+  // [REALTIME SUPABASE] - Busca e escuta a ocupacao de vagas para a data selecionada
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    const fetchOcupacao = async () => {
+      // Cria a janela de tempo do dia selecionado em UTC
+      const inicioDia = `${selectedDate}T00:00:00.000Z`;
+      const fimDia = `${selectedDate}T23:59:59.999Z`;
+      
+      const tipoAulaBanco = (tipoAula || "").toLowerCase().includes("vip") || 
+                            (tipoAula || "").toLowerCase().includes("particular") 
+                            ? "PARTICULAR" : "GRUPO";
+      
+      const limite = tipoAulaBanco === "GRUPO" ? 8 : 1;
+
+      // Executa a busca baseada no modelo do Mobile
+      const { data, error } = await supabase
+        .from("aulas_disponiveis")
+        .select("data_hora_inicio, vagas_ocupadas, status")
+        .gte("data_hora_inicio", inicioDia)
+        .lte("data_hora_inicio", fimDia)
+        .eq("tipo_aula", tipoAulaBanco);
+
+      if (!error && data) {
+        const mapa: Record<string, boolean> = {};
+        data.forEach(aula => {
+          // Converte a data UTC do banco para o fuso da Colombia para bater com as strings "08:00"
+          const dateObj = new Date(aula.data_hora_inicio);
+          const horaLocal = dateObj.toLocaleTimeString("es-CO", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: false });
+          
+          if (aula.status === "LOTADO" || aula.status === "CANCELADO" || aula.vagas_ocupadas >= limite) {
+            mapa[horaLocal] = true;
+          }
+        });
+        setOcupacaoHorarios(mapa);
+      }
+    };
+
+    fetchOcupacao();
+
+    // Inscreve no canal para mudancas em tempo real
+    const channel = supabase
+      .channel(`rt-desk-aulas-${selectedDate}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "aulas_disponiveis" }, (payload) => {
+        fetchOcupacao();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [selectedDate, tipoAula]);
+
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [currentNavDate, setCurrentNavDate] = useState(new Date());
 
@@ -828,13 +882,27 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                       <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
                         {listaHorarios.map((h) => {
                           const isSelected = selectedHorario === h;
+                          const isLotado = ocupacaoHorarios[h]; // Verifica no mapa do Supabase se esta cheio
+                          
                           return (
                             <div
                               key={h}
-                              onClick={() => { setSelectedHorario(h); setIsHorarioDropdownOpen(false); }}
-                              className={`px-3 py-1.5 text-xs font-mono cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500/90 hover:bg-amber-500 hover:text-[#030914]"}`}
+                              onClick={() => { 
+                                if (!isLotado) {
+                                  setSelectedHorario(h); 
+                                  setIsHorarioDropdownOpen(false); 
+                                }
+                              }}
+                              className={`px-3 py-1.5 text-xs font-mono transition-all flex justify-between items-center ${
+                                isLotado 
+                                  ? "opacity-30 text-slate-500 bg-transparent cursor-not-allowed line-through" 
+                                  : isSelected 
+                                    ? "bg-amber-500 text-[#030914] font-black cursor-pointer" 
+                                    : "text-amber-500/90 hover:bg-amber-500 hover:text-[#030914] cursor-pointer"
+                              }`}
                             >
-                              {h}
+                              <span>{h}</span>
+                              {isLotado && <span className="text-[9px] text-red-500/80 font-bold ml-2 uppercase">Lotado</span>}
                             </div>
                           );
                         })}
