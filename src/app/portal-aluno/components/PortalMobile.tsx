@@ -832,7 +832,7 @@ export default function PortalMobile({
   
   const [agendaRefreshKey, setAgendaRefreshKey] = React.useState(0);
   const [agendamentoParaCancelar, setAgendamentoParaCancelar] = React.useState<string | null>(null);
-  const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ id?: string; tipo: string; dataStr: string }>>([]);
+  const [meusAgendamentos, setMeusAgendamentos] = React.useState<Array<{ id?: string; tipo: string; dataStr: string; appointment_date?: string; status?: string; canceled_at?: string | null }>>([]);
 
   React.useEffect(() => {
     async function carregarMeusAgendamentos() {
@@ -843,7 +843,7 @@ export default function PortalMobile({
           .from("user_agenda_appointments")
           .select("id, appointment_date, status, canceled_at")
           .eq("user_id", targetUid)
-          .order("appointment_date", { ascending: true });
+          .order("appointment_date", { ascending: false });
 
         if (error) {
           console.error("❌ Erro ao buscar agendamentos do banco:", error.message);
@@ -2085,7 +2085,19 @@ React.useEffect(() => {
                             </div>
                             <button 
                               disabled={isCanceled}
-                              onClick={() => { if (!isCanceled && agendamento.id) { setAgendamentoParaCancelar(agendamento.id); setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS"); } }}
+                              onClick={() => {
+  if (!isCanceled && agendamento.id) {
+    const dataAula = agendamento.appointment_date ? new Date(agendamento.appointment_date) : null;
+    const agora = new Date();
+    const diffHoras = dataAula ? (dataAula.getTime() - agora.getTime()) / (1000 * 60 * 60) : 999;
+    if (diffHoras < 12) {
+      setModalAgenda("LOCK_12H");
+    } else {
+      setAgendamentoParaCancelar(agendamento.id);
+      setModalAgenda(isRegular ? "SUCCESS_REGULAR" : "ALERT_REPOSICAO_LOSS");
+    }
+  }
+}}
                               className={`w-full py-2.5 text-[clamp(12px,3.5vw,16px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-w-0 ${isCanceled ? "bg-neutral-800/80 border border-neutral-700/50 text-neutral-500 cursor-not-allowed" : "bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white cursor-pointer"}`}
                             >
                               {isCanceled 
