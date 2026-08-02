@@ -321,11 +321,26 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
   const year = currentNavDate.getFullYear();
   const month = currentNavDate.getMonth();
-  const firstDayIndex = new Date(year, month, 1).getDay();
+
+  // LÓGICA CLONADA DO MOBILE: 6 COLUNAS (SEGUNDA A SÁBADO - SEM DOMINGO)
+  const diaSem = new Date(year, month, 1).getDay();
+  const offsetLund = diaSem === 0 ? 6 : diaSem - 1;
   const totalDays = new Date(year, month + 1, 0).getDate();
-  const blanks = Array(firstDayIndex).fill(null);
-  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
-  const gridCells = [...blanks, ...daysInMonth];
+  const grade = [];
+  
+  for (let i = 0; i < offsetLund; i++) grade.push(null);
+  for (let d = 1; d <= totalDays; d++) {
+    const dateObj = new Date(year, month, d);
+    if (dateObj.getDay() !== 0) grade.push(d); // Extermina os Domingos
+  }
+  const gridCells = grade;
+
+  // TABELA DE FERIADOS COLOMBIA 2026
+  const feriadosColombia2026: Record<number, number[]> = {
+    1: [1, 12], 2: [], 3: [23], 4: [2, 3], 5: [1, 18],
+    6: [8, 15, 29], 7: [6, 20], 8: [7, 17],
+    9: [], 10: [12], 11: [2, 16], 12: [8, 25]
+  };
 
   function formatDisplayDate(dateStr: string) {
     if (!dateStr) return "";
@@ -969,11 +984,11 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             <button type="button" onClick={() => setCurrentNavDate(new Date(year, month + 1, 1))} className="p-1 rounded-lg bg-white/5 text-slate-400 border-none cursor-pointer"><ChevronRight size={16} /></button>
           </div>
 
-          <div className="grid grid-cols-7 text-center text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-            {i18nCalendar.weekDays.map((wd, i) => <div key={i}>{wd}</div>)}
+          <div className="grid grid-cols-6 text-center text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+            {i18nCalendar.weekDays.slice(1).map((wd, i) => <div key={i}>{wd}</div>)}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center">
+          <div className="grid grid-cols-6 gap-1 text-center">
             {gridCells.map((day, index) => {
               if (day === null) return <div key={index} />;
               const currentLoopStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -997,7 +1012,16 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
               // significa que o aluno não tem mais como agendar nenhuma aula válida naquele dia.
               const fimDoDiaDoLoop = new Date(year, month, day, 23, 59, 59);
               
-              const isDesabilitado = fimDoDiaDoLoop < agoraMais24h || diaEstaTrancadoNoBanco;
+              // REGRAS DO MOBILE: FERIADOS E EXPIRAÇÃO DE ASSINATURA
+              const mesAgendamento = month + 1;
+              const isFeriado = (feriadosColombia2026[mesAgendamento] || []).includes(day);
+              
+              const dtExpUsuario = planoAluno?.validade ? new Date(planoAluno.validade) : null;
+              const passouDaExpiracao = dtExpUsuario ? (dataDoLoop > dtExpUsuario) : false;
+              const temReposicaoDisponivel = (planoAluno?.creditosReposicao || 0) > 0;
+              const bloqueadoPorExpiracaoMobile = passouDaExpiracao && !temReposicaoDisponivel;
+
+              const isDesabilitado = fimDoDiaDoLoop < agoraMais24h || diaEstaTrancadoNoBanco || isFeriado || bloqueadoPorExpiracaoMobile;
 
               return (
                 <button
