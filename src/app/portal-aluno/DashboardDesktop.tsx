@@ -1,5 +1,4 @@
 'use client';
-import { fetchUserProgressAndGoal } from "../../services/centralService";
 
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
@@ -124,7 +123,7 @@ export default function DashboardDesktop() {
 
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
         // --- BUSCA DE PROGRESSO E META VIA CENTRAL SERVICE ---
-        const userStats = await fetchUserProgressAndGoal(uid);
+        const userStats = await fetchCentralPortalData(uid);
         console.log("🔍 [DEBUG DASHBOARD] UID:", uid, " | Dados da tabela users:", userStats);
         setScoreAtivo(userStats.unit_xp || 0);
         setXpTotalUnidade(userStats.meta_ponto || 0);
