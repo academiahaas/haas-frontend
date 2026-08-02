@@ -208,6 +208,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
         .select("*")
         .eq("user_id", userId)
         .eq("status", "agendada")
+        .order("appointment_date", { ascending: false })
         .then(({ data, error }) => {
           console.log("🔍 INVESTIGAÇÃO AULAS DO BANCO RETORNO:", data, "ERRO:", error);
           if (data && !error) {
