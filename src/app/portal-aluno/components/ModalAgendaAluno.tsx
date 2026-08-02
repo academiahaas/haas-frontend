@@ -23,6 +23,7 @@ interface Aula {
 export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Props) {
   const [activeTab, setActiveTab] = useState<"lista" | "agendar">("lista");
   const [isLembreteOpen, setIsLembreteOpen] = useState(false);
+  const [isReglamentoOpen, setIsReglamentoOpen] = useState(false);
   const [mensagemCancelamento, setMensagemCancelamento] = useState<string | null>(null);
   const [tipoErroCancelamento, setTipoErroCancelamento] = useState<"bloqueio" | "sucesso" | null>(null);
 
@@ -580,6 +581,86 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           <div className="flex bg-white/5 rounded-xl p-1 gap-1 mt-3 shrink-0">
             <button type="button" onClick={() => { setActiveTab("lista"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[clamp(11px,3vw,13px)] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "lista" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab1}</button>
             <button type="button" onClick={() => { setActiveTab("agendar"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[clamp(11px,3vw,13px)] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "agendar" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab2}</button>
+          </div>
+
+                    {/* Gaveta / Accordion Reglamento de Sesiones */}
+          <div className="mt-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsReglamentoOpen(!isReglamentoOpen)}
+              className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-amber-500/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-amber-500 font-mono text-sm font-black">⚠️</span>
+                <span className="text-[#FF9F1C] text-[11px] font-mono font-black uppercase tracking-wider">
+                  {idioma === "EN" ? "SESSION RULES" : idioma === "ES" ? "REGLAMENTO DE SESIONES" : "REGULAMENTO DE SESSÕES"}
+                </span>
+              </div>
+              <span className="text-slate-400 font-mono text-[10px] font-bold uppercase hover:text-white">
+                {isReglamentoOpen 
+                  ? (idioma === "EN" ? "[CLOSE]" : idioma === "ES" ? "[CERRAR]" : "[FECHAR]") 
+                  : (idioma === "EN" ? "[VIEW RULES]" : idioma === "ES" ? "[VER REGLAS]" : "[VER REGRAS]")}
+              </span>
+            </button>
+
+            {isReglamentoOpen && (
+              <div className="mt-2 p-3.5 bg-[#0d131c] border border-amber-500/20 rounded-xl flex flex-col gap-2 transition-all">
+                <ul className="space-y-2 text-[11px] font-mono text-slate-300 leading-relaxed list-none p-0 m-0">
+                  <li className="flex gap-2 items-start">
+                    <span className="text-amber-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-white">
+                        {idioma === "EN" ? "Makeup Credit:" : idioma === "ES" ? "Reposición:" : "Reposição:"}
+                      </strong>{" "}
+                      {idioma === "EN"
+                        ? "Schedule within 10 days after expiration to maintain your learning pace."
+                        : idioma === "ES"
+                        ? "Programar dentro de los 10 días posteriores al vencimiento para mantener tu ritmo y flujo de aprendizaje."
+                        : "Agendar dentro de 10 dias após o vencimento para manter seu ritmo de aprendizado."}
+                    </span>
+                  </li>
+
+                  <li className="flex gap-2 items-start">
+                    <span className="text-amber-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-white">
+                        {idioma === "EN" ? "Cancellation:" : idioma === "ES" ? "Cancelación:" : "Cancelamento:"}
+                      </strong>{" "}
+                      {idioma === "EN"
+                        ? "Perform with a minimum of 12 hours in advance."
+                        : idioma === "ES"
+                        ? "Realizar con un mínimo de 12 horas de anticipación."
+                        : "Realizar com no mínimo 12 horas de antecedência."}
+                    </span>
+                  </li>
+
+                  <li className="flex gap-2 items-start">
+                    <span className="text-amber-500 font-bold">•</span>
+                    <span>
+                      <strong className="text-white">
+                        {idioma === "EN" ? "Booking:" : idioma === "ES" ? "Reserva:" : "Agendamento:"}
+                      </strong>{" "}
+                      {idioma === "EN"
+                        ? "Schedule classes at least 24 hours in advance."
+                        : idioma === "ES"
+                        ? "Programar clases con al menos 24 horas de anticipación."
+                        : "Agendar aulas com pelo menos 24 horas de antecedência."}
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="pt-2 border-t border-white/5 flex items-center gap-1.5 text-cyan-400 text-[10px] font-mono mt-1">
+                  <span>🌐</span>
+                  <span>
+                    {idioma === "EN"
+                      ? "All available slots follow Colombia Time (BOG)."
+                      : idioma === "ES"
+                      ? "Todos los horarios disponibles siguen la Hora de Colombia (BOG)."
+                      : "Todos os horários disponíveis seguem a Hora da Colômbia (BOG)."}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Área de Conteúdo */}
