@@ -154,17 +154,29 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       }
     };
 
+    // Chamada inicial ao montar ou mudar a data
     fetchOcupacao();
+
+    // 🔄 [POLLING ATIVO] - Consulta o banco a cada 2 segundos (Cria redundância para o WebSocket)
+    const pollingInterval = setInterval(() => {
+      console.log("🔄 [POLLING DESK HORARIOS]: Verificando ocupação em tempo real...");
+      fetchOcupacao();
+    }, 2000);
 
     // Inscreve no canal para mudancas em tempo real
     const channel = supabase
       .channel(`rt-desk-aulas-${selectedDate}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "aulas_disponiveis" }, (payload) => {
+        console.log("⚡ [REALTIME DESK DETECTADO]: Alteração no banco identificada!");
         fetchOcupacao();
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    // 🧹 Limpeza (Desmonta intervalo e canais para não vazar memória)
+    return () => { 
+      clearInterval(pollingInterval);
+      supabase.removeChannel(channel); 
+    };
   }, [selectedDate, tipoAula]);
 
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
