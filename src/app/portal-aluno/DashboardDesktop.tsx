@@ -1,4 +1,6 @@
 'use client';
+import { fetchUserProgressAndGoal } from "../../services/centralService";
+
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import InjetorSomPremium from './components/InjetorSomPremium';
@@ -104,11 +106,11 @@ export default function DashboardDesktop() {
   }, []);
 
       const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
-          const [scoreAtivo, setScoreAtivo] = useState(50);
+          const [scoreAtivo, setScoreAtivo] = useState(0);
   const [tempoModulo, setTempoModulo] = useState(15);
   const [nomeModulo, setNomeModulo] = useState("Carregando módulo...");
   const [listaUnidades, setListaUnidades] = useState([]);
-  const [xpTotalUnidade, setXpTotalUnidade] = useState(4250);
+  const [xpTotalUnidade, setXpTotalUnidade] = useState(0);
   const [patenteBruta, setPatenteBruta] = useState("Explorador");
 
   useEffect(() => {
@@ -117,9 +119,17 @@ export default function DashboardDesktop() {
         const urlBase = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
         const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
         const headers = { "apikey": token, "Authorization": "Bearer " + token };
-        const { data: { session } } = await supabase.auth.getSession(); const uid = session?.user?.id;
+        const uid = (typeof window !== "undefined" && (window as any).activeUserId) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        console.log("🚨 [FLAGRANTE UID] Valor exato do UID capturado pelo Dashboard:", uid);
 
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
+        // --- BUSCA DE PROGRESSO E META VIA CENTRAL SERVICE ---
+        const userStats = await fetchUserProgressAndGoal(uid);
+        console.log("🔍 [DEBUG DASHBOARD] UID:", uid, " | Dados da tabela users:", userStats);
+        setScoreAtivo(userStats.unit_xp || 0);
+        setXpTotalUnidade(userStats.meta_ponto || 0);
+        // -----------------------------------------------------
+
         const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,name", { headers });
         const dUser = await rUser.json();
         if (dUser && dUser[0]) {
@@ -151,8 +161,7 @@ export default function DashboardDesktop() {
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
         const rProg = await fetch(urlBase + "/rest/v1/user_unit_progress?user_id=eq." + uid + "&select=unit_xp&order=completed_at.desc&limit=1", { headers });
         const dProg = await rProg.json();
-        if (dProg && dProg[0]) setScoreAtivo(dProg[0].unit_xp || 50);
-
+        
         // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
         try {
           const nivelResolvido = (dUser && dUser[0]) ? (dUser[0].current_level || "A1") : "A1";
@@ -162,8 +171,7 @@ export default function DashboardDesktop() {
           const dUnit = await rUnit.json();
           if (dUnit && dUnit.length > 0) {
             setListaUnidades(dUnit);
-            setXpTotalUnidade(dUnit[0].required_xp || 4250);
-          }
+                      }
         } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
 
         const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours,module_title&limit=1", { headers });
