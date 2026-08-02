@@ -122,8 +122,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
     const fetchOcupacao = async () => {
       // Cria a janela de tempo do dia selecionado em UTC
-      const inicioDia = `${selectedDate}T00:00:00.000Z`;
-      const fimDia = `${selectedDate}T23:59:59.999Z`;
+      // Cria a janela do dia considerando o fuso de Bogota (UTC-5)
+      const inicioDia = new Date(`${selectedDate}T00:00:00-05:00`).toISOString();
+      const fimDia = new Date(`${selectedDate}T23:59:59.999-05:00`).toISOString();
       
       const tipoAulaBanco = (tipoAula || "").toLowerCase().includes("vip") || 
                             (tipoAula || "").toLowerCase().includes("particular") 
@@ -141,23 +142,28 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
       if (!error && data) {
         const mapa: Record<string, boolean> = {};
+        
+        console.log("🔍 [RAIOS-X FETCH] Registros recebidos do banco:", data.length);
+        
         data.forEach(aula => {
-          // Garante a conversao para string de 5 posicoes: "08:00" (pt-BR resolve isso nativamente)
           const dateObj = new Date(aula.data_hora_inicio);
           const horaLocal = dateObj.toLocaleTimeString("pt-BR", { 
             timeZone: "America/Bogota", 
             hour: "2-digit", 
             minute: "2-digit",
             hour12: false
-          }).substring(0, 5); // Garante que seja HH:mm mesmo se o browser endoidar
+          }).substring(0, 5);
           
-          if (aula.status === "LOTADO" || aula.status === "CANCELADO" || aula.vagas_ocupadas >= limite) {
+          const taBloqueado = aula.status === "LOTADO" || aula.status === "CANCELADO" || aula.vagas_ocupadas >= limite;
+          
+          console.log(`🕵️ [RAIOS-X AVALIANDO] Horario: ${horaLocal} | Status: ${aula.status} | Vagas: ${aula.vagas_ocupadas}/${limite} | Vai Bloquear? ${taBloqueado}`);
+
+          if (taBloqueado) {
             mapa[horaLocal] = true;
           }
         });
         
-        console.log("🔄 [POLLING DESK MAPA ATUALIZADO]: ", mapa);
-        // O React substitui o objeto inteiro. Se o horário saiu do IF acima, ele não existirá no novo mapa e a trava sumirá!
+        console.log("🔄 [POLLING DESK MAPA FINAL]: ", mapa);
         setOcupacaoHorarios(mapa);
       }
     };
