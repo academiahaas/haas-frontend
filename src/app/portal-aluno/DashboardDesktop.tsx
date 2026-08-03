@@ -175,11 +175,11 @@ export default function DashboardDesktop() {
                       }
         } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
 
-        const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours,module_title&limit=1", { headers });
+        const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours&limit=1", { headers });
         const dMod = await rMod.json();
         if (dMod && dMod[0]) {
           setTempoModulo(Math.round((dMod[0].estimated_hours || 2) * 60));
-          if (dMod[0].module_title) setNomeModulo(dMod[0].module_title);
+          // setNomeModulo mantido via CentralService (linha 83)
         }
       } catch (e) { console.error("Erro ao carregar métricas:", e); }
 

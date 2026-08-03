@@ -567,7 +567,7 @@ export default function PortalMobile({
 
           // Atualiza o saldo no Supabase obtendo o UID idêntico ao carregamento inicial
           const { data: { user: authUser } } = await supabase.auth.getUser();
-          const targetUidSync = authUser?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id;
+          const targetUidSync = authUser?.id || (alunoData as any)?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid")));
 
           if (targetUidSync) {
             const { data: subData } = await supabase
@@ -837,7 +837,7 @@ export default function PortalMobile({
   React.useEffect(() => {
     async function carregarMeusAgendamentos() {
       try {
-        const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const targetUid = (alunoData as any)?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         
         const { data, error } = await supabase
           .from("user_agenda_appointments")
@@ -881,7 +881,7 @@ export default function PortalMobile({
     }
 
     carregarMeusAgendamentos();
-  }, []); // Dinâmico baseado no mês real
+  }, [(alunoData as any)?.id, agendaRefreshKey]);
   const [tipoAgendamento, setTipoAgendamento] = React.useState('REGULAR');
   const [diaSelecionado, setDiaSelecionado] = React.useState(() => String(new Date().getDate())); // Dinâmico baseado no dia real
   const [horarioSelecionado, setHorarioSelecionado] = React.useState('');
@@ -1102,8 +1102,7 @@ export default function PortalMobile({
         const { data, error } = await supabase
           .from('modules_content')
           .select('id, module_title')
-          .limit(1)
-          .maybeSingle();
+          .eq("module_number", alunoData?.modulo_atual || 1).maybeSingle();
 
         if (data) {
           if (data.module_title) setModuleTitleDb(data.module_title);
@@ -1131,8 +1130,7 @@ export default function PortalMobile({
           .from("modules_content")
           .select("id, module_title")
           .ilike("level_tag", `%${nivelAluno}%`)
-          .limit(1)
-          .maybeSingle();
+          .eq("module_number", alunoData?.modulo_atual || 1).maybeSingle();
 
         if (data?.id) {
           console.log(`🚀 Módulo do nível ${nivelAluno} localizado:`, data.id);
@@ -2876,7 +2874,7 @@ React.useEffect(() => {
                       // Grava o agendamento no Supabase vinculando ao aluno
                       (async () => {
                         try {
-                          const targetUid = (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || (alunoData as any)?.id || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+                          const targetUid = (alunoData as any)?.id || (typeof window !== "undefined" && (localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid"))) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
                           
                           if (horarioSelecionado) {
                             const [hStr, mStr] = horarioSelecionado.split(":");
