@@ -162,69 +162,75 @@ export default function DashboardDesktop() {
     const carregarMetricasDashboard = async () => {
       try {
         const urlBase = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
-        const headers = { "apikey": token, "Authorization": "Bearer " + token };
         const uid = (typeof window !== "undefined" && (window as any).activeUserId) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
-        console.log("🚨 [FLAGRANTE UID] Valor exato do UID capturado pelo Dashboard:", uid);
-
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
-        // --- BUSCA DE PROGRESSO E META VIA CENTRAL SERVICE ---
-        const userStats = await fetchCentralPortalData(uid);
-        console.log("🔍 [DEBUG DASHBOARD] UID:", uid, " | Dados da tabela users:", userStats);
-        setScoreAtivo(userStats.unit_xp || 0);
-        setXpTotalUnidade(userStats.meta_ponto || 0);
-        // -----------------------------------------------------
 
-        const rUser = await fetch(urlBase + "/rest/v1/users?id=eq." + uid + "&select=current_level,total_xp,level_xp,name", { headers });
-        const dUser = await rUser.json();
-        if (dUser && dUser[0]) {
-            setXpAtual(dUser[0].total_xp || 0);
-            setXpTotal(dUser[0].level_xp || 1);
-            if (dUser[0].name) setUserName(dUser[0].name);
-            if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
-            if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
-          const nivelSigla = dUser[0].current_level || "A1";
-          const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name,required_xp", { headers });
-          const dLevel = await rLevel.json();
-          if (dLevel && dLevel[0]) {
-            if (dLevel[0].required_xp) {
-              setXpTotal(dLevel[0].required_xp);
+        // --- BUSCA ÚNICA E DEFINITIVA VIA CENTRAL SERVICE ---
+        const userStats = await fetchCentralPortalData(uid);
+        
+        if (userStats) {
+            // Unidade Ativa
+            setScoreAtivo(userStats.unit_xp || 0);
+            setXpTotalUnidade(userStats.required_xp || 0);
+
+            // XP Geral
+            setXpAtual(String(userStats.total_xp || 0));
+            const nivelSigla = (userStats?.data || userStats || {})?.current_level || "A1";
+            
+            // LOG NEON GIGANTE PARA O CONSOLE
+            console.log("%c🚨 [ALERTA DE DEBUG - CENTRAL SERVICE] 🚨", "background: #FF0000; color: #FFFFFF; font-size: 22px; font-weight: bold; padding: 10px; border: 3px solid black;");
+            console.log("%c➡️ OBJETO COMPLETO:", "background: #000000; color: #00FF00; font-size: 16px;", userStats);
+            console.log("%c➡️ NÍVEL DO ALUNO (current_level):", "background: #000000; color: #FFFF00; font-size: 18px; font-weight: bold;", userStats?.current_level);
+            console.log("%c➡️ XP DO NÍVEL (required_xp):", "background: #000000; color: #00FFFF; font-size: 18px; font-weight: bold;", userStats?.required_xp);
+            
+            setXpTotal(String(userStats?.required_xp || 5000));
+            setTotalXp(Number(userStats.total_xp || 0));
+            setUserTotalXp(Number(userStats.total_xp || 0));
+
+            if (userStats.name || userStats.full_name) {
+                setUserName(userStats.name || userStats.full_name);
             }
-            const nomeBase = dLevel[0].level_name || "Explorador";
+
+            // Patente baseada na sigla que já vem no perfil (A1, A2...)
+            // nivelSigla ja resolvido no topo
+            const nivelMap = { "A1": "Explorador", "A2": "Pioneiro", "B1": "Conquistador", "B2": "Estrategista", "C1": "Embaixador", "C2": "Embaixador" };
+            const nomeBase = nivelMap[nivelSigla] || "Explorador";
             setLevelName(nomeBase);
+
             const traducoes = {
-              "Explorador": { PT: "Explorador", ES: "Explorador", EN: "Explorer" },
-              "Pioneiro": { PT: "Pioneiro", ES: "Pionero", EN: "Pioneer" },
-              "Conquistador": { PT: "Conquistador", ES: "Conquistador", EN: "Conqueror" },
-              "Estrategista": { PT: "Estrategista", ES: "Estratega", EN: "Strategist" },
-              "Embaixador": { PT: "Embaixador", ES: "Embajador", EN: "Ambassador" }
+                "Explorador": { PT: "Explorador", ES: "Explorador", EN: "Explorer" },
+                "Pioneiro": { PT: "Pioneiro", ES: "Pionero", EN: "Pioneer" },
+                "Conquistador": { PT: "Conquistador", ES: "Conquistador", EN: "Conqueror" },
+                "Estrategista": { PT: "Estrategista", ES: "Estratega", EN: "Strategist" },
+                "Embaixador": { PT: "Embaixador", ES: "Embajador", EN: "Ambassador" }
             };
             const lang = (typeof idioma !== "undefined" ? idioma : "PT").toUpperCase();
-            if (traducoes[nomeBase]) {
-              setPatenteBruta(traducoes[nomeBase][lang] || traducoes[nomeBase]["PT"]);
-            } else {
-              setPatenteBruta(nomeBase);
-            }
-          }
+            setPatenteBruta(traducoes[nomeBase] ? (traducoes[nomeBase][lang] || traducoes[nomeBase]["PT"]) : nomeBase);
         }
 
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
-        const rProg = await fetch(urlBase + "/rest/v1/user_unit_progress?user_id=eq." + uid + "&select=unit_xp&order=completed_at.desc&limit=1", { headers });
-        const dProg = await rProg.json();
+        const dProg = userStats?.unit_progress || [];
         
         // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
         try {
-          const nivelResolvido = (dUser && dUser[0]) ? (dUser[0].current_level || "A1") : "A1";
-          const moduloAlvo = (dUser && dUser[0]) ? (dUser[0].current_module_number || 1) : 1;
+          const nivelResolvido = userStats?.current_level || "A1";
+          const moduloAlvo = userStats?.current_module_number || 1;
           
-          const rUnit = await fetch(urlBase + "/rest/v1/units?select=id,unit_title,module_number,level,required_xp,pedagogical_objective&module_number=eq." + moduloAlvo + "&level=eq." + nivelResolvido + "&order=unit_number.asc&limit=5", { headers });
-          const dUnit = await rUnit.json();
+          
+          let dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo) && String(u.level) === String(nivelResolvido)).slice(0, 5);
+          
+          // Se não encontrar com nível estrito, busca somente pelo número do módulo
+          if (!dUnit || dUnit.length === 0) {
+            
+            dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo)).slice(0, 5);
+          }
+
           if (dUnit && dUnit.length > 0) {
             setListaUnidades(dUnit);
-                      }
+          }
         } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
 
-        const rMod = await fetch(urlBase + "/rest/v1/modules_content?select=estimated_hours&limit=1", { headers });
+        const rMod = await fetch((process.env.NEXT_PUBLIC_SUPABASE_URL || "https://jdppxfokfhqjudwfwckd.supabase.co") + "/rest/v1/modules_content?select=estimated_hours&limit=1");
         const dMod = await rMod.json();
         if (dMod && dMod[0]) {
           setTempoModulo(Math.round((dMod[0].estimated_hours || 2) * 60));
@@ -433,24 +439,24 @@ export default function DashboardDesktop() {
 
       const bancoConselhos = {
         PT: [
-          `${saudacaoTime}, ${nomeAluno}! Pronto para avançar na sua jornada hoje?`,
+          `${saudacaoTime}, ${aluno1?.split(' ')[0]}! Pronto para avançar na sua jornada hoje?`,
           dicaArena,
           `Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
-          `Ótimo progresso, ${nomeAluno}! ${streakTexto} Não deixe seu Racha cair.`,
+          `Ótimo progresso, ${aluno1?.split(' ')[0]}! ${streakTexto} Não deixe seu Racha cair.`,
           `Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
         ],
         EN: [
-          `${saudacaoTime}, ${nomeAluno}! Ready to level up your skills today?`,
+          `${saudacaoTime}, ${aluno1?.split(' ')[0]}! Ready to level up your skills today?`,
           dicaArena,
           `You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
-          `Great momentum, ${nomeAluno}! ${streakTexto} Keep your Retention Streak safe today.`,
+          `Great momentum, ${aluno1?.split(' ')[0]}! ${streakTexto} Keep your Retention Streak safe today.`,
           `Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
         ],
         ES: [
-          `${saudacaoTime}, ${nomeAluno}! ¿Listo para avanzar en tu nivel hoy?`,
+          `${saudacaoTime}, ${aluno1?.split(' ')[0]}! ¿Listo para avanzar en tu nivel hoy?`,
           dicaArena,
           `Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
-          `¡Buen progreso, ${nomeAluno}! ${streakTexto} No dejes que tu racha caiga hoy.`,
+          `¡Buen progreso, ${aluno1?.split(' ')[0]}! ${streakTexto} No dejes que tu racha caiga hoy.`,
           `Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
         ]
       };
@@ -514,7 +520,8 @@ export default function DashboardDesktop() {
           }
           if (dbUser.total_xp !== undefined && dbUser.total_xp !== null) {
             const xpVal = Number(dbUser.total_xp);
-            // setXpTotal(String(xpVal)); // 🚫 Sabotador neutralizado!
+            // const nivelSigla = (userStats?.data || userStats || {})?.current_level || "A1";
+            setXpTotal(String(5000)); // 🚫 Sabotador neutralizado!
             setTotalXp(xpVal);
             setUserTotalXp(xpVal);
           }
@@ -696,7 +703,7 @@ export default function DashboardDesktop() {
             <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
             <div>
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
-                {t.greeting} {aluno1}
+                {t.greeting} {aluno1?.split(' ')[0]}
                 
                 {isAdminMode && !isSimuladorLiberado ? (
                   <button 
@@ -1201,7 +1208,7 @@ export default function DashboardDesktop() {
             <div className="flex items-center gap-3.5">
               <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-mono font-black text-amber-500 text-base select-none">{getLastNameInitial(userName)}<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
-              <span className="text-white font-black text-sm tracking-wide">{aluno1}</span>
+              <span className="text-white font-black text-sm tracking-wide">{aluno1?.split(' ')[0]}</span>
               <div className="flex justify-between items-center gap-2 text-[9px] font-mono font-black text-amber-500 uppercase tracking-widest mt-0.5 w-full min-w-0">
                 <span>
                   {idioma === 'PT' ? `Nível Atual: ${nivelAtual}` : idioma === 'ES' ? `Nivel Actual: ${nivelAtual}` : `Current Level: ${nivelAtual}`}
