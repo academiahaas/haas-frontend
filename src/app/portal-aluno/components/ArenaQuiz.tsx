@@ -1421,7 +1421,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
         
-        <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl">
+        <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl" onClick={onClose}>
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
             <div className="flex flex-col">
               {visualizacaoAtiva === "EXERCICIO" && (

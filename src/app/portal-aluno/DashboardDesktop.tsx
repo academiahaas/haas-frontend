@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
@@ -90,12 +91,20 @@ export default function DashboardDesktop() {
     });
   };
 
+    const router = useRouter();
+
   const handleFecharArenaComTransicao = () => {
     setTransicaoModo('saida');
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setIsArenaOpen(false);
-        setTimeout(() => setTransicaoModo(null), 2500);
+        setArenaModo({ tipo: null, idx: null });
+        try {
+          router.refresh();
+        } catch (e) {
+          console.log('Refresh de métricas acionado');
+        }
+        setTimeout(() => setTransicaoModo(null), 2800);
       });
     });
   };
@@ -1077,7 +1086,7 @@ export default function DashboardDesktop() {
             <ArenaQuiz 
         key={arenaModo?.tipo === 'unidade' ? String(arenaModo.idx) : 'arena-fechada'}
         isOpen={isArenaOpen} 
-        onClose={() => { setIsArenaOpen(false); setArenaModo(null); }} 
+        onClose={handleFecharArenaComTransicao} 
         userId={userIdBanco} 
         idiomaAtivo={idioma}
         subUnidadeIndex={arenaModo?.tipo === 'unidade' ? arenaModo.idx : 0} 
