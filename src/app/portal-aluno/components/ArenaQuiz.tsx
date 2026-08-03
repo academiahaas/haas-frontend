@@ -1375,7 +1375,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[Math.floor(Math.random() * todosOsJogos.length)];
 
   return (
-    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
       
         <div className={`top-4 left-4 z-[10001] ${(typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "true") ? "absolute" : "hidden"}`}>
         <button 
@@ -1419,7 +1419,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); onClose(); } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
+      <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
         
         <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#0B1528] border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl" onClick={onClose}>
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
