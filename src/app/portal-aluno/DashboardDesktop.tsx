@@ -1,4 +1,5 @@
 'use client';
+import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
@@ -65,6 +66,33 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 export default function DashboardDesktop() {
 
   const [moduloUserCentral, setModuloUserCentral] = useState('');
+
+  // --- CORTINA DE TRANSIÇÃO (LABOR ILLUSION) ---
+  const [transicaoModo, setTransicaoModo] = React.useState<'entrada' | 'saida' | null>(null);
+
+  const handleAbrirArenaComTransicao = () => {
+    setTransicaoModo('entrada'); // 1. Ativa a cortina no Portal imediatamente
+
+    // 2. Aguarda 2 quadros do navegador para GARANTIR que a tela do robô já está visível
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsArenaOpen(true); // 3. Monta a Arena 100% coberta
+        setTimeout(() => setTransicaoModo(null), 2500); // 4. Remove a cortina
+      });
+    });
+  };
+
+  const handleFecharArenaComTransicao = () => {
+    setTransicaoModo('saida');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsArenaOpen(false);
+        setTimeout(() => setTransicaoModo(null), 2500);
+      });
+    });
+  };
+  // ---------------------------------------------
+
   const [nivelUserCentral, setNivelUserCentral] = useState('');
 
   useEffect(() => {
@@ -847,9 +875,10 @@ export default function DashboardDesktop() {
 
             <div className="w-full mt-auto shrink-0 pt-4">
               <button 
-                onClick={() => { setArenaModo({ tipo: null, idx: null }); setIsArenaOpen(true); }} 
+                onClick={() => { setArenaModo({ tipo: null, idx: null }); handleAbrirArenaComTransicao(); }} 
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(237,108,2,0.25)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
               >
+              {transicaoModo && <TelaTransicaoHibrida modo={transicaoModo} idioma={typeof idioma !== 'undefined' ? idioma : 'PT'} />}
                 {t.trainBtn}
               </button>
             </div>
@@ -1187,7 +1216,7 @@ export default function DashboardDesktop() {
               <div className="hidden absolute top-2 right-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-amber-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-amber-500 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
-              <XpCardButton totalXp={totalXp} onClick={() => setIsArenaOpen(true)} idioma={idioma} />
+              <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
             </div>
