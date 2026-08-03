@@ -6,9 +6,13 @@ import CoelhoRobot from './CoelhoRobot';
 
 export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'entrada' | 'saida', idioma?: string }) {
   const [mounted, setMounted] = useState(false);
+  const [progresso, setProgresso] = useState(0);
 
   useEffect(() => {
     setMounted(true);
+    // Dispara a animação da barra de progresso logo após o componente montar
+    const timeout = setTimeout(() => setProgresso(100), 50);
+    return () => clearTimeout(timeout);
   }, []);
 
   const isEntrada = modo === 'entrada';
@@ -22,17 +26,22 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
 
   const content = (
     <div className="fixed inset-0 z-[2147483647] flex flex-col items-center justify-center bg-[#030712] overflow-hidden pointer-events-auto">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-[#030712] to-[#030712]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/30 via-[#030712] to-[#030712]"></div>
       
-      <div className="relative z-10 flex flex-col items-center animate-pulse">
-        <CoelhoRobot devePiscar={isEntrada} />
+      {/* Removido o animate-pulse do container principal */}
+      <div className="relative z-10 flex flex-col items-center">
+        <CoelhoRobot />
         
         <h2 className="mt-8 text-xl md:text-2xl font-black font-mono text-cyan-400 tracking-[0.3em] uppercase text-center">
           {texto}
         </h2>
         
-        <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-6 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-cyan-500 to-amber-400 animate-pulse w-full"></div>
+        {/* Barra de carregamento real (de 0 a 100%) */}
+        <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-6 overflow-hidden relative">
+          <div 
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-amber-400 transition-all ease-out"
+            style={{ width: `${progresso}%`, transitionDuration: '2200ms' }}
+          ></div>
         </div>
       </div>
     </div>
@@ -40,6 +49,5 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
 
   if (!mounted) return null;
 
-  // Injeta diretamente no <body> evitando qualquer "vazamento" de layouts filhos
   return ReactDOM.createPortal(content, document.body);
 }
