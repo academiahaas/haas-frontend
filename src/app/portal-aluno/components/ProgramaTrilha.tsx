@@ -45,6 +45,15 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
             titulo_en: u.unit_title || ''
           }));
 
+          // Ordenação rigorosa: Nível (A1->C2) e Número do Módulo (1->N)
+          const ordemNiveisRef = ["A1", "A2", "B1", "B2", "C1", "C2"];
+          modulosMapeados.sort((a, b) => {
+            const idxA = ordemNiveisRef.indexOf(a.nivel) !== -1 ? ordemNiveisRef.indexOf(a.nivel) : 99;
+            const idxB = ordemNiveisRef.indexOf(b.nivel) !== -1 ? ordemNiveisRef.indexOf(b.nivel) : 99;
+            if (idxA !== idxB) return idxA - idxB;
+            return a.numeroRaw - b.numeroRaw;
+          });
+
           setFases(modulosMapeados);
           setMissoes(missoesMapeadas);
 
