@@ -93,18 +93,19 @@ export default function DashboardDesktop() {
 
     const router = useRouter();
 
-  const handleFecharArenaComTransicao = () => {
+    const handleFecharArenaComTransicao = () => {
     setTransicaoModo('saida');
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setIsArenaOpen(false);
         setArenaModo({ tipo: null, idx: null });
-        try {
-          router.refresh();
-        } catch (e) {
-          console.log('Refresh de métricas acionado');
-        }
-        setTimeout(() => setTransicaoModo(null), 2800);
+        
+        // Aguarda 600ms para a cortina cobrir totalmente a visão e recarrega a página
+        setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            window.location.reload();
+          }
+        }, 600);
       });
     });
   };
