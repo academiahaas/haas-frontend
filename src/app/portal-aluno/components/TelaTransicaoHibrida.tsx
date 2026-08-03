@@ -7,11 +7,24 @@ import CoelhoRobot from './CoelhoRobot';
 export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'entrada' | 'saida' | 'inicial', idioma?: string }) {
   const [mounted, setMounted] = useState(false);
   const [progresso, setProgresso] = useState(0);
+  const [piscarUmOlho, setPiscarUmOlho] = useState(false);
 
   useLayoutEffect(() => {
     setMounted(true);
     const timeout = setTimeout(() => setProgresso(100), 50);
-    return () => clearTimeout(timeout);
+    
+    // Se for o carregamento inicial do Dashboard, dá uma piscadinha de 1 olho aos 1.4s (antes de sumir aos 2s)
+    let winkTimeout: NodeJS.Timeout;
+    if (modo === 'inicial') {
+      winkTimeout = setTimeout(() => {
+        setPiscarUmOlho(true);
+      }, 1400);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      if (winkTimeout) clearTimeout(winkTimeout);
+    };
   }, []);
 
   const isEntrada = modo === 'entrada' || modo === 'inicial';
@@ -29,7 +42,7 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/30 via-[#030712] to-[#030712]"></div>
       
       <div className="relative z-10 flex flex-col items-center">
-        <CoelhoRobot />
+        <CoelhoRobot piscarUmOlho={piscarUmOlho} />
         
         <h2 className="mt-8 text-xl md:text-2xl font-black font-mono text-cyan-400 tracking-[0.3em] uppercase text-center">
           {texto}

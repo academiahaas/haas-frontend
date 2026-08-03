@@ -1,17 +1,27 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export default function CoelhoRobot() {
-  const [piscar, setPiscar] = useState(false);
+interface CoelhoRobotProps {
+  piscarUmOlho?: boolean;
+}
+
+export default function CoelhoRobot({ piscarUmOlho = false }: CoelhoRobotProps) {
+  const [piscarDuplo, setPiscarDuplo] = useState(false);
 
   useEffect(() => {
-    // Animação natural: pisca a cada 2.5 segundos por 150 milissegundos
-    const interval = setInterval(() => {
-      setPiscar(true);
-      setTimeout(() => setPiscar(false), 150);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
+    // Se não estiver no modo de piscar um olho só, faz a piscada dupla natural contínua
+    if (!piscarUmOlho) {
+      const interval = setInterval(() => {
+        setPiscarDuplo(true);
+        setTimeout(() => setPiscarDuplo(false), 150);
+      }, 2500);
+      return () => clearInterval(interval);
+    }
+  }, [piscarUmOlho]);
+
+  // Se piscarUmOlho for true, o olho esquerdo pisca (vira um traço) e o direito fica aberto (círculo)
+  const olhoEsquerdoFechado = piscarUmOlho || piscarDuplo;
+  const olhoDireitoFechado = piscarDuplo; // Mantém aberto se for só piscarUmOlho
 
   return (
     <div className="relative flex flex-col items-center justify-center p-4">
@@ -21,15 +31,15 @@ export default function CoelhoRobot() {
         <rect x="14" y="22" width="36" height="30" rx="12" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="2" />
         <rect x="18" y="26" width="28" height="22" rx="8" fill="#0F172A" />
         
-        {/* Olho Esquerdo */}
-        {piscar ? (
+        {/* Olho Esquerdo (Pisca com 1 olho só ou duplo) */}
+        {olhoEsquerdoFechado ? (
           <path d="M21 35H27" stroke="#A855F7" strokeWidth="2.5" strokeLinecap="round" />
         ) : (
           <circle cx="24" cy="35" r="3" fill="#A855F7" />
         )}
 
-        {/* Olho Direito */}
-        {piscar ? (
+        {/* Olho Direito (Fechar apenas se for piscada dupla) */}
+        {olhoDireitoFechado ? (
           <path d="M36 35H42" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round" />
         ) : (
           <circle cx="39" cy="35" r="3" fill="#00D4FF" />
