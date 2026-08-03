@@ -18,7 +18,7 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
     if (modo === 'inicial') {
       winkTimeout = setTimeout(() => {
         setPiscarUmOlho(true);
-      }, 1400);
+      }, 2800);
     }
 
     return () => {
@@ -38,7 +38,7 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
   const texto = textos[modo] ? (textos[modo][idioma as keyof typeof textos.entrada] || textos[modo].PT) : textos.entrada.PT;
 
   const content = (
-    <div className="fixed inset-0 z-[2147483647] flex flex-col items-center justify-center bg-[#030712] overflow-hidden pointer-events-auto">
+    <div className="fixed inset-0 z-[2147483647] bg-[#030712] flex flex-col items-center justify-center bg-[#030712] overflow-hidden pointer-events-auto">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/30 via-[#030712] to-[#030712]"></div>
       
       <div className="relative z-10 flex flex-col items-center">
@@ -51,7 +51,7 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
         <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-6 overflow-hidden relative">
           <div 
             className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-amber-400 transition-all ease-out"
-            style={{ width: `${progresso}%`, transitionDuration: '1800ms' }}
+            style={{ width: `${progresso}%`, transitionDuration: '3300ms' }}
           ></div>
         </div>
       </div>

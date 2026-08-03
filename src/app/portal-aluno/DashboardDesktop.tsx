@@ -74,7 +74,7 @@ export default function DashboardDesktop() {
     // Esconde a cortina do robô após 2.0s do carregamento inicial da página
     const timer = setTimeout(() => {
       setTransicaoModo(null);
-    }, 2000);
+    }, 3500);
     return () => clearTimeout(timer);
   }, []);
 
