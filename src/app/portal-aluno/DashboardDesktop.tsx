@@ -428,9 +428,9 @@ export default function DashboardDesktop() {
       const langKey = (idioma || 'PT') as 'PT' | 'EN' | 'ES';
 
       const dicaArena = {
-        PT: `${piorComp.icone} Sua menor pontuação é ${piorComp.nome.PT} (${piorComp.val}%). Que tal um ${piorComp.treino.PT} na Arena hoje?`,
-        EN: `${piorComp.icone} Your lowest score is ${piorComp.nome.EN} (${piorComp.val}%). How about a ${piorComp.treino.EN} session in the Arena today?`,
-        ES: `${piorComp.icone} Tu puntuación más baja es ${piorComp.nome.ES} (${piorComp.val}%). ¿Qué tal un ${piorComp.treino.ES} en la Arena hoy?`
+        PT: `${piorComp.icone} Sua menor pontuação é ${piorComp.nome.PT} (${piorComp.val}%). Que tal um treino?`,
+        EN: `${piorComp.icone} Your lowest score is ${piorComp.nome.EN} (${piorComp.val}%). How about a practice session?`,
+        ES: `${piorComp.icone} Tu puntuación más baja es ${piorComp.nome.ES} (${piorComp.val}%). ¿Qué tal un entrenamiento?`
       }[langKey];
 
       const horaAtual = new Date().getHours();
