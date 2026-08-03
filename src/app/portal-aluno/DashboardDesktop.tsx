@@ -68,7 +68,15 @@ export default function DashboardDesktop() {
   const [moduloUserCentral, setModuloUserCentral] = useState('');
 
   // --- CORTINA DE TRANSIÇÃO (LABOR ILLUSION) ---
-  const [transicaoModo, setTransicaoModo] = React.useState<'entrada' | 'saida' | null>(null);
+  const [transicaoModo, setTransicaoModo] = React.useState<'entrada' | 'saida' | 'inicial' | null>('inicial');
+
+  React.useEffect(() => {
+    // Esconde a cortina do robô após 2.0s do carregamento inicial da página
+    const timer = setTimeout(() => {
+      setTransicaoModo(null);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleAbrirArenaComTransicao = () => {
     setTransicaoModo('entrada'); // 1. Ativa a cortina no Portal imediatamente
