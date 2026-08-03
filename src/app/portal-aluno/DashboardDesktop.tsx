@@ -442,21 +442,21 @@ export default function DashboardDesktop() {
           `${saudacaoTime}, ${aluno1?.split(' ')[0]}! Pronto para avançar na sua jornada hoje?`,
           dicaArena,
           `Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo nível hoje?`,
-          `Ótimo progresso, ${aluno1?.split(' ')[0]}! ${streakTexto} Não deixe seu Racha cair.`,
+          `Ótimo progresso, ${aluno1?.split(' ')[0]}! ${streakTexto} Não deixe cair.`,
           `Dica da Mentora: Pratique 15 minutos por dia para acelerar sua fluência!`
         ],
         EN: [
           `${saudacaoTime}, ${aluno1?.split(' ')[0]}! Ready to level up your skills today?`,
           dicaArena,
           `You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next level today?`,
-          `Great momentum, ${aluno1?.split(' ')[0]}! ${streakTexto} Keep your Retention Streak safe today.`,
+          `Great momentum, ${aluno1?.split(' ')[0]}! ${streakTexto} Keep it going today.`,
           `Mentor's Tip: Practicing 15 minutes daily drastically improves long-term memory!`
         ],
         ES: [
           `${saudacaoTime}, ${aluno1?.split(' ')[0]}! ¿Listo para avanzar en tu nivel hoy?`,
           dicaArena,
           `Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por el siguiente nivel hoy?`,
-          `¡Buen progreso, ${aluno1?.split(' ')[0]}! ${streakTexto} No dejes que tu racha caiga hoy.`,
+          `¡Buen progreso, ${aluno1?.split(' ')[0]}! ${streakTexto} No la dejes caer hoy.`,
           `Consejo de la Mentora: Practicar 15 minutos diarios acelera tu fluidez.`
         ]
       };
