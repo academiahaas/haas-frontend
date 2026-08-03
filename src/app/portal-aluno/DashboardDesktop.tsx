@@ -184,9 +184,12 @@ export default function DashboardDesktop() {
             if (dUser[0].total_xp !== undefined) setTotalXp(dUser[0].total_xp || 0);
             if (dUser[0].total_xp !== undefined) setUserTotalXp(dUser[0].total_xp || 0);
           const nivelSigla = dUser[0].current_level || "A1";
-          const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name", { headers });
+          const rLevel = await fetch(urlBase + "/rest/v1/levels?level_tag=eq." + nivelSigla + "&select=level_name,required_xp", { headers });
           const dLevel = await rLevel.json();
           if (dLevel && dLevel[0]) {
+            if (dLevel[0].required_xp) {
+              setXpTotal(dLevel[0].required_xp);
+            }
             const nomeBase = dLevel[0].level_name || "Explorador";
             setLevelName(nomeBase);
             const traducoes = {
