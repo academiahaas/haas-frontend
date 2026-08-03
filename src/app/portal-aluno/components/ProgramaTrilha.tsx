@@ -9,11 +9,11 @@ interface ProgramaTrilhaProps {
 }
 
 export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTrilhaProps) {
-  const [fasesFicticias, setFasesFicticias] = useState([]);
-  const [missoesFicticias, setMissoesFicticias] = useState([]);
-  const [moduloAberto, setModuloAberto] = useState(null);
-  const [realModuloAtual, setRealModuloAtual] = useState('');
-  const [realConcluidos, setRealConcluidos] = useState([]);
+  const [fases, setFases] = useState<any[]>([]);
+  const [missoes, setMissoes] = useState<any[]>([]);
+  const [moduloAberto, setModuloAberto] = useState<string | null>(null);
+  const [realModuloAtualId, setRealModuloAtualId] = useState<string>('');
+  const [realConcluidosIds, setRealConcluidosIds] = useState<string[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -22,73 +22,71 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
         const dadosCentral = await fetchCentralPortalData();
         if (!dadosCentral) return;
 
-        const { modules_content, units, unit_progress, user } = dadosCentral;
-        const nivelAtualUsuario = user?.current_level ? String(user.current_level).trim().toUpperCase() : 'A1';
+        const { modules_content, units, user } = dadosCentral;
 
-        if (modules_content) {
-          const modulosMapeados = modules_content.map((m) => {
-            const mid = m.id || '';
-            return {
-              id: String(mid).trim().toLowerCase(),
-              numero: String(m.module_number || '').padStart(2, '0'),
-              nivel: String(m.level_tag || '').trim().toUpperCase(),
-              titulo_pt: m.module_title || '',
-              titulo_en: m.module_title || ''
-            };
-          });
+        const levelAluno = String(user?.current_level || 'A1').trim().toUpperCase();
+        const numModuloAluno = Number(user?.modulo_atual || 1);
+        const currentModuleIdAluno = user?.current_module_id ? String(user.current_module_id).trim().toLowerCase() : '';
 
-          const missoesMapeadas = (units || []).map((u) => {
-            const rawId = u.module_id || u.module_content_id || '';
-            return {
-              id: String(u.id),
-              modulo_id: String(rawId).trim().toLowerCase(),
-              titulo_pt: u.unit_title || '',
-              titulo_en: u.unit_title || '',
-              duracao: u.estimated_hours ? (Number(u.estimated_hours) * 60) + ' min' : '15 min'
-            };
-          });
+        if (modules_content && Array.isArray(modules_content)) {
+          const modulosMapeados = modules_content.map((m: any) => ({
+            id: String(m.id || '').trim().toLowerCase(),
+            numeroRaw: Number(m.module_number || 1),
+            numero: String(m.module_number || '').padStart(2, '0'),
+            nivel: String(m.level_tag || '').trim().toUpperCase(),
+            titulo_pt: m.module_title || '',
+            titulo_en: m.module_title || ''
+          }));
 
-          setFasesFicticias(modulosMapeados);
-          setMissoesFicticias(missoesMapeadas);
+          const missoesMapeadas = (units || []).map((u: any) => ({
+            id: String(u.id),
+            modulo_id: String(u.module_id || u.module_content_id || '').trim().toLowerCase(),
+            titulo_pt: u.unit_title || '',
+            titulo_en: u.unit_title || ''
+          }));
 
-          const listagemUnidadesConcluidas = (unit_progress || []).map((p) => String(p.unit_id));
-          let moduloAtivoIdentificado = '';
-          let concluidosLista = [];
-          let encontrouAtual = false;
+          setFases(modulosMapeados);
+          setMissoes(missoesMapeadas);
 
           const ordemNiveis = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-          const idxNivelUsuario = ordemNiveis.indexOf(nivelAtualUsuario);
+          const idxNivelAluno = ordemNiveis.indexOf(levelAluno) !== -1 ? ordemNiveis.indexOf(levelAluno) : 0;
+
+          let idAtualEncontrado = '';
+          const concluidos: string[] = [];
 
           modulosMapeados.forEach((mod) => {
             const idxNivelMod = ordemNiveis.indexOf(mod.nivel);
-            const licoesDesteModulo = missoesMapeadas.filter((u) => u.modulo_id === mod.id);
 
-            if (idxNivelMod < idxNivelUsuario) {
-              concluidosLista.push(mod.id);
-            } else if (idxNivelMod === idxNivelUsuario) {
-              const todasConcluidas = licoesDesteModulo.length > 0 && 
-                                      licoesDesteModulo.every((u) => listagemUnidadesConcluidas.includes(u.id));
+            // 1. Checagem direta por ID caso o backend ja forneca o UUID exato
+            if (currentModuleIdAluno && mod.id === currentModuleIdAluno) {
+              idAtualEncontrado = mod.id;
+              return;
+            }
 
-              if (todasConcluidas) {
-                concluidosLista.push(mod.id);
-              } else if (!encontrouAtual) {
-                moduloAtivoIdentificado = mod.id;
-                encontrouAtual = true;
+            // 2. Checagem relacional por Nivel + Numero do Modulo
+            if (idxNivelMod < idxNivelAluno) {
+              concluidos.push(mod.id);
+            } else if (idxNivelMod === idxNivelAluno) {
+              if (mod.numeroRaw < numModuloAluno) {
+                concluidos.push(mod.id);
+              } else if (mod.numeroRaw === numModuloAluno) {
+                idAtualEncontrado = mod.id;
               }
             }
           });
 
-          if (!moduloAtivoIdentificado && modulosMapeados.length > 0) {
-            const modsNivel = modulosMapeados.filter((m) => m.nivel === nivelAtualUsuario);
-            moduloAtivoIdentificado = modsNivel.length > 0 ? modsNivel[0].id : modulosMapeados[0].id;
+          // Fallback de seguranca caso nao encontre o ID exato
+          if (!idAtualEncontrado && modulosMapeados.length > 0) {
+            const modFallback = modulosMapeados.find(m => m.nivel === levelAluno) || modulosMapeados[0];
+            idAtualEncontrado = modFallback.id;
           }
 
-          setRealModuloAtual(moduloAtivoIdentificado);
-          setRealConcluidos(concluidosLista);
-          setModuloAberto(moduloAtivoIdentificado);
+          setRealModuloAtualId(idAtualEncontrado);
+          setRealConcluidosIds(concluidos);
+          setModuloAberto(idAtualEncontrado);
         }
       } catch (erro) {
-        console.error('Erro na trilha:', erro);
+        console.error('Erro ao sincronizar ProgramaTrilha:', erro);
       } finally {
         setCarregando(false);
       }
@@ -102,12 +100,12 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
 
   return (
     <div className="w-full flex flex-col gap-3 pb-6">
-      {fasesFicticias.map((fase) => {
+      {fases.map((fase) => {
         const isOpen = moduloAberto === fase.id;
-        const licoesVisiveis = missoesFicticias.filter((u) => u.modulo_id === fase.id);
+        const licoesVisiveis = missoes.filter((u) => u.modulo_id === fase.id);
 
-        const isConcluido = realConcluidos.includes(fase.id);
-        const isAtual = fase.id === realModuloAtual;
+        const isConcluido = realConcluidosIds.includes(fase.id);
+        const isAtual = fase.id === realModuloAtualId;
         const isBloqueado = !isConcluido && !isAtual;
 
         let cardStyle = "border-white/[0.04] bg-[#07111e]/90";
@@ -148,14 +146,13 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                 <div className="flex flex-col gap-2">
                   {licoesVisiveis.length > 0 ? (
                     licoesVisiveis.map((m) => (
-                      <div key={m.id} onClick={() => { console.log("👀 [TRILHA] Dados da lição clicada:", m); !isBloqueado && aoAbrirArena?.(m.unit_id || m.uuid || m.id_unidade || m.id); }} className={"p-4 rounded-xl border flex justify-between items-center transition-all duration-300 transform " + (isBloqueado ? 'border-white/[0.02] opacity-40 bg-black/10 select-none' : 'border-white/[0.05] bg-[#111c2e] hover:bg-[#16253d] hover:scale-[1.005] cursor-pointer')}>
+                      <div key={m.id} onClick={() => { !isBloqueado && aoAbrirArena?.(m.id); }} className={"p-4 rounded-xl border flex justify-between items-center transition-all duration-300 transform " + (isBloqueado ? 'border-white/[0.02] opacity-40 bg-black/10 select-none' : 'border-white/[0.05] bg-[#111c2e] hover:bg-[#16253d] hover:scale-[1.005] cursor-pointer')}>
                         <div className="flex items-center gap-4">
                           <div className="flex-shrink-0">
                             {isConcluido ? <CheckCircle2 size={14} className="text-emerald-500" /> : isAtual ? <PlayCircle size={14} className="text-amber-500 animate-pulse" /> : <Lock size={14} className="text-slate-500" />}
                           </div>
                           <div className="flex flex-col gap-0.5">
                             <h4 className="text-xs font-bold text-slate-200 tracking-wide">{idiomaAtivo === 'PT' ? m.titulo_pt : m.titulo_en}</h4>
-                            <p className="text-[10px] text-slate-500 font-medium font-mono">{m.duracao}</p>
                           </div>
                         </div>
                         <button disabled={isBloqueado} className={"text-[9px] font-bold border px-3 py-1.5 rounded-lg font-mono tracking-wider transition-all duration-300 " + (isBloqueado ? 'border-slate-700 text-slate-500 bg-transparent' : 'border-amber-500/30 text-amber-500 bg-amber-500/[0.02] hover:bg-amber-500/10 shadow-sm')}>
