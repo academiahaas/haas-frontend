@@ -40,25 +40,37 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     const calculatedUnitXp = (unitProgressData || []).reduce((acc: number, curr: any) => acc + (Number(curr.unit_xp) || 0), 0);
     const lastUnitId = unitProgressData && unitProgressData.length > 0 ? unitProgressData[unitProgressData.length - 1].unit_id : null;
 
-    let calculatedRequiredXp = 0;
-    if (lastUnitId) {
-      const { data: unitInfo } = await supabase
-        .from("units")
-        .select("required_xp")
-        .eq("id", lastUnitId)
-        .maybeSingle();
-      if (unitInfo?.required_xp) calculatedRequiredXp = Number(unitInfo.required_xp);
-    } else {
-      const { data: firstUnit } = await supabase
-        .from("units")
-        .select("required_xp")
-        .limit(1)
-        .maybeSingle();
-      if (firstUnit?.required_xp) calculatedRequiredXp = Number(firstUnit.required_xp);
-    }
+    // --- BUSCA DINÂMICA DE XP DA TABELA LEVELS ---
+    let calculatedRequiredXp = 5000;
+    try {
+      let levelData = null;
 
-    // Estrutura unificada puramente baseada nos dados REAIS do Supabase
-    
+      if (profile?.level_id) {
+        const { data } = await supabase
+          .from("levels")
+          .select("required_xp")
+          .eq("id", profile.level_id)
+          .maybeSingle();
+        levelData = data;
+      }
+
+      if (!levelData && profile?.current_level) {
+        const { data } = await supabase
+          .from("levels")
+          .select("required_xp")
+          .ilike("level_tag", profile.current_level)
+          .maybeSingle();
+        levelData = data;
+      }
+
+      if (levelData && levelData.required_xp !== undefined && levelData.required_xp !== null) {
+        calculatedRequiredXp = Number(levelData.required_xp);
+      }
+    } catch (err) {
+      console.error("[CentralService] Erro ao consultar tabela levels:", err);
+    }
+    // ----------------------------------------------
+
     // 4. Busca Módulos e Unidades para a Trilha
     const { data: modulesContentData } = await supabase
       .from("modules_content")
