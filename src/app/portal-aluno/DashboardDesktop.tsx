@@ -349,6 +349,14 @@ export default function DashboardDesktop() {
 
   const t = translations[idioma];
   const [botPhraseIndex, setBotPhraseIndex] = useState(0);
+
+  // Alterna a frase do mascote a cada 3 segundos
+  useEffect(() => {
+    const phraseInterval = setInterval(() => {
+      setBotPhraseIndex((prev) => prev + 1);
+    }, 3000);
+    return () => clearInterval(phraseInterval);
+  }, []);
   const [isBotWinking, setIsBotWinking] = useState(false);
 
   // Loop automático para dar vida ao mascote no Desktop (Piscar, orelhas e boca)
