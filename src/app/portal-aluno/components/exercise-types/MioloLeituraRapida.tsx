@@ -58,6 +58,7 @@ export default function MioloLeituraRapida({
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
   const [exerciseId, setExerciseId] = useState("");
+  const exerciseIdRef = useRef<string>("");
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -76,6 +77,8 @@ export default function MioloLeituraRapida({
       console.log("⚡ [MioloLeituraRapida] Hydrating adaptative exercise:", initialExerciseData);
       const ex = initialExerciseData;
       setExerciseId(ex.id || "");
+      console.log("🔍 [DEBUG] exerciseId setado para:", ex.id || "VAZIO");
+      exerciseIdRef.current = ex.id || "";
       
       const respostaCorreta = String(ex.correct_answer || "").trim();
       // Tenta buscar de campos comuns e, se falhar, assume que o texto é o próprio gabarito
@@ -319,7 +322,8 @@ export default function MioloLeituraRapida({
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
           const aprovado = nota >= 6;
           const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
-          onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
+          console.log("🔍 [DEBUG] onValidateResult chamado com exerciseId:", exerciseId || "UNDEFINED");
+          onValidateResult(aprovado, textoMentora1, nota, exerciseId || undefined);
         }
     } catch (e) {
       const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
@@ -340,7 +344,8 @@ export default function MioloLeituraRapida({
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (possuiMinimo ? 10 : 0);
           const aprovado = nota >= 6;
           const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
-          onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
+          console.log("🔍 [DEBUG] onValidateResult chamado com exerciseId:", exerciseId || "UNDEFINED");
+          onValidateResult(aprovado, textoMentora2, nota, exerciseId || undefined);
         }
     } finally {
       setAnalisando(false);
