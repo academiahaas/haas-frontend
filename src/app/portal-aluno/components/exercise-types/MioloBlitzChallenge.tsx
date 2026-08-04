@@ -227,64 +227,69 @@ export default function MioloBlitzChallenge({
   };
 
   if (gameOver) {
+      return (
+        <div className='flex flex-col items-center justify-center p-8 bg-[#070d19]/80 border border-slate-800 rounded-2xl w-full h-full text-center animate-fade-in min-h-[220px]'>
+          <Award className='w-12 h-12 text-[#FF8A2B] mb-3 animate-pulse' />
+          <h3 className='text-[clamp(18px,2vw,24px)] font-bold text-slate-100 tracking-wider uppercase mb-1'>Desafio Concluído</h3>
+          <p className='text-[clamp(12px,1.4vw,15px)] text-slate-400 mb-5 font-medium'>Performance calculada com sucesso</p>
+          <div className='text-[clamp(24px,2.8vw,34px)] font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-8 py-3 rounded-xl border border-[#FF8A2B]/25 shadow-[0_0_25px_rgba(255,138,43,0.15)]'>
+            +{totalXp} PTS
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className='flex flex-col items-center justify-center p-6 bg-[#020813] border border-slate-900 rounded-2xl w-full h-full font-mono text-center animate-fade-in'>
-        <Award className='w-12 h-12 text-[#FF8A2B] mb-3 animate-bounce' />
-        <h3 className='text-[clamp(16px,2vw,22px)] font-black text-[#F8FAFC] tracking-wider uppercase mb-1'>Desafio Concluído</h3>
-        <p className='text-[clamp(12px,1.4vw,15px)] text-slate-400 mb-4 font-medium'>Sua performance gerou rendimento</p>
-        <div className='text-[clamp(22px,2.8vw,32px)] font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-8 py-2.5 rounded-xl border border-[#FF8A2B]/20 shadow-[0_0_20px_rgba(255,138,43,0.1)]'>
-          +{totalXp} PTS
+      <div className='flex flex-col items-stretch justify-between w-full h-full font-sans animate-fade-in flex-1 min-h-0 gap-4 p-1'>
+        {/* Barra Superior - Timer & Nível */}
+        <div className='flex items-center justify-between bg-[#070d19]/60 border border-slate-800/80 px-4 py-3 rounded-xl shadow-sm shrink-0'>
+          <div className='flex items-center gap-2'>
+            <Zap className='w-4 h-4 text-[#FF8A2B]' />
+            <span className='text-[11px] md:text-xs font-bold text-slate-400 tracking-widest uppercase'>DESAFIO BLITZ</span>
+          </div>
+          <div className='text-xs md:text-sm font-black tracking-widest text-[#FF8A2B] font-mono bg-[#FF8A2B]/10 px-3 py-1 rounded-lg border border-[#FF8A2B]/20 shadow-[0_0_10px_rgba(255,138,43,0.1)]'>
+            00:{timeLeft < 10 ? '0' + timeLeft : timeLeft}
+          </div>
+        </div>
+        
+        {/* Card Central - Alvo */}
+        <div className='flex-1 flex flex-col items-center justify-center bg-[#070d19]/80 border border-slate-800 rounded-2xl p-6 relative shadow-inner overflow-hidden min-h-[130px]'>
+          <span className='absolute top-3 left-4 text-[10px] font-bold text-cyan-400/60 tracking-widest uppercase'>OPÇÃO ALVO</span>
+          <h2 className='text-xl md:text-3xl font-extrabold text-slate-100 tracking-wide uppercase select-none text-center px-4'>
+            {currentQuestion.word}
+          </h2>
+          
+          {feedback && (
+            <div key={feedback.id} className={'absolute bottom-3 text-[11px] font-black tracking-widest animate-bounce ' + feedback.color}>
+              {feedback.text}
+            </div>
+          )}
+        </div>
+        
+        {/* Grade 2x2 de Opções */}
+        <div className='grid grid-cols-2 gap-3 w-full shrink-0'>
+          {currentQuestion.options.map((opcao, idx) => {
+            const isThisClicked = clickedOption === opcao;
+            let btnStyle = 'bg-[#13233f] hover:bg-[#1a2f55] border-slate-700/60 text-slate-200 hover:border-cyan-500/50 shadow-sm active:scale-95';
+            
+            if (isThisClicked) {
+              btnStyle = opcao === currentQuestion.correct
+                ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[0.98]'
+                : 'bg-rose-950/60 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)] scale-[0.98]';
+            }
+            
+            return (
+              <button
+                key={idx}
+                disabled={clickedOption !== null || gameOver}
+                onClick={() => handleOptionClick(opcao)}
+                className={'w-full py-3.5 px-4 rounded-xl font-medium text-[clamp(14px,1.6vw,17px)] border text-center transition-all duration-150 cursor-pointer whitespace-nowrap ' + btnStyle}
+              >
+                {opcao}
+              </button>
+            );
+          })}
         </div>
       </div>
     );
   }
-
-  return (
-    <div className='flex flex-col items-stretch justify-between w-full h-full font-mono animate-fade-in flex-1 min-h-0 gap-4'>
-      <div className='flex items-center justify-between bg-white/[0.02] border border-white/[0.04] px-4 py-2.5 rounded-xl shadow-md'>
-        <div className='flex items-center gap-2'>
-          <Zap className='w-4 h-4 text-[#FF8A2B]' />
-          <span className='text-[10px] md:text-xs font-bold text-slate-400 tracking-wider uppercase'>BLITZ LEVEL</span>
-        </div>
-        <div className='text-xs md:text-sm font-black tracking-widest text-[#FF8A2B]'>
-          00:{timeLeft < 10 ? '0' + timeLeft : timeLeft}
-        </div>
-      </div>
-      
-      <div className='flex-1 flex flex-col items-center justify-center bg-[#01070e] border border-slate-900 rounded-2xl p-6 relative shadow-inner overflow-hidden min-h-[110px]'>
-        <span className='absolute top-3 left-4 text-[9px] font-bold text-white/10 tracking-widest uppercase'>TARGET TOKEN</span>
-        <h2 className='text-xl md:text-3xl font-black text-[#F8FAFC] tracking-wide uppercase select-none animate-pulse'>{currentQuestion.word}</h2>
-        
-        {feedback && (
-          <div key={feedback.id} className={'absolute bottom-3 text-[10px] font-black tracking-widest animate-bounce ' + feedback.color}>
-            {feedback.text}
-          </div>
-        )}
-      </div>
-      
-      <div className='grid grid-cols-2 gap-2 w-full'>
-        {currentQuestion.options.map((opcao, idx) => {
-          const isThisClicked = clickedOption === opcao;
-          let btnStyle = 'bg-[#0c192e] border-white/[0.04] text-[#F8FAFC] hover:border-[#FF8A2B]/30 hover:bg-white/[0.01]';
-          
-          if (isThisClicked) {
-            btnStyle = opcao === currentQuestion.correct
-              ? 'bg-emerald-950/40 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-              : 'bg-rose-950/40 border-rose-500 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.2)]';
-          }
-          
-          return (
-            <button
-              key={idx}
-              disabled={clickedOption !== null || gameOver}
-              onClick={() => handleOptionClick(opcao)}
-              className={'w-full py-3 px-4 rounded-xl font-sans font-bold text-[clamp(14px,1.8vw,18px)] leading-snug border text-center transition-all duration-150 ' + btnStyle}
-            >
-              {opcao}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
