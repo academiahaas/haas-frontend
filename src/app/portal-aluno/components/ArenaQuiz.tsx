@@ -885,6 +885,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [desafioIniciado, setDesafioIniciado] = useState(false);
   const [contagem, setContagem] = useState(0);
+  const [mioloVisible, setMioloVisible] = useState(true);
   const currentAudioRef = typeof window !== 'undefined' ? (globalThis as any).currentAudioRef || { current: null } : { current: null };
   if (typeof window !== 'undefined') { (globalThis as any).currentAudioRef = currentAudioRef; }
 
@@ -1279,25 +1280,32 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const handleNextMission = () => {
     /* CHAMADA_CENTRAL_NO_AVANCO */
-    setDesafioIniciado(false);
-    setContagem(0);
-    setGameStatus('IDLE');
-    setComboQuebrado(false);
-    setCaixaAberta(false);
-    setJogoSelecionado('');
+    // 🌬️ Transição respiratória: fade-out → troca → fade-in
+    setMioloVisible(false); // fade-out (200ms)
 
-    const targetUid = typeof userId !== 'undefined' ? userId : (typeof activeUserId !== 'undefined' ? activeUserId : "");
-    
-    if (targetUid && typeof fetchNextExerciseForUser === 'function') {
-      fetchNextExerciseForUser(targetUid).then((exercise) => {
-        if (exercise && exercise.activity_type) {
-          const activityType = Number(exercise.activity_type);
-          const gameId = typeof MAPA_JOGOS_ADAPTATIVO !== 'undefined' ? MAPA_JOGOS_ADAPTATIVO[activityType] : null;
-          if (gameId) {
-            console.log("🎯 [ARENA AVANÇO] Próximo exercise_id:", exercise.id, "Tipo:", activityType);
-            setAdaptiveExerciseData(exercise);
-            setTimeout(() => setJogoSelecionado(gameId), 10);
-            return;
+    setTimeout(() => {
+      setDesafioIniciado(false);
+      setContagem(0);
+      setGameStatus('IDLE');
+      setComboQuebrado(false);
+      setCaixaAberta(false);
+      setJogoSelecionado('');
+
+      const targetUid = typeof userId !== 'undefined' ? userId : (typeof activeUserId !== 'undefined' ? activeUserId : "");
+      
+      if (targetUid && typeof fetchNextExerciseForUser === 'function') {
+        fetchNextExerciseForUser(targetUid).then((exercise) => {
+          if (exercise && exercise.activity_type) {
+            const activityType = Number(exercise.activity_type);
+            const gameId = typeof MAPA_JOGOS_ADAPTATIVO !== 'undefined' ? MAPA_JOGOS_ADAPTATIVO[activityType] : null;
+            if (gameId) {
+              console.log("🎯 [ARENA AVANÇO] Próximo exercise_id:", exercise.id, "Tipo:", activityType);
+              setAdaptiveExerciseData(exercise);
+              setTimeout(() => {
+                setJogoSelecionado(gameId);
+                setTimeout(() => setMioloVisible(true), 80); // fade-in após montagem
+              }, 10);
+              return;
           }
         }
         fallbackAleatorio();
@@ -1316,6 +1324,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const proximoJogo = jogosDisponiveis[Math.floor(Math.random() * jogosDisponiveis.length)];
       setTimeout(() => setJogoSelecionado(proximoJogo), 10);
     }
+    }, 200);
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
@@ -1759,7 +1768,9 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 )}
               </div>
             ) : (
-              jogoAtual.component
+              <div className={`transition-opacity duration-200 ease-out ${mioloVisible ? 'opacity-100' : 'opacity-0'}`}>
+                {jogoAtual.component}
+              </div>
             )}
           </div>
 
