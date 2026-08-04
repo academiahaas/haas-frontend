@@ -441,27 +441,30 @@ Regras Estritas:
       {/* ÁREA DE INTERAÇÃO E CONTROLES NO RODAPÉ */}
       <div className="w-full shrink-0 flex flex-col items-center justify-center gap-3 min-h-[110px]">
         
-        {/* Caso: Analisando / Carregando */}
+        {/* Caso: Analisando / Processando Áudio */}
         {flowState === "ANALYZING" && (
-          <div className="w-full flex flex-col items-center justify-center gap-3 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 min-h-[110px] text-cyan-400 animate-pulse">
+          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
             <Sparkles size={22} className="animate-spin text-cyan-400" />
-            <span className="text-[12px] font-bold uppercase tracking-widest">
+            <span className="text-[12px] font-bold uppercase tracking-widest text-cyan-400">
               {t?.avaliando || "Avaliando"}...
             </span>
           </div>
         )}
 
-        {/* Caso: Análise Concluída (Exibe Card de Feedback) */}
+        {/* Caso: Análise Concluída (Exibe Card de Feedback em Camadas) */}
         {flowState === "DONE" && feedback && (
-          <div className="w-full bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 flex flex-col gap-3 animate-fade-in shadow-xl text-left">
+          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] text-left">
             <div className="flex justify-between items-center w-full">
-              <span className="text-cyan-400 font-bold text-[12px] uppercase tracking-widest">Avaliação de Pronúncia</span>
-              <div className="text-amber-400 font-bold text-[12px] bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-[12px] uppercase tracking-widest">
+                <Sparkles size={16} />
+                <span>Avaliação de Pronúncia</span>
+              </div>
+              <div className="text-amber-400 font-bold text-[12px] bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30 tracking-wider shadow-sm">
                 +{scoreFinal} NOTA
               </div>
             </div>
 
-            <p className="text-[15px] text-slate-200 font-medium leading-relaxed break-words">
+            <p className="text-[16px] text-slate-100 font-medium leading-relaxed break-words">
               {feedback.mensagem}
             </p>
           </div>
