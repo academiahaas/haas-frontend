@@ -3051,21 +3051,11 @@ React.useEffect(() => {
 
  
             {/* 3. Sequência de Dias & Próxima Recompensa */} 
-            <div className="grid grid-cols-2 gap-1.5 w-full"> 
-                            {/* 🏆 GATILHO PREMIUM: LIGA DE ELITE / RANKING GLOBAL */}
-              <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-1.5 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
+            <div className="flex flex-col gap-1.5 w-full"> 
+              {/* 🏆 GATILHO PREMIUM: LIGA DE ELITE / RANKING GLOBAL */}
+              <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-amber-500/15 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center justify-center gap-2.5 text-center w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
                 <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-amber-500" /></div> 
-                <div className="flex flex-col min-w-0 truncate"> 
-
-                  <span className="text-[clamp(10px,3.2vw,18px)] uppercase font-mono font-black text-amber-500 tracking-tight break-words leading-tight">{idiomaSelecionado === "PT" ? "Liga de Elite" : idiomaSelecionado === "ES" ? "Liga de Élite" : "Elite League"}</span>
-                </div> 
-              </button> 
-              <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-1.5 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
-                <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center shrink-0"><Gift className="w-5 h-5 text-emerald-400" /></div> 
-                <div className="flex flex-col min-w-0 truncate"> 
-                  <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-white truncate">{idiomaSelecionado === "PT" ? "Faltam 40 UT" : idiomaSelecionado === "ES" ? "Faltan 40 UT" : "40 UT Remaining"}</span> 
-                  <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Aula Bônus" : idiomaSelecionado === "ES" ? "Clase de Bono" : "Bonus Class"}</span> 
-                </div> 
+                <span className="text-[clamp(12px,3.5vw,18px)] uppercase font-mono font-black text-amber-500 tracking-widest break-words leading-tight">{idiomaSelecionado === "PT" ? "LIGA DE ELITE" : idiomaSelecionado === "ES" ? "LIGA DE ÉLITE" : "ELITE LEAGUE"}</span>
               </button> 
             </div> 
  
