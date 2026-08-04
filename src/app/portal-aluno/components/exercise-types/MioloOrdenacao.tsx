@@ -383,35 +383,38 @@ export default function MioloOrdenacao({
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2 p-0.5 overflow-hidden">
+    <div className="w-full h-full flex flex-col font-sans flex-1 min-h-0 gap-5 p-2 overflow-hidden">
       
       {/* BARRA SUPERIOR DE INSTRUÇÃO E ÁUDIO */}
-      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-2 rounded-xl border border-white/[0.02] gap-3">
+      <div className="flex items-center justify-between shrink-0 px-1 gap-3">
         <div className="flex items-center gap-2">
-          <HelpCircle size={14} className="text-cyan-400 shrink-0" />
-          <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+          <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+          <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
             {t.instrucao}
           </span>
         </div>
         <button 
           type="button"
           onClick={playAudioOrdenacao}
-          className="p-2 bg-[#0c192e] hover:bg-cyan-900/40 border border-cyan-500/20 text-cyan-400 rounded-xl transition-all cursor-pointer flex items-center justify-center h-8 w-8 shrink-0 shadow-sm"
+          className="p-2.5 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
+          title="Ouvir áudio"
         >
-          <Volume2 size={14} />
+          <Volume2 size={16} />
         </button>
       </div>
 
-      {/* ÁREA DE DEPÓSITO (ALTURA ADAPTADA CONTROLADA PARA EVITAR VAZAMENTOS) */}
-      <div className={`w-full p-3 flex-1 rounded-2xl flex flex-wrap content-center justify-center gap-2 items-center border transition-all duration-200 overflow-y-auto max-h-[35vh] min-h-[100px] ${
-        localStatus === "CORRECT" ? "bg-emerald-950/20 border-emerald-500/30" :
-        localStatus === "WRONG" ? "bg-rose-950/20 border-rose-500/30" :
-        "bg-[#01070e] border-white/[0.03] shadow-inner"
+      {/* ÁREA DE DEPÓSITO (Drop Zone Premium) */}
+      <div className={`w-full p-4 rounded-xl flex flex-wrap content-start gap-3 items-center transition-all duration-300 min-h-[140px] ${
+        localStatus === "CORRECT" ? "bg-emerald-950/20 border border-emerald-500/30" :
+        localStatus === "WRONG" ? "bg-rose-950/20 border border-rose-500/30" :
+        "bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50 shadow-inner"
       }`}>
         {deposit.length === 0 && (
-          <span className="text-slate-500 text-[13px] md:text-[1.1vw] font-bold uppercase tracking-widest pointer-events-none text-center px-4 opacity-60">
-            {t.placeholder}
-          </span>
+          <div className="w-full h-full flex items-center justify-center pointer-events-none opacity-40">
+            <span className="text-slate-400 text-[13px] md:text-[15px] font-medium tracking-wide">
+              {t.placeholder}
+            </span>
+          </div>
         )}
         {deposit.map((item) => (
           <button
@@ -419,10 +422,10 @@ export default function MioloOrdenacao({
             type="button"
             onClick={() => toggleToBank(item)}
             disabled={localStatus !== 'IDLE' || analisando}
-            className={`px-3 py-1.5 text-[13px] md:text-[1.1vw] font-black rounded-xl border cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap tracking-wide ${
-              localStatus === 'CORRECT' ? 'bg-gradient-to-b from-emerald-600 to-emerald-700 border-emerald-500 text-white' :
-              localStatus === 'WRONG' ? 'bg-gradient-to-b from-rose-600 to-rose-700 border-rose-500 text-white' :
-              'bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] text-white border-[#FFB478]/30'
+            className={`px-5 py-2.5 text-[clamp(14px,1.6vw,16px)] font-semibold rounded-lg cursor-pointer shadow-[0_4px_0_0_#c45513] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap ${
+              localStatus === 'CORRECT' ? 'bg-emerald-600 border border-emerald-500 text-white shadow-[0_4px_0_0_#059669]' :
+              localStatus === 'WRONG' ? 'bg-rose-600 border border-rose-500 text-white shadow-[0_4px_0_0_#e11d48]' :
+              'bg-[#FF7420] hover:bg-[#FF8A2B] text-white'
             }`}
           >
             {item.text}
@@ -430,16 +433,16 @@ export default function MioloOrdenacao({
         ))}
       </div>
 
-      {/* BANCO DE BLOCOS DISPONÍVEIS INFERIOR (ALTURA REDUZIDA PARA RESPONSIVIDADE) */}
+      {/* BANCO DE BLOCOS DISPONÍVEIS */}
       {!exibirContainerInferior && (
-        <div className="flex flex-wrap gap-2 w-full p-2 bg-[#070d19]/30 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 max-h-[22vh] min-h-[80px] overflow-hidden">
+        <div className="flex flex-wrap gap-3 w-full p-5 bg-[#070d19]/60 border border-slate-800/80 rounded-xl justify-center items-center shrink-0 min-h-[100px] overflow-y-auto">
           {bank.map((item) => (
             <button
               key={item.id}
               type="button"
               disabled={localStatus !== 'IDLE' || analisando}
               onClick={() => toggleToDeposit(item)}
-              className="px-2.5 py-1.5 bg-[#0c192e] hover:border-cyan-500/30 hover:text-cyan-400 border border-white/[0.04] text-slate-300 text-[13px] md:text-[1.1vw] font-bold rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+              className="px-5 py-2.5 bg-[#13233f] hover:bg-[#1a2f55] hover:border-slate-500 border border-slate-600/50 text-slate-200 text-[clamp(14px,1.6vw,16px)] font-medium rounded-lg cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
             >
               {item.text}
             </button>
@@ -447,32 +450,34 @@ export default function MioloOrdenacao({
         </div>
       )}
 
-      {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO COMPLETAMENTE INTEGRADO CONTRA VAZAMENTOS */}
+      {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO */}
       {exibirContainerInferior && (
-        <div className="w-full flex-1 flex flex-col justify-center items-stretch mt-0.5 animate-fade-in min-h-0 overflow-hidden bg-[#0c192e] border border-white/[0.04] rounded-xl p-4">
-          
-
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           {analisando && (
-            <div className="text-[10px] md:text-[1vw] text-cyan-400 font-bold tracking-widest text-center py-2 uppercase flex items-center justify-center gap-2 bg-cyan-950/10 border border-cyan-500/10 rounded-xl animate-pulse h-[36px]">
-              <Sparkles size={11} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-0 overflow-hidden">
-              <div className="flex items-center gap-1 text-emerald-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
-                <CheckCircle size={11} /> <span>Sintaxe Correta!</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+                <CheckCircle size={14} /> <span>Sintaxe Correta!</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex flex-col items-center justify-center gap-0.5 text-center bg-rose-950/20 border border-rose-500/20 py-1 px-3 rounded-xl animate-fade-in min-h-[40px] max-h-[70px] overflow-y-auto">
-              <div className="flex items-center gap-1 text-rose-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
-                <XCircle size={11} /> <span>Análise de Estrutura</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+                <XCircle size={14} /> <span>Análise de Estrutura</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
         </div>
