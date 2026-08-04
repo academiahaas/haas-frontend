@@ -3233,51 +3233,6 @@ if (!vencimentoPlano) return "--/--/----";
               </div>
             </div>
 
-            {/* 3. BLOCO DE CONQUISTAS */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5.5">
-              <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
-                {idiomaSelecionado === "PT" ? "Insígnias e Conquistas" : idiomaSelecionado === "ES" ? "Insignias y Logros" : "Badges & Achievements"}
-              </h3>
-              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-11 h-11 md:w-14 md:h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-base"><Award size={16} className="text-emerald-400" /></div>
-                  <span className="text-[10px] md:text-xs font-bold text-slate-400">
-                    {idiomaSelecionado === "PT" ? "1ª Sessão" : idiomaSelecionado === "ES" ? "1ª Sesión" : "1st Session"}
-                  </span>
-                </div>
-                <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-11 h-11 md:w-14 md:h-14 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-base"><Flame size={16} className="text-amber-400" /></div>
-                  <span className="text-[10px] md:text-xs font-bold text-slate-400">7 Days</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 shrink-0 opacity-40 grayscale">
-                  <div className="w-11 h-11 md:w-14 md:h-14 bg-slate-950 border border-white/10 rounded-xl flex items-center justify-center text-base relative">
-                    <Lock size={14} className="text-slate-500" />
-                    <div className="absolute bottom-0 inset-x-0 h-1 bg-purple-500/40 rounded-b-xl" style={{ width: '72%' }} />
-                  </div>
-                  <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase mt-0.5">
-                    {idiomaSelecionado === "PT" ? "Conversação" : idiomaSelecionado === "ES" ? "Conversación" : "Speaking"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. BLOCO DE APRENDIZAGEM */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5">
-              <h3 className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black uppercase tracking-wider text-slate-400">
-                {idiomaSelecionado === "PT" ? "Desempenho por Área" : idiomaSelecionado === "ES" ? "Desempeño por Área" : "Performance by Area"}
-              </h3>
-              <div className="flex flex-col gap-1.5 font-mono text-xs md:text-base">
-                <div className="flex justify-between text-white">
-                  <span>{idiomaSelecionado === "PT" ? "Vocabulário" : idiomaSelecionado === "ES" ? "Vocabulario" : "Vocabulary"} (1.250 p.)</span>
-                  <span className="text-slate-400">45h</span>
-                </div>
-                <div className="flex justify-between text-white border-t border-white/[0.02] pt-2">
-                  <span>{idiomaSelecionado === "PT" ? "Conversação" : idiomaSelecionado === "ES" ? "Conversación" : "Speaking"}</span>
-                  <span className="text-slate-400">32h</span>
-                </div>
-              </div>
-            </div>
-
             {/* 5. BLOCO DE EVOLUÇÃO */}
             <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5">
               <div className="flex justify-between items-baseline font-mono">
