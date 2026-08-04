@@ -369,47 +369,54 @@ USER_ID_ALVO]);
 
   if (carregando) {
     return (
-      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] tracking-widest">
-        CONECTANDO...
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[14px] tracking-widest uppercase">
+        Conectando...
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full flex flex-col justify-start items-stretch text-left font-sans min-h-0 flex-1 gap-4 overflow-hidden p-1">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* Faixa de orientações unificada com (?) azul */}
-      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5 shrink-0">
-        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
-        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
+      {/* BARRA SUPERIOR DE INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
           {t.instrucao}
         </span>
       </div>
 
-      {/* Seção Centralizada: Alto-falante e Letras */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-3 bg-[#050b14]/40 border border-white/[0.04] rounded-xl px-3 min-h-0">
+      {/* CARD CENTRAL DE ÁUDIO E SLOTS DAS LETRAS */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-5 p-5 bg-[#0a1120]/80 border border-slate-700/50 rounded-xl min-h-[140px] shadow-sm">
         
-        {/* Botão do Alto-falante centralizado */}
+        {/* Botão de Áudio Centralizado com Glow */}
         <button 
+          type="button"
           onClick={playWordAudio} 
-          className="p-4 bg-[#0e1e31] border border-cyan-500/30 text-cyan-400 rounded-2xl hover:bg-[#12273f] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg shrink-0"
-          title="Escutar"
+          className="w-16 h-16 bg-cyan-500/10 border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 rounded-full transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.15)] flex items-center justify-center active:scale-95 group shrink-0"
+          title="Escutar palavra"
         >
-          <Volume2 size={24} />
+          <Volume2 size={26} className="group-hover:scale-110 transition-transform" />
         </button>
 
-        {/* Caixas de Texto da Palavra */}
-        <div className="flex justify-center flex-wrap gap-1.5 w-full max-w-full justify-items-center mt-2">
+        {/* Slots de Letras da Palavra */}
+        <div className="flex justify-center flex-wrap gap-2 w-full max-w-full">
           {userInput.map((char, idx) => {
             const isCurrent = idx === currentIndex && status !== "CORRECT" && status !== "WRONG";
+            
+            let slotStyle = "border-slate-700/60 text-slate-300 bg-[#070d19]";
+            if (status === "CORRECT") {
+              slotStyle = "border-emerald-500 text-emerald-400 bg-emerald-950/30 font-black shadow-sm";
+            } else if (status === "WRONG") {
+              slotStyle = "border-rose-500 text-rose-400 bg-rose-950/30 font-black animate-shake shadow-sm";
+            } else if (isCurrent) {
+              slotStyle = "border-cyan-400 text-cyan-300 bg-cyan-950/40 ring-1 ring-cyan-400/40 font-black shadow-sm";
+            }
+
             return (
               <div
                 key={idx}
-                className={`w-[clamp(24px,5.8vw,34px)] h-[clamp(32px,8vw,40px)] rounded-lg border flex items-center justify-center font-sans font-black text-[13px] md:text-[1.1vw] transition-all shrink-0 ${
-                  status === "CORRECT" ? "border-emerald-500 text-emerald-400 bg-emerald-950/10" :
-                  status === "WRONG" ? "border-rose-500 text-rose-400 bg-rose-950/10 animate-shake" :
-                  isCurrent ? "border-cyan-400 text-cyan-400 bg-cyan-950/30" : "border-slate-800 text-slate-300 bg-[#070d19]"
-                }`}
+                className={`w-[clamp(28px,5vw,38px)] h-[clamp(36px,7vw,46px)] rounded-lg border flex items-center justify-center font-sans font-bold text-[clamp(15px,1.8vw,20px)] transition-all shrink-0 ${slotStyle}`}
               >
                 {char}
               </div>
@@ -418,28 +425,34 @@ USER_ID_ALVO]);
         </div>
       </div>
 
+      {/* TECLADO VIRTUAL DARK PREMIUM */}
       {status === "IDLE" && !analisando && (
-        <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
-          <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1 overflow-x-auto select-none no-scrollbar">
+        <div className="flex flex-col gap-1.5 w-full items-center bg-[#070d19]/80 p-3 rounded-xl border border-slate-800/80 shrink-0">
+          
+          {/* Linha de Acentos */}
+          <div className="flex gap-1 justify-center w-full mb-1 border-b border-slate-800/60 pb-2 overflow-x-auto select-none no-scrollbar">
             {accentRow.map((letter) => (
               <button
                 key={letter}
+                type="button"
                 onClick={() => handleKeyPress(letter)}
-                className="w-[8.5%] min-w-[20px] h-[clamp(24px,6.5vw,30px)] bg-cyan-950/20 active:bg-cyan-900 text-cyan-300 border border-cyan-900/30 rounded font-sans text-[12px] md:text-[1vw] font-bold cursor-pointer transition-all disabled:opacity-5 select-none"
+                className="w-[8.5%] min-w-[22px] h-[34px] bg-cyan-950/30 hover:bg-cyan-900/50 active:bg-cyan-800 text-cyan-300 border border-cyan-800/40 rounded-md font-sans text-[13px] font-bold cursor-pointer transition-all select-none"
               >
                 {letter}
               </button>
             ))}
           </div>
 
+          {/* Linhas Principais do Teclado */}
           {keyboardRows.map((row, rowIdx) => (
-            <div key={rowIdx} className="flex gap-0.5 justify-center w-full">
+            <div key={rowIdx} className="flex gap-1 justify-center w-full">
               {row.map((letter) => (
                 <button
                   key={letter}
+                  type="button"
                   onClick={() => handleKeyPress(letter)}
-                  className={`h-[clamp(26px,7.5vw,32px)] bg-[#1C3B50]/30 active:bg-[#1C3B50] text-slate-200 border border-slate-800/60 rounded font-sans text-[13px] md:text-[1.1vw] font-black cursor-pointer transition-all disabled:opacity-5 select-none flex items-center justify-center ${
-                    letter === "⌫" ? "w-[14%] bg-rose-950/20 border-rose-900/40 text-rose-400 text-[13px]" : "w-[9%]"
+                  className={`h-[36px] bg-[#13233f] hover:bg-[#1a2f55] active:bg-cyan-900/40 text-slate-200 border border-slate-700/50 rounded-md font-sans text-[14px] font-bold cursor-pointer transition-all select-none flex items-center justify-center ${
+                    letter === "⌫" ? "w-[14%] bg-rose-950/30 hover:bg-rose-900/40 border-rose-800/50 text-rose-400" : "w-[9%]"
                   }`}
                 >
                   {letter}
@@ -450,21 +463,20 @@ USER_ID_ALVO]);
         </div>
       )}
 
+      {/* CONTAINER DE VALIDAÇÃO / FEEDBACK */}
       {analisando && (
-        <div className="w-full mt-auto flex flex-col gap-3 animate-pulse">
-          <div className="w-full p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-300 text-[15px] md:text-[1.25vw] leading-[1.6] font-semibold flex items-center justify-center gap-3 min-h-[80px]">
-            <RefreshCw size={18} className="animate-spin text-cyan-400" />
-            <span className="uppercase tracking-widest">ANALISANDO...</span>
-          </div>
+        <div className="w-full flex flex-col items-center justify-center gap-3 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-5 min-h-[100px] text-cyan-400 animate-pulse">
+          <RefreshCw size={20} className="animate-spin text-cyan-400" />
+          <span className="text-[12px] font-bold uppercase tracking-widest">Analisando Soletração...</span>
         </div>
       )}
 
       {!analisando && status !== "IDLE" && feedbackIA && (
-        <div className="w-full mt-auto flex flex-col gap-3 animate-fade-in">
-          <div className={`w-full p-6 rounded-2xl text-[15px] md:text-[1.25vw] border leading-[1.6] font-semibold shadow-lg animate-fade-in ${
+        <div className="w-full flex flex-col items-center justify-center text-center p-5 rounded-xl border animate-fade-in min-h-[100px]">
+          <div className={`w-full p-4 rounded-xl text-[15px] border leading-relaxed font-semibold shadow-sm ${
             status === "CORRECT" 
-              ? "bg-emerald-950/15 border-emerald-500/20 text-emerald-300" 
-              : "bg-rose-950/15 border-rose-500/20 text-rose-300"
+              ? "bg-emerald-950/20 border-emerald-500/20 text-emerald-300" 
+              : "bg-rose-950/20 border-rose-500/20 text-rose-300"
           }`}>
             {feedbackIA}
           </div>
