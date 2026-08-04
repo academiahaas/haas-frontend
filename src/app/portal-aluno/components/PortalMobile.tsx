@@ -3225,22 +3225,7 @@ if (!vencimentoPlano) return "--/--/----";
             </div>
 
             {/* 5. BLOCO DE EVOLUÇÃO */}
-            <div className="w-full bg-[#070d19]/40 border border-white/[0.03] p-4 md:p-3 sm:p-6 rounded-xl flex flex-col gap-1.5">
-              <div className="flex justify-between items-baseline font-mono">
-                <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-black uppercase tracking-wider text-emerald-400">
-                  {idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}
-                </span>
-                <span className="text-sm font-black text-white">78%</span>
-              </div>
-              <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.03] p-0.5">
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: '78%' }} />
-              </div>
-              <p className="text-xs md:text-base md:text-sm text-slate-400 mt-1 font-mono text-center">
-                {idiomaSelecionado === "PT" ? "Faltam 550 PTS para alcançar Mestre Linguístico." : 
-                 idiomaSelecionado === "ES" ? "Faltan 550 PTS para alcanzar Maestro Lingüístico." : 
-                 "550 PTS remaining to reach Linguistic Master."}
-              </p>
-            </div>
+            
 
             {/* 6. BLOCO DE FERRAMENTAS & CONTA */}
             <div className="flex flex-col gap-1.5 mt-1">
