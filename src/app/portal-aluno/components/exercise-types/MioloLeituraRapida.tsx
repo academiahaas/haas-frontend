@@ -349,87 +349,77 @@ export default function MioloLeituraRapida({
 
   if (carregando) {
     return (
-      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[12px] md:text-[14px] uppercase tracking-widest">
         {t?.aguardando || "CARREGANDO DESAFIO..."}
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* BARRA SUPERIOR DE INSTRUÇÃO */}
-      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02] gap-3">
+      {/* BARRA SUPERIOR DE INSTRUÇÃO E TIMER */}
+      <div className="flex items-center justify-between shrink-0 px-1 gap-3">
         <div className="flex items-center gap-2">
-          <HelpCircle size={14} className="text-cyan-400 shrink-0" />
-          <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+          <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+          <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
             {t.instrucao}
           </span>
         </div>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-black text-[12px] md:text-[1vw] ${
-          timeLeft <= 10 ? 'text-red-500 border-red-500/20 bg-red-500/5 animate-pulse' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[12px] tracking-wider shrink-0 transition-all ${
+          timeLeft <= 10 
+            ? 'text-rose-400 border-rose-500/40 bg-rose-950/30 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.2)]' 
+            : 'text-amber-400 border-amber-500/30 bg-amber-950/30'
         }`}>
-          <Timer size={13} />
+          <Timer size={14} />
           <span>{timeLeft}s</span>
         </div>
       </div>
 
-      {/* ÁREA CENTRAL MANTIDA INTEGRA E GRANDE */}
-      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl flex-1 h-full min-h-0 w-full overflow-hidden flex flex-col items-stretch justify-start">
+      {/* ÁREA CENTRAL PRINCIPAL */}
+      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl flex-1 min-h-0 w-full overflow-hidden flex flex-col items-stretch justify-start shadow-sm p-4 md:p-6">
         {analisando ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-2 animate-pulse flex-1">
+          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-3 animate-pulse flex-1">
             <Sparkles size={24} className="animate-spin text-cyan-400" />
-            <span className="text-[clamp(12px,1.4vw,15px)] text-cyan-400 font-bold uppercase tracking-widest px-4">{t.validando}</span>
+            <span className="text-[12px] text-cyan-400 font-bold uppercase tracking-widest">{t.validando}</span>
           </div>
         ) : localStatus === 'CORRECT' && feedbackIA ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-emerald-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
-            <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
-              <CheckCircle size={16} /> <span>Excelente Retenção!</span>
+          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-6 overflow-y-auto animate-fade-in flex-1 gap-2">
+            <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+              <CheckCircle size={14} /> <span>Excelente Retenção!</span>
             </div>
-            <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic max-w-2xl break-words leading-relaxed px-4">"{feedbackIA}"</p>
+            <p className="text-[15px] text-slate-200 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
           </div>
         ) : localStatus === 'WRONG' && feedbackIA ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-rose-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
-            <div className="flex items-center gap-1.5 text-rose-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
-              <XCircle size={16} /> <span>Análise de Leitura</span>
+          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 rounded-xl p-6 overflow-y-auto animate-fade-in flex-1 gap-2">
+            <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+              <XCircle size={14} /> <span>Análise de Leitura</span>
             </div>
-            <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic max-w-2xl break-words leading-relaxed px-4">"{feedbackIA}"</p>
+            <p className="text-[15px] text-slate-200 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
           </div>
-                ) : fase === 'LEITURA' ? (
-          <div className="w-full p-6 text-[16px] md:text-[1.4vw] font-medium text-slate-200 leading-relaxed select-none flex-1 flex items-center justify-center overflow-hidden">
-            <p className="font-sans text-slate-200 text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto">{textoLongo}</p>
+        ) : fase === 'LEITURA' ? (
+          <div className="w-full h-full p-2 text-[clamp(16px,2vw,20px)] font-medium text-slate-100 leading-relaxed select-none flex-1 flex items-center justify-center overflow-y-auto">
+            <p className="font-sans text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto">{textoLongo}</p>
           </div>
         ) : (
-          /* Na fase de DIGITAÇÃO, o texto continua visível no topo, mas compacto e sem scrollbar */
-          <div className="w-full p-6 border-b border-white/[0.02] bg-white/[0.01] text-[14px] md:text-[1.2vw] font-normal text-slate-400 leading-relaxed select-none flex-1 overflow-hidden flex items-center justify-center">
-            <p className="font-sans text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto opacity-70">
-              {textoLongo}
-            </p>
-          </div>
-        )}
-      </div>
+          /* FASE DE DIGITAÇÃO: Exibe o texto desfocado/compacto e o campo para digitar */
+          <div className="w-full h-full flex flex-col gap-4 flex-1 min-h-0">
+            <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#070d19]/80 text-[14px] text-slate-400 leading-relaxed select-none blur-[1.5px] opacity-40 pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
+              <p className="font-sans text-justify whitespace-pre-wrap line-clamp-3">
+                {textoLongo}
+              </p>
+            </div>
 
-      {/* RODAPÉ ESTÁVEL NO FIM DA TELA */}
-      <div className={`w-full shrink-0 flex flex-col items-stretch ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
-        {fase === 'LEITURA' ? (
-          <button
-            type="button"
-            onClick={() => { setFase('DIGITACAO'); setTimeLeft(60); }}
-            className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center h-[38px] md:h-[44px] hidden pointer-events-none"
-          >
-            {t.botaoIrParaDigitacao}
-          </button>
-        ) : (
-          <div className="w-full flex items-center gap-2 bg-[#070d19] border border-white/[0.08] rounded-xl p-1 focus-within:border-cyan-500/50 transition-all min-h-[44px]">
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              disabled={localStatus !== 'IDLE' || analisando}
-              onChange={(e) => handleInputChange(e.target.value)}
-              placeholder={t.placeholder}
-              className="flex-1 bg-transparent border-none font-sans text-[13px] md:text-[1.1vw] text-slate-200 p-2 focus:outline-none resize-none h-12 md:h-14 leading-tight"
-            />
-
+            <div className="flex-1 flex flex-col min-h-0">
+              <textarea
+                ref={inputRef}
+                value={inputValue}
+                disabled={localStatus !== 'IDLE' || analisando}
+                onChange={(e) => handleInputChange(e.target.value)}
+                placeholder={t.placeholder}
+                className="w-full flex-1 bg-[#070d19] border border-slate-700/80 rounded-xl font-sans text-[14px] md:text-[15px] text-slate-100 p-4 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 resize-none leading-relaxed placeholder-slate-500 transition-all shadow-inner"
+              />
+            </div>
           </div>
         )}
       </div>
