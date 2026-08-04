@@ -942,6 +942,7 @@ export default function PortalMobile({
   fetchRanking();
   }, []);
   const [gavetaErroresAberta, setGavetaErroresAberta] = React.useState(false);
+  const [isCertificadosOpen, setIsCertificadosOpen] = React.useState(false);
   const [moduloExpandido, setModuloExpandido] = React.useState(3);
   const [votoProf, setVotoProf] = React.useState(0);
   const [votoMetod, setVotoMetod] = React.useState(0);
@@ -3270,6 +3271,22 @@ if (!vencimentoPlano) return "--/--/----";
                 </div>
                 <span className="text-[10px] md:text-xs uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg font-bold">
                   {idiomaSelecionado === "PT" ? "Revisar" : idiomaSelecionado === "ES" ? "Revisar" : "Review"}
+                </span>
+              </button>
+
+              
+              {/* BOTÃO CERTIFICADOS */}
+              <button 
+                onClick={() => setIsCertificadosOpen(true)} 
+                className="w-full py-3.5 bg-sky-500/5 border border-sky-500/20 rounded-xl px-4 flex items-center justify-between text-sky-400 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-sky-500/10 transition-colors min-h-[48px] md:py-5"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>
+                    {idiomaSelecionado === "PT" ? "Meus Certificados" : idiomaSelecionado === "ES" ? "Mis Certificados" : "My Certificates"}
+                  </span>
+                </div>
+                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-sky-500/10 border border-sky-500/20 px-2.5 py-1 rounded-lg font-bold">
+                  {idiomaSelecionado === "PT" ? "Ver" : idiomaSelecionado === "ES" ? "Ver" : "View"}
                 </span>
               </button>
 
