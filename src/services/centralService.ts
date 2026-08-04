@@ -41,6 +41,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     const lastUnitId = unitProgressData && unitProgressData.length > 0 ? unitProgressData[unitProgressData.length - 1].unit_id : null;
 
     // --- BUSCA DINÂMICA DE XP DA TABELA LEVELS ---
+    // --- BUSCA DINÂMICA DE XP DA TABELA LEVELS ---
     let calculatedRequiredXp = 5000;
     try {
       let levelData = null;

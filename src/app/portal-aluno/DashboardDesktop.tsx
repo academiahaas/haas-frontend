@@ -529,7 +529,7 @@ export default function DashboardDesktop() {
           if (dbUser.total_xp !== undefined && dbUser.total_xp !== null) {
             const xpVal = Number(dbUser.total_xp);
             // const nivelSigla = (userStats?.data || userStats || {})?.current_level || "A1";
-            setXpTotal(String(5000)); // 🚫 Sabotador neutralizado!
+            // setXpTotal removido para respeitar required_xp real
             setTotalXp(xpVal);
             setUserTotalXp(xpVal);
           }
