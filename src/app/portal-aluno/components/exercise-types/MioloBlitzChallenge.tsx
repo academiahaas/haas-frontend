@@ -195,10 +195,8 @@ export default function MioloBlitzChallenge({
     
     if (acertou) {
       setTotalXp((v) => v + 10);
-      setFeedback({ id: String(Date.now()), text: '+10 PTS • EXTRAORDINÁRIO!', color: 'text-emerald-400' });
       if (onSelectCorrect) onSelectCorrect();
     } else {
-      setFeedback({ id: String(Date.now()), text: 'SINTAXE INCORRETA!', color: 'text-rose-400' });
       if (onSelectWrong) onSelectWrong();
     }
 
@@ -215,15 +213,12 @@ export default function MioloBlitzChallenge({
       console.error(e);
     }
     
-    setTimeout(() => {
-      setFeedback(null);
-      setClickedOption(null);
-      if (currentIndex + 1 < questions.length) {
-        setCurrentIndex((prev) => prev + 1);
-      } else {
-        setGameOver(true);
-      }
-    }, 1200);
+    setClickedOption(null);
+    if (currentIndex + 1 < questions.length) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      setGameOver(true);
+    }
   };
 
   if (gameOver) {
