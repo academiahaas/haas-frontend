@@ -3796,6 +3796,14 @@ if (!vencimentoPlano) return "--/--/----";
         idiomaSelecionado={idiomaSelecionado as "PT" | "EN" | "ES"}
         userId={alunoData?.id || alunoData?.user_id}
       />
+      
+      {/* 📜 BOTTOMSHEET: CERTIFICADOS */}
+      <ModalCertificados 
+        isOpen={isCertificadosOpen} 
+        onClose={() => setIsCertificadosOpen(false)} 
+        idioma={idiomaSelecionado as "PT" | "EN" | "ES"} 
+      />
+      
       {/* 🏆 BOTTOMSHEET PREMIUM: RANKING GLOBAL CORPORATIVO */}
       {gavetaRankingAberta && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[120] flex flex-col justify-end">
