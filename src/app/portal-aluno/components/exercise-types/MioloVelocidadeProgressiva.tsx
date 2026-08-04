@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send } from "lucide-react";
+import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send , HelpCircle } from "lucide-react";
 
 interface OptionItem {
   id: number;
@@ -353,61 +353,85 @@ onValidateResult
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-visible select-none gap-2 p-1">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* 1. INSTRUÇÃO COMPACTA */}
-      <span className="text-[clamp(11px,1.3vw,13px)] font-bold text-cyan-400 uppercase tracking-wider block shrink-0">
-        {t.instrucao}
-      </span>
+      {/* 1. BARRA SUPERIOR DE INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
+          {t.instrucao}
+        </span>
+      </div>
 
-      {/* 2. MARCHAS DE ÁUDIO */}
-      <div className="grid grid-cols-3 gap-1.5 w-full shrink-0">
+      {/* 2. CONTROLES DE MARCHA DE ÁUDIO (VELOCIDADES) */}
+      <div className="grid grid-cols-3 gap-2 w-full shrink-0">
         <button
           type="button"
           onClick={() => playAudio('slow', 0.75)}
-          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
-            activeSpeed === 'slow' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
+            activeSpeed === 'slow' 
+              ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
+              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
           }`}
         >
-          <Turtle size={13} /> <span>{t.slow}</span>
+          <Turtle size={16} className={activeSpeed === 'slow' ? 'text-cyan-400' : 'text-slate-400'} />
+          <span>{t.slow}</span>
         </button>
+
         <button
           type="button"
           onClick={() => playAudio('normal', 1.08)}
-          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
-            activeSpeed === 'normal' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
+            activeSpeed === 'normal' 
+              ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
+              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
           }`}
         >
-          <Zap size={13} /> <span>{t.mid}</span>
+          <Zap size={16} className={activeSpeed === 'normal' ? 'text-cyan-400' : 'text-slate-400'} />
+          <span>{t.mid}</span>
         </button>
+
         <button
           type="button"
           onClick={() => playAudio('native', 1.30)}
-          className={`py-2 rounded-xl border flex items-center justify-center gap-1.5 font-black text-[clamp(13px,1.5vw,16px)] uppercase cursor-pointer min-h-[46px] h-auto transition-all ${
-            activeSpeed === 'native' ? 'bg-cyan-950/40 border-cyan-400 text-cyan-400' : 'bg-[#020B12] border-slate-800 text-slate-400'
+          className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
+            activeSpeed === 'native' 
+              ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
+              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
           }`}
         >
-          <Rocket size={13} /> <span>{t.pro}</span>
+          <Rocket size={16} className={activeSpeed === 'native' ? 'text-cyan-400' : 'text-slate-400'} />
+          <span>{t.pro}</span>
         </button>
       </div>
 
-      {/* 3. BOX DO PARÁGRAFO ADAPTATIVO */}
-      <div className="w-full bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-2.5 flex items-center justify-center shrink-0">
-        <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-center text-slate-100 w-full break-words p-1">
+      {/* 3. CARD DO PARÁGRAFO/ENUNCIADO */}
+      <div className="w-full bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[75px] shadow-sm">
+        <p className="text-[clamp(16px,2vw,20px)] font-bold leading-relaxed text-center text-slate-100 w-full break-words tracking-wide">
           {renderDynamicText()}
         </p>
       </div>
 
-      {/* 4. BANCO DE OPÇÕES - CRESCE DINAMICAMENTE SE NÃO HOUVER VALIDAÇÃO */}
-      <div className={`grid grid-cols-2 gap-2 w-full h-auto overflow-visible my-0.5 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
-        {options.map((opt) => {
+      {/* 4. BANCO DE OPÇÕES DE RESPOSTA (GRID COM BADGES A, B, C, D) */}
+      <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 w-full flex-1 min-h-0 overflow-y-auto pr-1 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+        {options.map((opt, idx) => {
           const isSelected = selectedId === opt.id;
-          let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300";
+          const letterBadge = String.fromCharCode(65 + idx);
           
+          let cardStyle = "border-slate-700/50 bg-[#0a1120]/60 hover:bg-[#13233f] hover:border-slate-500 text-slate-200";
+          let badgeStyle = "bg-[#070d19] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
+
           if (isSelected) {
-            if ((localStatus as any) === 'CORRECT') optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400";
-            else if ((localStatus as any) === 'WRONG') optStyle = "border-rose-500 bg-rose-950/20 text-rose-400";
-            else optStyle = "border-cyan-400 bg-cyan-950/30 text-cyan-400 font-black";
+            if ((localStatus as any) === 'CORRECT') {
+              cardStyle = "border-emerald-500/80 bg-emerald-950/30 text-emerald-300 font-bold shadow-sm";
+              badgeStyle = "bg-emerald-500 text-slate-950 font-black border-emerald-400";
+            } else if ((localStatus as any) === 'WRONG') {
+              cardStyle = "border-rose-500/80 bg-rose-950/30 text-rose-300 font-bold shadow-sm";
+              badgeStyle = "bg-rose-500 text-slate-950 font-black border-rose-400";
+            } else {
+              cardStyle = "border-cyan-400 bg-cyan-950/40 text-cyan-300 font-bold ring-1 ring-cyan-400/30 shadow-sm";
+              badgeStyle = "bg-cyan-400 text-slate-950 font-black border-cyan-300";
+            }
           }
 
           return (
@@ -416,34 +440,47 @@ onValidateResult
               type="button"
               onClick={() => handleSelecionarItem(opt.id)}
               disabled={localStatus === 'CORRECT' || analisando}
-              className={`w-full text-center py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center justify-center min-h-[48px] md:min-h-[56px] h-auto whitespace-nowrap shadow-sm ${optStyle}`}
+              className={`group w-full py-3 px-4 rounded-xl border text-[clamp(14px,1.6vw,17px)] font-medium transition-all cursor-pointer flex items-center gap-3.5 min-h-[56px] leading-normal break-words shadow-sm ${cardStyle}`}
             >
-              {opt.text}
+              <div className={`flex items-center justify-center w-8 h-8 shrink-0 rounded-lg border text-[13px] tracking-wider transition-all select-none ${badgeStyle}`}>
+                {letterBadge}
+              </div>
+              <span className="flex-1 text-left">{opt.text}</span>
             </button>
           );
         })}
       </div>
 
-      {/* 5. CONTAINER DE ANÁLISE ULTRA COMPACTO (SEM ESPAÇO FANTASMA EM IDLE) */}
-      {analisando && (
-        <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
-          <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
-            <Sparkles size={12} className="animate-spin" />
-            <span>Mentora Haas</span>
-          </div>
-          <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
-        </div>
-      )}
+      {/* 5. CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA */}
+      {exibirContainerInferior && (
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
+          {analisando && (
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
+            </div>
+          )}
 
-      {localStatus !== 'IDLE' && feedbackIA && (
-        <div className={`w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border animate-fade-in min-h-[100px] md:min-h-[120px] ${
-          localStatus === 'CORRECT' ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-400' : 'bg-rose-950/20 border-rose-500/20 text-rose-400'
-        }`}>
-          <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
-            {localStatus === 'CORRECT' ? <CheckCircle size={12} /> : <XCircle size={12} />}
-            <span>{localStatus === 'CORRECT' ? "Estrutura Correta!" : "Análise de Coesão"}</span>
-          </div>
-          <p className="text-[clamp(11px,1.4vw,13px)] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+          {localStatus === 'CORRECT' && feedbackIA && (
+            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+                <CheckCircle size={14} /> <span>Excelente! Resposta Correta</span>
+              </div>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
+            </div>
+          )}
+
+          {localStatus === 'WRONG' && feedbackIA && (
+            <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+                <XCircle size={14} /> <span>Ajuste Necessário</span>
+              </div>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
+            </div>
+          )}
         </div>
       )}
 
