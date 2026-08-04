@@ -3354,27 +3354,22 @@ if (!vencimentoPlano) return "--/--/----";
         
         <button onClick={() => { setAbaAtiva("dashboard" as any); setArenaAtiva(false); }} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${((abaAtiva as string) === "dashboard") ? "text-emerald-500 font-black" : "text-slate-500 font-bold"}`}>
           <LayoutDashboard size={18} className="sm:w-[22px] sm:h-[22px]" />
-          <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">Painel</span>
-        </button>
+          </button>
 <button onClick={() => { setAbaAtiva('inicio'); setArenaAtiva(false); setStatusRespostaMobile('IDLE'); }} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'inicio' ? 'text-orange-500 font-black' : 'text-slate-500 font-bold'}`}>
           <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" />
-          <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabLearn}</span>
-        </button>
+          </button>
         
         <button onClick={() => { setAbaAtiva('agenda'); setEtapaAgendamento(0); }} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'agenda' ? 'text-cyan-400 font-black' : 'text-slate-500 font-bold'}`}>
           <Calendar size={18} className="sm:w-[22px] sm:h-[22px]" />
-          <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabSchedule}</span>
-        </button>
+          </button>
         
         <button onClick={() => setAbaAtiva('tarefas')} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'tarefas' ? 'text-amber-500 font-black' : 'text-slate-500 font-bold'}`}>
           <Camera size={18} className="sm:w-[22px] sm:h-[22px]" />
-          <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabTasks}</span>
-        </button>
+          </button>
 
         <button onClick={() => setAbaAtiva('perfil')} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${((abaAtiva as string) === "perfil") ? 'text-indigo-400 font-black' : 'text-slate-500 font-bold'}`}>
           <User size={18} className="sm:w-[22px] sm:h-[22px]" />
-          <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabProfile}</span>
-        </button>
+          </button>
       </div>
 
       {/* GAVETA DE COMPRAS PURE MOBILE */}
