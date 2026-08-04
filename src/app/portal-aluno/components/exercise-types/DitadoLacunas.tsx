@@ -365,7 +365,7 @@ export default function DitadoLacunas({
         <div className="w-full flex flex-col justify-center my-auto animate-fade-in gap-4">
           {analisando && (
             <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/30 text-cyan-400 animate-pulse min-h-[120px] shadow-[0_0_25px_rgba(6,182,212,0.15)]">
-              <div className="flex items-center gap-2 font-black text-[12px] font-mono uppercase tracking-widest mb-2 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+              <div className="flex items-center gap-2 font-black text-[12px] font-mono uppercase tracking-widest mb-2">
                 <Sparkles size={14} className="animate-spin" />
                 <span>Mentora Haas</span>
               </div>
@@ -375,7 +375,7 @@ export default function DitadoLacunas({
 
           {!analisando && localStatus === 'CORRECT' && feedbackIA && (
             <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/40 border border-emerald-500/30 p-6 rounded-2xl animate-fade-in shadow-[0_0_35px_rgba(16,185,129,0.15)] gap-3">
-              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-black font-mono tracking-widest uppercase bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-black font-mono tracking-widest uppercase">
                 <CheckCircle size={14} /> <span>Escrita Correta!</span>
               </div>
               <p className="text-[16px] text-slate-100 font-bold">
@@ -386,7 +386,7 @@ export default function DitadoLacunas({
 
           {!analisando && localStatus === 'WRONG' && feedbackIA && (
             <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/40 border border-rose-500/30 p-6 rounded-2xl animate-fade-in shadow-[0_0_35px_rgba(244,63,94,0.15)] gap-3">
-              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-black font-mono tracking-widest uppercase bg-rose-500/10 px-3 py-1.5 rounded-full border border-rose-500/20">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-black font-mono tracking-widest uppercase">
                 <XCircle size={14} /> <span>Análise de Escrita</span>
               </div>
               <p className="text-[15px] text-slate-200 font-medium italic">
