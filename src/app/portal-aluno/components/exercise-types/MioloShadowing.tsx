@@ -406,130 +406,138 @@ Regras Estritas:
 
   if (carregando) {
     return (
-      <div className="w-full text-center py-6 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[14px] uppercase tracking-widest">
         {t?.conectando || "..."}
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-start items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-5 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* Instrução Padronizada no Topo */}
-      <div className="flex flex-col shrink-0 gap-3 w-full">
-        <div className="flex items-center justify-between bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02]">
-          <div className="flex items-start gap-2.5">
-            <HelpCircle size={16} className="text-cyan-400 shrink-0 mt-0.5" />
-            <span className="text-[12px] md:text-[0.9vw] font-medium text-slate-200 leading-relaxed text-left uppercase tracking-wider">
-              {t?.instrucao || "Haz clic en el altavoz para escuchar la frase y luego presiona el micrófono para repetirla"}
-            </span>
-          </div>
-        </div>
+      {/* BARRA SUPERIOR DE INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest leading-relaxed">
+          {t?.instrucao || "Haz clic en el altavoz para escuchar la frase y luego presiona el micrófono para repetirla"}
+        </span>
       </div>
 
-      {/* Interface Pura de Áudio (Shadowing) - Sempre Visível */}
-      <div className="bg-[#0c192e]/40 border border-white/[0.03] p-8 rounded-2xl flex flex-col items-center justify-center gap-6 flex-1 w-full animate-fade-in text-center">
-        <div className="flex flex-col items-center gap-3">
-          <button 
-            onClick={playNativo}
-            className="p-6 bg-cyan-950/80 border-2 border-cyan-500/30 text-cyan-400 rounded-full hover:text-cyan-300 hover:border-cyan-400/50 hover:bg-cyan-950 active:scale-95 transition-all cursor-pointer shadow-lg hover:shadow-cyan-500/10"
-            title="Escutar áudio"
-          >
-            <Volume2 size={32} className="animate-pulse" />
-          </button>
-          <span className="text-xs md:text-[0.75vw] text-cyan-400/60 uppercase tracking-widest font-mono mt-1">
-            Escuchar Pronunciación
-          </span>
-        </div>
+      {/* CARD CENTRAL DE REPRODUÇÃO DA PRONÚNCIA DE REFERÊNCIA */}
+      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-8 flex flex-col items-center justify-center gap-4 flex-1 w-full animate-fade-in text-center min-h-[160px] shadow-sm">
+        <button 
+          type="button"
+          onClick={playNativo}
+          className="w-20 h-20 bg-cyan-500/10 border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 rounded-full transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.15)] flex items-center justify-center active:scale-95 group"
+          title="Escutar áudio"
+        >
+          <Volume2 size={32} className="group-hover:scale-110 transition-transform" />
+        </button>
+        <span className="text-[11px] md:text-[12px] text-cyan-400/80 uppercase tracking-widest font-semibold">
+          Escuchar Pronunciación
+        </span>
       </div>
 
-      {/* AREA DE RESULTADOS/ANALISANDO E INTERAÇÃO UNIFICADA NO RODAPÉ */}
-      <div className="w-full shrink-0 flex flex-col items-stretch gap-2.5">
+      {/* ÁREA DE INTERAÇÃO E CONTROLES NO RODAPÉ */}
+      <div className="w-full shrink-0 flex flex-col items-center justify-center gap-3 min-h-[110px]">
         
-        {/* Caso Analisando / Carregando */}
+        {/* Caso: Analisando / Carregando */}
         {flowState === "ANALYZING" && (
-          <div className="w-full flex flex-col items-center justify-center gap-4 bg-cyan-950/10 border border-cyan-500/15 rounded-xl animate-pulse p-6 min-h-[110px] overflow-hidden text-[13px] md:text-[1.2vw] text-cyan-400 font-bold tracking-widest uppercase">
-            <Sparkles size={18} className="animate-spin text-cyan-400" />
-            <span>{t?.avaliando || "Avaliando"}...</span>
+          <div className="w-full flex flex-col items-center justify-center gap-3 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 min-h-[110px] text-cyan-400 animate-pulse">
+            <Sparkles size={22} className="animate-spin text-cyan-400" />
+            <span className="text-[12px] font-bold uppercase tracking-widest">
+              {t?.avaliando || "Avaliando"}...
+            </span>
           </div>
         )}
 
-        {/* Caso Concluído (O Card de Feedback abre no mesmo lugar do "Analisando") */}
+        {/* Caso: Análise Concluída (Exibe Card de Feedback) */}
         {flowState === "DONE" && feedback && (
-          <div className="bg-[#0c192e]/60 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-2.5 animate-fade-in shadow-xl w-full min-h-[110px]">
-            <div className="flex justify-end w-full shrink-0">
-              <div className="text-amber-400 font-bold text-[11px] md:text-[0.9vw] bg-amber-950/50 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider whitespace-nowrap shadow-sm">
+          <div className="w-full bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 flex flex-col gap-3 animate-fade-in shadow-xl text-left">
+            <div className="flex justify-between items-center w-full">
+              <span className="text-cyan-400 font-bold text-[12px] uppercase tracking-widest">Avaliação de Pronúncia</span>
+              <div className="text-amber-400 font-bold text-[12px] bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider">
                 +{scoreFinal} NOTA
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto w-full pr-0.5" style={{ scrollbarWidth: 'none' }}>
-              <p className="text-[13px] md:text-[1.1vw] text-slate-200 font-medium leading-relaxed break-words w-full min-w-0 text-left">
-                {feedback.mensagem}
-              </p>
-            </div>
+            <p className="text-[15px] text-slate-200 font-medium leading-relaxed break-words">
+              {feedback.mensagem}
+            </p>
           </div>
         )}
 
-        {/* Controles de Gravação (Se não estiver analisando ou concluído) */}
+        {/* Controles de Gravação (Inativo / Gravando / Playback) */}
         {flowState !== "ANALYZING" && flowState !== "DONE" && (
-          <div className="flex flex-col items-center justify-center py-1 gap-1">
+          <div className="flex flex-col items-center justify-center py-1 gap-2 w-full">
             {flowState === "RECORDING" && (
-              <span className="text-[12px] md:text-[1vw] font-bold uppercase tracking-wider text-rose-400 animate-pulse mb-1">
-                {t?.gravando || "GRABANDO"}
+              <span className="text-[12px] font-bold uppercase tracking-widest text-rose-400 animate-pulse">
+                {t?.gravando || "GRAVANDO"}
               </span>
             )}
             
-            <div className="flex justify-center items-center shrink-0 gap-4 h-[54px] w-full">
+            <div className="flex justify-center items-center shrink-0 gap-4 min-h-[56px] w-full">
+              
+              {/* Microfone Pronto para Iniciar */}
               {flowState === "IDLE" && (
                 <button
+                  type="button"
                   onClick={iniciarGravacao}
-                  className="p-3.5 bg-cyan-950/40 border border-cyan-500/40 text-cyan-400 rounded-full hover:border-cyan-400 hover:bg-cyan-950 transition-all cursor-pointer shadow-lg active:scale-95 shrink-0"
+                  className="w-14 h-14 rounded-full bg-cyan-500/10 border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.2)] flex items-center justify-center active:scale-95"
+                  title="Iniciar gravação"
                 >
-                  <Mic size={18} />
+                  <Mic size={22} />
                 </button>
               )}
 
+              {/* Botão de Parar durante Gravação */}
               {flowState === "RECORDING" && (
                 <button
+                  type="button"
                   onClick={pararGravacao}
-                  className="p-3.5 bg-rose-600 border border-rose-500 text-white rounded-full transition-all cursor-pointer shadow-lg active:scale-95 shadow-rose-950/40 shrink-0"
+                  className="w-14 h-14 rounded-full bg-rose-600 border-2 border-rose-400 text-white shadow-[0_0_25px_rgba(244,63,94,0.4)] transition-all cursor-pointer flex items-center justify-center active:scale-95 animate-pulse"
+                  title="Parar gravação"
                 >
-                  <Square size={18} />
+                  <Square size={20} />
                 </button>
               )}
 
+              {/* Controles de Playback / Revisão */}
               {flowState === "PLAYBACK" && (
                 <div className="flex items-center gap-4 animate-fade-in shrink-0">
                   <button 
+                    type="button"
                     onClick={() => { if (audioUrl) new Audio(audioUrl).play(); }}
-                    className="p-3 bg-cyan-950 border border-cyan-500/40 text-cyan-400 rounded-full hover:bg-cyan-900 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
-                    title="Escutar áudio gravado"
+                    className="p-3 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
+                    title="Escutar gravação"
                   >
-                    <Volume2 size={16} />
+                    <Volume2 size={18} />
                   </button>
 
                   <button 
+                    type="button"
                     onClick={() => {
                       setFlowState("IDLE");
                       setAudioUrl(null);
                       setTranscricaoAluno("");
                     }}
-                    className="p-3 bg-amber-950/40 border border-amber-500/40 text-amber-400 rounded-full hover:bg-amber-950 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
-                    title="Grabar de nuevo"
+                    className="p-3 bg-amber-950/40 hover:bg-amber-950/80 border border-amber-500/40 text-amber-400 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
+                    title="Gravar novamente"
                   >
-                    <RotateCcw size={16} />
+                    <RotateCcw size={18} />
                   </button>
 
                   <button 
+                    type="button"
                     onClick={processarAvaliacaoFinaMeteora}
-                    className="p-3 bg-emerald-600 border border-emerald-500 text-white rounded-full hover:bg-emerald-500 transition-all cursor-pointer shadow-md active:scale-90 flex items-center justify-center shrink-0"
+                    className="p-3 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
                     title="Enviar para análise"
                   >
-                    <Send size={16} />
+                    <Send size={18} />
                   </button>
                 </div>
               )}
+
             </div>
           </div>
         )}
