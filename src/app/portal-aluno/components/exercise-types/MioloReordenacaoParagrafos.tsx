@@ -408,74 +408,88 @@ export default function MioloReordenacaoParagrafos({
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando || !!feedbackIA;
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
+    <div className="w-full h-full flex flex-col font-sans flex-1 min-h-0 gap-5 p-2 overflow-hidden">
       
-      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02]">
-        <div className="flex items-center gap-2">
-          <HelpCircle size={14} className="text-cyan-400 shrink-0" />
-          <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
-            {t.instrucao}
-          </span>
-        </div>
+      {/* INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
+          {t.instrucao}
+        </span>
       </div>
 
+      {/* LISTA DE PARÁGRAFOS INTERATIVA */}
       {localStatus === 'IDLE' && !analisando && (
-        <div className="flex-1 min-h-0 flex flex-col justify-between gap-2.5 py-0.5">
-        {items.map((item, index) => (
-          <div 
-            key={item.id} 
-            className="flex items-center justify-between gap-4 bg-[#0c192e]/60 border px-4 rounded-xl transition-all h-full flex-1 min-h-0 max-h-[75px] py-2 border-white/[0.04] hover:border-white/[0.1]"
-          >
-            <p className="text-[14px] md:text-[1.1vw] lg:text-[1.15vw] text-slate-200 leading-relaxed font-semibold select-none break-words flex-1 line-clamp-2 md:line-clamp-3">
-              {item.text}
-            </p>
+        <div className="flex-1 min-h-0 flex flex-col gap-3 py-1 overflow-y-auto pr-2">
+          {items.map((item, index) => (
+            <div 
+              key={item.id} 
+              className="group flex items-center justify-between gap-4 bg-[#0a1120]/80 hover:bg-[#13233f] border border-slate-700/50 hover:border-cyan-500/30 p-3 rounded-xl transition-all shadow-sm"
+            >
+              {/* INDICADOR NUMÉRICO DE ORDEM */}
+              <div className="flex items-center justify-center w-11 h-11 shrink-0 bg-[#070d19] border border-slate-800 rounded-lg text-cyan-500 font-black text-[15px] tracking-wider shadow-inner group-hover:border-cyan-900/50 group-hover:bg-cyan-950/20 transition-all select-none">
+                {String(index + 1).padStart(2, '0')}
+              </div>
 
-            <div className="flex flex-row gap-1.5 shrink-0 items-center justify-center">
-              <button 
-                type="button"
-                onClick={() => moverItem(index, "UP")} 
-                disabled={index === 0 || localStatus !== 'IDLE' || analisando} 
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
-              >
-                <ArrowDown className="w-[12px] h-[12px] md:w-[0.9vw] md:h-[0.9vw] rotate-180" />
-              </button>
-              <button 
-                type="button"
-                onClick={() => moverItem(index, "DOWN")} 
-                disabled={index === items.length - 1 || localStatus !== 'IDLE' || analisando} 
-                className="p-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-10 text-slate-300 rounded-lg cursor-pointer transition-all flex items-center justify-center w-[26px] h-[26px] md:w-[1.8vw] md:h-[1.8vw]"
-              >
-                <ArrowDown className="w-[12px] h-[12px] md:w-[0.9vw] md:h-[0.9vw]" />
-              </button>
+              {/* TEXTO DO PARÁGRAFO */}
+              <p className="text-[clamp(14px,1.4vw,16px)] text-slate-200 leading-relaxed font-medium select-none flex-1">
+                {item.text}
+              </p>
+
+              {/* CONTROLES DE DIREÇÃO APRIMORADOS */}
+              <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                <button 
+                  type="button"
+                  onClick={() => moverItem(index, "UP")} 
+                  disabled={index === 0 || localStatus !== 'IDLE' || analisando} 
+                  className="p-2.5 bg-[#070d19] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#070d19] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Mover para cima"
+                >
+                  <ArrowDown size={16} className="rotate-180" />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => moverItem(index, "DOWN")} 
+                  disabled={index === items.length - 1 || localStatus !== 'IDLE' || analisando} 
+                  className="p-2.5 bg-[#070d19] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#070d19] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  title="Mover para baixo"
+                >
+                  <ArrowDown size={16} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       )}
 
+      {/* CONTAINER DE VALIDAÇÃO FLUIDO */}
       {exibirContainerInferior && (
-        <div className="w-full flex-1 flex flex-col justify-center mt-0.5 animate-fade-in min-h-0 overflow-hidden">
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           {analisando && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center gap-4 bg-cyan-950/10 border border-cyan-500/15 rounded-xl animate-pulse p-8 min-h-0 overflow-hidden text-[13px] md:text-[1.2vw] text-cyan-400 font-bold tracking-widest uppercase">
-              <Sparkles size={11} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-8 rounded-xl animate-fade-in min-h-0 overflow-hidden">
-              <div className="flex items-center gap-1 text-emerald-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
-                <CheckCircle size={11} /> <span>Coerência Textual Perfeita!</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+                <CheckCircle size={14} /> <span>Coerência Textual Perfeita!</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 text-center bg-rose-950/20 border border-rose-500/20 p-8 rounded-xl animate-fade-in min-h-0 overflow-hidden">
-              <div className="flex items-center gap-1 text-rose-400 text-[10px] md:text-[1vw] font-black uppercase tracking-wider">
-                <XCircle size={11} /> <span>Análise de Coesão</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+                <XCircle size={14} /> <span>Análise de Coesão</span>
               </div>
-              <p className="text-[11px] md:text-[1.1vw] text-slate-300 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
         </div>
