@@ -274,30 +274,43 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between text-left font-sans overflow-y-auto select-none gap-3 p-1">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-5 p-2 overflow-hidden flex-1 min-h-0">
       
-      <div className="flex items-center gap-1.5 shrink-0">
-        <HelpCircle size={13} className="text-cyan-400 shrink-0" />
-        <span className="text-[clamp(11px,1.3vw,13px)] font-bold text-cyan-400 uppercase tracking-wider block">
+      {/* BARRA SUPERIOR DE INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
           {t.instrucao}
         </span>
       </div>
 
-      <div className="w-full bg-[#070d19]/80 border border-white/[0.03] rounded-xl p-3 flex items-center justify-center shrink-0 min-h-[48px] md:min-h-[56px]">
-        <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-center text-slate-100 w-full break-words p-1">
+      {/* CARD DO ENUNCIADO / PERGUNTA */}
+      <div className="w-full bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[80px] shadow-sm">
+        <p className="text-[clamp(16px,2vw,20px)] font-bold leading-relaxed text-center text-slate-100 w-full break-words tracking-wide">
           {pergunta}
         </p>
       </div>
 
-      <div className={`w-full flex-1 justify-start gap-2.5 ${isShortText ? 'grid grid-cols-1 sm:grid-cols-2' : 'flex flex-col'} ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      {/* GRID / LISTA DE OPÇÕES DE RESPOSTA */}
+      <div className={`w-full flex-1 justify-start gap-3 overflow-y-auto pr-1 ${isShortText ? 'grid grid-cols-1 sm:grid-cols-2' : 'flex flex-col'} ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {options.map((opcao, idx) => {
           const isThisSelected = selecionado === opcao;
-          let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300 hover:bg-[#1C3B50]/10";
+          const letterBadge = String.fromCharCode(65 + idx);
           
+          let cardStyle = "border-slate-700/50 bg-[#0a1120]/60 hover:bg-[#13233f] hover:border-slate-500 text-slate-200";
+          let badgeStyle = "bg-[#070d19] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
+
           if (isThisSelected) {
-            if (localStatus === 'CORRECT' && optStyle) optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400 font-black";
-            else if (localStatus === 'WRONG') optStyle = "border-rose-500 bg-rose-950/20 text-rose-400 font-black";
-            else optStyle = "border-cyan-400 bg-cyan-950/30 text-cyan-400 font-black ring-1 ring-cyan-400/20";
+            if (localStatus === 'CORRECT') {
+              cardStyle = "border-emerald-500/80 bg-emerald-950/30 text-emerald-300 font-bold shadow-sm";
+              badgeStyle = "bg-emerald-500 text-slate-950 font-black border-emerald-400";
+            } else if (localStatus === 'WRONG') {
+              cardStyle = "border-rose-500/80 bg-rose-950/30 text-rose-300 font-bold shadow-sm";
+              badgeStyle = "bg-rose-500 text-slate-950 font-black border-rose-400";
+            } else {
+              cardStyle = "border-cyan-400 bg-cyan-950/40 text-cyan-300 font-bold ring-1 ring-cyan-400/30 shadow-sm";
+              badgeStyle = "bg-cyan-400 text-slate-950 font-black border-cyan-300";
+            }
           }
 
           return (
@@ -306,43 +319,45 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
               type="button"
               disabled={localStatus === "CORRECT" || analisando}
               onClick={() => { handleSelect(opcao); }}
-              className={`w-full py-3 px-4 rounded-xl border text-[clamp(14px,1.8vw,18px)] font-bold transition-all cursor-pointer flex items-center min-h-[48px] md:min-h-[56px] h-auto leading-normal break-words ${
-                isShortText ? 'text-center justify-center' : 'text-left justify-start'
-              } ${optStyle}`}
+              className={`group w-full py-3 px-4 rounded-xl border text-[clamp(14px,1.6vw,17px)] font-medium transition-all cursor-pointer flex items-center gap-3.5 min-h-[56px] leading-normal break-words shadow-sm ${cardStyle}`}
             >
-              {opcao}
+              <div className={`flex items-center justify-center w-8 h-8 shrink-0 rounded-lg border text-[13px] tracking-wider transition-all select-none ${badgeStyle}`}>
+                {letterBadge}
+              </div>
+              <span className="flex-1 text-left">{opcao}</span>
             </button>
           );
         })}
       </div>
 
+      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA */}
       {exibirContainerInferior && (
-        <div className="w-full flex-1 flex flex-col justify-end mt-1 animate-fade-in">
-          
-
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           {analisando && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 font-black tracking-widest uppercase animate-pulse min-h-[100px] md:min-h-[120px] text-[clamp(12px,1.5vw,16px)]">
-              <Sparkles size={12} className="animate-spin text-cyan-400" /> <span>{t.validando}</span>
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
-              <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <CheckCircle size={12} /> <span>Excelente!</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+                <CheckCircle size={14} /> <span>Excelente! Opção Correta</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center gap-3 text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px]">
-              <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <XCircle size={12} /> <span>Ajuste necessário</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+                <XCircle size={14} /> <span>Ajuste Necessário</span>
               </div>
-              <div className="flex flex-col items-center justify-center w-full gap-2.5">
-                <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words text-center w-full">"{feedbackIA}"</p>
-              </div>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
         </div>
