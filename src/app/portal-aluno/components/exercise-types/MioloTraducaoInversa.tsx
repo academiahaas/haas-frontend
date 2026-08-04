@@ -300,27 +300,27 @@ streak = 0,
   }, [depositPieces, bankPieces, localStatus, analisando, fraseMatrizPT, stringAlvoCorreta]);
 
   return (
-    <div className="w-full h-full flex flex-col justify-start text-left font-sans overflow-hidden select-none gap-4 p-1 flex-1 min-h-0">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-5 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* BARRA SUPERIOR DE INSTRUÇÃO TOTALMENTE LIMPA E ISOLADA */}
-      <div className="flex items-center shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02] gap-2 w-full">
-        <HelpCircle size={14} className="text-cyan-400 shrink-0" />
-        <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+      {/* INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
           {t.instrucao}
         </span>
       </div>
 
-      {/* CARD DO EXERCÍCIO COM A FRASE EM PORTUGUÊS CENTRALIZADA */}
-      <div className="bg-[#050b14]/40 border border-white/[0.04] rounded-2xl p-6 shadow-sm shrink-0 flex items-center justify-center min-h-[100px]">
-        <p className="text-[clamp(16px,2.2vw,22px)] font-black leading-relaxed text-slate-100 w-full break-words text-center">
+      {/* CARD DA FRASE DE REFERÊNCIA */}
+      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 shadow-sm shrink-0 flex items-center justify-center min-h-[90px]">
+        <p className="text-[clamp(17px,2.2vw,22px)] font-bold leading-relaxed text-slate-100 w-full break-words text-center tracking-wide">
           "{fraseMatrizPT}"
         </p>
       </div>
 
-      {/* ÁREA DE DEPÓSITO DE BLOCOS */}
-      <div className={`w-full min-h-[72px] md:min-h-[96px] bg-[#030712]/60 border border-dashed border-slate-800/80 rounded-xl p-3 flex flex-wrap gap-2 items-center justify-center shadow-inner overflow-visible ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      {/* ÁREA DE DEPÓSITO (Drop Zone Premium) */}
+      <div className={`w-full min-h-[110px] bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50 rounded-xl p-4 flex flex-wrap gap-3 items-center justify-center shadow-inner transition-all duration-300 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {depositPieces.length === 0 ? (
-          <span className="text-[clamp(10px,1.2vw,12px)] text-slate-600 uppercase font-black tracking-widest pointer-events-none text-center">
+          <span className="text-[13px] md:text-[15px] text-slate-500 font-medium tracking-wide pointer-events-none text-center">
             {t.aguardando}
           </span>
         ) : (
@@ -330,7 +330,7 @@ streak = 0,
               type="button"
               disabled={localStatus !== 'IDLE' || analisando}
               onClick={() => handlePullToBank(piece)}
-              className="px-4 py-2 bg-gradient-to-b from-cyan-400 to-cyan-500 text-slate-950 font-black rounded-xl text-[clamp(14px,2vw,18px)] cursor-pointer shadow-sm transition-all active:scale-95 whitespace-nowrap"
+              className="px-5 py-2.5 bg-[#FF7420] hover:bg-[#FF8A2B] text-white font-semibold rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-[0_4px_0_0_#c45513] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap"
             >
               {piece.text}
             </button>
@@ -338,15 +338,15 @@ streak = 0,
         )}
       </div>
 
-      {/* BANCO DE BLOCOS PARA SELECIONAR */}
-      <div className={`w-full flex flex-wrap gap-2 py-1 items-center justify-center shrink-0 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      {/* BANCO DE BLOCOS DISPONÍVEIS */}
+      <div className={`w-full flex flex-wrap gap-3 py-2 items-center justify-center shrink-0 min-h-[90px] p-4 bg-[#070d19]/60 border border-slate-800/80 rounded-xl ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {bankPieces.map((piece) => (
           <button
             key={piece.id}
             type="button"
             disabled={localStatus !== 'IDLE' || analisando}
             onClick={() => handlePushToDeposit(piece)}
-            className="px-4 py-2.5 bg-[#1C3B50]/20 hover:bg-[#1C3B50]/40 text-slate-200 font-bold border border-slate-800/60 rounded-xl text-[clamp(14px,2vw,18px)] cursor-pointer active:scale-95 transition-all whitespace-nowrap"
+            className="px-5 py-2.5 bg-[#13233f] hover:bg-[#1a2f55] hover:border-slate-500 border border-slate-600/50 text-slate-200 font-medium rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap"
           >
             {piece.text}
           </button>
@@ -356,29 +356,27 @@ streak = 0,
       {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO */}
       {(localStatus !== 'IDLE' || analisando) && (
         <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
-          
           {analisando && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
-              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
-                <Sparkles size={12} className="animate-spin" />
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
                 <span>Mentora Haas</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus !== 'IDLE' && feedbackIA && (
-            <div className={`w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border animate-fade-in min-h-[120px] gap-1.5 ${
+            <div className={`w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border animate-fade-in min-h-[120px] gap-2 ${
               localStatus === 'CORRECT' ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-400' : 'bg-rose-950/20 border-rose-500/20 text-rose-400'
             }`}>
-              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider">
-                {localStatus === 'CORRECT' ? <CheckCircle size={12} /> : <XCircle size={12} />}
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest">
+                {localStatus === 'CORRECT' ? <CheckCircle size={14} /> : <XCircle size={14} />}
                 <span>{localStatus === 'CORRECT' ? "Estrutura Correta!" : "Análise de Tradução"}</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
-
         </div>
       )}
 
