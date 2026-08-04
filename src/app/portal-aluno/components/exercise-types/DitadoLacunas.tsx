@@ -318,28 +318,31 @@ export default function DitadoLacunas({
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando || !!feedbackIA;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 p-1">
+    <div className="w-full h-full flex flex-col font-sans flex-1 min-h-0 gap-5 p-2 overflow-hidden select-none">
       
-      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-3 rounded-xl border border-white/[0.02] gap-3">
+      {/* BARRA SUPERIOR DE INSTRUÇÃO E ÁUDIO */}
+      <div className="flex items-center justify-between shrink-0 px-1 gap-3">
         <div className="flex items-center gap-2">
-          <HelpCircle size={15} className="text-cyan-400 shrink-0" />
-          <span className="text-[clamp(11px,1.3vw,13px)] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+          <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+          <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
             {t.instrucao}
           </span>
         </div>
         <button 
           type="button"
           onClick={playAudio} 
-          className="p-2 bg-[#0c192e] hover:bg-cyan-900/40 border border-cyan-500/20 text-cyan-400 rounded-xl transition-all cursor-pointer flex items-center justify-center h-8 w-8 shrink-0 shadow-sm"
+          className="p-2.5 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
+          title="Ouvir áudio"
         >
-          <Volume2 size={14} />
+          <Volume2 size={16} />
         </button>
       </div>
 
-      <div className={`bg-[#0c192e]/40 border border-white/[0.03] rounded-xl py-4 px-3 text-center text-[clamp(16px,2.2vw,22px)] font-black text-slate-200 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 flex-1 min-h-0 w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      {/* CARD PRINCIPAL COM A FRASE E LACUNA INLINE */}
+      <div className={`bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-6 text-center text-[clamp(16px,2vw,22px)] font-semibold text-slate-100 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-2 flex-1 min-h-[140px] w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {partesDaFrase.map((parte, index) => (
           <React.Fragment key={index}>
-            <span className="font-sans font-medium text-[#F8FAFC]">{parte}</span>
+            <span className="text-slate-100">{parte}</span>
             {index < partesDaFrase.length - 1 && (
               <input
                 type="text"
@@ -348,8 +351,8 @@ export default function DitadoLacunas({
                 onChange={(e) => handleInputChange(e.target.value, index)}
                 onKeyDown={(e) => e.key === "Enter" && executarValidacaoInterna()}
                 placeholder="???"
-                className={`bg-[#070d19] border-2 rounded-xl px-2 py-1 text-center font-black tracking-wide text-[clamp(14px,2vw,18px)] w-28 transition-all focus:outline-none focus:border-cyan-500/50 ${
-                  localStatus === "CORRECT" ? "border-emerald-500 text-emerald-400" : localStatus === "WRONG" ? "border-rose-500 text-rose-400" : "border-white/[0.08] text-cyan-400"
+                className={`bg-[#070d19] border-2 rounded-lg px-3 py-1 text-center font-bold text-cyan-400 placeholder-slate-600 tracking-wide text-[clamp(15px,1.8vw,19px)] w-32 sm:w-40 transition-all focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 shadow-inner ${
+                  localStatus === "CORRECT" ? "border-emerald-500 text-emerald-400" : localStatus === "WRONG" ? "border-rose-500 text-rose-400" : "border-slate-700"
                 }`}
               />
             )}
@@ -357,35 +360,34 @@ export default function DitadoLacunas({
         ))}
       </div>
 
+      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA */}
       {exibirContainerInferior && (
-        <div className="w-full flex-1 flex flex-col justify-end mt-1 animate-fade-in">
-          
-
+        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
           {analisando && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center p-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[100px] md:min-h-[120px]">
-              <div className="flex items-center gap-1.5 font-black text-[clamp(10px,1.2vw,12px)] uppercase tracking-wider mb-0.5">
-                <Sparkles size={12} className="animate-spin" />
+            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
+              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
+                <Sparkles size={14} className="animate-spin" />
                 <span>Mentora Haas</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-300 font-medium italic break-words w-full">"{t.validando}"</p>
+              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
-              <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <CheckCircle size={12} /> <span>Excelente!</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
+                <CheckCircle size={14} /> <span>Escrita Correta!</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
-              <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <XCircle size={12} /> <span>Análise de Escrita</span>
+            <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
+              <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
+                <XCircle size={14} /> <span>Análise de Escrita</span>
               </div>
-              <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
+              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
             </div>
           )}
         </div>
