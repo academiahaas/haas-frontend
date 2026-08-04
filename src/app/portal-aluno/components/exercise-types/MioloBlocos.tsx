@@ -345,88 +345,91 @@ export default function MioloBlocos({
 
   const exibirContainerInferior = localStatus !== 'IDLE' || analisando;
 
-    return (
-      <div className="w-full h-full flex flex-col font-sans flex-1 min-h-0 gap-5 p-2 overflow-hidden">
-        
-        {/* Enunciado Minimalista */}
-        <div className="flex items-center gap-2 shrink-0 px-1">
-          <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
-          <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
-            {t.instrucao}
-          </span>
-        </div>
+  return (
+    <div className="w-full h-full flex flex-col font-sans flex-1 min-h-0 gap-5 p-2 overflow-hidden select-none">
+      
+      {/* BARRA SUPERIOR DE INSTRUÇÃO */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
+          {t.instrucao}
+        </span>
+      </div>
 
-        {/* ÁREA DE CONSTRUÇÃO DE FRASES (Drop Zone Premium) */}
-        <div className={`w-full p-4 rounded-xl flex flex-wrap content-start gap-3 items-center transition-all duration-300 min-h-[140px] ${localStatus !== "IDLE" || analisando ? "hidden" : ""} ${
-          localStatus === "CORRECT" ? "bg-emerald-950/20 border border-emerald-500/30" :
-          localStatus === "WRONG" ? "bg-rose-950/20 border border-rose-500/30" :
-          "bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50 shadow-inner"
-        }`}>
-          {blocosMontados.length === 0 && (
-            <div className="w-full h-full flex items-center justify-center pointer-events-none opacity-40">
-              <span className="text-slate-400 text-[13px] md:text-[15px] font-medium tracking-wide">
-                {t.placeholder}
-              </span>
-            </div>
-          )}
-          {blocosMontados.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => handlePull(b)}
-              disabled={localStatus !== "IDLE" || analisando}
-              className="px-5 py-2.5 bg-[#FF7420] hover:bg-[#FF8A2B] text-white text-[clamp(14px,1.6vw,16px)] font-semibold rounded-lg shadow-[0_4px_0_0_#c45513] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap cursor-pointer"
-            >
-              {b.texto}
-            </button>
-          ))}
-        </div>
-
-        {/* BANCO DE BLOCOS DISPONÍVEIS */}
-        <div className={`flex flex-wrap gap-3 w-full p-5 bg-[#070d19]/60 border border-slate-800/80 rounded-xl justify-center items-center shrink-0 min-h-[100px] overflow-y-auto ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
-          {blocosDisponiveis.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              disabled={localStatus !== "IDLE" || analisando}
-              onClick={() => handlePush(b)}
-              className="px-5 py-2.5 bg-[#13233f] hover:bg-[#1a2f55] hover:border-slate-500 border border-slate-600/50 text-slate-200 text-[clamp(14px,1.6vw,16px)] font-medium rounded-lg cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
-            >
-              {b.texto}
-            </button>
-          ))}
-        </div>
-
-        {/* CONTAINER DE VALIDAÇÃO FLUIDO E LIMPO */}
-        {exibirContainerInferior && (
-          <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
-            {analisando && (
-              <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
-                <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
-                  <Sparkles size={14} className="animate-spin" />
-                  <span>Mentora Haas</span>
-                </div>
-                <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
-              </div>
-            )}
-            {localStatus === 'CORRECT' && feedbackIA && (
-              <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
-                <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
-                  <CheckCircle size={14} /> <span>Gramática Correta!</span>
-                </div>
-                <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
-              </div>
-            )}
-            {localStatus === 'WRONG' && feedbackIA && (
-              <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-6 rounded-xl animate-fade-in min-h-[120px] gap-2">
-                <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
-                  <XCircle size={14} /> <span>Análise de Sintaxe</span>
-                </div>
-                <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
-              </div>
-            )}
+      {/* ÁREA DE CONSTRUÇÃO DE FRASES (DROP ZONE) */}
+      <div className={`w-full p-4 rounded-xl flex flex-wrap content-start gap-3 items-center transition-all duration-300 min-h-[140px] shadow-inner ${exibirContainerInferior ? "hidden" : ""} ${
+        localStatus === "CORRECT" ? "bg-emerald-950/20 border border-emerald-500/30" :
+        localStatus === "WRONG" ? "bg-rose-950/20 border border-rose-500/30" :
+        "bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50"
+      }`}>
+        {blocosMontados.length === 0 && (
+          <div className="w-full h-full flex items-center justify-center pointer-events-none opacity-40">
+            <span className="text-slate-400 text-[13px] md:text-[15px] font-medium tracking-wide">
+              {t.placeholder}
+            </span>
           </div>
         )}
+        {blocosMontados.map((b) => (
+          <button
+            key={b.id}
+            type="button"
+            onClick={() => handlePull(b)}
+            disabled={localStatus !== "IDLE" || analisando}
+            className="px-5 py-2.5 bg-[#FF7420] hover:bg-[#FF8A2B] text-white text-[clamp(14px,1.6vw,16px)] font-bold rounded-lg shadow-[0_4px_0_0_#c45513] active:shadow-[0_0px_0_0_#c45513] active:translate-y-[4px] transition-all whitespace-nowrap cursor-pointer"
+          >
+            {b.texto}
+          </button>
+        ))}
       </div>
-    );
-  }
+
+      {/* BANCO DE BLOCOS DISPONÍVEIS */}
+      <div className={`flex flex-wrap gap-3 w-full p-5 bg-[#0a1120]/80 border border-slate-800/80 rounded-xl justify-center items-center shrink-0 min-h-[100px] overflow-y-auto shadow-sm ${exibirContainerInferior ? "hidden" : ""}`}>
+        {blocosDisponiveis.map((b) => (
+          <button
+            key={b.id}
+            type="button"
+            disabled={localStatus !== "IDLE" || analisando}
+            onClick={() => handlePush(b)}
+            className="px-5 py-2.5 bg-[#070d19] hover:bg-[#13233f] border border-slate-700/80 hover:border-slate-500 text-slate-200 text-[clamp(14px,1.6vw,16px)] font-medium rounded-lg cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+          >
+            {b.texto}
+          </button>
+        ))}
+      </div>
+
+      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA (EM CAMADAS) */}
+      {exibirContainerInferior && (
+        <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
+          {analisando && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
+                <Sparkles size={16} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[16px] text-slate-300 font-medium italic">"{t.validando}"</p>
+            </div>
+          )}
+
+          {localStatus === 'CORRECT' && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
+                <CheckCircle size={16} /> <span>Gramática Correta!</span>
+              </div>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            </div>
+          )}
+
+          {localStatus === 'WRONG' && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
+                <XCircle size={16} /> <span>Análise de Sintaxe</span>
+              </div>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            </div>
+          )}
+        </div>
+      )}
+
+    </div>
+  );
+}
