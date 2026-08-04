@@ -1627,12 +1627,6 @@ React.useEffect(() => {
                 >
                   <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" /> {idiomaSelecionado === "PT" ? "INICIAR TREINO PRÁTICO" : idiomaSelecionado === "ES" ? "INICIAR ENTRENAMIENTO" : "START TRAINING"}
                 </button>
-                <button
-                  onClick={() => setMentoraMobileAberta(true)}
-                  className="bg-[#0b1426] hover:bg-slate-900 border border-white/[0.08] text-slate-400 hover:text-white p-4 rounded-xl flex items-center justify-center cursor-pointer transition-all active:scale-[0.95] h-[54px] w-[54px] shrink-0 shadow-lg"
-                >
-                  <MessageSquare size={22} />
-                </button>
               </div>
             ) : (
               /* 🎨 1. O CARDZINHO DE ENTRADA STANDALONE (QUANDO ABERTO) */
