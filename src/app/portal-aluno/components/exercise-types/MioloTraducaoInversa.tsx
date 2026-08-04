@@ -353,28 +353,34 @@ streak = 0,
         ))}
       </div>
 
-      {/* CONTAINER DE VALIDAÇÃO E COMENTÁRIO */}
+      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA (EM CAMADAS) */}
       {(localStatus !== 'IDLE' || analisando) && (
-        <div className="w-full flex-1 flex flex-col justify-end mt-0.5 animate-fade-in">
+        <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-cyan-400 animate-pulse min-h-[120px]">
-              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest mb-2">
-                <Sparkles size={14} className="animate-spin" />
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
+                <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
               </div>
-              <p className="text-[15px] text-slate-300 font-medium italic">"{t.validando}"</p>
+              <p className="text-[16px] text-slate-300 font-medium italic">"{t.validando}"</p>
             </div>
           )}
 
-          {localStatus !== 'IDLE' && feedbackIA && (
-            <div className={`w-full flex flex-col items-center justify-center text-center p-6 rounded-xl border animate-fade-in min-h-[120px] gap-2 ${
-              localStatus === 'CORRECT' ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-400' : 'bg-rose-950/20 border-rose-500/20 text-rose-400'
-            }`}>
-              <div className="flex items-center gap-2 font-bold text-[12px] uppercase tracking-widest">
-                {localStatus === 'CORRECT' ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                <span>{localStatus === 'CORRECT' ? "Estrutura Correta!" : "Análise de Tradução"}</span>
+          {localStatus === 'CORRECT' && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
+                <CheckCircle size={16} /> <span>Estrutura Correta!</span>
               </div>
-              <p className="text-[15px] text-slate-200 font-medium italic">"{feedbackIA}"</p>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            </div>
+          )}
+
+          {localStatus === 'WRONG' && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
+                <XCircle size={16} /> <span>Análise de Tradução</span>
+              </div>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
             </div>
           )}
         </div>
