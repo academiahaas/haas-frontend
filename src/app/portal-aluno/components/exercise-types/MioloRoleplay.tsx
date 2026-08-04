@@ -399,66 +399,71 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
   if (carregando) {
     return (
-      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[14px] uppercase tracking-widest">
         {textInt?.calibrando || "..."}
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full max-h-full flex flex-col justify-start items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden p-0.5">
+    <div className="w-full h-full flex flex-col font-sans select-none gap-5 p-2 overflow-hidden flex-1 min-h-0">
       
-      {/* Faixa de instrução padronizada com o (?) azul */}
-      <div className="w-full bg-[#0a1424] border border-white/[0.05] rounded-xl py-3 px-4 flex items-center gap-2.5">
-        <HelpCircle size={18} className="text-[#00e1ff] shrink-0" />
-        <span className="text-[11px] md:text-[12px] font-bold text-slate-200 tracking-wider uppercase">
+      {/* INSTRUÇÃO MINIMALISTA */}
+      <div className="flex items-center gap-2 shrink-0 px-1">
+        <HelpCircle size={16} className="text-cyan-500 shrink-0 opacity-80" />
+        <span className="text-[12px] md:text-[14px] font-medium text-slate-400 uppercase tracking-widest">
           {textInt.instrucao}
         </span>
       </div>
 
-            {/* Frase da Mentora sempre visível para referência do estudante */}
-      <div className="flex-1 bg-[#050b14]/40 border border-white/[0.04] p-4 md:p-6 rounded-xl flex items-center justify-between gap-4 animate-fade-in min-h-0 w-full mb-2">
-        <div className="flex-1 flex items-center justify-center text-center py-2">
-          <p className="text-[14px] md:text-[1.2vw] text-slate-100 font-bold leading-relaxed break-words max-w-[95%]">
-            {phraseIA}
+      {/* CARD DA PERGUNTA DA MENTORA HAAS */}
+      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-6 shadow-sm flex-1 min-h-[140px] flex items-center justify-between gap-4 animate-fade-in w-full">
+        <div className="flex-1 flex items-center justify-center text-center">
+          <p className="text-[clamp(16px,2vw,22px)] text-slate-100 font-bold leading-relaxed break-words max-w-[95%]">
+            "{phraseIA}"
           </p>
         </div>
         
         <button 
+          type="button"
           onClick={escutarFraseMentora}
-          className="p-2.5 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-xl hover:text-cyan-300 active:scale-95 transition-all cursor-pointer shrink-0 self-center"
+          className="p-2.5 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
           title="Escutar"
         >
-          <Volume2 size={16} />
+          <Volume2 size={18} />
         </button>
       </div>
 
-      {/* ÁREA DE INTERAÇÃO UNIFICADA (Substitui o microfone pelo feedback compacto) */}
-      <div className="w-full shrink-0 flex flex-col items-stretch gap-2.5">
+      {/* ÁREA DE INTERAÇÃO / GRAVAÇÃO DE VOZ / FEEDBACK */}
+      <div className="w-full shrink-0 flex flex-col items-center justify-center gap-3 min-h-[120px]">
         
-        {/* Caso 1: Aguardando Gravação / Turno do Usuário (Exibe o Microfone) */}
+        {/* Caso 1: Turno do Usuário (Microfone Pronto) */}
         {flowState === "USER_TURN" && (
           <div className="flex flex-col items-center justify-center py-2">
             <button
+              type="button"
               onClick={alternarEstadoMicrofone}
-              className="p-3.5 rounded-full border bg-[#0e1e31] border-cyan-500/30 text-cyan-400 hover:bg-[#12273f] transition-all cursor-pointer shadow-lg active:scale-95"
+              className="w-16 h-16 rounded-full bg-cyan-500/10 border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 transition-all cursor-pointer shadow-[0_0_20px_rgba(6,182,212,0.2)] flex items-center justify-center active:scale-95"
+              title="Clique para falar"
             >
-              <Mic size={18} />
+              <Mic size={24} />
             </button>
           </div>
         )}
 
-        {/* Caso 2: Gravando */}
+        {/* Caso 2: Gravando (Microfone Ativo em Pulso) */}
         {flowState === "RECORDING" && (
-          <div className="flex flex-col items-center justify-center py-2 gap-2 animate-pulse">
+          <div className="flex flex-col items-center justify-center py-2 gap-3 w-full">
             <button
+              type="button"
               onClick={alternarEstadoMicrofone}
-              className="p-3.5 rounded-full border bg-rose-600 border-rose-500 text-white shadow-rose-950/40 transition-all cursor-pointer shadow-lg active:scale-95 animate-bounce"
+              className="w-16 h-16 rounded-full bg-rose-600 border-2 border-rose-400 text-white shadow-[0_0_25px_rgba(244,63,94,0.4)] transition-all cursor-pointer flex items-center justify-center active:scale-95 animate-pulse"
+              title="Clique para parar"
             >
-              <Mic size={18} />
+              <Mic size={24} />
             </button>
             {transcricaoAluno.trim() && (
-              <p className="text-[11px] md:text-[0.9vw] text-cyan-300 italic max-w-full font-medium break-words px-2 text-center">
+              <p className="text-[13px] md:text-[15px] text-cyan-300 italic max-w-full font-medium break-words px-4 text-center">
                 "{transcricaoAluno}"
               </p>
             )}
@@ -466,28 +471,26 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         )}
 
         {/* Caso 3: Analisando */}
-                {/* Caso 3: Analisando */}
         {flowState === "ANALYZING" && (
-          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-6 flex flex-col items-center justify-center gap-3 animate-fade-in shadow-xl w-full min-h-[110px]">
+          <div className="w-full bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 flex flex-col items-center justify-center gap-3 animate-fade-in shadow-xl min-h-[110px]">
             <Loader2 size={24} className="text-cyan-400 animate-spin" />
-            <span className="text-[11px] md:text-[0.9vw] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
+            <span className="text-[12px] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
               {textInt.analisando}...
             </span>
           </div>
         )}
 
-        {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
-                {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
-                {/* Caso 4: Análise Concluída (Exibe Feedback Compacto e Elegante no lugar do Microfone) */}
+        {/* Caso 4: Análise Concluída (Feedback Compacto) */}
         {flowState === "DONE" && feedback && (
-          <div className="bg-cyan-950/20 border border-cyan-800/30 rounded-xl p-4 flex flex-col gap-3 animate-fade-in shadow-xl relative">
-            <div className="flex justify-end w-full">
-              <div className="text-amber-400 font-semibold text-[10px] md:text-[0.8vw] bg-amber-950/40 px-2.5 py-0.5 rounded border border-amber-800/30 tracking-wider">
-                +{scoreFinal} NOTA
+          <div className="w-full bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-6 flex flex-col gap-3 animate-fade-in shadow-xl relative text-left">
+            <div className="flex justify-between items-center w-full">
+              <span className="text-cyan-400 font-bold text-[12px] uppercase tracking-widest">Feedback Mentora Haas</span>
+              <div className="text-amber-400 font-bold text-[12px] bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-800/40 tracking-wider">
+                +{scoreFinal} PTS
               </div>
             </div>
 
-            <p className="text-[12.5px] md:text-[1vw] text-slate-200 font-medium leading-relaxed break-words text-left">
+            <p className="text-[15px] text-slate-200 font-medium leading-relaxed break-words">
               {feedback.mensagem}
             </p>
           </div>
