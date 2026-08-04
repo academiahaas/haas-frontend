@@ -3119,16 +3119,6 @@ React.useEffect(() => {
                 <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">{nivelAluno ? (nivelAluno.toUpperCase().startsWith("NÍVEL") || nivelAluno.toUpperCase().startsWith("NIVEL") ? nivelAluno : `NÍVEL ${nivelAluno}`) : "NÍVEL B2"}</span>
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{nomeTituloNivel || 'EXPLORADOR'}</span>
               </div>
-
-              <div className="w-full mt-4">
-                <div className="flex justify-between items-center text-[clamp(11px,3.2vw,15px)] font-mono text-slate-500 mb-1">
-                  <span className="md:text-base md:font-bold md:text-slate-300">{idiomaSelecionado === "PT" ? "Progresso da Unidade" : idiomaSelecionado === "ES" ? "Progreso de la Unidad" : "Unit Progress"}</span>
-                  <span className="text-cyan-400 font-bold md:text-base">-{Math.max(0, requiredXp - totalXp)} PTS</span>
-                </div>
-                <div className="w-full h-1 bg-slate-950 rounded-full overflow-hidden border border-white/[0.02]">
-                  <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${requiredXp > 0 ? Math.min(100, Math.round((totalXp / requiredXp) * 100)) : 0}%` }} />
-                </div>
-              </div>
             </div>
             {/* CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
             <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-3 sm:p-6 scrollbar-none">
