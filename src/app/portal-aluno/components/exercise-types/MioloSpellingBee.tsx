@@ -3,7 +3,7 @@ import { getExerciseByActivityType } from "@/services/centralService";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
-import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle } from "lucide-react";
+import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle , Sparkles} from 'lucide-react';;
 import { supabase } from '@/lib/supabase';
 
 interface MioloSpellingBeeProps {
@@ -370,10 +370,12 @@ USER_ID_ALVO]);
   if (carregando) {
     return (
       <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[14px] tracking-widest uppercase">
-        Conectando...
+        {t?.aguardando || "CONECTANDO..."}
       </div>
     );
   }
+
+  const exibirContainerInferior = status !== "IDLE" || analisando;
 
   return (
     <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">
@@ -463,23 +465,36 @@ USER_ID_ALVO]);
         </div>
       )}
 
-      {/* CONTAINER DE VALIDAÇÃO / FEEDBACK */}
-      {analisando && (
-        <div className="w-full flex flex-col items-center justify-center gap-3 bg-cyan-950/20 border border-cyan-500/20 rounded-xl p-5 min-h-[100px] text-cyan-400 animate-pulse">
-          <RefreshCw size={20} className="animate-spin text-cyan-400" />
-          <span className="text-[12px] font-bold uppercase tracking-widest">Analisando Soletração...</span>
-        </div>
-      )}
+      {/* CONTAINER DE VALIDAÇÃO E FEEDBACK DA MENTORA (EM CAMADAS) */}
+      {exibirContainerInferior && (
+        <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
+          {analisando && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
+                <Sparkles size={16} className="animate-spin" />
+                <span>Mentora Haas</span>
+              </div>
+              <p className="text-[16px] text-slate-300 font-medium italic">Analisando Soletração...</p>
+            </div>
+          )}
 
-      {!analisando && status !== "IDLE" && feedbackIA && (
-        <div className="w-full flex flex-col items-center justify-center text-center p-5 rounded-xl border animate-fade-in min-h-[100px]">
-          <div className={`w-full p-4 rounded-xl text-[15px] border leading-relaxed font-semibold shadow-sm ${
-            status === "CORRECT" 
-              ? "bg-emerald-950/20 border-emerald-500/20 text-emerald-300" 
-              : "bg-rose-950/20 border-rose-500/20 text-rose-300"
-          }`}>
-            {feedbackIA}
-          </div>
+          {status === "CORRECT" && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
+                <CheckCircle size={16} /> <span>Soletração Perfeita!</span>
+              </div>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            </div>
+          )}
+
+          {status === "WRONG" && feedbackIA && (
+            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+              <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
+                <XCircle size={16} /> <span>Análise de Soletração</span>
+              </div>
+              <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            </div>
+          )}
         </div>
       )}
 
