@@ -355,6 +355,8 @@ export default function MioloLeituraRapida({
     );
   }
 
+  const modoFeedback = localStatus !== 'IDLE' || analisando;
+
   return (
     <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">
       
@@ -366,43 +368,49 @@ export default function MioloLeituraRapida({
             {t.instrucao}
           </span>
         </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[12px] tracking-wider shrink-0 transition-all ${
-          timeLeft <= 10 
-            ? 'text-rose-400 border-rose-500/40 bg-rose-950/30 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.2)]' 
-            : 'text-amber-400 border-amber-500/30 bg-amber-950/30'
-        }`}>
-          <Timer size={14} />
-          <span>{timeLeft}s</span>
-        </div>
+
+        {/* Timer ocultado no modo feedback */}
+        {!modoFeedback && (
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[12px] tracking-wider shrink-0 transition-all ${
+            timeLeft <= 10 
+              ? 'text-rose-400 border-rose-500/40 bg-rose-950/30 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.2)]' 
+              : 'text-amber-400 border-amber-500/30 bg-amber-950/30'
+          }`}>
+            <Timer size={14} />
+            <span>{timeLeft}s</span>
+          </div>
+        )}
       </div>
 
-      {/* ÁREA CENTRAL PRINCIPAL */}
-      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl flex-1 min-h-0 w-full overflow-hidden flex flex-col items-stretch justify-start shadow-sm p-4 md:p-6">
+      {/* ÁREA CENTRAL PRINCIPAL (CONTAINER EM CAMADAS) */}
+      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl flex-1 min-h-0 w-full overflow-hidden flex flex-col items-center justify-center shadow-sm p-4 md:p-6">
         {analisando ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-3 animate-pulse flex-1">
-            <Sparkles size={24} className="animate-spin text-cyan-400" />
-            <span className="text-[12px] text-cyan-400 font-bold uppercase tracking-widest">{t.validando}</span>
+          <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 gap-3 animate-pulse flex-1">
+            <Sparkles size={26} className="animate-spin text-cyan-400" />
+            <span className="text-[13px] text-cyan-400 font-bold uppercase tracking-widest">{t.validando}</span>
           </div>
         ) : localStatus === 'CORRECT' && feedbackIA ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-6 overflow-y-auto animate-fade-in flex-1 gap-2">
-            <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-bold uppercase tracking-widest">
-              <CheckCircle size={14} /> <span>Excelente Retenção!</span>
+          /* CARD EM CAMADAS DE SUCESSO */
+          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
+              <CheckCircle size={16} /> <span>Excelente Retenção!</span>
             </div>
-            <p className="text-[15px] text-slate-200 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
           </div>
         ) : localStatus === 'WRONG' && feedbackIA ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 rounded-xl p-6 overflow-y-auto animate-fade-in flex-1 gap-2">
-            <div className="flex items-center gap-2 text-rose-400 text-[12px] font-bold uppercase tracking-widest">
-              <XCircle size={14} /> <span>Análise de Leitura</span>
+          /* CARD EM CAMADAS DE ANÁLISE / ERRO */
+          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
+              <XCircle size={16} /> <span>Análise de Leitura</span>
             </div>
-            <p className="text-[15px] text-slate-200 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
+            <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
           </div>
         ) : fase === 'LEITURA' ? (
           <div className="w-full h-full p-2 text-[clamp(16px,2vw,20px)] font-medium text-slate-100 leading-relaxed select-none flex-1 flex items-center justify-center overflow-y-auto">
             <p className="font-sans text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto">{textoLongo}</p>
           </div>
         ) : (
-          /* FASE DE DIGITAÇÃO: Exibe o texto desfocado/compacto e o campo para digitar */
+          /* FASE DE DIGITAÇÃO */
           <div className="w-full h-full flex flex-col gap-4 flex-1 min-h-0">
             <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#070d19]/80 text-[14px] text-slate-400 leading-relaxed select-none blur-[1.5px] opacity-40 pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
               <p className="font-sans text-justify whitespace-pre-wrap line-clamp-3">
