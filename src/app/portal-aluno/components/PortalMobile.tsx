@@ -1,6 +1,6 @@
 import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
 import { fetchCentralPortalData, getTopRanking } from "@/services/centralService";
-import ArenaImersivaTotal from "./ArenaImersivaTotal";
+import ArenaQuiz from "./ArenaQuiz";
 import { MobileMentorFocusCard } from "./MobileMentorFocusCard";
 import { ModalCofreErrosMobile } from "./ModalCofreErrosMobile";
 import { ModalTrilhaMobile } from "./ModalTrilhaMobile";
@@ -1486,12 +1486,11 @@ React.useEffect(() => {
 
   if (arenaAtiva) {
     return (
-      <ArenaImersivaTotal 
-        onFechar={() => setArenaAtiva(false)}
-        alunoData={{ ...alunoData, clinical_precision: precisaoSupabase ?? alunoData?.clinical_precision }}
-        idiomaSelecionado={idiomaSelecionado}
-        statusRespostaMobile={statusRespostaMobile}
-        setStatusRespostaMobile={setStatusRespostaMobile}
+      <ArenaQuiz 
+        isOpen={arenaAtiva}
+        onClose={() => setArenaAtiva(false)}
+        userId={alunoData?.id || alunoData?.user_id}
+        idiomaAtivo={idiomaSelecionado || "PT"}
       />
     );
   }
