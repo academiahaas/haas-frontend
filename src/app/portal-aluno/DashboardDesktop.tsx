@@ -151,11 +151,11 @@ export default function DashboardDesktop({ alunoData }: any) {
   }, []);
 
       const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
-          const [scoreAtivo, setScoreAtivo] = useState(0);
+          const [scoreAtivo, setScoreAtivo] = useState(alunoData?.unit_xp || 0);
   const [tempoModulo, setTempoModulo] = useState(15);
-  const [nomeModulo, setNomeModulo] = useState("Carregando módulo...");
+  const [nomeModulo, setNomeModulo] = useState(alunoData?.module_title || "Carregando módulo...");
   const [listaUnidades, setListaUnidades] = useState([]);
-  const [xpTotalUnidade, setXpTotalUnidade] = useState(0);
+  const [xpTotalUnidade, setXpTotalUnidade] = useState(alunoData?.required_xp || 0);
   const [patenteBruta, setPatenteBruta] = useState("Explorador");
 
   useEffect(() => {
