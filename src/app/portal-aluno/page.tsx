@@ -60,15 +60,12 @@ export default function PortalAluno() {
     return <div className="min-h-screen bg-[#030914]" />;
   }
 
+  // PortalMobile desativado (Unificação Desktop-First)
+  /* 
   if (isMobileDevice) {
-    return (
-      <PortalMobile 
-        idioma="PT" 
-        t={{}} 
-        alunoData={alunoData}
-      />
-    );
+    return <PortalMobile idioma="PT" t={{}} alunoData={alunoData} />;
   }
+  */
 
   return <DashboardDesktop alunoData={alunoData} />;
 }
