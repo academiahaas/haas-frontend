@@ -11,7 +11,7 @@ export default function PortalAluno() {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [mounted, setMounted] = useState(false);
   
-  // Cache Imediato: Inicializa com os dados salvos localmente
+  // Cache Imediato via localStorage (Stale-While-Revalidate)
   const [alunoData, setAlunoData] = useState<any>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -70,5 +70,5 @@ export default function PortalAluno() {
     );
   }
 
-  return <DashboardDesktop />;
+  return <DashboardDesktop alunoData={alunoData} />;
 }

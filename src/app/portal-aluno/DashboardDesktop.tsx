@@ -64,7 +64,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
   );
 }
 
-export default function DashboardDesktop() {
+export default function DashboardDesktop({ alunoData }: any) {
 
   const [moduloUserCentral, setModuloUserCentral] = useState('');
 
