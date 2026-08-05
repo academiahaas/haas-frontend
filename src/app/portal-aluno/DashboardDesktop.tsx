@@ -831,7 +831,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                       <span className="text-[10px] font-black text-cyan-400 font-mono tracking-widest uppercase">
                         {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {moduloUserCentral || moduloUserCentral || String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
                       </span>
-                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded font-bold text-cyan-400/10 border border-cyan-500/20 text-cyan-400 uppercase">
+                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded border border-slate-700/80 bg-slate-800/60 text-slate-300 uppercase">
                         {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {nivelUserCentral || nivelUserCentral || listaUnidades[0]?.level || 'A1'}
                       </span>
                     </div>
