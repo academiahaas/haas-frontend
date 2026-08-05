@@ -622,11 +622,11 @@ export default function DashboardDesktop({ alunoData }: any) {
   useEffect(() => { setMounted(true); }, []);
 
   const dadosRadar = [
-    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: cHabla },
-    { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: cEscucha },
-    { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: cGramatica },
-    { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: cEscritura },
-    { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: cLectura }
+    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: 20 + Math.round((Number(cHabla) || 0) * 0.8) },
+    { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: 20 + Math.round((Number(cEscucha) || 0) * 0.8) },
+    { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: 20 + Math.round((Number(cGramatica) || 0) * 0.8) },
+    { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: 20 + Math.round((Number(cEscritura) || 0) * 0.8) },
+    { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: 20 + Math.round((Number(cLectura) || 0) * 0.8) }
   ];
 
   return (
