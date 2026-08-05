@@ -272,7 +272,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         if (user) {
           const { data, error } = await supabase.from('usuarios').select('nome, nivel_atual, tipo_aluno').eq('id', user.id).maybeSingle();
           if (data && !error) {
-            setAluno1(data.nome || "Alpha_Leader");
+            setAluno1(data.nome || "");
             if (data.nivel_atual) setNivelAtual(data.nivel_atual.toUpperCase());
             // Set de tipo_aluno legado desativado em prol da Central
           } else {
@@ -472,8 +472,8 @@ export default function DashboardDesktop({ alunoData }: any) {
     return listaAtual[botPhraseIndex % listaAtual.length];
   };
   
-  const [aluno1, setAluno1] = useState("Alpha_Leader");
-  const [nicknameAluno, setNicknameAluno] = useState("Alpha_Leader");
+  const [aluno1, setAluno1] = useState("");
+  const [nicknameAluno, setNicknameAluno] = useState("");
   const [userIdBanco, setUserIdBanco] = useState("");
   const [streakDays, setStreakDays] = useState(0);
   const [tipoAluno, setTipoAluno] = useState("particular");
@@ -493,7 +493,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           const dbUser = dadosPortal.user;
           if (dbUser && dbUser.id) setUserIdBanco(dbUser.id);
           console.log("=== CONTEUDO REAL DE TRAINED_DAYS NO BANCO ===>", dbUser.trained_days);
-          setAluno1(dbUser.name || "Alpha_Leader");
+          setAluno1(dbUser.name || "");
           if (dbUser.current_level) setNivelAtual(dbUser.current_level.toUpperCase());
           const catCentral = dbUser.plan_category || dbUser.student_type || "Pack Group";
         setTipoAluno(catCentral.toLowerCase());
@@ -533,7 +533,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             setTotalXp(xpVal);
             setUserTotalXp(xpVal);
           }
-          setNicknameAluno(dbUser.nickname || dbUser.name || "Alpha_Leader");
+          setNicknameAluno(dbUser.nickname || dbUser.name || "");
           if (dbUser.streak_days !== undefined && dbUser.streak_days !== null) setStreakDays(Number(dbUser.streak_days));
           if (dbUser.trained_days && Array.isArray(dbUser.trained_days)) {
             setTrainMon(!!dbUser.trained_days[0]);
