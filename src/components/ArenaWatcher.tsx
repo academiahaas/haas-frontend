@@ -2,21 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { UnitCompletionScreen } from './UnitCompletionScreen';
-import { ModuleCompletionScreen } from './ModuleCompletionScreen';
-import { ExamCompletionScreen } from './ExamCompletionScreen';
+import ModalConclusao, { TipoConclusao } from '@/app/portal-aluno/components/ModalConclusao';
 import { useAuth } from '@/contexts/AuthContext';
 
 const FALLBACK_USER_ID = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 
 export function ArenaWatcher() {
-  const [mostrarUnit, setMostrarUnit] = useState(false);
-  const [mostrarModule, setMostrarModule] = useState(false);
-  const [mostrarExam, setMostrarExam] = useState(false);
-  
-  // Valores padrão/estáticos para os indicadores visuais do modal de módulo
-  const [moedasGanhas, setMoedasGanhas] = useState(50);
-  const [precisaoFinal, setPrecisaoFinal] = useState(100);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [tipoModal, setTipoModal] = useState<TipoConclusao>("UNIDADE");
+  const [unidadeNome, setUnidadeNome] = useState<string>("Unidade Tática");
+  const [moduloNome, setModuloNome] = useState<string>("Módulo Tático");
 
   const { user } = useAuth();
 
@@ -27,8 +22,8 @@ export function ArenaWatcher() {
       try {
         const targetUid = user?.id || FALLBACK_USER_ID;
 
-        // Se algum modal já estiver aberto, aguarda o usuário fechar antes de reconsultar
-        if (mostrarUnit || mostrarModule || mostrarExam) return;
+        // Se o modal já estiver aberto na tela, aguarda o clique de confirmação
+        if (modalAberto) return;
 
         const { data, error } = await supabase
           .from('users')
@@ -45,22 +40,27 @@ export function ArenaWatcher() {
 
         // Prioridade 1: Unidade
         if (data?.pending_unit_code) {
-          console.log("[VIGIA GLOBAL] 🚨 Disparando modal de UNIDADE!");
-          setMostrarUnit(true);
+          console.log("[VIGIA GLOBAL] 🚨 Disparando ModalConclusao: UNIDADE");
+          setUnidadeNome(typeof data.pending_unit_code === 'string' ? data.pending_unit_code : "Unidade Concluída");
+          setTipoModal("UNIDADE");
+          setModalAberto(true);
           return;
         }
 
         // Prioridade 2: Módulo
         if (data?.pending_module_code) {
-          console.log("[VIGIA GLOBAL] 🏆 Disparando modal de MÓDULO!");
-          setMostrarModule(true);
+          console.log("[VIGIA GLOBAL] 🏆 Disparando ModalConclusao: MODULO");
+          setModuloNome(typeof data.pending_module_code === 'string' ? data.pending_module_code : "Módulo Concluído");
+          setTipoModal("MODULO");
+          setModalAberto(true);
           return;
         }
 
-        // Prioridade 3: Exame
+        // Prioridade 3: Exame / Nível
         if (data?.pending_exam_code) {
-          console.log("[VIGIA GLOBAL] 🎖️ Disparando modal de EXAME!");
-          setMostrarExam(true);
+          console.log("[VIGIA GLOBAL] 🎖️ Disparando ModalConclusao: NIVEL");
+          setTipoModal("NIVEL");
+          setModalAberto(true);
           return;
         }
 
@@ -73,65 +73,45 @@ export function ArenaWatcher() {
     interval = setInterval(verificarBanco, 3000);
 
     return () => clearInterval(interval);
-  }, [user, mostrarUnit, mostrarModule, mostrarExam]);
+  }, [user, modalAberto]);
 
-  // Limpeza da Unidade
-  const fecharUnitELimpar = async () => {
+  // Ação ao clicar em continuar no modal
+  const handleContinuar = async () => {
     const targetUid = user?.id || FALLBACK_USER_ID;
-    console.log("[VIGIA GLOBAL] Fechando modal de Unidade e limpando banco para ID:", targetUid);
 
-    await supabase
-      .from('users')
-      .update({ pending_unit_code: null })
-      .eq('id', targetUid);
+    if (tipoModal === "UNIDADE") {
+      console.log("[VIGIA GLOBAL] Limpando pending_unit_code no banco...");
+      await supabase
+        .from('users')
+        .update({ pending_unit_code: null })
+        .eq('id', targetUid);
+    } else if (tipoModal === "MODULO") {
+      console.log("[VIGIA GLOBAL] Limpando pending_module_code no banco...");
+      await supabase
+        .from('users')
+        .update({ pending_module_code: null })
+        .eq('id', targetUid);
+    } else if (tipoModal === "NIVEL") {
+      console.log("[VIGIA GLOBAL] Limpando pending_exam_code no banco...");
+      await supabase
+        .from('users')
+        .update({ pending_exam_code: null })
+        .eq('id', targetUid);
+    }
 
-    setMostrarUnit(false);
-  };
-
-  // Limpeza do Módulo
-  const fecharModuleELimpar = async () => {
-    const targetUid = user?.id || FALLBACK_USER_ID;
-    console.log("[VIGIA GLOBAL] Fechando modal de Módulo e limpando banco para ID:", targetUid);
-
-    await supabase
-      .from('users')
-      .update({ pending_module_code: null })
-      .eq('id', targetUid);
-
-    setMostrarModule(false);
-  };
-
-  // Limpeza do Exame
-  const fecharExamELimpar = async () => {
-    const targetUid = user?.id || FALLBACK_USER_ID;
-    console.log("[VIGIA GLOBAL] Fechando modal de Exame e limpando banco para ID:", targetUid);
-
-    await supabase
-      .from('users')
-      .update({ pending_exam_code: null })
-      .eq('id', targetUid);
-
-    setMostrarExam(false);
+    setModalAberto(false);
   };
 
   return (
-    <>
-      <UnitCompletionScreen 
-        mostrar={mostrarUnit}
-        onAvancarUnidade={fecharUnitELimpar} 
-      />
-
-      <ModuleCompletionScreen
-        mostrar={mostrarModule}
-        moedasGanhas={moedasGanhas}
-        precisaoFinal={precisaoFinal}
-        onAvancar={fecharModuleELimpar}
-      />
-
-      <ExamCompletionScreen
-        mostrar={mostrarExam}
-        onAvancar={fecharExamELimpar}
-      />
-    </>
+    <ModalConclusao
+      isOpen={modalAberto}
+      tipo={tipoModal}
+      nivel="A1"
+      lang="PT"
+      unidadeNome={unidadeNome}
+      moduloNome={moduloNome}
+      onContinuar={handleContinuar}
+      onClose={handleContinuar}
+    />
   );
 }
