@@ -66,7 +66,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 
 export default function DashboardDesktop({ alunoData }: any) {
 
-  const [moduloUserCentral, setModuloUserCentral] = useState('');
+  const [moduloUserCentral, setModuloUserCentral] = useState(alunoData?.modulo_atual ? String(alunoData.modulo_atual).padStart(2, '0') : '');
 
   // --- CORTINA DE TRANSIÇÃO (LABOR ILLUSION) ---
   const [transicaoModo, setTransicaoModo] = React.useState<'entrada' | 'saida' | 'inicial' | null>('inicial');
@@ -111,7 +111,7 @@ export default function DashboardDesktop({ alunoData }: any) {
   };
   // ---------------------------------------------
 
-  const [nivelUserCentral, setNivelUserCentral] = useState('');
+  const [nivelUserCentral, setNivelUserCentral] = useState(alunoData?.current_level ? String(alunoData.current_level) : '');
 
   useEffect(() => {
     async function carregarDadosCentral() {
