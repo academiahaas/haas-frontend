@@ -10,7 +10,19 @@ import { fetchCentralPortalData } from '@/services/centralService';
 export default function PortalAluno() {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [alunoData, setAlunoData] = useState<any>(null);
+  
+  // Cache Imediato: Inicializa com os dados salvos localmente
+  const [alunoData, setAlunoData] = useState<any>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('haas_aluno_cache');
+        return cached ? JSON.parse(cached) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -24,9 +36,13 @@ export default function PortalAluno() {
 
     async function carregarDados() {
       try {
-        const res = await fetchCentralPortalData("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+        const uid = (typeof window !== 'undefined' && (localStorage.getItem('haas_uid') || localStorage.getItem('supabase_uid'))) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const res = await fetchCentralPortalData(uid);
         if (isMounted && res && res.user) {
           setAlunoData(res.user);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('haas_aluno_cache', JSON.stringify(res.user));
+          }
         }
       } catch (err) {
         console.error("Erro ao carregar dados do portal:", err);
