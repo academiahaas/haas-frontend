@@ -639,7 +639,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           <button 
             onClick={() => { (window as any)._simulaMatriculado = false; (window as any)._simulaVencido = false; (window as any).dispatchEvent(new Event("resize")); }}
             className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-              !(window as any)._simulaMatriculado ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
+              !(window as any)._simulaMatriculado ? "font-bold text-cyan-400 text-slate-950 shadow-sm" : "bg-white/5 text-slate-400 hover:text-white"
             }`}
           >
             🆕 {idioma === 'PT' ? 'Aluno Novo' : idioma === 'EN' ? 'New Student' : 'Aluno Nuevo'}
@@ -730,7 +730,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${!isMatriculadoSimulado ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${!isMatriculadoSimulado ? 'font-bold text-cyan-400 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
                     >
                       🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
                     </button>
@@ -752,7 +752,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                   <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
                   <button 
                     onClick={() => setIsMatriculadoSimulado(false)} 
-                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${!isMatriculadoSimulado ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${!isMatriculadoSimulado ? 'font-bold text-cyan-400 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
                   >
                     🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
                   </button>
@@ -766,7 +766,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
-                <span className="bg-[#f59e0b] text-white text-[10px] px-3.5 py-0.5 rounded font-bold font-mono shadow-sm whitespace-nowrap">{
+                <span className="text-cyan-400 font-mono font-bold text-[10px] tracking-wider uppercase whitespace-nowrap">{
   (() => {
     const rawLang = (idiomaCurso || "pt").toLowerCase();
     const uiLang = (idioma || "ES").toUpperCase();
@@ -831,7 +831,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                       <span className="text-[10px] font-black text-cyan-400 font-mono tracking-widest uppercase">
                         {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {moduloUserCentral || moduloUserCentral || String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
                       </span>
-                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 border border-cyan-500/20 text-cyan-400 uppercase">
+                      <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded font-bold text-cyan-400/10 border border-cyan-500/20 text-cyan-400 uppercase">
                         {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {nivelUserCentral || nivelUserCentral || listaUnidades[0]?.level || 'A1'}
                       </span>
                     </div>
@@ -875,7 +875,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                             className="group h-[38px] flex items-center justify-between cursor-pointer transition-all duration-150 select-none hover:bg-white/[0.015] px-2 rounded-lg"
                           >
                             <div className="flex items-center gap-4 min-w-0 flex-1">
-                              <span className="font-mono text-[9px] text-cyan-400/80 font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
+                              <span className="font-mono text-[9px] text-cyan-400/80 font-black font-bold text-cyan-400/10 px-2 py-0.5 rounded tracking-wider shrink-0">0{idx + 1}</span>
                               <span className={`transition-colors duration-150 tracking-wide font-medium ${isOpen ? 'text-cyan-400' : 'text-white/90 group-hover:text-cyan-400'}`}>
                                 {currentTitle}
                               </span>
@@ -1183,7 +1183,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/5 text-[10px] font-mono font-bold">
                       <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
                       <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${
-                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 text-cyan-400 border border-cyan-500/20"
+                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "font-bold text-cyan-400/10 text-cyan-400 border border-cyan-500/20"
                       }`}>
                         {item.frequencia}
                       </span>
@@ -1203,7 +1203,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           
           <div className="flex justify-between items-center border-b border-white/5 pb-2 shrink-0">
             <div className="flex items-center gap-2 text-slate-400 font-mono text-[9px] font-black uppercase tracking-widest">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full font-bold text-cyan-400 animate-pulse"></span>
               <span>{idioma === 'PT' ? 'Painel de Controle' : idioma === 'ES' ? 'Panel de Control' : 'Control Panel'}</span>
             </div>
             <button onClick={() => setIsPerfilOpen(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
@@ -1246,9 +1246,9 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
             <div className="flex flex-col gap-1.5 border-t border-white/[0.04] pt-2.5 relative">
               <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
-              <div className="hidden absolute top-2 right-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/20 text-cyan-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
+              <div className="hidden absolute top-2 right-2 font-bold text-cyan-400/10 hover:font-bold text-cyan-400/20 text-cyan-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-cyan-500/30 hover:border-amber-400/60 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
+                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-cyan-500/30 hover:border-amber-400/60 hover:font-bold text-cyan-400/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
               <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
@@ -1265,11 +1265,11 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
             
             <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
-              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-cyan-400 font-bold text-cyan-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
               <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
-                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 border-amber-400/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/5 opacity-40'}`} />
+                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-amber-400/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/5 opacity-40'}`} />
                     <span className="text-[7.5px] font-mono font-black text-slate-500 uppercase">{idioma === "EN" ? ["M","T","W","T","F","S","S"][idx] : idioma === "ES" ? ["L","M","X","J","V","S","D"][idx] : ["S","T","Q","Q","S","S","D"][idx]}</span>
                   </div>
                 ))}
@@ -1319,7 +1319,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         <div className="relative w-full max-w-3xl h-[75vh] bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl">
           <div className="flex items-center justify-between border-b border-white/5 pb-3">
             <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full font-bold text-cyan-400 animate-pulse" />
               {idioma === 'PT' ? 'MÓDULOS DO PROGRAMA' : idioma === 'ES' ? 'MÓDULOS DEL PROGRAMA' : 'PROGRAM MODULES'}
             </h2>
             <button onClick={() => setIsTrilhaOpen(false)} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
@@ -1469,7 +1469,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
         {/* Cabeçalho */}
         <div className="flex justify-between items-center border-b border-white/5 pb-3">
           <span className="text-[#f59e0b] font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse" />
+            <span className="w-2 h-2 rounded-full font-bold text-cyan-400 animate-pulse" />
             {passo === 1 ? (
               idioma === "PT" ? "CENTRAL DE CRÉDITOS & MATRÍCULAS" : 
               idioma === "EN" ? "CREDITS & ENROLLMENT CENTER" : 
@@ -1518,19 +1518,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
               
               <div className="grid grid-cols-3 gap-2 mt-1">
                 {/* Linha 1: Planos Padrão Fechados */}
-                <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
@@ -1538,19 +1538,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 </button>
 
                 {/* Linha 2: Aulas Avulsas / Packs Progressivos */}
-                <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "+7d Acesso | +10 IA /cr" : idioma === "EN" ? "+7d Access | +10 AI /cr" : "+7d Acceso | +10 IA /cr"}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
@@ -1565,7 +1565,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Selecione a Intensidade Mensal:" : idioma === "EN" ? "Select Monthly Intensity:" : "Seleccione la Intensidad Mensual:"}</span>
                 <div className="flex gap-2">
                   {[8, 12, 20].map((num) => (
-                    <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-black border-cyan-500/40" : "bg-slate-900 border-white/5 hover:border-white/10"}`}>
+                    <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "font-bold text-cyan-400 text-black border-cyan-500/40" : "bg-slate-900 border-white/5 hover:border-white/10"}`}>
                       {num} {idioma === "EN" ? "Credits" : "Créditos"}
                     </button>
                   ))}
@@ -1609,7 +1609,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             {/* Resumo e Botão Avançar Original Restaurado */}
             {valorTotal > 0 && (
               <div className="mt-2 flex flex-col gap-3">
-                <div className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40/5 border border-cyan-500/20 rounded-2xl p-4 text-center flex flex-col items-center justify-center">
+                <div className="font-bold text-cyan-400/5 border border-cyan-500/20 rounded-2xl p-4 text-center flex flex-col items-center justify-center">
                   <span className="text-3xl font-black text-cyan-400 font-mono">
                     $ {valorTotal.toLocaleString("es-CO")} COP
                   </span>
@@ -1892,7 +1892,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
                     {/* COLUNA DIREITA: LLAVE BRE-B (QR CODE PURIFICADO E SEM NOMES) */}
                     <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden max-h-[340px]">
-                      <div className="absolute top-0 right-0 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
+                      <div className="absolute top-0 right-0 font-bold text-cyan-400 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
                         {idioma === "PT" ? "Economize a Comissão!" : idioma === "EN" ? "Save Commission!" : "¡Ahorra Comisión!"}
                       </div>
                       
@@ -1944,7 +1944,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                                 (window as any)._pagoNotificado = false; if(typeof forceUpdate === "function") forceUpdate(Math.random());
                                 setPasso(1); setModalidade(null); setIsOpen(false);
                               }}
-                              className="w-full mt-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono"
+                              className="w-full mt-2 font-bold text-cyan-400 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono"
                             >
                               {idioma === "PT" ? "ENTENDIDO" : idioma === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                             </button>
@@ -1978,7 +1978,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                                 <p>• <b class="text-white">${idioma === "PT" ? "O que acontece agora?" : idioma === "EN" ? "What happens now?" : "¿Qué pasa agora?"}</b> ${idioma === "PT" ? "Assim que o sistema validar o recebimento do valor, procederemos com a ativação automática da sua matrícula." : idioma === "EN" ? "Once the system validates the receipt of the amount, it will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                                 <p>• <b class="text-white">${idioma === "PT" ? "Acesso Completo:" : idioma === "EN" ? "Full Access:" : "Acceso Completo:"}</b> ${idioma === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso será liberado." : idioma === "EN" ? "Upon successful confirmation, you will receive a notification email and your access will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acesso a la plataforma."}</p>
                               </div>
-                              <button id="btn-entendido-aviso" class="w-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono">
+                              <button id="btn-entendido-aviso" class="w-full font-bold text-cyan-400 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono">
                                 ${idioma === "PT" ? "ENTENDIDO" : idioma === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                               </button>
                             </div>
@@ -1992,7 +1992,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                             setModalidade(null);
                           });
                         }}
-                        className="w-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center font-mono"
+                        className="w-full font-bold text-cyan-400 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center font-mono"
                       >
                         {idioma === "PT" ? "Já realizei o pagamento, voltar ao portal" : idioma === "EN" ? "I already paid, return to portal" : "Ya realicé el pago, volver al portal"}
                       </button>
