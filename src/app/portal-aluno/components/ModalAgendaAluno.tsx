@@ -97,8 +97,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     }
   }, [planoAluno.slug]);
 
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [selectedHorario, setSelectedHorario] = useState("08:00");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedHorario, setSelectedHorario] = useState("");
 
   const [isTipoDropdownOpen, setIsTipoDropdownOpen] = useState(false);
   const [isHorarioDropdownOpen, setIsHorarioDropdownOpen] = useState(false);
@@ -110,7 +110,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   const planoValidoData = selectedDate <= (planoAluno.validade || "1970-01-01");
   const temCreditoAulas = (planoAluno.creditosAulas || 0) > 0;
   const temCreditoReposicao = (planoAluno.creditosReposicao || 0) > 0;
-  const podeAgendarData = (planoValidoData && temCreditoAulas) || temCreditoReposicao;
+  const podeAgendarData = selectedDate !== "" && ((planoValidoData && temCreditoAulas) || temCreditoReposicao);
+  const podeConfirmar = podeAgendarData && selectedHorario !== "";
 
 
 
@@ -252,8 +253,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   useEffect(() => {
     const isGroup = tipoAula === "group" || tipoAula === "pack_group";
     const validList = isGroup ? listaHorariosGrupo : listaHorariosRegulares;
-    if (!validList.includes(selectedHorario)) {
-      setSelectedHorario(validList[0]);
+    if (selectedHorario !== "" && !validList.includes(selectedHorario)) {
+      setSelectedHorario("");
     }
   }, [tipoAula, selectedHorario]);
 
@@ -953,7 +954,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   </div>
                 </div>
 
-                <button type="button" disabled={!podeAgendarData} onClick={validarAntesDeAgendar} className={`w-full py-2 mt-2 rounded-xl text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md shrink-0 ${!podeAgendarData ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed border border-slate-700" : "bg-amber-500 hover:bg-amber-400 text-black cursor-pointer"}`}>
+                <button type="button" disabled={!podeConfirmar} onClick={validarAntesDeAgendar} className={`w-full py-2 mt-2 rounded-xl text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md shrink-0 ${!podeConfirmar ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed border border-slate-700" : "bg-amber-500 hover:bg-amber-400 text-black cursor-pointer"}`}>
                   {t.btnConfirm}
                 </button>
               </div>
