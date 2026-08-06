@@ -1457,7 +1457,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
       <div onClick={() => setIsOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
-      <div className={`relative w-full transition-all duration-300 bg-[#0A0F1D] border border-white/10 hover:border-purple-500/30 rounded-[28px] p-6 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[90vh] text-white ${passo === 1 ? "max-w-lg" : "max-w-3xl"}`}>
+      <div className={`relative w-full transition-all duration-300 bg-[#0A0F1D] border border-white/10 hover:border-purple-500/30 rounded-[28px] p-6 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[90vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden text-white ${passo === 1 ? "max-w-lg" : "max-w-3xl"}`}>
         
         {/* Cabeçalho */}
         <div className="flex justify-between items-center border-b border-white/10 pb-3">
