@@ -1704,7 +1704,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       <CheckCircle2 size={24} />
                     </div>
                     <div className="flex flex-col gap-1.5 text-center">
-                      <h3 className="text-sm font-black text-emerald-400 uppercase tracking-tight">
+                      <h3 className="text-sm font-black text-purple-400merald-400 uppercase tracking-tight">
                         {currentLang === 'ES' ? '¡ESTRUCTURA VALIDADA CON MAESTRIA!' : 'ESTRUTURA VALIDADA COM MAESTRIA!'}
                       </h3>
                       <p className="text-[12px] text-slate-200 leading-relaxed font-sans bg-white/[0.02] border border-white/5 p-3 rounded-xl italic">
