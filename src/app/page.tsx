@@ -49,7 +49,7 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="/diagnostico"
+              href="/login"
               className="text-xs font-mono font-semibold text-slate-300 hover:text-white transition-colors"
             >
               Acceso Estudiantes
@@ -89,7 +89,7 @@ export default function LandingPage() {
             <a href="#testimonios" onClick={() => setIsMobileMenuOpen(false)} className="block text-sm font-mono text-slate-300 hover:text-purple-400">Testimonios</a>
             <a href="#contacto" onClick={() => setIsMobileMenuOpen(false)} className="block text-sm font-mono text-slate-300 hover:text-purple-400">Contacto</a>
             <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
-              <a href="/diagnostico" className="text-center py-2.5 rounded-xl border border-slate-700 text-xs font-mono font-bold text-slate-200">Acceso Estudiantes</a>
+              <a href="/login" className="text-center py-2.5 rounded-xl border border-slate-700 text-xs font-mono font-bold text-slate-200">Acceso Estudiantes</a>
               <a href="/diagnostico" className="text-center py-2.5 rounded-xl bg-purple-600 text-xs font-mono font-bold text-white">7 Días Gratis</a>
             </div>
           </div>
