@@ -489,7 +489,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
                 <span>Feedback Mentora Haas</span>
               </div>
               <div className="text-purple-300 font-bold text-[12px] bg-cyan-400/10 px-3 py-1 rounded-lg border border-cyan-500/40/30 tracking-wider shadow-sm">
-                +{scoreFinal} PTS
+                +{scoreFinal} XP
               </div>
             </div>
 

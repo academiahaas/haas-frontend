@@ -42,7 +42,7 @@ export function NavbarSuperior({ t }) {
         <div className="flex items-center bg-[#101D28] border border-[#1C2C39] px-3 py-1.5 rounded-xl shadow-md font-mono text-[10px] font-black text-white">
           <span className="text-[#3CD070] mr-1">🎯</span>
           <span className="text-slate-400 mr-1">{t.objetivo}:</span>
-          <span>--- PTS</span>
+          <span>--- XP</span>
         </div>
         
         <div className="flex items-center gap-2.5 bg-[#101D28] border border-cyan-500/40 rounded-xl px-4 py-1.5 shadow-xl font-mono">

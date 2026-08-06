@@ -3112,7 +3112,7 @@ React.useEffect(() => {
                 <div className="text-purple-300 shrink-0"><Zap size={16} className="text-purple-300" /></div>
                 <div className="flex flex-col">
                   <span className="text-lg md:text-2xl font-mono font-black text-white">{totalXp ? Number(totalXp).toLocaleString('pt-BR') : '0'}</span>
-                  <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">Total PTS</span>
+                  <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">Total XP</span>
                 </div>
               </div>
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-1.5.5">
@@ -3794,14 +3794,14 @@ if (!vencimentoPlano) return "--/--/----";
               {topRankingMobile.length > 0 ? topRankingMobile.map((aluno, i) => {
                 const isFirst = i === 0;
                 const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';
-                const xp = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' PTS';
+                const pts = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' XP';
                 return (
                   <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-cyan-400/[0.04] border border-cyan-500/40/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
                     <div className="flex items-center gap-1.5">
                       <span className={`w-4 ${isFirst ? 'font-black text-cyan-400 text-sm' : 'font-medium text-slate-400'}`}>{i + 1}</span>
                       <span className={isFirst ? 'text-white font-black' : 'text-slate-200'}>{nome}</span>
                     </div>
-                    <span className={`font-mono ${isFirst ? 'text-cyan-400 font-bold' : 'text-slate-400'}`}>{xp}</span>
+                    <span className={`font-mono ${isFirst ? 'text-cyan-400 font-bold' : 'text-slate-400'}`}>{pts}</span>
                   </div>
                 );
               }) : <div className="text-center py-6 text-slate-400 text-xs font-mono">Carregando classificação...</div>}

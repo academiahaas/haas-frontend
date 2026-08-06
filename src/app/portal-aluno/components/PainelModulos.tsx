@@ -119,7 +119,7 @@ export default function PainelModulos({ onSelectUnit }: { onSelectUnit: (unit: U
                   <div className="flex-1 space-y-4">
                     <div className="flex flex-wrap items-center gap-4 text-[10px] font-mono text-slate-400">
                       <span>UNIDADE {unit.unit_number}</span>
-                      <span className="text-cyan-400">• SCORE ATIVO: +{unit.score_points} PTS</span>
+                      <span className="text-cyan-400">• SCORE ATIVO: +{unit.score_points} XP</span>
                       <span className="text-cyan-400">• META DIÁRIA: {unit.daily_goal_minutes} MIN</span>
                     </div>
 

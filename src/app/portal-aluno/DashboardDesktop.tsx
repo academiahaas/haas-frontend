@@ -156,7 +156,7 @@ export default function DashboardDesktop({ alunoData }: any) {
   const [tempoModulo, setTempoModulo] = useState(15);
   const [nomeModulo, setNomeModulo] = useState(alunoData?.module_title || "Carregando módulo...");
   const [listaUnidades, setListaUnidades] = useState([]);
-  const [xpTotalUnidade, setXpTotalUnidade] = useState(alunoData?.required_xp || 0);
+  const [ptsTotalUnidade, setXpTotalUnidade] = useState(alunoData?.required_xp || 0);
   const [patenteBruta, setPatenteBruta] = useState("Explorador");
 
   useEffect(() => {
@@ -602,22 +602,22 @@ export default function DashboardDesktop({ alunoData }: any) {
   }, []);
   const [isVencidoSimulado, setIsVencidoSimulado] = useState(false);
   const [isSimuladorLiberado, setIsSimuladorLiberado] = useState(false);
-  const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
+  const [xpAtual, setXpAtual] = useState("120"), [ptsTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
   const [topTen, setTopTen] = useState([]);
   const [erro1, setErro1] = useState("Prepositions"), [erro2, setErro2] = useState("Phrasal Verbs");
   const [peso1, setPeso1] = useState("High"), [peso2, setPeso2] = useState("Medium");
   const [isLigaOpen, setIsLigaOpen] = useState(false);
   const mockupLigas = [
-    { rank: 1, nome: "Alpha_Leader 👑", xp: "2.450 PTS", badge: "Vanguard" },
-    { rank: 2, nome: "Bruna_Haas", xp: "1.920 PTS", badge: "Expert" },
-    { rank: 3, nome: "Rodrigo_M", xp: "1.850 PTS", badge: "Expert" },
-    { rank: 4, nome: "Elena_Rostova", xp: "1.620 PTS", badge: "Navigator" },
-    { rank: 5, nome: "Marcus_Tech", xp: "1.400 PTS", badge: "Navigator" },
-    { rank: 6, nome: "Aline_P", xp: "1.150 PTS", badge: "Explorer" },
-    { rank: 7, nome: "Thomas_K", xp: "980 PTS", badge: "Explorer" },
-    { rank: 8, nome: "Zoe_Mendes", xp: "850 PTS", badge: "Scout" },
-    { rank: 9, nome: "Lucas_V", xp: "720 PTS", badge: "Scout" },
-    { rank: 10, nome: "Sofia_Data", xp: "600 PTS", badge: "Rookie" }
+    { rank: 1, nome: "Alpha_Leader 👑", pts: "2.450 XP", badge: "Vanguard" },
+    { rank: 2, nome: "Bruna_Haas", pts: "1.920 XP", badge: "Expert" },
+    { rank: 3, nome: "Rodrigo_M", pts: "1.850 XP", badge: "Expert" },
+    { rank: 4, nome: "Elena_Rostova", pts: "1.620 XP", badge: "Navigator" },
+    { rank: 5, nome: "Marcus_Tech", pts: "1.400 XP", badge: "Navigator" },
+    { rank: 6, nome: "Aline_P", pts: "1.150 XP", badge: "Explorer" },
+    { rank: 7, nome: "Thomas_K", pts: "980 XP", badge: "Explorer" },
+    { rank: 8, nome: "Zoe_Mendes", pts: "850 XP", badge: "Scout" },
+    { rank: 9, nome: "Lucas_V", pts: "720 XP", badge: "Scout" },
+    { rank: 10, nome: "Sofia_Data", pts: "600 XP", badge: "Rookie" }
   ];
 
   useEffect(() => { setMounted(true); }, []);
@@ -930,8 +930,8 @@ export default function DashboardDesktop({ alunoData }: any) {
             <div className="p-4 rounded-[24px] border border-white/10 bg-[#0A0F1D] flex flex-col justify-between min-h-[95px] sm:h-full">
               <span className="text-[9px] font-black uppercase text-cyan-400 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
-                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(scoreAtivo) / Number(xpTotalUnidade || 1)) * 100), 100)}%` }} /></div>
+                <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {ptsTotalUnidade} XP</span></span>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(scoreAtivo) / Number(ptsTotalUnidade || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
 
@@ -947,8 +947,8 @@ export default function DashboardDesktop({ alunoData }: any) {
                       "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" }
                     };
                     return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
-                  })()}</span><span className="text-cyan-400 font-mono font-bold">-{Math.max(0, Number(xpTotal) - Number(xpAtual))} PTS</span></div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal || 1)) * 100), 100)}%` }} /></div>
+                  })()}</span><span className="text-cyan-400 font-mono font-bold">-{Math.max(0, Number(ptsTotal) - Number(xpAtual))} XP</span></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(ptsTotal || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
           </div>
@@ -1044,7 +1044,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                         <span className="font-mono text-[10px] font-black w-4 text-center">{rank}</span>
                         <span className="truncate">{user.nickname || "Aluno Anônimo"}</span>
                       </div>
-                      <span className="font-mono text-[10px] text-slate-400">{ptsFormatados} PTS</span>
+                      <span className="font-mono text-[10px] text-slate-400">{ptsFormatados} XP</span>
                     </div>
                   );
                 })}

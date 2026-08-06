@@ -148,7 +148,7 @@ export default function ArenaImersivaTotal({
           precisao={alunoData?.clinical_precision}
           streak={1}
           unidadeAtual="1/5"
-          pts={3}
+          xp={3}
           creditosIA={499461}
           onOpenLeitura={() => alert("Abrir Leitura")}
           onOpenVideo={() => alert("Abrir Vídeo")}

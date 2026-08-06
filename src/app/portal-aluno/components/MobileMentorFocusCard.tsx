@@ -105,7 +105,7 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
         <span className="text-[clamp(11px,3vw,15px)] font-mono font-black uppercase text-white tracking-wider">
           {idiomaSelecionado === "PT" ? "Foco Estratégico" : idiomaSelecionado === "ES" ? "Enfoque Estratégico" : "Strategic Focus"}
         </span>
-        <span className="text-[clamp(13px,3.5vw,18px)] font-mono font-black text-cyan-400">+{totalXp} PTS</span>
+        <span className="text-[clamp(13px,3.5vw,18px)] font-mono font-black text-cyan-400">+{totalXp} XP</span>
       </div>
 
       {/* Container do Balão + Robozinho Mobile Exclusivo */}

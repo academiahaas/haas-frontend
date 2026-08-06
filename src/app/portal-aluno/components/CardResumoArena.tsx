@@ -31,7 +31,7 @@ export default function CardResumoArena({
         <div className="bg-black/20 border border-white/5 rounded-xl p-3 flex flex-col justify-center items-center">
           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Acumulado</span>
           <span className="text-sm font-mono font-bold text-purple-300 animate-pulse">
-            {unitScoreCurrent} <span className="text-[10px] text-slate-500 font-normal">PTS</span>
+            {unitScoreCurrent} <span className="text-[10px] text-slate-500 font-normal">XP</span>
           </span>
         </div>
 

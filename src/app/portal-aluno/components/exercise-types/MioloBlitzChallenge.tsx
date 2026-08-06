@@ -99,7 +99,7 @@ export default function MioloBlitzChallenge({
   useEffect(() => {
     if (gameOver && onValidateResult && !validadoRef.current) {
       validadoRef.current = true;
-      onValidateResult(totalXp > 0, `Desafio Concluído! Você conquistou ${totalXp} PTS no Blitz.`, totalXp, exerciseId || unidadeAtiva);
+      onValidateResult(totalXp > 0, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, exerciseId || unidadeAtiva);
     }
   }, [gameOver, onValidateResult, totalXp, exerciseId, unidadeAtiva]);
 
@@ -237,7 +237,7 @@ export default function MioloBlitzChallenge({
           </div>
 
           <div className='text-[clamp(26px,3vw,36px)] font-black text-[#a855f7] bg-[#a855f7]/10 px-8 py-3.5 rounded-xl border border-[#a855f7]/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] tracking-wide'>
-            +{totalXp} PTS
+            +{totalXp} XP
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ interface ArenaHeaderMobileProps {
   precisao?: number;
   streak?: number;
   pts?: number;
+  xp?: number;
   creditosIA?: number;
   onOpenLeitura?: () => void;
   onOpenVideo?: () => void;
@@ -20,6 +21,7 @@ export function ArenaHeaderMobile({
   precisao: precisaoProp,
   streak: streakProp,
   pts: ptsProp,
+  xp: xpProp,
   creditosIA: creditosIAProp,
   onOpenLeitura,
   onOpenVideo,
@@ -31,7 +33,7 @@ export function ArenaHeaderMobile({
   // Prioriza os dados em tempo real do banco; se não houver ou estiver carregando, utiliza a prop enviada
   const precisao = metrics?.clinical_precision ?? precisaoProp ?? 0;
   const streak = metrics?.streak_days ?? streakProp ?? 0;
-  const pts = metrics?.total_xp ?? ptsProp ?? 0;
+  const pts = metrics?.total_xp ?? ptsProp ?? xpProp ?? 0;
   const creditosIA = metrics?.chat_credits ?? creditosIAProp ?? 0;
 
   return (

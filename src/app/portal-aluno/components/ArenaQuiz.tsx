@@ -1418,7 +1418,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <Flame size={13} fill="currentColor" /> 
             {comboQuebrado ? "COMBO QUEBRADO" : `${streak || 0}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
           </span>
-          <span className="flex items-center gap-1 text-[#22C55E]"><Award size={13} /> {xpAcumulado} PTS TOTAL</span>
+          <span className="flex items-center gap-1 text-[#22C55E]"><Award size={13} /> {xpAcumulado} XP TOTAL</span>
         </div>
 
         {onClose && (
@@ -1715,7 +1715,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     </div>
                     <div className="flex gap-2 w-full justify-center mt-1 font-mono text-[10px] font-black">
                       <span className="bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981] px-4 py-2 rounded-xl font-mono tracking-wider">
-                        💎 +{streak >= 3 ? 38 : 25} PTS RECOMPENSA
+                        💎 +{streak >= 3 ? 38 : 25} XP RECOMPENSA
                       </span>
                     </div>
                   </div>
@@ -2168,7 +2168,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                         <span className="text-slate-400 font-sans italic">{getThinkingMessage()}</span>
                       ) : (
                         <>
-                          {gameStatus === 'CORRECT' && "Incrível! O loot da missão foi liberado. Clique na caixa de suprimentos para resgatar seus bônus de PTS multiplicados!"}
+                          {gameStatus === 'CORRECT' && "Incrível! O loot da missão foi liberado. Clique na caixa de suprimentos para resgatar seus bônus de XP multiplicados!"}
                           {gameStatus === 'WRONG' && (
                             (() => {
                               const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
