@@ -34,7 +34,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
   
 
   return (
-    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-cyan-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
+    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-white/10 hover:border-purple-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
       <svg viewBox="0 0 64 64" className="w-10 h-10 xl:w-12 xl:h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path style={{ transform: devePiscar ? "rotate(-3deg) translateY(1px)" : "none", transformOrigin: "22px 22px", transition: "transform 0.15s ease-in-out" }} d="M18 22C18 12 22 6 22 6C22 6 26 12 26 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
         <path style={{ transform: devePiscar ? "rotate(3deg) translateY(1px)" : "none", transformOrigin: "42px 22px", transition: "transform 0.15s ease-in-out" }} d="M38 22C38 12 42 6 42 6C42 6 46 12 46 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -634,7 +634,7 @@ export default function DashboardDesktop({ alunoData }: any) {
     <div className="w-full max-w-[100vw] overflow-x-hidden min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar">
       
       {/* 🛠️ PAINEL GLOBAL DE SIMULAÇÃO (FLUTUANDO NO TOPO - VISÍVEL EM TODAS AS TELAS) */}
-      <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-cyan-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
+      <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-white/10 hover:border-purple-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
         <span className="text-slate-400 font-bold tracking-wider">SIMULAR VISTA:</span>
         <div className="flex gap-1.5">
           <button 
@@ -703,7 +703,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         .animate-ai-mascot-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
       `}</style>
 
-      <div className="w-full bg-[#061324] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#8b5cf6]/40 relative">
+      <div className="w-full bg-[#0A0F1D] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#8b5cf6]/40 relative">
         <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-4">
             <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
@@ -727,7 +727,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     ⚙️
                   </button>
                 ) : (
-                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
+                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/10 rounded-xl text-[10px] font-mono font-black select-none`}>
                     <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
@@ -749,7 +749,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     </button>
                   </div>
                 )}
-                <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/5 rounded-xl text-[10px] font-mono font-black select-none`}>
+                <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/10 rounded-xl text-[10px] font-mono font-black select-none`}>
                   <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
                   <button 
                     onClick={() => setIsMatriculadoSimulado(false)} 
@@ -792,13 +792,13 @@ export default function DashboardDesktop({ alunoData }: any) {
         </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-          <div className="bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/5 text-[9px] font-black text-white/80 flex gap-1 items-center">
+          <div className="bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 text-[9px] font-black text-white/80 flex gap-1 items-center">
             <Globe size={11} className="text-slate-400" />
             <button onClick={() => setIdioma('PT')} className={`px-1 py-0.5 rounded font-bold ${idioma === 'PT' ? 'bg-slate-950/60 text-cyan-400 border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>PT</button>
             <button onClick={() => setIdioma('EN')} className={`px-1 py-0.5 font-bold ${idioma === 'EN' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>EN</button>
             <button onClick={() => setIdioma('ES')} className={`px-1 py-0.5 font-bold ${idioma === 'ES' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>ES</button>
           </div>
-          <div className="flex bg-white/5 p-1 rounded-xl gap-0.5 border border-white/5">
+          <div className="flex bg-white/5 p-1 rounded-xl gap-0.5 border border-white/10">
             <button onClick={() => { setAbaProgAtiva(false); setIsPerfilOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isPerfilOpen || !abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "INÍCIO" : idioma === "ES" ? "INICIO" : "HOME"}</button>
             <button onClick={() => { setAbaProgAtiva(true); setIsPerfilOpen(false); setIsTrilhaOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isTrilhaOpen || abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "PROGRAMA" : idioma === "ES" ? "PROGRAMA" : "PROGRAM"}</button>
           </div>
@@ -808,7 +808,7 @@ export default function DashboardDesktop({ alunoData }: any) {
       <div className="flex-1 px-4 xl:px-6 pt-3 pb-4 flex flex-col xl:grid xl:grid-cols-[1fr_360px] gap-5 w-full xl:items-stretch xl:min-h-0 relative">
 
         <div className="flex flex-col gap-4 w-full xl:h-full xl:min-h-0 flex-1">
-          <div className="bg-[#061324] pt-5 pb-5 px-5 xl:px-6 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/5 relative overflow-hidden xl:flex-1 min-h-0">
+          <div className="bg-[#0A0F1D] pt-5 pb-5 px-5 xl:px-6 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/10 relative overflow-hidden xl:flex-1 min-h-0">
             <div className="absolute top-0 left-0 w-[600px] h-[400px] pointer-events-none z-10 overflow-visible">
               <svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
                 <defs>
@@ -927,7 +927,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </div>
             </div>
 
-            <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
+            <div className="p-4 rounded-[24px] border border-white/10 bg-[#0A0F1D] flex flex-col justify-between min-h-[95px] sm:h-full">
               <span className="text-[9px] font-black uppercase text-cyan-400 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
                 <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
@@ -935,7 +935,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </div>
             </div>
 
-            <div className="p-4 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between min-h-[95px] sm:h-full">
+            <div className="p-4 rounded-[24px] border border-white/10 bg-[#0A0F1D] flex flex-col justify-between min-h-[95px] sm:h-full">
               <span className="text-[9px] font-black uppercase text-cyan-400 font-mono tracking-wider">{t.nextReward}</span>
               <div className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{({ PT: "NÍVEL", ES: "NIVEL", EN: "LEVEL" }[(idioma || "PT").toUpperCase()] || "NÍVEL")} {(() => {
@@ -954,9 +954,9 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
         </div>
 
-        <div className="w-full xl:w-auto bg-[#061324] pt-5 pb-5 px-5 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between xl:h-full border border-white/5 relative min-h-[580px] xl:min-h-0 overflow-hidden shrink-0">
+        <div className="w-full xl:w-auto bg-[#0A0F1D] pt-5 pb-5 px-5 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between xl:h-full border border-white/10 relative min-h-[580px] xl:min-h-0 overflow-hidden shrink-0">
           <div className="w-full flex flex-col gap-2 shrink-0">
-            <div className="w-full h-[165px] shrink-0 bg-[#04101e] rounded-2xl flex items-center justify-center overflow-hidden p-1 border border-white/5 shadow-inner">
+            <div className="w-full h-[165px] shrink-0 bg-[#080C16] rounded-2xl flex items-center justify-center overflow-hidden p-1 border border-white/10 shadow-inner">
               {mounted ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart cx="50%" cy="54%" outerRadius="75%" data={dadosRadar} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
@@ -1001,10 +1001,10 @@ export default function DashboardDesktop({ alunoData }: any) {
 
               return (
                 <div className="grid grid-cols-3 gap-1.5 text-[7.2px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
-                  <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
+                  <span className="bg-cyan-500/10 text-cyan-300 border border-white/10 hover:border-purple-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
                     <TrendingUp size={9} className="text-cyan-400"/> {tLabel(top1)} +{top1.nota}%
                   </span>
-                  <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
+                  <span className="bg-cyan-500/10 text-cyan-300 border border-white/10 hover:border-purple-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
                     <TrendingUp size={9} className="text-cyan-400"/> {tLabel(top2)} +{top2.nota}%
                   </span>
                   <span className="bg-rose-500/10 text-rose-300 border border-rose-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.12)]">
@@ -1018,19 +1018,19 @@ export default function DashboardDesktop({ alunoData }: any) {
           <div className="w-full flex flex-col gap-1 shrink-0 relative z-20 mt-2">
             <div 
               onClick={() => setIsLigaOpen(!isLigaOpen)}
-              className="flex flex-row justify-between items-center bg-[#04101e] hover:bg-[#07172b] p-2.5 rounded-xl border border-white/5 cursor-pointer select-none transition-all duration-200 group"
+              className="flex flex-row justify-between items-center bg-[#080C16] hover:bg-[#0E1626] p-2.5 rounded-xl border border-white/10 cursor-pointer select-none transition-all duration-200 group"
             >
               <div className="flex items-center gap-2">
                 <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider group-hover:text-slate-200 transition-colors">{t.leaderboard}</span>
                 <ChevronDown size={12} className={`text-slate-500 transition-transform duration-300 ${isLigaOpen ? 'rotate-180 text-cyan-400' : ''}`} />
               </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
+              <div className="bg-cyan-500/10 border border-white/10 hover:border-purple-500/30 text-cyan-300 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
                 <span>{nicknameAluno}</span>
               </div>
             </div>
 
-            <div className={`absolute top-full left-0 right-0 z-[999999] mt-1 overflow-visible transition-all duration-200 ease-in-out bg-[#04101e] border border-white/10 rounded-xl flex flex-col gap-1 shadow-[0_20px_40px_rgba(0,0,0,0.8)] ${isLigaOpen ? 'max-h-[180px] p-2 opacity-100 pointer-events-auto' : 'max-h-0 opacity-0 pointer-events-none border-transparent'}`}>
-              <div className="w-full flex justify-between px-2 text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider select-none border-b border-white/5 pb-1">
+            <div className={`absolute top-full left-0 right-0 z-[999999] mt-1 overflow-visible transition-all duration-200 ease-in-out bg-[#080C16] border border-white/10 rounded-xl flex flex-col gap-1 shadow-[0_20px_40px_rgba(0,0,0,0.8)] ${isLigaOpen ? 'max-h-[180px] p-2 opacity-100 pointer-events-auto' : 'max-h-0 opacity-0 pointer-events-none border-transparent'}`}>
+              <div className="w-full flex justify-between px-2 text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider select-none border-b border-white/10 pb-1">
                 <span>{idioma === "PT" ? "RANK & USUÁRIO" : idioma === "ES" ? "PUESTO & USUARIO" : "RANK & USER"}</span>
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
@@ -1039,7 +1039,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                   const rank = index + 1;
                   const ptsFormatados = (user.total_xp || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                   return (
-                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-purple-600/20 to-yellow-600/10 border border-cyan-500/30 text-cyan-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
+                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-purple-600/20 to-yellow-600/10 border border-white/10 hover:border-purple-500/30 text-cyan-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
                       <div className="flex items-center gap-2.5">
                         <span className="font-mono text-[10px] font-black w-4 text-center">{rank}</span>
                         <span className="truncate">{user.nickname || "Aluno Anônimo"}</span>
@@ -1058,9 +1058,9 @@ export default function DashboardDesktop({ alunoData }: any) {
             <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-purple-500/30 tracking-wider" onClick={() => setIsAgendaOpen(true)}>{t.calBtn}</button>
           </div>
 
-          <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
+          <div className="border-t border-white/10 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
             <span className="text-[9px] font-black text-[#8b5cf6] font-mono uppercase tracking-wider">{t.chestTitle}</span>
-            <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] py-1.5 px-3 rounded-xl text-white/90 border border-white/5">
+            <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] py-1.5 px-3 rounded-xl text-white/90 border border-white/10">
               {(() => {
                 const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
                 const ordenados = [...errorLogs].sort((a, b) => {
@@ -1081,7 +1081,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 );
               })()}
             </div>
-            <button onClick={() => setIsDepurarOpen(true)} className="w-full w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-cyan-500/30 hover:border-cyan-500/60 shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all">
+            <button onClick={() => setIsDepurarOpen(true)} className="w-full w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-white/10 hover:border-purple-500/30 hover:border-cyan-500/60 shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all">
               <span className="text-cyan-300 font-mono tracking-widest">{t.clearBtn}</span>
             </button>
           </div>
@@ -1114,7 +1114,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           <div className="bg-[#162235] border border-[#48627D]/40 rounded-2xl w-full max-w-xl p-6 relative shadow-2xl text-left cursor-default">
             <button 
               onClick={() => setModalPedagogoPage({ aberto: false, tipo: null })}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#1D2D44] p-1.5 rounded-full border border-white/5 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 hover:text-white bg-[#1D2D44] p-1.5 rounded-full border border-white/10 cursor-pointer"
             >
               <X size={14} />
             </button>
@@ -1124,7 +1124,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   Media & Practice Content
                 </h3>
-                <div className="w-full aspect-video bg-[#0B1528] rounded-xl border border-white/5 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
+                <div className="w-full aspect-video bg-[#0B1528] rounded-xl border border-white/10 flex flex-col items-center justify-center text-slate-400 text-xs font-mono">
                   [ PLAYER DE VÍDEO HAAS ]
                 </div>
               </div>
@@ -1155,8 +1155,8 @@ export default function DashboardDesktop({ alunoData }: any) {
       {isDepurarOpen && (
         <div className="fixed inset-0 z-[600] flex items-center justify-center animate-fadeIn">
           <div onClick={() => setIsDepurarOpen(false)} className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" />
-          <div className="relative w-full max-w-md bg-[#040c16] border border-cyan-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
-            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+          <div className="relative w-full max-w-md bg-[#060912] border border-white/10 hover:border-purple-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
               <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#8b5cf6]">
                 {idioma === "PT" ? "Depuração de Logs" : idioma === "ES" ? "Depuración de Logs" : "Logs Debugger"}
               </h3>
@@ -1175,7 +1175,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 return ordenados.map((item: any, idx: number) => {
                   const isCritico = item.frequencia === "Alto";
                   return (
-                    <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/5 text-[10px] font-mono font-bold">
+                    <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/10 text-[10px] font-mono font-bold">
                       <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
                       <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${
                         isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "font-bold text-cyan-400/10 text-cyan-400 border border-cyan-500/20"
@@ -1194,9 +1194,9 @@ export default function DashboardDesktop({ alunoData }: any) {
       {/* 🗂️ GAVETA LUXO PERFIL 100% COMPLETA, COM IDIOMAS E BOTÃO DE PAGAMENTO */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex justify-start ${isPerfilOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'}`}>
         <div onClick={() => setIsPerfilOpen(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-        <div className={`relative w-[340px] h-screen max-h-screen bg-[#040c16] border-r border-white/5 py-4 px-5 flex flex-col justify-between gap-[1.5vh] shadow-2xl transition-transform duration-300 overflow-y-hidden ${isPerfilOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`relative w-[340px] h-screen max-h-screen bg-[#060912] border-r border-white/10 py-4 px-5 flex flex-col justify-between gap-[1.5vh] shadow-2xl transition-transform duration-300 overflow-y-hidden ${isPerfilOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           
-          <div className="flex justify-between items-center border-b border-white/5 pb-2 shrink-0">
+          <div className="flex justify-between items-center border-b border-white/10 pb-2 shrink-0">
             <div className="flex items-center gap-2 text-slate-400 font-mono text-[9px] font-black uppercase tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full font-bold text-cyan-400 animate-pulse"></span>
               <span>{idioma === 'PT' ? 'Painel de Controle' : idioma === 'ES' ? 'Panel de Control' : 'Control Panel'}</span>
@@ -1243,7 +1243,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
               <div className="hidden absolute top-2 right-2 font-bold text-cyan-400/10 hover:font-bold text-cyan-400/20 text-cyan-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
               <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
+                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-white/10 hover:border-purple-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
               <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
@@ -1264,7 +1264,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
-                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-cyan-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/5 opacity-40'}`} />
+                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-white/10 hover:border-purple-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/10 opacity-40'}`} />
                     <span className="text-[7.5px] font-mono font-black text-slate-500 uppercase">{idioma === "EN" ? ["M","T","W","T","F","S","S"][idx] : idioma === "ES" ? ["L","M","X","J","V","S","D"][idx] : ["S","T","Q","Q","S","S","D"][idx]}</span>
                   </div>
                 ))}
@@ -1293,7 +1293,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
+          <div className="border-t border-white/10 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
             <button 
               onClick={() => window.open('https://wa.me/5491168809228', '_blank')} 
               className="w-full bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 hover:text-emerald-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-emerald-500/10 text-center transition-all flex items-center justify-center"
@@ -1312,7 +1312,7 @@ export default function DashboardDesktop({ alunoData }: any) {
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isTrilhaOpen ? 'visible opacity-100 pointer-events-auto' : 'invisible opacity-0 pointer-events-none'}`}>
         <div onClick={() => setIsTrilhaOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
         <div className="relative w-full max-w-3xl h-[75vh] bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full font-bold text-cyan-400 animate-pulse" />
               {idioma === 'PT' ? 'MÓDULOS DO PROGRAMA' : idioma === 'ES' ? 'MÓDULOS DEL PROGRAMA' : 'PROGRAM MODULES'}
@@ -1459,10 +1459,10 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
       <div onClick={() => setIsOpen(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
-      <div className={`relative w-full transition-all duration-300 bg-[#061324] border border-cyan-500/30 rounded-[28px] p-6 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[90vh] text-white ${passo === 1 ? "max-w-lg" : "max-w-3xl"}`}>
+      <div className={`relative w-full transition-all duration-300 bg-[#0A0F1D] border border-white/10 hover:border-purple-500/30 rounded-[28px] p-6 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[90vh] text-white ${passo === 1 ? "max-w-lg" : "max-w-3xl"}`}>
         
         {/* Cabeçalho */}
-        <div className="flex justify-between items-center border-b border-white/5 pb-3">
+        <div className="flex justify-between items-center border-b border-white/10 pb-3">
           <span className="text-[#8b5cf6] font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full font-bold text-cyan-400 animate-pulse" />
             {passo === 1 ? (
@@ -1513,19 +1513,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
               
               <div className="grid grid-cols-3 gap-2 mt-1">
                 {/* Linha 1: Planos Padrão Fechados */}
-                <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "Group")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Standard")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Pro")?.ai_status || "IA Ilimitada")}
@@ -1533,19 +1533,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 </button>
 
                 {/* Linha 2: Aulas Avulsas / Packs Progressivos */}
-                <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack Group")?.ai_status || "+10 IA /cr")}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Std")?.ai_status || "+25 IA /cr")}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Pro")?.ai_status || "+25 IA /cr")}
@@ -1556,11 +1556,11 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             
             {/* Sub-configurações baseadas na escolha */}
             {["grupo", "vip_std", "vip_pro"].includes(modalidade) && (
-              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
+              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/10">
                 <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Selecione a Intensidade Mensal:" : idioma === "EN" ? "Select Monthly Intensity:" : "Seleccione la Intensidad Mensual:"}</span>
                 <div className="flex gap-2">
                   {[8, 12, 20].map((num) => (
-                    <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "font-bold text-cyan-400 text-black border-cyan-500/40" : "bg-slate-900 border-white/5 hover:border-white/10"}`}>
+                    <button key={num} onClick={() => setCreditosMensais(num)} className={`flex-1 py-2 rounded-lg text-xs font-mono font-bold border transition-all ${creditosMensais === num ? "font-bold text-cyan-400 text-black border-cyan-500/40" : "bg-slate-900 border-white/10 hover:border-white/10"}`}>
                       {num} {idioma === "EN" ? "Credits" : "Créditos"}
                     </button>
                   ))}
@@ -1569,7 +1569,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             )}
 
             {modalidade === "avulsa" && (
-              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
+              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/10">
                 <span className="text-xs text-slate-400 font-bold uppercase">{idioma === "PT" ? "Quantidade de Aulas VIP Pro:" : idioma === "EN" ? "Amount of VIP Pro Classes:" : "Cantidad de Clases VIP Pro:"}</span>
                 <div className="flex items-center gap-4 justify-center py-1">
                   <button onClick={() => setQtdAvulsas(Math.max(1, qtdAvulsas - 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">-</button>
@@ -1580,7 +1580,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             )}
 
             {["acumulador_grupo", "acumulador_vip_std", "acumulador_vip_pro"].includes(modalidade) && (
-              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/5">
+              <div className="flex flex-col gap-2 bg-slate-950/30 p-3 rounded-xl border border-white/10">
                 <span className="text-xs text-slate-400 font-bold uppercase">
                   {modalidade === "acumulador_grupo" ? (
                     idioma === "PT" ? "Quantidade de Aulas em Grupo:" : idioma === "EN" ? "Amount of Group Classes:" : "Cantidad de Clases en Grupo:"
@@ -1643,7 +1643,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             {/* 🖥️ POP-UPS DE REGRAS PREMIUM */}
             {typeof window !== "undefined" && (window as any)._showPopUpHAAS && (
               <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-sm bg-[#061324] border border-cyan-500/30 rounded-[28px] p-6 text-center flex flex-col gap-4 shadow-2xl text-white">
+                <div className="w-full max-w-sm bg-[#0A0F1D] border border-white/10 hover:border-purple-500/30 rounded-[28px] p-6 text-center flex flex-col gap-4 shadow-2xl text-white">
                   {["grupo", "vip_std", "vip_pro"].includes(modalidade) ? (
                     <>
                       <div className="flex justify-center"><Calendar className="w-8 h-8 text-cyan-400" /></div>
@@ -1673,7 +1673,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       <div className="flex justify-center"><AlertTriangle className="w-8 h-8 text-rose-500" /></div>
                       <div>
                         <h4 className="text-sm font-black text-rose-400 uppercase tracking-wider">{idioma === 'PT' ? 'Regras de Agendamento' : idioma === 'EN' ? 'Scheduling Rules' : 'Reglas de Agendamiento'}</h4>
-                        <div className="text-[11px] text-slate-300 text-left leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-white/5 mt-3 flex flex-col gap-1.5">
+                        <div className="text-[11px] text-slate-300 text-left leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-white/10 mt-3 flex flex-col gap-1.5">
                           <div>{idioma === 'PT' ? '• Todo agendamento requer um mínimo de 24 horas de antecedência.' : idioma === 'EN' ? '• All scheduling requires a minimum of 24 hours notice.' : '• Todo agendamiento requiere un mínimo de 24 horas de anticipación.'}</div>
                           <div>{idioma === 'PT' ? '• Cancelamentos permitidos até 12 horas antes (caso contrário o crédito será descontado).' : idioma === 'EN' ? '• Cancellations allowed up to 12 hours before (otherwise the credit will be deducted).' : '• Cancelaciones permitidas hasta 12 horas antes (de lo contrario el crédito se descontará).'}</div>
                         </div>
@@ -1751,14 +1751,14 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       placeholder="HAAS10" 
                       className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500/50 transition-all" 
                     />
-                    <button className="bg-gradient-to-r from-purple-500/10 to-transparent border border-cyan-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                    <button className="bg-gradient-to-r from-purple-500/10 to-transparent border border-white/10 hover:border-purple-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
                       {idioma === "PT" ? "Aplicar" : idioma === "EN" ? "Apply" : "Aplicar"}
                     </button>
                   </div>
                 </div>
                 
                 {/* Seletor de Localização Simples */}
-                <div className="bg-white/[0.02] border border-white/5 p-2 rounded-xl flex justify-between items-center text-[10px]">
+                <div className="bg-white/[0.02] border border-white/10 p-2 rounded-xl flex justify-between items-center text-[10px]">
                   <span className="text-slate-400 font-bold tracking-wider">{idioma === "PT" ? "ONDE VOCÊ ESTÁ?" : idioma === "EN" ? "WHERE ARE YOU LOCATED?" : "¿DÓNDE TE ENCUENTRAS?"}</span>
                   <button 
                     onClick={() => { (window as any)._verInternacional = !(window as any)._verInternacional; (window as any).dispatchEvent(new Event("resize")); }}
@@ -1916,14 +1916,14 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 )}
 
                 {/* RODAPÉ UNIFICADO COM BOTÃO GERAL E ALINHAMENTO ORIGINAL */}
-                <div className="flex flex-col gap-2.5 border-t border-white/5 pt-3 mt-1">
+                <div className="flex flex-col gap-2.5 border-t border-white/10 pt-3 mt-1">
                   {(() => {
                     
                     const [_, forceUpdate] = (typeof window !== "undefined") ? (window as any).React?.useState(0) || [0, () => {}] : [0, () => {}];
                     const estadoNotificado = (typeof window !== "undefined") ? (window as any)._pagoNotificado || false : false;
                     if (estadoNotificado) {
                       return (
-                        <div className="fixed inset-0 z-[110] bg-[#061324] flex flex-col justify-center items-center p-6 text-center font-mono animate-fadeIn">
+                        <div className="fixed inset-0 z-[110] bg-[#0A0F1D] flex flex-col justify-center items-center p-6 text-center font-mono animate-fadeIn">
                           <div className="max-w-md bg-slate-950/60 border border-cyan-500/20 p-6 rounded-2xl flex flex-col gap-4 shadow-2xl">
                             <div className="flex justify-center my-2"><Hourglass className="w-8 h-8 text-cyan-400 animate-pulse" /></div>
                             <h3 className="text-sm font-black text-cyan-400 uppercase tracking-wider"><Hourglass className="inline-block w-4 h-4 mr-1 mb-0.5 text-cyan-400 animate-pulse" />{idioma === "PT" ? "NOTIFICAÇÃO DE PAGAMENTO ENVIADA" : idioma === "EN" ? "PAYMENT NOTIFICATION SENT" : "NOTIFICACIÓN DE PAGO ENVIADA"}</h3>
@@ -1963,13 +1963,13 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                           containerAviso.className = "fixed inset-0 z-[99999] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn text-white font-mono";
                           
                           containerAviso.innerHTML = `
-                            <div class="w-full max-w-sm bg-[#061324] border border-cyan-500/30 rounded-[28px] p-6 text-center flex flex-col gap-4 shadow-2xl">
+                            <div class="w-full max-w-sm bg-[#0A0F1D] border border-white/10 hover:border-purple-500/30 rounded-[28px] p-6 text-center flex flex-col gap-4 shadow-2xl">
                               <div className="flex justify-center my-2"><Hourglass className="w-8 h-8 text-cyan-400 animate-pulse" /></div>
                               <h4 className="text-sm font-black text-cyan-400 uppercase tracking-wider"><Hourglass className="inline-block w-4 h-4 mr-1 mb-0.5 text-cyan-400 animate-pulse" />${idioma === "PT" ? "NOTIFICAÇÃO DE PAGAMENTO ENVIADA" : idioma === "EN" ? "PAYMENT NOTIFICATION SENT" : "NOTIFICACIÓN DE PAGO ENVIADA"}</h4>
-                              <p class="text-[10px] text-slate-300 text-left bg-slate-950/50 p-3 rounded-xl border border-white/5" style="line-height: 1.5rem;">
+                              <p class="text-[10px] text-slate-300 text-left bg-slate-950/50 p-3 rounded-xl border border-white/10" style="line-height: 1.5rem;">
                                 ${idioma === "PT" ? "Registramos o seu aviso de pagamento. O sistema iniciará a verificação dos valores com o desconto de identificação aplicado para validar a transação com o seu registro." : idioma === "EN" ? "We have registered your payment notice. The system will begin verifying the values with the identification discount applied to validate the transaction with your registration." : "Hemos registrado tu aviso de pago. El sistema iniciará la verificación de los valores con el desconto de identificación aplicado para validar a transação com o seu registro."}
                               </p>
-                              <div class="text-[9px] text-slate-400 text-left flex flex-col gap-1.5 bg-slate-950/20 p-3 rounded-xl border border-white/5">
+                              <div class="text-[9px] text-slate-400 text-left flex flex-col gap-1.5 bg-slate-950/20 p-3 rounded-xl border border-white/10">
                                 <p>• <b class="text-white">${idioma === "PT" ? "O que acontece agora?" : idioma === "EN" ? "What happens now?" : "¿Qué pasa agora?"}</b> ${idioma === "PT" ? "Assim que o sistema validar o recebimento do valor, procederemos com a ativação automática da sua matrícula." : idioma === "EN" ? "Once the system validates the receipt of the amount, it will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                                 <p>• <b class="text-white">${idioma === "PT" ? "Acesso Completo:" : idioma === "EN" ? "Full Access:" : "Acceso Completo:"}</b> ${idioma === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso será liberado." : idioma === "EN" ? "Upon successful confirmation, you will receive a notification email and your access will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acesso a la plataforma."}</p>
                               </div>

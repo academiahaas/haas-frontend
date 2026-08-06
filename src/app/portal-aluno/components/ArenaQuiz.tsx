@@ -1384,7 +1384,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const jogoAtual = todosOsJogos.find(j => j.id === jogoSelecionado) || todosOsJogos[Math.floor(Math.random() * todosOsJogos.length)];
 
   return (
-    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className={`fixed inset-0 z-[9999] bg-[#060e1a]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+    <div onClick={(e) => { if (e.target === e.currentTarget) { e.stopPropagation(); if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className={`fixed inset-0 z-[9999] bg-[#040711]/85 backdrop-blur-[12px] flex flex-col justify-between h-screen w-screen text-white transition-opacity duration-300 ease-in-out overflow-y-auto custom-scrollbar overflow-y-auto custom-scrollbar ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
       
         <div className={`top-4 left-4 z-[10001] ${(typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "true") ? "absolute" : "hidden"}`}>
         <button 
@@ -1488,7 +1488,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
-                          <button type="button" disabled={!desbloqueado} onClick={() => { setVideoSelecionado(conteudo); setVisualizacaoAtiva("PLAYER_VIDEO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#FF8A2B] to-[#FF5E0A] text-white border-2 border-[#FF8A2B]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(255,138,43,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"}`}>
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setVideoSelecionado(conteudo); setVisualizacaoAtiva("PLAYER_VIDEO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#FF8A2B] to-[#FF5E0A] text-white border-2 border-[#FF8A2B]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(255,138,43,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
                             {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
                           </button>
                         </div>
@@ -1513,7 +1513,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
-                          <button type="button" disabled={!desbloqueado} onClick={() => { setTextoSelecionadoId(conteudo.id); setVisualizacaoAtiva("TEXTO_PEDAGOGO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-white border-2 border-[#00F0FF]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"}`}>
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setTextoSelecionadoId(conteudo.id); setVisualizacaoAtiva("TEXTO_PEDAGOGO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-white border-2 border-[#00F0FF]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
                             {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
                           </button>
                         </div>
@@ -1574,7 +1574,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                         {dadosLicaoEscrita.unit}
                       </span>
                     </div>
-                    <h2 className="text-xl font-black text-white tracking-tight leading-snug border-b border-white/5 pb-4">
+                    <h2 className="text-xl font-black text-white tracking-tight leading-snug border-b border-white/10 pb-4">
                       {dadosLicaoEscrita.title} (Texto {textoSelecionadoId})
                     </h2>
                     <div className="text-slate-300 text-sm leading-relaxed font-normal bg-white/[0.02] border border-white/[0.04] p-6 rounded-xl shadow-inner whitespace-pre-line">
@@ -1631,7 +1631,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                             className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${
                               desbloqueado 
                                 ? "bg-gradient-to-br from-[#FF8A2B] to-[#FF5E0A] text-white border-2 border-[#FF8A2B]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(255,138,43,0.5)] animate-pulse" 
-                                : "bg-[#111927] text-slate-600 border border-white/5 cursor-not-allowed opacity-35"
+                                : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"
                             }`}
                           >
                             {desbloqueado ? (
@@ -1707,7 +1707,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       <h3 className="text-sm font-black text-purple-400merald-400 uppercase tracking-tight">
                         {currentLang === 'ES' ? '¡ESTRUCTURA VALIDADA CON MAESTRIA!' : 'ESTRUTURA VALIDADA COM MAESTRIA!'}
                       </h3>
-                      <p className="text-[12px] text-slate-200 leading-relaxed font-sans bg-white/[0.02] border border-white/5 p-3 rounded-xl italic">
+                      <p className="text-[12px] text-slate-200 leading-relaxed font-sans bg-white/[0.02] border border-white/10 p-3 rounded-xl italic">
                         {currentLang === 'ES' 
                           ? '"¡Excelente desempeño! Las estructuras y los conectores corporativos se aplicaron con perfecta fluidez."' 
                           : '"Excelente desempenho! As estruturas e conectores corporativos foram aplicados com perfeita fluidez nesta missão."'}
@@ -2258,7 +2258,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 </div>
               </div>
 
-              <form onSubmit={perguntarAoMentor} className="flex items-center bg-[#0c192e] border border-white/5 rounded-xl px-3 py-1.5 mt-auto w-full relative">
+              <form onSubmit={perguntarAoMentor} className="flex items-center bg-[#0c192e] border border-white/10 rounded-xl px-3 py-1.5 mt-auto w-full relative">
                  {isRecording ? (
                   <div className="flex-1 flex items-center justify-start gap-1.5 h-[32px] pl-2">
                     <div className="w-1.5 h-3 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full animate-[bounce_0.6s_infinite_alternate]" />
