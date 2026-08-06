@@ -1446,8 +1446,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} 
             className="flex items-center gap-2 text-[10px] font-black font-mono tracking-widest px-4 py-2 bg-slate-900 text-slate-400 rounded-xl border border-slate-700 hover:text-white hover:bg-slate-800 transition-all shadow-md group"
           >
-            {tArena.close}
-            <X size={14} className="group-hover:text-cyan-400 transition-colors" />
+            {currentLang === "PT" ? "SAIR" : currentLang === "ES" ? "SALIR" : "EXIT"} <X size={14} className="group-hover:text-cyan-400 transition-colors" />
           </button>
         )}
       </div>
@@ -1456,11 +1455,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         
         <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#060A12] border border-white/10 border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
-            <div className="flex flex-col">
-              {visualizacaoAtiva === "EXERCICIO" && (
-                <h2 className="text-sm font-bold text-white tracking-tight mt-0.5">{jogoAtual.label}</h2>
-              )}
-            </div>
+            <div className="flex flex-col"></div>
             {/* BADGE DE PERFORMANCE REMOVIDO */}
             
             <div className="flex items-center gap-2 ml-auto mr-1">
