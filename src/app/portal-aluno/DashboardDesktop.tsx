@@ -919,7 +919,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full shrink-0 xl:h-[110px]">
-            <div className="w-full border border-cyan-500/40/40 shadow-[0_0_20px_rgba(245,158,11,0.15),inset_0_0_15px_rgba(245,158,11,0.08)] rounded-[24px] p-4 flex flex-col justify-between min-h-[95px] sm:h-full select-none relative overflow-hidden text-white" style={{ background: "radial-gradient(circle at 5% 50%, rgba(217,119,6,0.22) 0%, transparent 55%), radial-gradient(circle at 95% 50%, rgba(217,119,6,0.18) 0%, transparent 50%), #0d1520" }}>
+            <div className="w-full border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.15),inset_0_0_15px_rgba(168,85,247,0.08)] rounded-[24px] p-4 flex flex-col justify-between min-h-[95px] sm:h-full select-none relative overflow-hidden text-white" style={{ background: "radial-gradient(circle at 5% 50%, rgba(168,85,247,0.18) 0%, transparent 55%), radial-gradient(circle at 95% 50%, rgba(6,182,212,0.12) 0%, transparent 50%), #061324" }}>
               <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest font-mono">{t.streakTitle}</span>
               <div className="space-y-0.5">
                 <div className="flex items-center gap-3"><span className="text-2xl xl:text-3xl font-black text-white tracking-wide font-sans">{streakDays} {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><Flame size={26} className="text-cyan-400 shrink-0 stroke-[1.5]" /></div>
@@ -1053,9 +1053,9 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
 
           <div className="flex gap-2 font-sans shrink-0 mt-2">
-            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-cyan-500/40/40 tracking-wider" onClick={() => setIsFeedbackOpen(true)}>{t.evalBtn}</button>
-            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-cyan-500/40/40 tracking-wider" onClick={() => setIsEntregaOpen(true)}>{t.submitBtn}</button>
-            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-cyan-500/40/40 tracking-wider" onClick={() => setIsAgendaOpen(true)}>{t.calBtn}</button>
+            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-purple-500/30 tracking-wider" onClick={() => setIsFeedbackOpen(true)}>{t.evalBtn}</button>
+            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-purple-500/30 tracking-wider" onClick={() => setIsEntregaOpen(true)}>{t.submitBtn}</button>
+            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-purple-500/30 tracking-wider" onClick={() => setIsAgendaOpen(true)}>{t.calBtn}</button>
           </div>
 
           <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
@@ -1287,7 +1287,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </div>
               
               {/* Card de Pagamento Premium Reativo */}
-              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-cyan-500/40/40 hover:border-purple-300 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
+              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-purple-500/30 hover:border-purple-300 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
                 <span className="font-sans text-[9px] font-black tracking-wider text-cyan-400/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>
