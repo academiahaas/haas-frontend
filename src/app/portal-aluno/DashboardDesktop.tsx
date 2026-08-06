@@ -703,12 +703,26 @@ export default function DashboardDesktop({ alunoData }: any) {
         .animate-ai-mascot-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
       `}</style>
 
-      <div className="w-full bg-[#0A0F1D] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#8b5cf6]/40 relative">
-        <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
-          <div className="flex items-center gap-4">
-            <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
+              {/* CABEÇALHO PREMIUM COM MARCA HAAS LANGUAGE E STATUS DO ALUNO */}
+        <div className="w-full bg-[#030712]/90 backdrop-blur-2xl border-b border-purple-500/30 px-4 xl:px-10 py-3.5 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[32px] shadow-2xl shadow-purple-950/30 z-10 relative">
+          
+          <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-start">
+            {/* MARCA OFICIAL HAAS LANGUAGE */}
+            <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="flex items-center gap-3 group shrink-0">
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 font-black text-white text-xl shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
+                H
+              </div>
+              <span className="text-lg xl:text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                HAAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 font-extrabold">Language</span>
+              </span>
+            </a>
+
+            {/* DIVISOR VERTICAL */}
+            <div className="h-8 w-[1px] bg-slate-800 hidden sm:block" />
+
+            {/* SAUDAÇÃO E STATUS */}
             <div>
-              <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
+              <h1 className="text-white font-extrabold text-lg xl:text-xl tracking-tight leading-none flex items-center gap-2">
                 {idioma === "ES" ? "¡" : ""}{t.greeting} {aluno1?.split(' ')[0]}!
                 
                 {isAdminMode && !isSimuladorLiberado ? (
@@ -727,85 +741,69 @@ export default function DashboardDesktop({ alunoData }: any) {
                     ⚙️
                   </button>
                 ) : (
-                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/10 rounded-xl text-[10px] font-mono font-black select-none`}>
+                  <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-2 bg-slate-950/60 p-1 border border-white/10 rounded-xl text-[10px] font-mono font-black select-none`}>
                     <span className="text-slate-500 uppercase tracking-wider px-1">🛠️ ADMIN:</span>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${!isMatriculadoSimulado ? 'font-bold text-cyan-400 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${!isMatriculadoSimulado ? 'font-bold text-cyan-400 bg-slate-900 shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
                     >
                       🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
                     </button>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(false); }} 
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${isMatriculadoSimulado && !isVencidoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
                     >
                       🔄 {idioma === 'PT' ? 'Ativo' : idioma === 'EN' ? 'Active' : 'Activo'}
                     </button>
                     <button 
                       onClick={() => { setIsMatriculadoSimulado(true); setIsVencidoSimulado(true); }} 
-                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer \${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
+                      className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${isMatriculadoSimulado && isVencidoSimulado ? 'bg-rose-500 text-white font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
                     >
                       ⚠️ {idioma === 'PT' ? 'Vencido' : idioma === 'EN' ? 'Expired' : 'Vencido'}
                     </button>
                   </div>
                 )}
-                <div className={`${isAdminMode ? "inline-flex" : "hidden"} items-center gap-1.5 ml-3 bg-slate-950/60 p-1 border border-white/10 rounded-xl text-[10px] font-mono font-black select-none`}>
-                  <span className="text-slate-500 uppercase tracking-wider px-1">⚙️ SIMULAR:</span>
-                  <button 
-                    onClick={() => setIsMatriculadoSimulado(false)} 
-                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${!isMatriculadoSimulado ? 'font-bold text-cyan-400 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
-                  >
-                    🆕 {idioma === 'PT' ? 'Novo' : idioma === 'EN' ? 'New' : 'Nuevo'}
-                  </button>
-                  <button 
-                    onClick={() => setIsMatriculadoSimulado(true)} 
-                    className={`px-2 py-1 rounded-lg transition-all duration-200 cursor-pointer ${isMatriculadoSimulado ? 'bg-emerald-500 text-slate-950 font-black shadow-md' : 'text-slate-400 opacity-50 hover:opacity-80'}`}
-                  >
-                    🔄 {idioma === 'PT' ? 'Matriculado' : idioma === 'EN' ? 'Enrolled' : 'Matriculado'}
-                  </button>
-                </div>
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
                 <span className="text-cyan-400 font-mono font-bold text-[10px] tracking-wider uppercase whitespace-nowrap">{
-  (() => {
-    const rawLang = (idiomaCurso || "pt").toLowerCase();
-    const uiLang = (idioma || "ES").toUpperCase();
-    
-    let code = "pt";
-    if (rawLang.includes("en")) code = "en";
-    else if (rawLang.includes("es")) code = "es";
-    else if (rawLang.includes("pt")) code = "pt";
+                  (() => {
+                    const rawLang = (idiomaCurso || "pt").toLowerCase();
+                    const uiLang = (idioma || "ES").toUpperCase();
+                    
+                    let code = "pt";
+                    if (rawLang.includes("en")) code = "en";
+                    else if (rawLang.includes("es")) code = "es";
+                    else if (rawLang.includes("pt")) code = "pt";
 
-    const labelMap: Record<string, Record<string, string>> = {
-      pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },
-      en: { PT: "INGLÊS", EN: "ENGLISH", ES: "INGLÉS" },
-      es: { PT: "ESPANHOL", EN: "SPANISH", ES: "ESPAÑOL" }
-    };
+                    const labelMap: Record<string, Record<string, string>> = {
+                      pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },
+                      en: { PT: "INGLÊS", EN: "ENGLISH", ES: "INGLÉS" },
+                      es: { PT: "ESPANHOL", EN: "SPANISH", ES: "ESPAÑOL" }
+                    };
 
-    return labelMap[code]?.[uiLang] || "PORTUGUÉS";
-  })()
-} {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {(nivelObjetivo && nivelObjetivo !== "SEM NÍVEL") ? nivelObjetivo : "C1"}</span>
+                    return labelMap[code]?.[uiLang] || "PORTUGUÉS";
+                  })()
+                } {idioma === "PT" ? "FLUÊNCIA" : idioma === "EN" ? "FLUENCY" : "FLUIDEZ"} {(nivelObjetivo && nivelObjetivo !== "SEM NÍVEL") ? nivelObjetivo : "C1"}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-          <div className="bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 text-[9px] font-black text-white/80 flex gap-1 items-center">
-            <Globe size={11} className="text-slate-400" />
-            <button onClick={() => setIdioma('PT')} className={`px-1 py-0.5 rounded font-bold ${idioma === 'PT' ? 'bg-slate-950/60 text-cyan-400 border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>PT</button>
-            <button onClick={() => setIdioma('EN')} className={`px-1 py-0.5 font-bold ${idioma === 'EN' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>EN</button>
-            <button onClick={() => setIdioma('ES')} className={`px-1 py-0.5 font-bold ${idioma === 'ES' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>ES</button>
-          </div>
-          <div className="flex bg-white/5 p-1 rounded-xl gap-0.5 border border-white/10">
-            <button onClick={() => { setAbaProgAtiva(false); setIsPerfilOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isPerfilOpen || !abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "INÍCIO" : idioma === "ES" ? "INICIO" : "HOME"}</button>
-            <button onClick={() => { setAbaProgAtiva(true); setIsPerfilOpen(false); setIsTrilhaOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isTrilhaOpen || abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "PROGRAMA" : idioma === "ES" ? "PROGRAMA" : "PROGRAM"}</button>
+          {/* CONTROLES DA DIREITA: IDIOMA E NAVEGAÇÃO */}
+          <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+            <div className="bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 text-[9px] font-black text-white/80 flex gap-1 items-center">
+              <Globe size={11} className="text-slate-400" />
+              <button onClick={() => setIdioma('PT')} className={`px-1 py-0.5 rounded font-bold ${idioma === 'PT' ? 'bg-slate-950/60 text-cyan-400 border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>PT</button>
+              <button onClick={() => setIdioma('EN')} className={`px-1 py-0.5 font-bold ${idioma === 'EN' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>EN</button>
+              <button onClick={() => setIdioma('ES')} className={`px-1 py-0.5 font-bold ${idioma === 'ES' ? 'bg-slate-950/60 text-cyan-400 rounded border border-cyan-500/20 shadow-inner' : 'opacity-40 text-slate-400'}`}>ES</button>
+            </div>
+            <div className="flex bg-white/5 p-1 rounded-xl gap-0.5 border border-white/10">
+              <button onClick={() => { setAbaProgAtiva(false); setIsPerfilOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isPerfilOpen || !abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "INÍCIO" : idioma === "ES" ? "INICIO" : "HOME"}</button>
+              <button onClick={() => { setAbaProgAtiva(true); setIsPerfilOpen(false); setIsTrilhaOpen(true); }} className={`px-3 xl:px-4 py-1.5 rounded-lg text-xs font-black transition-all duration-200 ${isTrilhaOpen || abaProgAtiva ? "text-cyan-400 bg-white/[0.02] border border-cyan-500/20" : "text-slate-400 hover:text-slate-200"}`}>{idioma === "PT" ? "PROGRAMA" : idioma === "ES" ? "PROGRAMA" : "PROGRAM"}</button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex-1 px-4 xl:px-6 pt-3 pb-4 flex flex-col xl:grid xl:grid-cols-[1fr_360px] gap-5 w-full xl:items-stretch xl:min-h-0 relative">
+<div className="flex-1 px-4 xl:px-6 pt-3 pb-4 flex flex-col xl:grid xl:grid-cols-[1fr_360px] gap-5 w-full xl:items-stretch xl:min-h-0 relative">
 
         <div className="flex flex-col gap-4 w-full xl:h-full xl:min-h-0 flex-1">
           <div className="bg-[#0A0F1D] pt-5 pb-5 px-5 xl:px-6 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/10 relative overflow-hidden xl:flex-1 min-h-0">
