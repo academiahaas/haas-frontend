@@ -1410,7 +1410,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-cyan-500/40/15 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
+      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-cyan-500/30 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
         <div className="flex items-center gap-6 text-[11px] font-bold text-[#94A3B8] tracking-wider">
           <span className={`flex items-center gap-1 font-black transition-all duration-200 ${
             comboQuebrado ? 'text-red-500 line-through opacity-60 scale-95' : 'text-[#FF8A2B]'
@@ -1461,7 +1461,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
               gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
               gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
-              streak >= 3 ? "bg-cyan-400/20 text-purple-300 border-cyan-500/40/50 scale-102" :
+              streak >= 3 ? "bg-cyan-400/20 text-purple-300 border-cyan-500/30 scale-102" :
               "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/20"
             }`}>
               <Bot size={20} />
@@ -1852,7 +1852,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/40/20 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -2031,7 +2031,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/40/20 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();

@@ -1081,8 +1081,8 @@ export default function DashboardDesktop({ alunoData }: any) {
                 );
               })()}
             </div>
-            <button onClick={() => setIsDepurarOpen(true)} className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-cyan-500/40/60 shadow-sm transition-all">
-              <span className="text-[#8b5cf6]">{t.clearBtn}</span>
+            <button onClick={() => setIsDepurarOpen(true)} className="w-full w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-cyan-500/30 hover:border-cyan-500/60 shadow-[0_0_12px_rgba(6,182,212,0.15)] transition-all">
+              <span className="text-cyan-300 font-mono tracking-widest">{t.clearBtn}</span>
             </button>
           </div>
 
