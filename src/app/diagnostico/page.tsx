@@ -2,333 +2,298 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Plane, GraduationCap, Brain, ArrowRight, CheckCircle2, Sparkles, Lock, ArrowLeft } from "lucide-react";
+import { Volume2, Mic, Square, Sparkles, CheckCircle2, ArrowRight, ShieldCheck, LogIn } from "lucide-react";
 
-export default function DiagnosticoExpressPage() {
+export default function DiagnosticoPage() {
   const router = useRouter();
-  const [step, setStep] = useState<number>(1);
-
-  // Estados dos dados coletados
-  const [targetLanguage, setTargetLanguage] = useState<string>("");
-  const [studyReason, setStudyReason] = useState<string>("");
-  const [currentQuestion, setCurrentQuestion] = useState<number>(0);
-  const [score, setScore] = useState<number>(0);
-
-  // Form de registro final
-  const [nombre, setNombre] = useState("");
+  
+  const [step, setStep] = useState(1);
+  const [idioma, setIdioma] = useState("");
+  const [motivo, setMotivo] = useState("");
+  
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioRecorded, setAudioRecorded] = useState(false);
+  
+  const [textoResposta, setTextoResposta] = useState("");
+  
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [senha, setSenha] = useState("");
 
-  const languages = [
-    { id: "en", name: "Inglés", flag: "🇬🇧", desc: "Negocios, carrera e inmersión global" },
-    { id: "pt", name: "Portugués", flag: "🇧🇷", desc: "Fluidez conversacional y profesional" },
-    { id: "es", name: "Español", flag: "🇪🇸", desc: "Comunicación corporativa y cultural" },
-  ];
-
-  const reasons = [
-    { id: "work", label: "Trabajo y Carrera", icon: Briefcase, desc: "Entrevistas, reuniones y ascenso laboral" },
-    { id: "travel", label: "Viajes y Turismo", icon: Plane, desc: "Aeropuertos, hoteles y conversaciones reales" },
-    { id: "study", label: "Estudios y Exámenes", icon: GraduationCap, desc: "Certificaciones e intercambios" },
-    { id: "personal", label: "Desarrollo Personal", icon: Brain, desc: "Agilidad mental y superación personal" },
-  ];
-
-  // Preguntas de diagnóstico rápido
-  const questions = [
-    {
-      q: "Selecciona la opción correcta para completar la frase: 'She ___ to the office every morning.'",
-      options: ["go", "goes", "going", "gone"],
-      correct: 1,
+  const frasesTeste = {
+    ingles: {
+      audioTexto: "Hello! Could you introduce yourself and tell me what you like to do in your free time?",
+      escritaPrompt: "Describe en 1 o 2 frases en inglés cuál es tu mayor objetivo profesional hoy.",
+      exemploPlaceholder: "I want to improve my English because..."
     },
-    {
-      q: "¿Cuál es la respuesta adecuada para: 'How long have you been working here?'",
-      options: [
-        "I work here since 2 years.",
-        "I have been working here for 2 years.",
-        "I am working here 2 years ago.",
-        "I worked here since 2 years."
-      ],
-      correct: 1,
+    espanhol: {
+      audioTexto: "¡Hola! ¿Podrías presentarte y decirme qué te gusta hacer en tu tiempo libre?",
+      escritaPrompt: "Describe en 1 o 2 frases en español cuál es tu mayor objetivo profesional hoy.",
+      exemploPlaceholder: "Quiero mejorar mi español porque..."
     },
-    {
-      q: "En un contexto profesional, ¿qué significa 'We need to reschedule the meeting'?",
-      options: [
-        "Debemos cancelar la reunión definitivamente.",
-        "Debemos reprogramar la reunión para otra fecha/hora.",
-        "Debemos resumir la reunión en un acta.",
-        "Debemos iniciar la reunión de inmediato."
-      ],
-      correct: 1,
-    },
-  ];
-
-  const handleSelectLanguage = (langId: string) => {
-    setTargetLanguage(langId);
-    setStep(2);
-  };
-
-  const handleSelectReason = (reasonId: string) => {
-    setStudyReason(reasonId);
-    setStep(3);
-  };
-
-  const handleAnswerQuestion = (index: number) => {
-    if (index === questions[currentQuestion].correct) {
-      setScore((prev) => prev + 1);
+    portugues: {
+      audioTexto: "Olá! Você poderia se apresentar e me contar o que gosta de fazer no seu tempo livre?",
+      escritaPrompt: "Describe en 1 o 2 frases cuál es tu mayor objetivo profesional hoy.",
+      exemploPlaceholder: "Mi objetivo es..."
     }
+  };
 
-    if (currentQuestion + 1 < questions.length) {
-      setCurrentQuestion((prev) => prev + 1);
+  const currentFrase = frasesTeste[idioma as keyof typeof frasesTeste] || frasesTeste.ingles;
+
+  const handlePlayAudio = () => {
+    setIsPlayingAudio(true);
+    const utterance = new SpeechSynthesisUtterance(currentFrase.audioTexto);
+    utterance.lang = idioma === 'espanhol' ? 'es-ES' : idioma === 'portugues' ? 'pt-BR' : 'en-US';
+    utterance.onend = () => setIsPlayingAudio(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleToggleRecord = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      setAudioRecorded(true);
     } else {
-      setStep(4); // Pantalla de resultado
+      setIsRecording(true);
     }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Salva a intenção e redireciona para a Arena Gamificada
-    try {
-      localStorage.setItem("haas_target_lang", targetLanguage);
-      localStorage.setItem("haas_study_reason", studyReason);
-      localStorage.setItem("haas_diagnostic_score", score.toString());
-      localStorage.setItem("haas_user_name", nombre);
-    } catch (err) {}
-
-    router.push("/portal-aluno");
-  };
-
-  const getNivelEstimado = () => {
-    if (score === 3) return "B2 • Avanzado";
-    if (score === 2) return "B1 • Intermedio";
-    return "A2 • Elemental";
+  const handleFinalizarProva = () => {
+    setStep(5);
+    setTimeout(() => {
+      setStep(6);
+    }, 2500);
   };
 
   return (
-    <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Background Neon Effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[350px] h-[350px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none" />
 
-      {/* Header com Logo / Botão de Voltar */}
-      <div className="w-full max-w-xl flex items-center justify-between mb-6 z-10 px-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center font-black text-white text-xs shadow-lg shadow-purple-900/30">
-            H
+      <div className="w-full max-w-xl z-10 flex flex-col items-center">
+        
+        {/* CABECERA SUPERIOR - MARCA HAAS LANGUAGE */}
+        <div className="w-full flex items-center justify-between mb-6 px-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+            <span className="font-extrabold text-xl tracking-wider text-white">HAAS</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold uppercase tracking-widest">
+              LANGUAGE
+            </span>
           </div>
-          <span className="font-bold tracking-tight text-white text-sm">Academia Haas</span>
+
+          <button 
+            onClick={() => router.push('/login')}
+            className="text-xs text-slate-400 hover:text-indigo-400 transition-colors flex items-center gap-1.5 font-medium bg-slate-900/60 hover:bg-slate-800 border border-slate-800 px-3 py-1.5 rounded-full"
+          >
+            <span>¿Ya tienes cuenta?</span>
+            <span className="text-indigo-400 font-bold flex items-center gap-1">
+              Iniciar sesión <LogIn className="w-3.5 h-3.5" />
+            </span>
+          </button>
         </div>
 
-        <button
-          onClick={() => router.push("/login")}
-          className="text-xs text-slate-400 hover:text-cyan-400 transition-colors cursor-pointer"
-        >
-          ¿Ya tienes cuenta? <span className="font-semibold text-cyan-400 underline">Iniciar sesión</span>
-        </button>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="w-full max-w-xl mb-6 flex items-center justify-between px-1 z-10">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className={`h-1.5 flex-1 mx-1 rounded-full transition-all duration-500 ${
-              i <= step ? "bg-gradient-to-r from-purple-500 to-cyan-400 shadow-[0_0_10px_rgba(0,229,255,0.4)]" : "bg-slate-800"
-            }`}
-          />
-        ))}
-      </div>
-
-      <div className="w-full max-w-xl bg-[#0B0E17]/90 backdrop-blur-xl border border-purple-500/20 rounded-3xl p-6 md:p-8 shadow-2xl relative z-10 shadow-purple-950/20">
-
-        {/* PASO 1: SELECCIÓN DE IDIOMA */}
-        {step === 1 && (
-          <div className="flex flex-col gap-6">
-            <div className="text-center">
-              <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold">Paso 1 de 5</span>
-              <h1 className="text-2xl md:text-3xl font-extrabold mt-1 text-white">¿Qué idioma deseas aprender?</h1>
-              <p className="text-slate-400 text-sm mt-2">Selecciona tu objetivo principal para personalizar tu ruta.</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => handleSelectLanguage(lang.id)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/60 hover:bg-slate-800/80 transition-all text-left group cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.15)]"
-                >
-                  <span className="text-3xl">{lang.flag}</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white group-hover:text-cyan-400 transition-colors">{lang.name}</h3>
-                    <p className="text-xs text-slate-400">{lang.desc}</p>
-                  </div>
-                  <ArrowRight size={18} className="text-slate-600 group-hover:text-cyan-400 transition-colors" />
-                </button>
-              ))}
-            </div>
+        {/* TARJETA PRINCIPAL */}
+        <div className="w-full bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative">
+          
+          <div className="w-full bg-slate-800 h-2 rounded-full mb-8 overflow-hidden">
+            <div 
+              className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full transition-all duration-500"
+              style={{ width: `${(step / 6) * 100}%` }}
+            />
           </div>
-        )}
 
-        {/* PASO 2: MOTIVO DE ESTUDIO */}
-        {step === 2 && (
-          <div className="flex flex-col gap-6">
-            <div className="text-center">
-              <span className="text-xs font-mono text-purple-400 uppercase tracking-widest font-semibold">Paso 2 de 5</span>
-              <h1 className="text-2xl md:text-3xl font-extrabold mt-1 text-white">¿Cuál es tu motivo principal?</h1>
-              <p className="text-slate-400 text-sm mt-2">Nuestra IA adaptará tus ejemplos e interacciones a este contexto.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {reasons.map((r) => {
-                const Icon = r.icon;
-                return (
+          {/* PASO 1: IDIOMA */}
+          {step === 1 && (
+            <div className="space-y-6 text-center animate-fade-in">
+              <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                ¿Qué idioma deseas dominar?
+              </h1>
+              <p className="text-slate-400 text-sm">Selecciona un idioma para personalizar tu diagnóstico.</p>
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                {[
+                  { id: 'ingles', label: '🇬🇧 Inglés', desc: 'Fluidez global y negocios' },
+                  { id: 'espanhol', label: '🇪🇸 Español', desc: 'Comunicación y mercado hispánico' },
+                  { id: 'portugues', label: '🇧🇷 Portugués', desc: 'Para extranjeros y negocios' }
+                ].map((item) => (
                   <button
-                    key={r.id}
-                    onClick={() => handleSelectReason(r.id)}
-                    className="flex flex-col gap-3 p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/60 hover:bg-slate-800/80 transition-all text-left group cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
+                    key={item.id}
+                    onClick={() => { setIdioma(item.id); setStep(2); }}
+                    className="p-4 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-indigo-600/10 hover:border-indigo-500/50 transition-all text-left flex items-center justify-between group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-purple-950/60 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
-                      <Icon size={20} />
-                    </div>
                     <div>
-                      <h3 className="font-bold text-white group-hover:text-purple-300 transition-colors">{r.label}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{r.desc}</p>
+                      <div className="font-bold text-lg text-slate-100 group-hover:text-indigo-400">{item.label}</div>
+                      <div className="text-xs text-slate-400">{item.desc}</div>
                     </div>
+                    <ArrowRight className="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-colors" />
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* PASO 3: DIAGNÓSTICO EXPRESS (3 PREGUNTAS) */}
-        {step === 3 && (
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-              <div>
-                <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold">
-                  Diagnóstico • Pregunta {currentQuestion + 1} de {questions.length}
+          {/* PASO 2: MOTIVO */}
+          {step === 2 && (
+            <div className="space-y-6 text-center animate-fade-in">
+              <h2 className="text-2xl font-bold text-slate-100">¿Cuál es tu objetivo principal?</h2>
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                {[
+                  'Crecimiento Profesional / Carrera',
+                  'Viajes e Inmersión Cultural',
+                  'Exámenes de Certificación (TOEFL, DELE, etc.)',
+                  'Práctica General y Conversación'
+                ].map((m, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => { setMotivo(m); setStep(3); }}
+                    className="p-4 rounded-2xl border border-slate-800 bg-slate-800/40 hover:bg-indigo-600/10 hover:border-indigo-500/50 transition-all text-left text-sm font-medium text-slate-200 hover:text-white"
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PASO 3: PARTE 1 - ESCUCHA Y PRONUNCIACIÓN */}
+          {step === 3 && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="text-center space-y-1">
+                <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider">
+                  Parte 1 de 2 • Escucha y Pronunciación
                 </span>
-                <h2 className="text-lg font-bold text-white mt-1">Prueba de Nivel Rápida</h2>
+                <h2 className="text-xl font-bold text-slate-100 pt-2">Escucha el audio y responde hablando</h2>
               </div>
-              <div className="w-8 h-8 rounded-full bg-cyan-950/50 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xs font-bold">
-                {currentQuestion + 1}/3
+
+              <div className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handlePlayAudio}
+                    className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/30 transition-all"
+                  >
+                    <Volume2 className={`w-6 h-6 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
+                  </button>
+                  <div>
+                    <p className="text-xs text-slate-400">Haz clic para escuchar el audio de la IA</p>
+                    <p className="text-sm font-medium text-slate-200">Mensaje de Evaluación</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <p className="text-slate-200 text-base font-medium leading-relaxed bg-slate-900/90 p-4 rounded-xl border border-slate-800">
-              {questions[currentQuestion].q}
-            </p>
-
-            <div className="grid grid-cols-1 gap-2.5">
-              {questions[currentQuestion].options.map((option, idx) => (
+              <div className="p-6 rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 text-center space-y-4">
+                <p className="text-xs text-slate-400">Presiona para grabar tu respuesta oral</p>
                 <button
-                  key={idx}
-                  onClick={() => handleAnswerQuestion(idx)}
-                  className="w-full text-left p-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/60 hover:bg-slate-800/80 transition-all text-slate-200 hover:text-white font-medium text-sm cursor-pointer"
+                  onClick={handleToggleRecord}
+                  className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center transition-all shadow-xl ${
+                    isRecording 
+                      ? 'bg-rose-600 hover:bg-rose-500 animate-bounce shadow-rose-600/40' 
+                      : audioRecorded 
+                      ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30' 
+                      : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
+                  }`}
                 >
-                  {option}
+                  {isRecording ? <Square className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
                 </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* PASO 4: RESULTADO DE NIVEL + RECOMPENSA XP */}
-        {step === 4 && (
-          <div className="flex flex-col gap-6 text-center py-2">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center text-white mx-auto shadow-[0_0_25px_rgba(168,85,247,0.5)] animate-bounce">
-              <Sparkles size={32} />
-            </div>
-
-            <div>
-              <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold">¡Diagnóstico Completado!</span>
-              <h1 className="text-3xl font-black text-white mt-1">Tu nivel estimado es</h1>
-              <div className="inline-block mt-3 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-purple-950/80 to-indigo-950/80 border border-purple-500/40 text-purple-300 font-extrabold text-xl shadow-lg">
-                {getNivelEstimado()}
+                {isRecording && <p className="text-xs text-rose-400 font-semibold animate-pulse">Grabando... Habla con claridad</p>}
               </div>
-            </div>
 
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-between max-w-sm mx-auto w-full">
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold">
-                  ⚡
-                </div>
-                <div>
-                  <h4 className="text-xs text-slate-400 font-medium">Recompensa de Inicio</h4>
-                  <p className="text-sm font-bold text-white">+150 XP Ganados</p>
-                </div>
+              <button
+                onClick={() => setStep(4)}
+                className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
+              >
+                Siguiente Etapa (Gramática) <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* PASO 4: PARTE 2 - GRAMÁTICA Y REDACCIÓN */}
+          {step === 4 && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="text-center space-y-1">
+                <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold uppercase tracking-wider">
+                  Parte 2 de 2 • Gramática y Redacción
+                </span>
+                <h2 className="text-xl font-bold text-slate-100 pt-2">Responde por escrito</h2>
               </div>
-              <CheckCircle2 size={20} className="text-emerald-400" />
+
+              <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/50">
+                <p className="text-sm text-slate-300 font-medium">{currentFrase.escritaPrompt}</p>
+              </div>
+
+              <textarea
+                rows={4}
+                value={textoResposta}
+                onChange={(e) => setTextoResposta(e.target.value)}
+                placeholder={currentFrase.exemploPlaceholder}
+                className="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-slate-100 placeholder-slate-600 focus:outline-none transition-all resize-none text-sm"
+              />
+
+              <button
+                disabled={textoResposta.trim().length < 5}
+                onClick={handleFinalizarProva}
+                className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-cyan-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
+              >
+                Finalizar Evaluación <Sparkles className="w-4 h-4" />
+              </button>
             </div>
+          )}
 
-            <button
-              onClick={() => setStep(5)}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-bold text-base transition-all shadow-lg shadow-purple-900/40 cursor-pointer"
-            >
-              Reclamar mi Nivel y Mis 150 XP ➔
-            </button>
-          </div>
-        )}
-
-        {/* PASO 5: FORMULARIO DE REGISTRO */}
-        {step === 5 && (
-          <form onSubmit={handleRegister} className="flex flex-col gap-4">
-            <div className="text-center">
-              <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold">Paso Final</span>
-              <h1 className="text-2xl font-extrabold text-white mt-1">Crea tu cuenta gratis</h1>
-              <p className="text-slate-400 text-xs mt-1">Guarda tu progreso de {getNivelEstimado()} y activa tus 7 días sin costo.</p>
-            </div>
-
-            <div className="flex flex-col gap-3 mt-2">
+          {/* PASO 5: CALCULANDO RESULTADO */}
+          {step === 5 && (
+            <div className="py-12 text-center space-y-6 animate-fade-in">
+              <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
               <div>
-                <label className="text-xs text-slate-400 font-medium block mb-1">Nombre Completo</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Tu nombre"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-cyan-500 transition-colors"
+                <h3 className="text-xl font-bold text-slate-100">Analizando pronunciación y gramática...</h3>
+                <p className="text-xs text-slate-400 mt-1">La IA de Haas está estimando tu nivel de entrada.</p>
+              </div>
+            </div>
+          )}
+
+          {/* PASO 6: RESULTADO Y REGISTRO */}
+          {step === 6 && (
+            <div className="space-y-6 text-center animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                <Sparkles className="w-4 h-4" /> ¡Diagnóstico Completado!
+              </div>
+
+              <div>
+                <h2 className="text-3xl font-extrabold text-white">Nivel Estimado: B1 Intermedio</h2>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 text-left space-y-3">
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">Crea tu cuenta para reclamar tus 150 XP y activar tus 7 días gratis:</p>
+                
+                <input 
+                  type="text" 
+                  placeholder="Tu Nombre Completo" 
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:border-indigo-500 outline-none"
                 />
-              </div>
-
-              <div>
-                <label className="text-xs text-slate-400 font-medium block mb-1">Correo Electrónico</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="tu@email.com"
+                <input 
+                  type="email" 
+                  placeholder="Tu Correo Electrónico" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-cyan-500 transition-colors"
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:border-indigo-500 outline-none"
                 />
-              </div>
+                <input 
+                  type="password" 
+                  placeholder="Crea una Contraseña" 
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:border-indigo-500 outline-none"
+                />
 
-              <div>
-                <label className="text-xs text-slate-400 font-medium block mb-1">Contraseña</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-cyan-500 transition-colors"
-                />
+                <button 
+                  onClick={() => router.push('/portal-aluno')}
+                  className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/30 text-sm flex items-center justify-center gap-2 mt-2"
+                >
+                  <ShieldCheck className="w-5 h-5" /> Comenzar 7 Días Gratis en la Arena
+                </button>
               </div>
             </div>
+          )}
 
-            <button
-              type="submit"
-              className="w-full mt-3 py-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-bold text-base transition-all shadow-lg shadow-purple-900/40 cursor-pointer"
-            >
-              Crear Cuenta y Entrar a la Arena
-            </button>
-
-            <p className="text-[11px] text-slate-500 text-center mt-1">
-              Al registrarte aceptas los Términos de Servicio y la Política de Privacidad de Academia Haas.
-            </p>
-          </form>
-        )}
-
+        </div>
       </div>
     </div>
   );
