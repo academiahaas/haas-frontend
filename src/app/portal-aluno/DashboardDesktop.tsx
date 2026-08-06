@@ -1516,19 +1516,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                    {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "Group")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                    {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Standard")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "30 Dias | IA Ilimitada" : idioma === "EN" ? "30 Days | Unlimited AI" : "30 Días | IA Ilimitada"}
+                    {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Pro")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
 
@@ -1536,19 +1536,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "+7d Acesso | +10 IA /cr" : idioma === "EN" ? "+7d Access | +10 AI /cr" : "+7d Acceso | +10 IA /cr"}
+                    {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack Group")?.ai_status || "+10 IA /cr")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                    {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Std")?.ai_status || "+25 IA /cr")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/5 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
                   <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
-                    {idioma === "PT" ? "+7d Acesso | +25 IA /cr" : idioma === "EN" ? "+7d Access | +25 AI /cr" : "+7d Acceso | +25 IA /cr"}
+                    {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Pro")?.ai_status || "+25 IA /cr")}
                   </div>
                 </button>
               </div>
