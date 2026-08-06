@@ -1488,7 +1488,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
-                          <button type="button" disabled={!desbloqueado} onClick={() => { setVideoSelecionado(conteudo); setVisualizacaoAtiva("PLAYER_VIDEO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#a855f7] to-[#FF5E0A] text-white border-2 border-[#a855f7]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(168, 85, 247, 0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setVideoSelecionado(conteudo); setVisualizacaoAtiva("PLAYER_VIDEO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#8b5cf6] via-[#a855f7] to-[#00e5ff] text-white border-2 border-[#a855f7]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(168, 85, 247, 0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
                             {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
                           </button>
                         </div>
@@ -1513,7 +1513,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
-                          <button type="button" disabled={!desbloqueado} onClick={() => { setTextoSelecionadoId(conteudo.id); setVisualizacaoAtiva("TEXTO_PEDAGOGO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#00F0FF] to-[#00A3FF] text-white border-2 border-[#00F0FF]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
+                          <button type="button" disabled={!desbloqueado} onClick={() => { setTextoSelecionadoId(conteudo.id); setVisualizacaoAtiva("TEXTO_PEDAGOGO"); }} className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${desbloqueado ? "bg-gradient-to-br from-[#8b5cf6] via-[#a855f7] to-[#00e5ff] text-white border-2 border-[#00F0FF]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse" : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"}`}>
                             {desbloqueado ? <span>{conteudo.id}</span> : <span className="text-xs">🔒</span>}
                           </button>
                         </div>
@@ -1630,7 +1630,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                             }}
                             className={`w-16 h-16 rounded-full flex flex-col items-center justify-center font-mono text-sm font-black transition-all ${
                               desbloqueado 
-                                ? "bg-gradient-to-br from-[#a855f7] to-[#FF5E0A] text-white border-2 border-[#a855f7]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(168, 85, 247, 0.5)] animate-pulse" 
+                                ? "bg-gradient-to-br from-[#8b5cf6] via-[#a855f7] to-[#00e5ff] text-white border-2 border-[#a855f7]/40 hover:scale-110 cursor-pointer shadow-[0_0_20px_rgba(168, 85, 247, 0.5)] animate-pulse" 
                                 : "bg-[#111927] text-slate-600 border border-white/10 cursor-not-allowed opacity-35"
                             }`}
                           >
@@ -1852,7 +1852,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-purple-950/40/40 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-[#0B0E17] border border-purple-500/30 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -1907,7 +1907,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
+      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-purple-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>
@@ -2031,7 +2031,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-purple-950/40/40 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-[#0B0E17] border border-purple-500/30 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -2086,7 +2086,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
+      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-purple-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>
