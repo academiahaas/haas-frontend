@@ -1549,7 +1549,7 @@ React.useEffect(() => {
         {/* ABA 1: ESTUDAR */}
         {(abaAtiva as string) === 'inicio' && (
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-3 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin">
+            <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 sm:p-3 sm:p-5 rounded-2xl shadow-xl flex-1 flex flex-col overflow-y-auto min-h-0 relative scrollbar-thin [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {/* PAINEL INTERNO DA MENTORA HAAS - PARTE 2/20 */}
               {mentoraMobileAberta && (
                 <div className="absolute inset-0 bg-[#050b14] border border-white/[0.08] p-3 sm:p-5 rounded-2xl flex flex-col justify-between z-30 animate-fadeIn">
@@ -1564,7 +1564,7 @@ React.useEffect(() => {
                   </div>
                   
                   {/* HISTÓRICO DE MENSAGENS RESPONSIVO - PARTE 10/20 */}
-                  <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-1.5 scrollbar-thin">
+                  <div className="flex-1 overflow-y-auto my-2 pr-1 flex flex-col gap-1.5 scrollbar-thin [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     {mensagensMentora.map((msg) => {
                       const textoExibido = msg.id === 1 && msg.text === "" 
                         ? (idiomaSelecionado === "PT" ? "Oi, tudo bem? Meu nome é Haas e eu vou ser a sua mentora. Qual é a sua dúvida sobre o conteúdo de hoje?" : idiomaSelecionado === "ES" ? "¿Hola, todo bien? Mi nombre es Haas y voy a ser tu mentora. ¿Cuál es tu duda sobre el contenido de hoy?" : "Hi, how are you? My name is Haas and I'll be your mentor. What is your question about today's content?")
@@ -1845,7 +1845,7 @@ React.useEffect(() => {
                       </button>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 max-h-[85vh] overflow-y-auto">
+                    <div className="flex flex-col gap-1.5 max-h-[85vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                       {[
                         { id: 'escolha', label: 'Múltipla Escolha' },
                         { id: 'caca_erro', label: 'Caça Erro' },
@@ -1949,7 +1949,7 @@ React.useEffect(() => {
             {/* STAGE 0: HOME DA AGENDA (LISTAGEM PADRÃO) */}
             {etapaAgendamento === 0 && (
               <div className="flex-1 w-full h-full flex flex-col gap-1.5 overflow-hidden justify-between p-3">
-                <div className="flex flex-col gap-1.5 overflow-y-auto scrollbar-none">
+                <div className="flex flex-col gap-1.5 overflow-y-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   
                   {/* BOTÕES DE FILTRO DINÂMICO DE CRÉDITOS */}
                   <div className="grid grid-cols-2 gap-1.5 shrink-0">
@@ -2002,7 +2002,7 @@ React.useEffect(() => {
 
                   <div className="flex flex-col gap-1.5 min-h-0">
                     <span className="text-[clamp(11px,3vw,13px)] font-mono font-black text-slate-600 uppercase tracking-widest block px-1 shrink-0">{idiomaSelecionado === "PT" ? "Próximos Agendamentos" : idiomaSelecionado === "ES" ? "Próximos Agendamientos" : "Upcoming Sessions"}</span>
-                    <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 scrollbar-none">
+                    <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                       {false && (
 <>
 {/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
@@ -2495,7 +2495,7 @@ React.useEffect(() => {
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[85vh] overflow-y-auto animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[85vh] overflow-y-auto animate-slide-up [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 >
                   <div onClick={() => setGavetaCalendarioAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
@@ -2549,13 +2549,13 @@ React.useEffect(() => {
 
                   {/* GRADE MENSAL DINÂMICA */} 
                   <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-3 rounded-2xl shadow-xl flex flex-col gap-1 mt-0.5">
-                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-1.5 text-center border-b border-white/[0.02] pb-2">
+                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-1.5 text-center border-b border-white/[0.02] pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                       {(idiomaSelecionado === "PT" ? ['SEG','TER','QUA','QUI','SEX','SÁB'] : idiomaSelecionado === "ES" ? ['LUN','MAR','MIÉ','JUE','VIE','SÁB'] : ['MON','TUE','WED','THU','FRI','SAT']).map((day, idx) => (
                         <span key={idx} className="text-[clamp(11px,3vw,12px)] font-mono font-bold text-slate-500">{day}</span>
                       ))}
                     </div>
                     
-                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-x-1.5 gap-y-2 text-center">
+                    <div className="grid grid-cols-6 max-h-[48vh] sm:max-h-[58vh] overflow-y-auto pr-1 gap-x-1.5 gap-y-2 text-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                       {/* RENDERIZA JUNHO OU JULHO COM BASE NO ESTADO */}
                       {(() => {
                         
@@ -2695,7 +2695,7 @@ React.useEffect(() => {
               >
                 <div 
                   onClick={(e) => e.stopPropagation()} 
-                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[80vh] overflow-y-auto animate-slide-up"
+                  className="bg-[#070d19] border-t border-white/[0.06] rounded-t-2xl p-3 sm:p-5 w-full shadow-2xl flex flex-col gap-4 cursor-default max-h-[80vh] overflow-y-auto animate-slide-up [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 >
                   <div onClick={() => setGavetaHorariosAberta(false)} className="w-full py-1 -mt-2 flex justify-center items-center cursor-pointer">
                     <div className="w-12 h-1 bg-slate-700 rounded-full" />
@@ -2725,7 +2725,7 @@ React.useEffect(() => {
                   </div>
 
                   {/* CONTAINER DE ROLAGEM VERTICAL DO POLEGAR - SEM ESTOURAR O BOTÃO DE BAIXO */}
-                  <div className="flex-1 overflow-y-auto pb-2 scrollbar-none flex flex-col gap-1.5 min-h-0 px-0.5">
+                  <div className="flex-1 overflow-y-auto pb-2 scrollbar-none flex flex-col gap-1.5 min-h-0 px-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     <div className="grid grid-cols-2 gap-1.5 w-full">
                       {(() => {
                         const cat = String(planCategory || '').toLowerCase();
@@ -2976,7 +2976,7 @@ React.useEffect(() => {
 
               {/* FILA DE ARQUIVOS */}
               {arquivosSelecionados.length > 0 && (
-                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[220px] overflow-y-auto">
+                <div className="mt-3 bg-slate-950/60 border border-white/[0.05] rounded-xl p-3 flex flex-col gap-1.5 animate-fadeIn max-h-[220px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   <span className="text-[9px] font-mono font-black text-slate-400 uppercase tracking-widest">{txt.selectedFiles} ({arquivosSelecionados.length}/3):</span>
                   <div className="flex flex-col gap-1.5">
                     {arquivosSelecionados.map((file, idx) => (
@@ -3031,7 +3031,7 @@ React.useEffect(() => {
 
         {/* ABA 0: DASHBOARD PRINCIPAL */} 
         {((abaAtiva as string) === "dashboard") && ( 
-          <div className="flex flex-col flex-1 gap-4 px-0 pb-0 pt-0 overflow-y-auto scrollbar-none [&>*]:flex-1">
+          <div className="flex flex-col flex-1 gap-4 px-0 pb-0 pt-0 overflow-y-auto scrollbar-none [&>*]:flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {/* 1. Entrar na Aula */} 
             <BotaoEntrarAula userId={(alunoData as any)?.id} idioma={idiomaSelecionado} variant="mobile" /> 
  
@@ -3104,7 +3104,7 @@ React.useEffect(() => {
               </div>
             </div>
             {/* CONTEÚDO INFERIOR COM SCROLL ISOLADO E SEM BARRAS CINZAS */}
-            <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-3 sm:p-6 scrollbar-none">
+            <div className="flex-1 w-full overflow-y-auto px-4 md:px-8 pb-8 pt-2 flex flex-col gap-4 md:gap-3 sm:p-6 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
             <div className="grid grid-cols-2 gap-1.5 w-full px-0 m-0 h-auto">
@@ -3358,7 +3358,7 @@ if (!vencimentoPlano) return "--/--/----";
       {modalCreditosAberto && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 999999 }}>
           <div style={{ position: 'absolute', inset: 0, zIndex: -1 }} onClick={() => setModalCreditosAberto(false)} />
-          <div className="bg-[#070d19] border-t border-cyan-500/30 rounded-t-3xl p-3 sm:p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
+          <div className="bg-[#070d19] border-t border-cyan-500/30 rounded-t-3xl p-3 sm:p-6 w-full max-w-[100vw] max-h-[80vh] overflow-y-auto shadow-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 9999999, display: 'flex', flexDirection: 'column' }}>
             <div className="w-full flex items-center justify-between border-b border-white/[0.05] pb-3 mb-2">
               <span className="text-cyan-400 font-mono font-black tracking-wider text-sm md:text-lg">HAAS ACADEMY</span>
               <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="text-slate-400 font-bold bg-transparent border-none cursor-pointer hover:text-white text-lg">✕</button>
@@ -3790,7 +3790,7 @@ if (!vencimentoPlano) return "--/--/----";
             </div>
 
             {/* TABELA DE PERFORMANCE TOP 10 - COR FIRME E MÁXIMA LEGIBILIDADE */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-3 sm:p-6 flex flex-col gap-1.5 md:gap-1.5 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg">
+            <div className="flex-1 overflow-y-auto p-4 md:p-3 sm:p-6 flex flex-col gap-1.5 md:gap-1.5 scrollbar-none pb-8 text-left font-mono text-xs md:text-sm md:text-lg [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {topRankingMobile.length > 0 ? topRankingMobile.map((aluno, i) => {
                 const isFirst = i === 0;
                 const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';

@@ -631,7 +631,7 @@ export default function DashboardDesktop({ alunoData }: any) {
   ];
 
   return (
-    <div className="w-full max-w-[100vw] overflow-x-hidden min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar">
+    <div className="w-full max-w-[100vw] overflow-x-hidden min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       
       {/* 🛠️ PAINEL GLOBAL DE SIMULAÇÃO (FLUTUANDO NO TOPO - VISÍVEL EM TODAS AS TELAS) */}
       <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-white/10 hover:border-purple-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
@@ -854,7 +854,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <div className="mt-5 mb-2 w-full flex flex-col gap-2 select-none xl:flex-1 min-h-0">
 
 
-                <div className="flex flex-col xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[12.5px] xl:text-[13.5px] mt-1">
+                <div className="flex flex-col xl:flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-1 text-[12.5px] xl:text-[13.5px] mt-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   <div className="flex flex-col font-sans font-medium text-slate-300 divide-y divide-white/[0.04]">
                     {(listaUnidades.length > 0 ? listaUnidades : [
                       { unit_title: 'O Primeiro Impacto e as Vogais Fracas', objectives: 'Compreender a redução vocálica e a estrutura das sílabas átonas.' },
@@ -1032,7 +1032,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <span>{idioma === "PT" ? "RANK & USUÁRIO" : idioma === "ES" ? "PUESTO & USUARIO" : "RANK & USER"}</span>
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
-              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600">
+              <div className="w-full flex flex-col gap-1 overflow-y-auto max-h-[120px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {topTen.map((user, index) => {
                   const rank = index + 1;
                   const ptsFormatados = (user.total_xp || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -1161,7 +1161,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <button onClick={() => setIsDepurarOpen(false)} className="text-slate-400 hover:text-white font-black font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-md transition-colors">X</button>
             </div>
 
-            <div className="flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {(() => {
                 const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
                 const ordenados = [...errorLogs].sort((a, b) => (peso[b.frequencia] || 0) - (peso[a.frequencia] || 0));
@@ -1319,7 +1319,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               {idioma === 'PT' ? 'FECHAR' : idioma === 'ES' ? 'CERRAR' : 'CLOSE'}
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <ProgramaTrilha idiomaAtivo={idioma} aoAbrirArena={(unidId) => { setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
           </div>
         </div>
@@ -1768,7 +1768,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
                 {exibindoInternacional ? (
                   <div className="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden max-h-[340px] w-full">
-                    <div className="grid grid-cols-2 gap-4 items-stretch my-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch my-auto">
                       
                       {/* COLUNA ESQUERDA: TEXTO COMPACTO */}
                       <div className="flex flex-col justify-between gap-2 text-left">
@@ -1833,7 +1833,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                   </div>
                 
             ) : (
-                  <div className="grid grid-cols-2 gap-4 items-stretch">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
                     
                     {/* COLUNA ESQUERDA: CARTÃO (CONFIÁVEL & ATIVO) */}
                     {/* COLUNA ESQUERDA: CARTÃO DESIGN PREMIUM METALIZADO */}
