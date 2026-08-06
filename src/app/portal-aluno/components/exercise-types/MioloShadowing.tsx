@@ -524,7 +524,7 @@ Regras Estritas:
                       setAudioUrl(null);
                       setTranscricaoAluno("");
                     }}
-                    className="p-3 bg-amber-950/40 hover:bg-amber-950/80 border border-cyan-500/40/40 text-purple-300 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
+                    className="p-3 bg-purple-950/40 hover:bg-purple-950/80 border border-cyan-500/40/40 text-purple-300 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
                     title="Gravar novamente"
                   >
                     <RotateCcw size={18} />

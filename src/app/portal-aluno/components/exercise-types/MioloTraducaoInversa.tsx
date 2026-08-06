@@ -330,7 +330,7 @@ streak = 0,
               type="button"
               disabled={localStatus !== 'IDLE' || analisando}
               onClick={() => handlePullToBank(piece)}
-              className="px-5 py-2.5 bg-[#FF7420] hover:bg-[#FF8A2B] text-white font-semibold rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-[0_4px_0_0_#c45513] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap"
+              className="px-5 py-2.5 bg-[#8b5cf6] hover:bg-[#a855f7] text-white font-semibold rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-[0_4px_0_0_#4c1d95] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap"
             >
               {piece.text}
             </button>

@@ -224,8 +224,8 @@ export default function MioloBlitzChallenge({
   if (gameOver) {
     return (
       <div className='w-full h-full flex flex-col items-center justify-center animate-fade-in p-2 select-none'>
-        <div className='w-full max-w-xl bg-[#070d19]/90 border border-[#FF8A2B]/30 rounded-2xl p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-[0_0_35px_rgba(255,138,43,0.15)] gap-4'>
-          <Award className='w-14 h-14 text-[#FF8A2B] animate-pulse drop-shadow-[0_0_12px_rgba(255,138,43,0.4)]' />
+        <div className='w-full max-w-xl bg-[#070d19]/90 border border-[#a855f7]/30 rounded-2xl p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-[0_0_35px_rgba(168,85,247,0.15)] gap-4'>
+          <Award className='w-14 h-14 text-[#a855f7] animate-pulse drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]' />
           
           <div className='flex flex-col gap-1'>
             <h3 className='text-[clamp(20px,2.2vw,26px)] font-black text-slate-100 tracking-wider uppercase'>
@@ -236,7 +236,7 @@ export default function MioloBlitzChallenge({
             </p>
           </div>
 
-          <div className='text-[clamp(26px,3vw,36px)] font-black text-[#FF8A2B] bg-[#FF8A2B]/10 px-8 py-3.5 rounded-xl border border-[#FF8A2B]/30 shadow-[0_0_20px_rgba(255,138,43,0.2)] tracking-wide'>
+          <div className='text-[clamp(26px,3vw,36px)] font-black text-[#a855f7] bg-[#a855f7]/10 px-8 py-3.5 rounded-xl border border-[#a855f7]/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] tracking-wide'>
             +{totalXp} PTS
           </div>
         </div>
@@ -250,10 +250,10 @@ export default function MioloBlitzChallenge({
       {/* Barra Superior - Timer & Nível */}
       <div className='flex items-center justify-between bg-[#070d19]/80 border border-slate-800/80 px-4 py-3 rounded-xl shadow-sm shrink-0'>
         <div className='flex items-center gap-2'>
-          <Zap className='w-4 h-4 text-[#FF8A2B]' />
+          <Zap className='w-4 h-4 text-[#a855f7]' />
           <span className='text-[11px] md:text-xs font-bold text-slate-400 tracking-widest uppercase'>DESAFIO BLITZ</span>
         </div>
-        <div className='text-xs md:text-sm font-black tracking-widest text-[#FF8A2B] font-mono bg-[#FF8A2B]/10 px-3 py-1 rounded-lg border border-[#FF8A2B]/20 shadow-[0_0_10px_rgba(255,138,43,0.1)]'>
+        <div className='text-xs md:text-sm font-black tracking-widest text-[#a855f7] font-mono bg-[#a855f7]/10 px-3 py-1 rounded-lg border border-[#a855f7]/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]'>
           00:{timeLeft < 10 ? '0' + timeLeft : timeLeft}
         </div>
       </div>

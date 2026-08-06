@@ -48,11 +48,11 @@ export default function MioloMultiplaEscolhaMobile({
         
         if (isThisSelected) {
           if (status === 'CORRECT') {
-            customStyle = "bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] border-[#FFB478]/35 text-white shadow-[0_0_24px_rgba(255,160,70,0.35)]";
+            customStyle = "bg-gradient-to-b from-[#a855f7] to-[#8b5cf6] border-[#c084fc]/35 text-white shadow-[0_0_24px_rgba(168,85,247,0.35)]";
           } else if (status === 'WRONG') {
             customStyle = "bg-[#6B2B2B] border-red-500/20 text-[#F8FAFC]";
           } else {
-            customStyle = "bg-gradient-to-b from-[#FF8A2B] to-[#FF7420] border-[#FFB478]/35 text-white shadow-[0_10px_32px_rgba(255,120,40,0.22)] active:scale-[0.98]";
+            customStyle = "bg-gradient-to-b from-[#a855f7] to-[#8b5cf6] border-[#c084fc]/35 text-white shadow-[0_10px_32px_rgba(168,85,247,0.22)] active:scale-[0.98]";
           }
         }
 

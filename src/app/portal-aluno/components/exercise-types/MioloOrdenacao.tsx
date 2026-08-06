@@ -422,10 +422,10 @@ export default function MioloOrdenacao({
             type="button"
             onClick={() => toggleToBank(item)}
             disabled={localStatus !== 'IDLE' || analisando}
-            className={`px-5 py-2.5 text-[clamp(14px,1.6vw,16px)] font-bold rounded-lg cursor-pointer shadow-[0_4px_0_0_#c45513] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap ${
+            className={`px-5 py-2.5 text-[clamp(14px,1.6vw,16px)] font-bold rounded-lg cursor-pointer shadow-[0_4px_0_0_#4c1d95] active:shadow-none active:translate-y-[4px] transition-all whitespace-nowrap ${
               localStatus === 'CORRECT' ? 'bg-emerald-600 border border-emerald-500 text-white shadow-[0_4px_0_0_#059669]' :
               localStatus === 'WRONG' ? 'bg-rose-600 border border-rose-500 text-white shadow-[0_4px_0_0_#e11d48]' :
-              'bg-[#FF7420] hover:bg-[#FF8A2B] text-white'
+              'bg-[#8b5cf6] hover:bg-[#a855f7] text-white'
             }`}
           >
             {item.text}

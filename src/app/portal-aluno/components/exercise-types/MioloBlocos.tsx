@@ -375,7 +375,7 @@ export default function MioloBlocos({
             type="button"
             onClick={() => handlePull(b)}
             disabled={localStatus !== "IDLE" || analisando}
-            className="px-5 py-2.5 bg-[#FF7420] hover:bg-[#FF8A2B] text-white text-[clamp(14px,1.6vw,16px)] font-bold rounded-lg shadow-[0_4px_0_0_#c45513] active:shadow-[0_0px_0_0_#c45513] active:translate-y-[4px] transition-all whitespace-nowrap cursor-pointer"
+            className="px-5 py-2.5 bg-[#8b5cf6] hover:bg-[#a855f7] text-white text-[clamp(14px,1.6vw,16px)] font-bold rounded-lg shadow-[0_4px_0_0_#4c1d95] active:shadow-[0_0px_0_0_#4c1d95] active:translate-y-[4px] transition-all whitespace-nowrap cursor-pointer"
           >
             {b.texto}
           </button>
