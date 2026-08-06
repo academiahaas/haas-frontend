@@ -58,7 +58,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
         <circle cx="40" cy="42" r="1" fill="#00D4FF" opacity="0.6"/>
         <path d="M11 30V40C11 41.5 12 43 13.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
         <path d="M53 30V40C53 41.5 52 43 50.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
-        <path d={(devePiscar) ? "M28 42.5H33" : "M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41"} stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+        <path d={(devePiscar) ? "M28 42.5H33" : "M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41"} stroke="#00e5ff" strokeWidth="2" strokeLinecap="round"/>
       </svg>
       <span className="hidden"></span>
     </div>
@@ -842,7 +842,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 
                 <div className="flex items-center gap-3 shrink-0 w-full md:w-auto justify-end">
                   <div onClick={handleBotClick} className="flex items-center gap-2 xl:gap-3 cursor-pointer select-none active:scale-98" title="Clique para falar com o Co-Pilot">
-                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-4 xl:p-4.5 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
+                    <div className="relative bg-slate-900 text-[#00e5ff] font-mono text-[10px] font-bold p-4 xl:p-4.5 rounded-2xl border border-[#00e5ff]/30 shadow-lg max-w-[160px] xs:max-w-[200px] xl:max-w-[240px] leading-relaxed animate-fade-in">
                       {obterConselhoIA()}
                       <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-900"></div>
                     </div>
@@ -891,7 +891,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                           
                           {isOpen && (
                             <div className="px-2 pb-3 pt-1 text-[11.5px] xl:text-[12.5px] text-slate-400 font-sans leading-relaxed transition-all animate-fadeIn pl-[38px]">
-                              <div className="bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-lg text-amber-100/80">
+                              <div className="bg-white/[0.02] border border-white/[0.04] p-2.5 rounded-lg text-cyan-400/80">
                                 <strong className="text-cyan-400/90 font-mono text-[10px] block uppercase tracking-wider mb-1">
                                   {idioma === 'ES' ? 'OBJETIVOS DE LA UNIDAD:' : idioma === 'EN' ? 'UNIT OBJECTIVES:' : 'OBJETIVOS DA UNIDADE:'}
                                 </strong>
@@ -1594,7 +1594,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                   <button onClick={() => setQtdAvulsas(Math.min(20, qtdAvulsas + 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">+</button>
                 </div>
                 {qtdAvulsas === 20 && (
-                  <p className="text-yellow-500 text-xs text-center font-medium mt-2 animate-pulse">
+                  <p className="text-cyan-400 text-xs text-center font-medium mt-2 animate-pulse">
                     ⚠️ Limite máximo de 20 créditos extras atingido.
                   </p>
                 )}
