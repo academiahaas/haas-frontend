@@ -395,3 +395,50 @@ export async function fetchNextExerciseForUser(userId: string) {
     return null;
   }
 }
+
+// ============================================================================
+// GATILHOS ARENA (CENTRAL SERVICE - BUSCA E LIMPEZA)
+// ============================================================================
+
+export async function checkPendingFlagsCentral(userId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('pending_unit_code, pending_module_code, pending_exam_code')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("❌ Erro ao buscar pending flags no CentralService:", error.message);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("❌ Exceção ao buscar pending flags:", err);
+    return null;
+  }
+}
+
+export async function clearPendingUnitCentral(userId: string) {
+  const { error } = await supabase
+    .from('users')
+    .update({ pending_unit_code: null })
+    .eq('id', userId);
+  return !error;
+}
+
+export async function clearPendingModuleCentral(userId: string) {
+  const { error } = await supabase
+    .from('users')
+    .update({ pending_module_code: null })
+    .eq('id', userId);
+  return !error;
+}
+
+export async function clearPendingExamCentral(userId: string) {
+  const { error } = await supabase
+    .from('users')
+    .update({ pending_exam_code: null })
+    .eq('id', userId);
+  return !error;
+}

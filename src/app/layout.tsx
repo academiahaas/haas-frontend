@@ -1,3 +1,4 @@
+import { ArenaWatcher } from '@/components/ArenaWatcher';
 import { Providers } from "./Providers";
 import React from "react";
 import "./globals.css";
@@ -15,7 +16,8 @@ export default function RootLayout({
   return (
     <html lang="pt" className="dark">
       <body className="bg-slate-950 text-slate-100 antialiased">
-        <Providers>{children}</Providers>
+        <Providers>{children}
+        <ArenaWatcher /></Providers>
       </body>
     </html>
   );
