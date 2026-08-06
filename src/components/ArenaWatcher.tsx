@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import ModalConclusao, { TipoConclusao, IdiomaPlataforma } from '@/app/portal-aluno/components/ModalConclusao';
+import ModalConclusao, { TipoConclusao, IdiomaPlataforma, NivelCurso } from '@/app/portal-aluno/components/ModalConclusao';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   checkPendingFlagsCentral, 
@@ -19,6 +19,7 @@ export function ArenaWatcher() {
   const [tipoModal, setTipoModal] = useState<TipoConclusao>("UNIDADE");
   const [unidadeNome, setUnidadeNome] = useState<string>("");
   const [moduloNome, setModuloNome] = useState<string>("");
+  const [nivelCodigo, setNivelCodigo] = useState<NivelCurso>("A1");
   const [idiomaUi, setIdiomaUi] = useState<IdiomaPlataforma>("PT");
 
   const { user } = useAuth();
@@ -70,6 +71,10 @@ export function ArenaWatcher() {
         }
 
         if (flags.pending_exam_code) {
+          const rawExam = typeof flags.pending_exam_code === 'string' ? flags.pending_exam_code.toUpperCase() : "A1";
+          const valids: NivelCurso[] = ["A1", "A2", "B1", "B2", "C1"];
+          const matched = valids.find(v => rawExam.includes(v)) || (rawExam as NivelCurso);
+          setNivelCodigo(matched as NivelCurso);
           setUnidadeNome("");
           setModuloNome("");
           setTipoModal("NIVEL");
@@ -106,7 +111,7 @@ export function ArenaWatcher() {
     <ModalConclusao
       isOpen={modalAberto}
       tipo={tipoModal}
-      nivel="A1"
+      nivel={nivelCodigo}
       lang={idiomaUi}
       unidadeNome={unidadeNome || undefined}
       moduloNome={moduloNome || undefined}
