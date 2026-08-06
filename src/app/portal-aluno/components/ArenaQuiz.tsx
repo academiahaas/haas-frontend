@@ -1790,7 +1790,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   window.dispatchEvent(new CustomEvent("haas:validate"));
                 }
               }}
-              disabled={visualizacaoAtiva !== "EXERCICIO"} className={`w-11 h-11 flex items-center justify-center text-sm font-black rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all border-none disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none ${(desafioIniciado && gameStatus !== "CORRECT") || (jogoSelecionado === "blitz" && gameStatus === "CORRECT") ? "hover:-translate-y-0.5 cursor-pointer" : ""} ${
+              disabled={visualizacaoAtiva !== "EXERCICIO"} className={`ml-auto w-11 h-11 flex items-center justify-center text-sm font-black rounded-xl shrink-0 disabled:opacity-20 disabled:cursor-not-allowed transition-all border-none disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none ${(desafioIniciado && gameStatus !== "CORRECT") || (jogoSelecionado === "blitz" && gameStatus === "CORRECT") ? "hover:-translate-y-0.5 cursor-pointer" : ""} ${
                 gameStatus === 'CORRECT' && jogoSelecionado !== 'blitz'
                   ? 'bg-gradient-to-r from-[#22C55E] to-[#16a34a] text-white'
                   : 'bg-gradient-to-r from-[#FF8A2B] to-[#F97316] text-white pointer-events-auto opacity-100'
