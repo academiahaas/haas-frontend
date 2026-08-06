@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Volume2, Mic, Square, Sparkles, CheckCircle2, ArrowRight, ShieldCheck, LogIn } from "lucide-react";
 
-export default function DiagnosticoPage() {
+function DiagnosticoContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [step, setStep] = useState(1);
   const [idioma, setIdioma] = useState("");
@@ -20,6 +21,15 @@ export default function DiagnosticoPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+
+  // Captura o idioma passado pela URL (ex: /diagnostico?idioma=ingles)
+  useEffect(() => {
+    const langParam = searchParams.get("idioma");
+    if (langParam && ["ingles", "espanhol", "portugues"].includes(langParam)) {
+      setIdioma(langParam);
+      setStep(2); // Avança direto para a escolha do motivo
+    }
+  }, [searchParams]);
 
   const frasesTeste = {
     ingles: {
@@ -71,7 +81,7 @@ export default function DiagnosticoPage() {
 
       <div className="w-full max-w-xl z-10 flex flex-col items-center">
         
-        {/* CABECERA SUPERIOR - MARCA HAAS LANGUAGE */}
+        {/* CABECERA SUPERIOR */}
         <div className="w-full flex items-center justify-between mb-6 px-2">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
             <span className="font-extrabold text-xl tracking-wider text-white">HAAS</span>
@@ -153,7 +163,7 @@ export default function DiagnosticoPage() {
             </div>
           )}
 
-          {/* PASO 3: PARTE 1 - ESCUCHA Y PRONUNCIACIÓN */}
+          {/* PASO 3: ESCUCHA Y PRONUNCIACIÓN */}
           {step === 3 && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center space-y-1">
@@ -204,7 +214,7 @@ export default function DiagnosticoPage() {
             </div>
           )}
 
-          {/* PASO 4: PARTE 2 - GRAMÁTICA Y REDACCIÓN */}
+          {/* PASO 4: GRAMÁTICA Y REDACCIÓN */}
           {step === 4 && (
             <div className="space-y-6 animate-fade-in">
               <div className="text-center space-y-1">
@@ -296,5 +306,13 @@ export default function DiagnosticoPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DiagnosticoPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">Cargando diagnóstico...</div>}>
+      <DiagnosticoContent />
+    </Suspense>
   );
 }
