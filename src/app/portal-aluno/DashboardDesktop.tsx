@@ -704,9 +704,9 @@ export default function DashboardDesktop({ alunoData }: any) {
       `}</style>
 
               {/* CABEÇALHO PREMIUM COM MARCA HAAS LANGUAGE E STATUS DO ALUNO */}
-        <div className="w-full bg-[#030712]/90 backdrop-blur-2xl border-b border-purple-500/30 px-4 xl:px-10 py-3.5 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[32px] shadow-2xl shadow-purple-950/30 z-10 relative">
+        <div className="w-full bg-[#030712]/90 backdrop-blur-2xl border-b border-purple-500/30 px-4 xl:px-6 py-3 flex flex-wrap md:flex-nowrap gap-3 md:gap-4 items-center justify-between shrink-0 rounded-b-[24px] xl:rounded-b-[32px] shadow-2xl shadow-purple-950/30 z-10 relative">
           
-          <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-start">
+          <div className="flex items-center gap-3 xl:gap-5 w-full lg:w-auto justify-between lg:justify-start min-w-0 shrink">
             {/* MARCA OFICIAL HAAS LANGUAGE */}
             <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="flex items-center gap-3 group shrink-0">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 font-black text-white text-xl shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform">
@@ -722,7 +722,7 @@ export default function DashboardDesktop({ alunoData }: any) {
 
             {/* SAUDAÇÃO E STATUS */}
             <div>
-              <h1 className="text-white font-extrabold text-lg xl:text-xl tracking-tight leading-none flex items-center gap-2">
+              <h1 className="text-white font-extrabold text-sm sm:text-base xl:text-xl tracking-tight leading-tight truncate flex items-center gap-1 sm:gap-2 min-w-0">
                 {idioma === "ES" ? "¡" : ""}{t.greeting} {aluno1?.split(' ')[0]}!
                 
                 {isAdminMode && !isSimuladorLiberado ? (
@@ -764,7 +764,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                   </div>
                 )}
               </h1>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="hidden md:flex items-center gap-2 mt-1">
                 <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
                 <span className="text-cyan-400 font-mono font-bold text-[10px] tracking-wider uppercase whitespace-nowrap">{
                   (() => {
