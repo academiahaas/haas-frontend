@@ -1,27 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DiagnosticModal from './components/DiagnosticModal';
 
 export default function LandingPage() {
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [detectedLang, setDetectedLang] = useState('ES');
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userLang = navigator.language || (navigator as any).userLanguage || 'es';
-      if (userLang.startsWith('pt')) setDetectedLang('PT');
-      else if (userLang.startsWith('en')) setDetectedLang('EN');
-      else setDetectedLang('ES');
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#07090E] text-slate-100 font-sans selection:bg-purple-500 selection:text-white">
       
-      {/* 1. HEADER INSTITUCIONAL */}
+      {/* 1. HEADER INSTITUCIONAL CLEAN */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-[#07090E]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           
@@ -44,9 +34,6 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <span className="text-[10px] font-mono text-purple-300 px-2.5 py-1 bg-purple-950/50 border border-purple-800/50 rounded-md">
-              REGION: {detectedLang}
-            </span>
             <a
               href="/portal-aluno"
               className="text-xs font-bold text-slate-300 hover:text-white transition-colors"
@@ -114,7 +101,6 @@ export default function LandingPage() {
                 En <strong className="text-white">HAAS Language</strong> combinamos la precisión de nuestra Mentora IA 24/7 con la guía humana de profesores certificados.
               </p>
 
-              {/* Botões Tecnológicos em Gradiente Roxo */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <a
                   href="/portal-aluno"
@@ -135,13 +121,13 @@ export default function LandingPage() {
               </div>
 
               <div className="flex items-center gap-6 pt-4 text-xs font-semibold text-slate-400 font-mono">
-                <span>✓ Sin tarjeta</span>
+                <span>✓ Acceso Inmediato</span>
                 <span>✓ Mentora IA 24/7</span>
-                <span>✓ Feedback en vivo</span>
+                <span>✓ Feedback en Vivo</span>
               </div>
             </div>
 
-            {/* Dashboard Mockup */}
+            {/* Dashboard Mockup Reestilizado (Sem nome pessoal) */}
             <div className="lg:col-span-5">
               <div className="relative rounded-2xl bg-[#0C0F1A] border border-purple-500/20 p-5 shadow-2xl shadow-purple-950/40">
                 <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-4">
@@ -156,8 +142,8 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="rounded-xl bg-slate-900/80 p-4 border border-slate-800 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase font-mono">Panel de Alumno</p>
-                      <p className="text-sm font-bold text-white">Bruna Haas</p>
+                      <p className="text-[10px] text-purple-400 uppercase font-mono tracking-wider">Módulo Activo</p>
+                      <p className="text-sm font-bold text-white">B1 • Fluency & Business</p>
                     </div>
                     <span className="rounded-lg bg-purple-500/20 px-3 py-1 text-xs font-bold text-purple-300 border border-purple-500/30">
                       Racha: 5 Días 🔥
@@ -185,7 +171,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. SEÇÃO DEDICADA DE VÍDEO DA PLATAFORMA */}
+      {/* 3. VÍDEO DA PLATAFORMA */}
       <section id="video" className="py-20 bg-[#0B0E17] border-y border-purple-900/20 relative">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -200,7 +186,6 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Container do Player de Vídeo */}
           <div className="relative max-w-4xl mx-auto rounded-3xl bg-[#080B13] border border-purple-500/30 p-2 shadow-2xl shadow-purple-950/60 overflow-hidden">
             <div className="relative aspect-video rounded-2xl bg-slate-950 flex flex-col items-center justify-center border border-slate-800/80 overflow-hidden group">
               
@@ -232,7 +217,6 @@ export default function LandingPage() {
                 </div>
               )}
 
-              {/* Detalhe de iluminação no fundo do vídeo */}
               <div className="absolute inset-0 bg-gradient-to-t from-purple-950/40 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
@@ -315,19 +299,53 @@ export default function LandingPage() {
               </div>
               <h3 className="text-lg font-bold text-white mb-2">Mentora Haas IA 24/7</h3>
               <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                Arena de práctica interactiva com retroalimentación inmediata, racha de estudio y pontos de experiencia.
+                Arena de práctica interactiva con retroalimentación inmediata, racha de estudio y puntos de experiencia.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. TESTIMONIOS */}
-      <section id="testimonios" className="py-20 bg-[#07090E]">
+      {/* 6. PROGRAMAS */}
+      <section id="programas" className="py-20 bg-[#07090E]">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-extrabold text-white">Nuestros Cursos</h2>
+            <p className="text-slate-400 text-sm mt-2">Formación desde nivel A1 hasta C1.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Inglés', desc: 'Inglés general, de negocios (Business) y preparación para exámenes internacionales.', badge: 'A1 - C1' },
+              { title: 'Español', desc: 'Español conversacional, cultura hispana y gramática práctica para profesionales.', badge: 'A1 - C1' },
+              { title: 'Português', desc: 'Portugués brasileño y europeo para viajes, trabajo e integración cultural.', badge: 'A1 - C1' },
+            ].map((prog, i) => (
+              <div key={i} className="rounded-2xl bg-slate-900/80 p-6 border border-slate-800 hover:border-purple-500/40 transition-all">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-white">{prog.title}</h3>
+                  <span className="rounded-md bg-purple-600/20 px-2.5 py-1 text-xs font-bold text-purple-300 border border-purple-500/30">
+                    {prog.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed mb-6">{prog.desc}</p>
+                <a
+                  href="/portal-aluno"
+                  className="inline-block w-full text-center py-2.5 rounded-xl border border-purple-500/50 text-purple-300 font-bold text-xs hover:bg-purple-600 hover:text-white transition-all"
+                >
+                  Ver Plan de Estudio →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. TESTIMONIOS */}
+      <section id="testimonios" className="py-20 bg-[#0B0E17]">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-extrabold text-white">Historias de Éxito</h2>
-            <p className="text-slate-400 text-sm mt-2">Lo que dicen nuestros alumnos sobre la metodología HAAS Language.</p>
+            <p className="text-slate-400 text-sm mt-2">Lo que dicen nuestros alumnos sobre HAAS Language.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -373,12 +391,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. CONTACTO */}
-      <section id="contacto" className="py-20 bg-[#0B0E17] border-t border-slate-800/80">
+      {/* 8. CONTACTO */}
+      <section id="contacto" className="py-20 bg-[#07090E] border-t border-slate-800/80">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-extrabold text-white">Contacto Directo</h2>
-            <p className="text-slate-400 text-sm mt-2">Resolvemos tus dudas sobre planes y admisiones.</p>
+            <p className="text-slate-400 text-sm mt-2">Resolvemos tus dudas sobre programas y admisiones.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -436,13 +454,58 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[#05070B] text-slate-400 py-12 border-t border-slate-800/80 text-xs font-mono">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} HAAS Language. All rights reserved.</p>
+      {/* 9. FOOTER COMPLETO E ESTRUTURADO (4 COLUNAS) */}
+      <footer className="bg-[#04060A] text-slate-400 py-16 border-t border-slate-800/80 text-xs">
+        <div className="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-600 font-black text-white text-sm">
+                H
+              </div>
+              <span className="font-bold text-white text-base">HAAS Language</span>
+            </div>
+            <p className="text-slate-500 leading-relaxed">
+              Educación de idiomas de alto nivel combinando profesores calificados con tecnología de inteligencia artificial.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-white text-sm mb-4">Navegación</h4>
+            <ul className="space-y-2">
+              <li><a href="#" className="hover:text-purple-400 transition-colors">Inicio</a></li>
+              <li><a href="#video" className="hover:text-purple-400 transition-colors">Plataforma IA</a></li>
+              <li><a href="#metodo" className="hover:text-purple-400 transition-colors">Metodología</a></li>
+              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Idiomas</a></li>
+              <li><a href="#sobre" className="hover:text-purple-400 transition-colors">Sobre Nosotros</a></li>
+              <li><a href="#contacto" className="hover:text-purple-400 transition-colors">Contacto</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-white text-sm mb-4">Cursos & Diagnóstico</h4>
+            <ul className="space-y-2">
+              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Inglés General & Business</a></li>
+              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Español Conversacional</a></li>
+              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Português Brasil & Europa</a></li>
+              <li><button onClick={() => setIsDiagnosticOpen(true)} className="hover:text-purple-400 transition-colors text-left">Diagnóstico Express IA</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-white text-sm mb-4">Contacto Directo</h4>
+            <p className="text-slate-300 mb-1">info@academiahaas.com</p>
+            <p className="text-slate-300 mb-1">+57 323 9421071</p>
+            <p className="text-slate-500 mt-3 font-mono">Atención online 24/7</p>
+          </div>
+
+        </div>
+
+        <div className="mx-auto max-w-7xl px-6 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px]">
+          <p>© {new Date().getFullYear()} HAAS Language. Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
-            <a href="/portal-aluno" className="hover:text-white transition-colors">Terms</a>
-            <a href="/portal-aluno" className="hover:text-white transition-colors">Privacy</a>
+            <a href="/portal-aluno" className="hover:text-white transition-colors">Términos de Servicio</a>
+            <a href="/portal-aluno" className="hover:text-white transition-colors">Política de Privacidad</a>
           </div>
         </div>
       </footer>
