@@ -465,7 +465,7 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <p className="text-[10px] font-mono text-slate-500 uppercase">Correo Electrónico</p>
-                  <p className="text-xs font-bold text-white">info@academiahaas.com</p>
+                  <p className="text-xs font-bold text-white">contact@academiahaas.com</p>
                 </div>
               </div>
 
@@ -567,7 +567,7 @@ export default function LandingPage() {
 
           <div>
             <h4 className="font-bold text-white text-xs uppercase tracking-wider mb-4">Contacto Directo</h4>
-            <p className="text-slate-400 mb-1">info@academiahaas.com</p>
+            <p className="text-slate-400 mb-1">contact@academiahaas.com</p>
             <p className="text-slate-400 mb-1">+57 323 9421071</p>
             <p className="text-slate-600 mt-3">Atención online 24/7</p>
           </div>
