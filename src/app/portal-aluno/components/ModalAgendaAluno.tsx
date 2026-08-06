@@ -701,11 +701,11 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             <button
               type="button"
               onClick={() => setIsReglamentoOpen(!isReglamentoOpen)}
-              className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-cyan-500/40/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
+              className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-cyan-500/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
             >
               <div className="flex items-center gap-2">
                 
-                <span className="text-[#FF9F1C] text-[11px] font-mono font-black uppercase tracking-wider">
+                <span className="text-cyan-400 text-[11px] font-mono font-black uppercase tracking-wider">
                   {idioma === "EN" ? "SESSION RULES" : idioma === "ES" ? "REGLAMENTO DE SESIONES" : "REGULAMENTO DE SESSÕES"}
                 </span>
               </div>
@@ -717,7 +717,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             </button>
 
             {isReglamentoOpen && (
-              <div className="mt-2 p-3.5 bg-[#0d131c] border border-cyan-500/40/20 rounded-xl flex flex-col gap-2 transition-all">
+              <div className="mt-2 p-3.5 bg-[#0d131c] border border-cyan-500/20 rounded-xl flex flex-col gap-2 transition-all">
                 <ul className="space-y-2 text-[11px] font-mono text-slate-300 leading-relaxed list-none p-0 m-0">
                   <li className="flex gap-2 items-start">
                     <span className="text-cyan-400 font-bold">•</span>
@@ -1094,7 +1094,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {mensagemCancelamento && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl flex flex-col gap-4">
-            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-cyan-400/10 border-cyan-500/40/20 text-cyan-400")}>
+            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-cyan-400/10 border-cyan-500/20 text-cyan-400")}>
               <span className="font-mono text-xl font-black">!</span>
             </div>
             
@@ -1140,7 +1140,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {isLembreteOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative overflow-hidden flex flex-col gap-4">
-            <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto border border-cyan-500/40/20">
+            <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto border border-cyan-500/20">
               <span className="text-cyan-400 font-mono text-xl font-black">!</span>
             </div>
             
