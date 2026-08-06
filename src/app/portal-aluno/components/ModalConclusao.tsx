@@ -123,7 +123,7 @@ const IconeCheck = () => (
 );
 
 const IconeTrofeu = () => (
-  <svg className="w-12 h-12 text-amber-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-12 h-12 text-emerald-400 mx-auto drop-shadow-[0_0_10px_rgba(52,211,153,0.4)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2 0h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
   </svg>
 );
@@ -155,24 +155,27 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
   const isUnidade = tipo === "UNIDADE";
   const acaoBotao = isNivel ? onIniciarProvaEscrita : onContinuar;
 
-  // Visual Roxo Elétrico Deep para UNIDADE
+  // Definições de Estilo:
+  // - UNIDADE: Roxo Elétrico Deep
+  // - MODULO: Verde Esmeralda Deep Gamer
+  // - NIVEL: Dinâmico por nível (A1..C1)
   const borderClass = isNivel
     ? configNivel.border
     : isUnidade
     ? "border-violet-500/40 shadow-[0_0_25px_rgba(139,92,246,0.15)]"
-    : "border-amber-500/30";
+    : "border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.15)]";
 
   const glowClass = isNivel
     ? configNivel.bgGlow
     : isUnidade
     ? "bg-violet-500/15"
-    : "bg-amber-500/10";
+    : "bg-emerald-500/15";
 
   const btnClass = isNivel
     ? configNivel.btnBg
     : isUnidade
     ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
-    : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black";
+    : "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
@@ -210,7 +213,7 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
           {!isNivel && (unidadeNome || moduloNome) && (
             <div className="bg-[#212530] border border-white/5 rounded-2xl p-3 text-xs font-medium text-center">
               {unidadeNome && <div className="text-violet-300 drop-shadow-[0_0_8px_rgba(167,139,250,0.3)]">{unidadeNome}</div>}
-              {moduloNome && <div className="text-amber-300">{moduloNome}</div>}
+              {moduloNome && <div className="text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">{moduloNome}</div>}
             </div>
           )}
 
