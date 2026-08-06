@@ -49,13 +49,13 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-4">
             <a
-              href="/portal-aluno"
+              href="/diagnostico"
               className="text-xs font-mono font-semibold text-slate-300 hover:text-white transition-colors"
             >
               Acceso Estudiantes
             </a>
             <a
-              href="/portal-aluno"
+              href="/diagnostico"
               className="relative group overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 p-[1px] shadow-lg shadow-purple-600/20"
             >
               <div className="px-5 py-2.5 rounded-[11px] bg-[#030712] group-hover:bg-transparent transition-all duration-300">
@@ -89,8 +89,8 @@ export default function LandingPage() {
             <a href="#testimonios" onClick={() => setIsMobileMenuOpen(false)} className="block text-sm font-mono text-slate-300 hover:text-purple-400">Testimonios</a>
             <a href="#contacto" onClick={() => setIsMobileMenuOpen(false)} className="block text-sm font-mono text-slate-300 hover:text-purple-400">Contacto</a>
             <div className="pt-4 border-t border-slate-800 flex flex-col gap-3">
-              <a href="/portal-aluno" className="text-center py-2.5 rounded-xl border border-slate-700 text-xs font-mono font-bold text-slate-200">Acceso Estudiantes</a>
-              <a href="/portal-aluno" className="text-center py-2.5 rounded-xl bg-purple-600 text-xs font-mono font-bold text-white">7 Días Gratis</a>
+              <a href="/diagnostico" className="text-center py-2.5 rounded-xl border border-slate-700 text-xs font-mono font-bold text-slate-200">Acceso Estudiantes</a>
+              <a href="/diagnostico" className="text-center py-2.5 rounded-xl bg-purple-600 text-xs font-mono font-bold text-white">7 Días Gratis</a>
             </div>
           </div>
         )}
@@ -117,7 +117,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
                 <a
-                  href="/portal-aluno"
+                  href="/diagnostico"
                   className="group relative flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 px-8 py-4 text-xs font-mono font-bold text-white shadow-xl shadow-purple-600/25 hover:shadow-purple-600/40 hover:scale-[1.02] transition-all uppercase tracking-wider"
                 >
                   <span>Probar 7 Días Gratis</span>
@@ -387,7 +387,7 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-400 leading-relaxed mb-6 font-light">{prog.desc}</p>
                 </div>
                 <a
-                  href="/portal-aluno"
+                  href="/diagnostico"
                   className="inline-block w-full text-center py-3 rounded-xl border border-purple-500/40 text-purple-300 font-mono font-bold text-xs hover:bg-purple-600 hover:text-white transition-all"
                 >
                   Ver Plan de Estudio →
@@ -577,8 +577,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
           <p>© {new Date().getFullYear()} HAAS Language. Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
-            <a href="/portal-aluno" className="hover:text-white transition-colors">Términos de Servicio</a>
-            <a href="/portal-aluno" className="hover:text-white transition-colors">Política de Privacidad</a>
+            <a href="/diagnostico" className="hover:text-white transition-colors">Términos de Servicio</a>
+            <a href="/diagnostico" className="hover:text-white transition-colors">Política de Privacidad</a>
           </div>
         </div>
       </footer>
