@@ -1001,14 +1001,14 @@ export default function DashboardDesktop({ alunoData }: any) {
 
               return (
                 <div className="grid grid-cols-3 gap-1.5 text-[7.2px] font-black uppercase font-mono mt-0.5 text-center shrink-0">
-                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
-                    <TrendingUp size={9}/> {tLabel(top1)} +{top1.nota}%
+                  <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
+                    <TrendingUp size={9} className="text-cyan-400"/> {tLabel(top1)} +{top1.nota}%
                   </span>
-                  <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
-                    <TrendingUp size={9}/> {tLabel(top2)} +{top2.nota}%
+                  <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(6,182,212,0.12)]">
+                    <TrendingUp size={9} className="text-cyan-400"/> {tLabel(top2)} +{top2.nota}%
                   </span>
-                  <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 py-1 rounded-lg flex items-center justify-center gap-1">
-                    <AlertTriangle size={9}/> {idioma === "PT" ? "Prática de" : idioma === "ES" ? "Prática de" : "Practice"} {tLabel(bottom)}
+                  <span className="bg-rose-500/10 text-rose-300 border border-rose-500/30 py-1 rounded-lg flex items-center justify-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.12)]">
+                    <AlertTriangle size={9} className="text-rose-400"/> {idioma === "PT" ? "Prática de" : idioma === "ES" ? "Prática de" : "Practice"} {tLabel(bottom)}
                   </span>
                 </div>
               );
@@ -1024,7 +1024,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider group-hover:text-slate-200 transition-colors">{t.leaderboard}</span>
                 <ChevronDown size={12} className={`text-slate-500 transition-transform duration-300 ${isLigaOpen ? 'rotate-180 text-cyan-400' : ''}`} />
               </div>
-              <div className="bg-gradient-to-r from-purple-600/10 to-purple-600/20 border border-cyan-500/40/50 text-[#8b5cf6] px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
+              <div className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
                 <span>{nicknameAluno}</span>
               </div>
             </div>
