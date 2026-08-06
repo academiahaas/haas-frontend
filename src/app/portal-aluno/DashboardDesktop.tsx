@@ -1987,7 +1987,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                             setModalidade(null);
                           });
                         }}
-                        className="w-full font-bold text-cyan-400 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center font-mono"
+                        className="w-full font-bold text-slate-400 hover:text-white hover:bg-white/10 py-2.5 rounded-xl text-[11px] uppercase tracking-widest transition-all cursor-pointer text-center font-mono mt-2"
                       >
                         {idioma === "PT" ? "Já realizei o pagamento, voltar ao portal" : idioma === "EN" ? "I already paid, return to portal" : "Ya realicé el pago, volver al portal"}
                       </button>

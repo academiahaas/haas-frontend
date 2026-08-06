@@ -3660,7 +3660,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </div>
 
                 {/* BOTÃO FIXO DE FEEDBACK COMPRA */}
-                <button onClick={() => setEtapaPagamento(5)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer mt-1 font-mono">
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-3 mt-2 text-slate-400 hover:text-white bg-transparent hover:bg-white/5 border border-transparent hover:border-white/10 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer font-mono transition-all">
                   {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
                 </button>
               </div>
@@ -3717,7 +3717,7 @@ if (!vencimentoPlano) return "--/--/----";
                   </span>
                 </div>
 
-                <button onClick={() => setEtapaPagamento(5)} className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono">
+                <button onClick={() => setEtapaPagamento(5)} className="w-full py-3 mt-2 text-slate-400 hover:text-white bg-transparent hover:bg-white/5 border border-transparent hover:border-white/10 text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer font-mono transition-all">
                   {idiomaSelecionado === "PT" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : idiomaSelecionado === "EN" ? "YA REALICÉ EL PAGO, VOLVER AL PORTAL" : "YA REALICÉ EL PAGO, VOLVER AL PORTAL"}
                 </button>
               </div>
