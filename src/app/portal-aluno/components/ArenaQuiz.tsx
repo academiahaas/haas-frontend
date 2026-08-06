@@ -203,7 +203,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       unit: "UNIT",
       stage: "STAGE",
       of: "OF",
-      close: "✕ CLOSE ARENA",
+      close: "✕",
       skip: "SKIP STEP ➔",
       validate: "SUBMIT",
       next: "PROCEED",
