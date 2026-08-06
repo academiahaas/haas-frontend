@@ -65,7 +65,7 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
         {/* CABEÇALHO DA GAVETA */}
         <div className="p-4 border-b border-white/[0.04] flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             <h3 className="font-mono font-black uppercase text-sm md:text-lg tracking-wider text-slate-200">
               {idiomaSelecionado === "PT"
                 ? "Cofre de Erros Críticos"

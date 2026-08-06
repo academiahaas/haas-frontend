@@ -655,7 +655,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           <div className="flex items-center justify-between border-b border-white/5 pb-3 shrink-0">
             <div className="flex flex-col gap-0.5">
               <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 {t.title}
               </h2>
               <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">
@@ -882,7 +882,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
-                                className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === m ? "bg-amber-500 text-[#030914] font-black" : "text-cyan-400 hover:bg-amber-500 hover:text-[#030914]"}`}
+                                className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === m ? "bg-cyan-400 text-[#030914] font-black" : "text-cyan-400 hover:bg-cyan-400 hover:text-[#030914]"}`}
                               >
                                 {getNomeModalidade(m)}
                               </div>
@@ -941,8 +941,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                                 isLotado 
                                   ? "opacity-30 text-slate-500 bg-transparent cursor-not-allowed line-through" 
                                   : isSelected 
-                                    ? "bg-amber-500 text-[#030914] font-black cursor-pointer" 
-                                    : "text-cyan-400/90 hover:bg-amber-500 hover:text-[#030914] cursor-pointer"
+                                    ? "bg-cyan-400 text-[#030914] font-black cursor-pointer" 
+                                    : "text-cyan-400/90 hover:bg-cyan-400 hover:text-[#030914] cursor-pointer"
                               }`}
                             >
                               <span>{h}</span>
@@ -955,7 +955,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   </div>
                 </div>
 
-                <button type="button" disabled={!podeConfirmar} onClick={validarAntesDeAgendar} className={`w-full py-2 mt-2 rounded-xl text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md shrink-0 ${!podeConfirmar ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed border border-slate-700" : "bg-amber-500 hover:bg-amber-400 text-black cursor-pointer"}`}>
+                <button type="button" disabled={!podeConfirmar} onClick={validarAntesDeAgendar} className={`w-full py-2 mt-2 rounded-xl text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md shrink-0 ${!podeConfirmar ? "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed border border-slate-700" : "bg-cyan-400 hover:bg-purple-400 text-black cursor-pointer"}`}>
                   {t.btnConfirm}
                 </button>
               </div>
@@ -1036,8 +1036,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                     isDesabilitado 
                       ? "text-slate-600 bg-white/[0.02] opacity-20 cursor-not-allowed line-through" 
                       : isSelected 
-                        ? "bg-amber-500 text-black shadow-md font-black scale-105 cursor-pointer" 
-                        : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-purple-300 cursor-pointer"
+                        ? "bg-cyan-400 text-black shadow-md font-black scale-105 cursor-pointer" 
+                        : "text-slate-300 bg-white/[0.01] hover:bg-cyan-400/20 hover:text-purple-300 cursor-pointer"
                   }`}
                 >
                   {day}
@@ -1053,7 +1053,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           
           <div className="relative w-full max-w-sm bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 shadow-2xl text-center flex flex-col gap-4 z-10">
             <h3 className="text-white text-xs font-black tracking-widest uppercase font-mono flex items-center justify-center gap-2">
-              <span className={`w-1.5 h-1.5 rounded-full ${tipoAviso === 'duplicado' ? 'bg-rose-500' : 'bg-amber-500'} animate-pulse`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${tipoAviso === 'duplicado' ? 'bg-rose-500' : 'bg-cyan-400'} animate-pulse`} />
               {tipoAviso === "duplicado" ? t.avisoDuplicadoTitulo : tipoAviso === "reposicion_zerada" ? t.avisoReposicaoTitulo : t.avisoMarketingTitulo}
             </h3>
 
@@ -1083,7 +1083,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                     // Engrenagem idêntica do DashboardDesktop.tsx (Linha 653)
                     (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert("System Loading...");
                   }} 
-                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg"
+                  className="flex-1 py-2.5 bg-cyan-400 hover:bg-purple-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg"
                 >{tipoAviso === "fora_combo" || tipoAviso === "zerado" || tipoAviso === "reposicao" ? (idioma === "EN" ? "BUY NOW" : idioma === "ES" ? "ADQUIRIR" : "COMPRAR AGORA") : t.btnSim}</button>
               </div>
             )}
@@ -1094,7 +1094,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {mensagemCancelamento && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl flex flex-col gap-4">
-            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-amber-500/10 border-cyan-500/40/20 text-cyan-400")}>
+            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-cyan-400/10 border-cyan-500/40/20 text-cyan-400")}>
               <span className="font-mono text-xl font-black">!</span>
             </div>
             
@@ -1140,7 +1140,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {isLembreteOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative overflow-hidden flex flex-col gap-4">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto border border-cyan-500/40/20">
+            <div className="w-12 h-12 rounded-full bg-cyan-400/10 flex items-center justify-center mx-auto border border-cyan-500/40/20">
               <span className="text-cyan-400 font-mono text-xl font-black">!</span>
             </div>
             
@@ -1167,7 +1167,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
               <button 
                 type="button" 
                 onClick={() => setIsLembreteOpen(false)} 
-                className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg border-none"
+                className="flex-1 py-2.5 bg-cyan-400 hover:bg-purple-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg border-none"
               >
                 {idioma === "EN" ? "Yes, let's go" : idioma === "ES" ? "Sí, vamos" : "Sim, vamos lá"}
               </button>

@@ -47,7 +47,7 @@ export default function CoelhoRobot({ piscarUmOlho = false }: CoelhoRobotProps) 
 
         <circle cx="21" cy="42" r="1" fill="#A855F7" opacity="0.6" />
         <circle cx="40" cy="42" r="1" fill="#00D4FF" opacity="0.6" />
-        <path d="M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round"/>
       </svg>
     </div>
   );

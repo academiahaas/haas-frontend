@@ -124,7 +124,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
         if (isAtual) { 
           cardStyle = "border-cyan-500/40/30 bg-[#0a1424] shadow-lg"; 
           tagColor = "text-cyan-400";
-          badgeStyle = "border-cyan-500/40/20 bg-amber-500/10 text-purple-300";
+          badgeStyle = "border-cyan-500/40/20 bg-cyan-400/10 text-purple-300";
         } else if (isConcluido) { 
           cardStyle = "border-emerald-500/10 bg-[#050d18] opacity-75"; 
           tagColor = "text-emerald-500";
@@ -164,7 +164,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                             <h4 className="text-xs font-bold text-slate-200 tracking-wide">{idiomaAtivo === 'PT' ? m.titulo_pt : m.titulo_en}</h4>
                           </div>
                         </div>
-                        <button disabled={isBloqueado} className={"text-[9px] font-bold border px-3 py-1.5 rounded-lg font-mono tracking-wider transition-all duration-300 " + (isBloqueado ? 'border-slate-700 text-slate-500 bg-transparent' : 'border-cyan-500/40/30 text-cyan-400 bg-amber-500/[0.02] hover:bg-amber-500/10 shadow-sm')}>
+                        <button disabled={isBloqueado} className={"text-[9px] font-bold border px-3 py-1.5 rounded-lg font-mono tracking-wider transition-all duration-300 " + (isBloqueado ? 'border-slate-700 text-slate-500 bg-transparent' : 'border-cyan-500/40/30 text-cyan-400 bg-cyan-400/[0.02] hover:bg-cyan-400/10 shadow-sm')}>
                           {isBloqueado ? 'LOCK' : 'INICIAR'}
                         </button>
                       </div>

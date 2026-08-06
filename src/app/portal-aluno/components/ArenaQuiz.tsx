@@ -1400,7 +1400,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 key={j.id}
                 onClick={() => { tocarSom('click'); setJogoSelecionado(j.id); setGameStatus('IDLE'); setComboQuebrado(false); }}
                 className={`w-full text-left text-[9px] font-bold font-mono px-3 py-1.5 rounded-lg border-none cursor-pointer transition-all ${
-                  jogoSelecionado === j.id ? 'bg-[#F97316] text-white font-black' : 'bg-[#1D2D44]/40 text-[#94A3B8] hover:bg-[#243B55]'
+                  jogoSelecionado === j.id ? 'bg-[#00e5ff] text-white font-black' : 'bg-[#1D2D44]/40 text-[#94A3B8] hover:bg-[#243B55]'
                 }`}
               >
                 {j.label}
@@ -1461,12 +1461,12 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
               gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
               gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
-              streak >= 3 ? "bg-amber-500/20 text-purple-300 border-cyan-500/40/50 scale-102" :
+              streak >= 3 ? "bg-cyan-400/20 text-purple-300 border-cyan-500/40/50 scale-102" :
               "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/20"
             }`}>
               <Bot size={20} />
               {streak >= 3 && (
-                <span className="absolute -top-1 -right-1 bg-[#F97316] text-[7px] text-white font-mono font-black px-1 rounded-sm">
+                <span className="absolute -top-1 -right-1 bg-[#00e5ff] text-[7px] text-white font-mono font-black px-1 rounded-sm">
                   STREAK
                 </span>
               )}
@@ -1760,7 +1760,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           }
                         }, 900);
                       }}
-                      className="mt-2 px-8 py-3 bg-gradient-to-r from-[#FF8A2B] to-[#F97316] hover:from-[#F97316] hover:to-[#EA580C] text-white text-xs font-black tracking-widest rounded-xl shadow-[0_4px_20px_rgba(249,115,22,0.2)] hover:shadow-[0_4px_25px_rgba(249,115,22,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer uppercase"
+                      className="mt-2 px-8 py-3 bg-gradient-to-r from-[#FF8A2B] to-[#00e5ff] hover:from-[#00e5ff] hover:to-[#9333ea] text-white text-xs font-black tracking-widest rounded-xl shadow-[0_4px_20px_rgba(249,115,22,0.2)] hover:shadow-[0_4px_25px_rgba(249,115,22,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer uppercase"
                     >
                       {currentLang === 'PT' ? 'Iniciar Desafio' : currentLang === 'ES' ? 'Iniciar Desafío' : 'Start Challenge'}
                     </button>
@@ -1793,7 +1793,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               disabled={visualizacaoAtiva !== "EXERCICIO"} className={`ml-auto w-11 h-11 flex items-center justify-center text-sm font-black rounded-xl shrink-0 disabled:opacity-20 disabled:cursor-not-allowed transition-all border-none disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none ${(desafioIniciado && gameStatus !== "CORRECT") || (jogoSelecionado === "blitz" && gameStatus === "CORRECT") ? "hover:-translate-y-0.5 cursor-pointer" : ""} ${
                 gameStatus === 'CORRECT' && jogoSelecionado !== 'blitz'
                   ? 'bg-gradient-to-r from-[#22C55E] to-[#16a34a] text-white'
-                  : 'bg-gradient-to-r from-[#FF8A2B] to-[#F97316] text-white pointer-events-auto opacity-100'
+                  : 'bg-gradient-to-r from-[#FF8A2B] to-[#00e5ff] text-white pointer-events-auto opacity-100'
               }`}
             >
               ➔
@@ -1813,8 +1813,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 <span className="text-[10px] font-black font-mono text-[#38BDF8] tracking-widest uppercase">
                   {tArena.mentorName}
                 </span>
-                <div className="flex items-center gap-1.5 text-[10px] font-black font-mono text-purple-300 bg-amber-400/10 px-2.5 py-1 rounded-md tracking-wider">
-                  <Zap size={12} className="fill-amber-400 stroke-amber-400" />
+                <div className="flex items-center gap-1.5 text-[10px] font-black font-mono text-purple-300 bg-purple-400/10 px-2.5 py-1 rounded-md tracking-wider">
+                  <Zap size={12} className="fill-purple-400 stroke-purple-400" />
                   <span>{creditosPlano !== null ? `${creditosPlano} REQS` : "..."}</span>
                 </div>
               </div>
@@ -1907,7 +1907,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
+      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>
@@ -2086,7 +2086,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
         };
         falarSequencial();
-      }} className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
+      }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-amber-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
     </div>

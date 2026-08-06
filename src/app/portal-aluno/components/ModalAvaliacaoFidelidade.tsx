@@ -121,7 +121,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
       <div className={`relative w-full max-w-md bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl transition-all duration-300 transform ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
         <div className="flex items-center justify-between border-b border-white/5 pb-3">
           <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             {t.title}
           </h2>
           <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
@@ -133,7 +133,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
           <div className="text-center py-8 text-emerald-400 font-mono text-xs font-bold animate-pulse">{t.success}</div>
         ) : (
           <div className="space-y-4">
-            <div className="bg-amber-500/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
+            <div className="bg-cyan-400/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
               <ShieldCheck size={14} className="text-cyan-400 shrink-0" />
               <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
             </div>
@@ -199,8 +199,8 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
                           onClick={() => handleSelectDay(day)}
                           className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all border-none cursor-pointer ${
                             isSelected 
-                              ? "bg-amber-500 text-black shadow-md" 
-                              : "text-slate-300 bg-white/[0.02] hover:bg-amber-500/15 hover:text-purple-300"
+                              ? "bg-cyan-400 text-black shadow-md" 
+                              : "text-slate-300 bg-white/[0.02] hover:bg-cyan-400/15 hover:text-purple-300"
                           }`}
                         >
                           {day}
@@ -216,7 +216,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
               <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.q1}</label>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((num) => (
-                  <button key={num} type="button" onClick={() => setTeacherScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${teacherScore === num ? "bg-amber-500 text-black border-amber-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
+                  <button key={num} type="button" onClick={() => setTeacherScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${teacherScore === num ? "bg-cyan-400 text-black border-purple-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
                 ))}
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
               <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">{t.q2}</label>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((num) => (
-                  <button key={num} type="button" onClick={() => setMaterialScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${materialScore === num ? "bg-amber-500 text-black border-amber-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
+                  <button key={num} type="button" onClick={() => setMaterialScore(num)} className={`flex-1 py-2 rounded-xl border font-mono text-xs font-bold transition-all ${materialScore === num ? "bg-cyan-400 text-black border-purple-400" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"}`}>{num} ★</button>
                 ))}
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
               type="button" 
               onClick={salvarFeedback}
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/40 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md transform active:scale-[0.98] cursor-pointer mt-2"
+              className="w-full py-3 rounded-xl bg-cyan-400 hover:bg-purple-400 disabled:bg-cyan-400/40 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md transform active:scale-[0.98] cursor-pointer mt-2"
             >
               {loading ? "..." : t.btn}
             </button>

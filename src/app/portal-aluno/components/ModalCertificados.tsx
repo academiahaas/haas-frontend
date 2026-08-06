@@ -92,7 +92,7 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
         {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <h3 className="text-xs font-mono font-black text-cyan-400 uppercase tracking-wider">
               {getTitle()}
             </h3>
@@ -130,13 +130,13 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
                   onClick={() => isUnlocked && handleDownload(cert)}
                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${
                     isUnlocked
-                      ? 'border-cyan-500/40/60 bg-gradient-to-b from-amber-500/10 to-amber-950/30 shadow-lg shadow-amber-500/10 cursor-pointer hover:scale-105'
+                      ? 'border-cyan-500/40/60 bg-gradient-to-b from-cyan-400/10 to-amber-950/30 shadow-lg shadow-cyan-400/10 cursor-pointer hover:scale-105'
                       : 'border-white/5 bg-white/[0.02] opacity-30 grayscale cursor-not-allowed'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
                     isUnlocked
-                      ? 'border-amber-400 bg-amber-500/20 text-purple-300'
+                      ? 'border-purple-400 bg-cyan-400/20 text-purple-300'
                       : 'border-slate-700 bg-slate-900 text-slate-500'
                   }`}>
                     <Shield size={20} />

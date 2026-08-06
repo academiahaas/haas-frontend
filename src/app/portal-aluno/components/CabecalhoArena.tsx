@@ -43,7 +43,7 @@ export default function CabecalhoArena({ unitTitle, precision, totalXp, currentS
       <div className="flex items-center gap-3.5 md:gap-5 font-mono">
         
         {/* 🔥 O MULTIPLICADOR MISTERIOSO X1.2 */}
-        <div className="flex items-center gap-1.5 bg-amber-500/10 border border-cyan-500/40/20 px-3 py-1.5 rounded-xl animate-pulse">
+        <div className="flex items-center gap-1.5 bg-cyan-400/10 border border-cyan-500/40/20 px-3 py-1.5 rounded-xl animate-pulse">
           <span className="text-[10px] text-purple-300 font-bold tracking-tight">
             {multiplicadorText}
           </span>

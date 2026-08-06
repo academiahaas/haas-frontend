@@ -81,11 +81,11 @@ export default function MotorSubmissaoEVideo() {
         
         <div className="space-y-2 mb-4">
           <label className="flex items-center gap-3 p-3 bg-black/20 border border-white/5 rounded-xl cursor-pointer hover:border-white/10">
-            <input type="radio" name="quiz" value="A" onChange={(e) => setOpcaoSelecionada(e.target.value)} className="accent-amber-500" />
+            <input type="radio" name="quiz" value="A" onChange={(e) => setOpcaoSelecionada(e.target.value)} className="accent-cyan-400" />
             <span className="text-xs text-slate-300 font-mono">Opção A (Alternativa Correta)</span>
           </label>
           <label className="flex items-center gap-3 p-3 bg-black/20 border border-white/5 rounded-xl cursor-pointer hover:border-white/10">
-            <input type="radio" name="quiz" value="B" onChange={(e) => setOpcaoSelecionada(e.target.value)} className="accent-amber-500" />
+            <input type="radio" name="quiz" value="B" onChange={(e) => setOpcaoSelecionada(e.target.value)} className="accent-cyan-400" />
             <span className="text-xs text-slate-300 font-mono">Opção B (Gatilho: Erro de Falso Cognato)</span>
           </label>
         </div>
@@ -96,7 +96,7 @@ export default function MotorSubmissaoEVideo() {
           className={`w-full py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
             !opcaoSelecionada 
               ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" 
-              : "bg-amber-500 text-black hover:bg-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+              : "bg-cyan-400 text-black hover:bg-purple-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
           }`}
         >
           {statusResposta === "correto" ? "✓ Resposta Correta!" : statusResposta === "errado" ? "⚠️ Resposta Incorreta!" : "Submeter Resposta"}

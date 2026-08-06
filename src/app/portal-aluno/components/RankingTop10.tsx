@@ -60,7 +60,7 @@ export default function RankingTop10() {
     <div className="w-full bg-black/20 border border-white/5 rounded-2xl p-6 max-w-xl mx-auto mt-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-mono tracking-widest text-slate-400 uppercase">// Arena Global • Top 10</h3>
-        <span className="text-[10px] bg-amber-500/10 text-purple-300 px-2 py-0.5 rounded font-mono">Atualizado</span>
+        <span className="text-[10px] bg-cyan-400/10 text-purple-300 px-2 py-0.5 rounded font-mono">Atualizado</span>
       </div>
 
       <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
@@ -73,14 +73,14 @@ export default function RankingTop10() {
               key={student.id}
               className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 ${
                 isPrimeiro
-                  ? "bg-amber-500/[0.04] border-cyan-500/40/30 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+                  ? "bg-cyan-400/[0.04] border-cyan-500/40/30 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
                   : "bg-white/[0.01] border-white/5 hover:border-white/10"
               }`}
             >
               {/* Lado Esquerdo: Posição, Nickname e Insígnia */}
               <div className="flex items-center gap-4">
                 <div className={`w-6 h-6 flex items-center justify-center font-mono text-sm font-bold rounded-md ${
-                  isPrimeiro ? "text-cyan-400 bg-amber-500/10" : "text-slate-500"
+                  isPrimeiro ? "text-cyan-400 bg-cyan-400/10" : "text-slate-500"
                 }`}>
                   {isPrimeiro ? "👑" : posicao}
                 </div>

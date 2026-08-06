@@ -11,7 +11,7 @@ export const XpCardButton: React.FC<XpCardButtonProps> = ({ totalXp, onClick, id
   return (
     <div 
       onClick={onClick}
-      className="bg-slate-900/80 border border-cyan-500/40/30 hover:border-amber-400/60 hover:bg-amber-500/10 transition-all duration-200 rounded-lg p-2 flex items-center justify-center gap-1.5 cursor-pointer text-purple-300 font-semibold text-xs group shadow-sm"
+      className="bg-slate-900/80 border border-cyan-500/40/30 hover:border-purple-400/60 hover:bg-cyan-400/10 transition-all duration-200 rounded-lg p-2 flex items-center justify-center gap-1.5 cursor-pointer text-purple-300 font-semibold text-xs group shadow-sm"
       title={idioma === 'PT' ? 'Pontos Totais - Abrir Arena' : idioma === 'ES' ? 'Puntos Totales - Abrir Arena' : 'Total Points - Open Arena'}
     >
       <Flame size={14} className="text-cyan-400 group-hover:scale-110 transition-transform flex-shrink-0 animate-pulse" />

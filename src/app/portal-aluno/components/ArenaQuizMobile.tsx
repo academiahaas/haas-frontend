@@ -123,8 +123,8 @@ export default function ArenaQuizMobile({
       {/* PAINEL CONECTADO AOS 5 CARDS DO SUPABASE */}
       <div className="flex items-center justify-between gap-1.5 bg-[#081120] border border-white/[0.05] p-2.5 rounded-2xl mb-4 shadow-2xl overflow-x-auto no-scrollbar">
         {/* 1. Creditos IA */}
-        <div className="flex items-center gap-1 bg-amber-500/10 border border-cyan-500/40/20 px-2 py-1 rounded-xl text-purple-300 font-mono font-extrabold text-xs shrink-0">
-          <Zap size={12} className="fill-amber-400 text-purple-300" />
+        <div className="flex items-center gap-1 bg-cyan-400/10 border border-cyan-500/40/20 px-2 py-1 rounded-xl text-purple-300 font-mono font-extrabold text-xs shrink-0">
+          <Zap size={12} className="fill-purple-400 text-purple-300" />
           <span>{creditosIA}</span>
         </div>
 
@@ -245,7 +245,7 @@ export default function ArenaQuizMobile({
             onClick={handleSubmeter}
             className={`w-full font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg transition-all border-none ${
               selectedOpcao 
-                ? 'bg-gradient-to-r from-cyan-400 to-amber-500 text-white active:scale-[0.99]' 
+                ? 'bg-gradient-to-r from-cyan-400 to-cyan-400 text-white active:scale-[0.99]' 
                 : 'bg-white/[0.03] text-slate-500 cursor-not-allowed'
             }`}
           >

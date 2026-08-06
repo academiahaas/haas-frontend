@@ -154,7 +154,7 @@ export default function PainelModulos({ onSelectUnit }: { onSelectUnit: (unit: U
                   <div className="flex items-center justify-end">
                     <button 
                       onClick={() => onSelectUnit(unit, mod.title)}
-                      className="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold uppercase text-xs tracking-wider px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                      className="w-full md:w-auto bg-cyan-400 hover:bg-purple-600 text-black font-bold uppercase text-xs tracking-wider px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                     >
                       Avançar
                     </button>

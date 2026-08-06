@@ -24,8 +24,8 @@ export function NavbarSuperior({ t }) {
         <button className="flex flex-col items-center justify-center gap-0.5 text-blue-400 hover:text-white font-bold transition-all">
           <Shield size={15} className="text-blue-400" /> <span>{t.ligas}</span>
         </button>
-        <button className="flex flex-col items-center justify-center gap-0.5 text-amber-600 hover:text-white font-bold transition-all">
-          <Box size={15} className="text-amber-600" /> <span>{t.bau}</span>
+        <button className="flex flex-col items-center justify-center gap-0.5 text-purple-600 hover:text-white font-bold transition-all">
+          <Box size={15} className="text-purple-600" /> <span>{t.bau}</span>
         </button>
         <button className="flex flex-col items-center justify-center gap-0.5 text-cyan-400 hover:text-white font-bold transition-all">
           <Sparkles size={15} className="text-cyan-400" /> <span>Online</span>

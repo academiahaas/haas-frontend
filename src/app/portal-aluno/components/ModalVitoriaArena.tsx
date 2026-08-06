@@ -81,7 +81,7 @@ export default function ModalVitoriaArena({
     <div className="w-full max-w-md mx-auto bg-slate-900 border border-cyan-500/40/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.1)] backdrop-blur-md text-center space-y-6">
       
       {/* ÍCONE DE VITÓRIA / ANIMAÇÃO */}
-      <div className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-cyan-400 rounded-2xl flex items-center justify-center text-4xl mx-auto shadow-lg animate-bounce mt-2">
+      <div className="w-20 h-20 bg-gradient-to-tr from-cyan-400 to-cyan-400 rounded-2xl flex items-center justify-center text-4xl mx-auto shadow-lg animate-bounce mt-2">
         🏆
       </div>
 
@@ -111,7 +111,7 @@ export default function ModalVitoriaArena({
         <button
           onClick={finalizarERevisar}
           disabled={loading}
-          className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black text-xs font-mono font-bold uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.2)] transition-all transform active:scale-95"
+          className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-purple-400 hover:from-purple-400 hover:to-purple-300 text-black text-xs font-mono font-bold uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.2)] transition-all transform active:scale-95"
         >
           {loading ? "Sincronizando..." : "✓ Métricas Atualizadas. Clic para Revisar"}
         </button>

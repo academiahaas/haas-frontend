@@ -50,7 +50,7 @@ export default function TelaTransicaoHibrida({ modo, idioma = 'PT' }: { modo: 'e
         
         <div className="w-64 h-1.5 bg-slate-800 rounded-full mt-6 overflow-hidden relative">
           <div 
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-amber-400 transition-all ease-out"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-purple-400 transition-all ease-out"
             style={{ width: `${progresso}%`, transitionDuration: '3300ms' }}
           ></div>
         </div>

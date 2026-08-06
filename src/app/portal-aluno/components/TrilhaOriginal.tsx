@@ -63,13 +63,13 @@ export function TrilhaOriginal({ t, router }) {
       <h2 className="text-sm font-black text-white uppercase tracking-wider">{t.trilhaCompetencias}</h2>
       
       <div className="border border-[#233744]/60 rounded-xl p-3 bg-[#0D1921]/20 flex items-center gap-3">
-        <div className="h-6 w-6 rounded-full bg-amber-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xs font-bold">✓</div>
+        <div className="h-6 w-6 rounded-full bg-cyan-400/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xs font-bold">✓</div>
         <div className="flex-1 min-w-[0px]"><span className="block text-[10px] text-slate-500 font-bold">{t.modulo} 1</span><p className="font-bold text-xs text-slate-300 truncate">Verb Tenses (CEFR B1)</p></div>
         <span className="text-[10px] text-slate-500 font-bold">{t.completo}</span>
       </div>
 
       <div className="border border-[#233744]/60 rounded-xl p-3 bg-[#0D1921]/20 flex items-center gap-3">
-        <div className="h-6 w-6 rounded-full bg-amber-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xs font-bold">✓</div>
+        <div className="h-6 w-6 rounded-full bg-cyan-400/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xs font-bold">✓</div>
         <div className="flex-1 min-w-[0px]"><span className="block text-[10px] text-slate-500 font-bold">{t.modulo} 2</span><p className="font-bold text-xs text-slate-300 truncate">Prepositions (CEFR B2)</p></div>
         <span className="text-[10px] text-slate-500 font-bold">{t.completo}</span>
       </div>
@@ -82,7 +82,7 @@ export function TrilhaOriginal({ t, router }) {
           </div>
           <span className="text-[8px] bg-gradient-to-r from-purple-600 to-cyan-500 text-black font-black px-1.5 py-0.5 rounded uppercase">RETRAIN</span>
         </div>
-        <p className="text-[10px] text-orange-300/90 font-semibold leading-tight">⚠️ {t.dominioAtual}: 68% • {t.ultimoTreino}</p>
+        <p className="text-[10px] text-purple-300/90 font-semibold leading-tight">⚠️ {t.dominioAtual}: 68% • {t.ultimoTreino}</p>
         <button type="button" onClick={manejarRedireccionReal} className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-black font-black text-[10px] py-2 rounded-lg uppercase tracking-wider hover:bg-purple-400 transition-colors mt-1 cursor-pointer">{t.treinarReativar}</button>
       </div>
     </div>

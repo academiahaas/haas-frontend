@@ -29,7 +29,7 @@ export default function CardAtividadeArena({
         <div className="flex items-center justify-between gap-4">
           {/* Identificador da Unidade */}
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="text-xs font-mono font-bold text-slate-300 tracking-wider uppercase">
               Unidade {unitNumber}
             </span>
@@ -47,7 +47,7 @@ export default function CardAtividadeArena({
         {/* BARRA DE PROGRESSO DE ETAPA MESTRE */}
         <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden p-[1px] border border-white/[0.02]">
           <div 
-            className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+            className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
             style={{ width: `${porcentagemProgresso}%` }}
           />
         </div>

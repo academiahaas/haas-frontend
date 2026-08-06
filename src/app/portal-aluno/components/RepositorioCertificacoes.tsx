@@ -62,7 +62,7 @@ export default function RepositorioCertificacoes() {
                 key={item.id} 
                 className={`p-4 rounded-xl border transition-all duration-300 ${
                   isActive 
-                    ? "bg-amber-500/[0.02] border-cyan-500/40/20 shadow-[0_0_10px_rgba(245,158,11,0.02)]" 
+                    ? "bg-cyan-400/[0.02] border-cyan-500/40/20 shadow-[0_0_10px_rgba(245,158,11,0.02)]" 
                     : "bg-black/40 border-white/5 opacity-50 select-none"
                 }`}
               >

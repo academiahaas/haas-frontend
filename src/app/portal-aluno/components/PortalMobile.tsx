@@ -220,7 +220,7 @@ function MascoteRoboAI({ devePiscar = false, idioma = "PT", olharDireta = false 
         <circle cx="40" cy="42" r="1" fill="#00D4FF" opacity="0.6"/>
         <path d="M11 30V40C11 41.5 12 43 13.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
         <path d="M53 30V40C53 41.5 52 43 50.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
-        <path d={devePiscar ? "M28 42.5H33" : "M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41"} stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+        <path d={devePiscar ? "M28 42.5H33" : "M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41"} stroke="#00e5ff" strokeWidth="2" strokeLinecap="round"/>
       </svg>
       <span className="hidden"></span>
     </div>
@@ -1311,7 +1311,7 @@ React.useEffect(() => {
   const horarioAula = "19:30 BRT";
 
   const insignias = [
-    { id: 1, nome: "First Code", ganha: true, color: "from-amber-400 to-cyan-400" },
+    { id: 1, nome: "First Code", ganha: true, color: "from-purple-400 to-cyan-400" },
     { id: 2, nome: "10d Streak", ganha: true, color: "from-red-500 to-pink-500" },
     { id: 3, nome: "Data Master", ganha: true, color: "from-cyan-400 to-blue-600" },
   ];
@@ -1503,13 +1503,13 @@ React.useEffect(() => {
       {/* HEADER FIXO */}
       <div className="w-full bg-[#070d19]/90 backdrop-blur-md border-b border-white/[0.05] px-4 h-14 flex items-center justify-between shrink-0 z-50">
         <div className="flex items-center gap-1.5">
-          <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
+          <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-600 flex items-center justify-center font-mono font-black text-xs sm:text-base text-white cursor-pointer active:scale-95 transition-transform">H</a>
           <div className="flex flex-col">
             <span className="text-[clamp(14px,4vw,22px)] font-black text-white tracking-wide block">{idiomaSelecionado === "PT" ? `Oi, ${primeiroNome}!` : idiomaSelecionado === "ES" ? `¡Hola, ${primeiroNome}!` : `Hi, ${primeiroNome}!`}</span>
 <div className={`gap-1 mt-1 bg-slate-950/40 p-0.5 rounded-lg border border-white/[0.03] w-max select-none text-[8px] font-mono font-black ${isAdminMode ? "flex" : "hidden"}`}>
               <button 
                 onClick={() => { setIsMatriculadoSimulado(false); setIsVencidoSimulado(false); }} 
-                className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
+                className={`px-1.5 py-0.5 rounded transition-all ${!isMatriculadoSimulado ? 'bg-cyan-400 text-slate-950 font-black' : 'text-slate-400 opacity-60'}`}
               >
                 {idiomaSelecionado === 'PT' ? 'Novo' : idiomaSelecionado === 'EN' ? 'New' : 'Nuevo'}
               </button>
@@ -1537,7 +1537,7 @@ React.useEffect(() => {
             >
               <AlertTriangle size={12} className="animate-pulse" />
             </button>
-            <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-purple-300 font-black px-2.5 py-1 rounded-lg border border-cyan-500/40/20 uppercase font-mono tracking-wide">{nivelAluno || "B1"}</span>
+            <span className="text-[clamp(11px,3.2vw,15px)] bg-cyan-400/10 text-purple-300 font-black px-2.5 py-1 rounded-lg border border-cyan-500/40/20 uppercase font-mono tracking-wide">{nivelAluno || "B1"}</span>
           </div>
           <span className="text-[clamp(13px,3.8vw,18px)] md:text-base font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> {streakDias}d</span>
         </div>
@@ -1580,7 +1580,7 @@ React.useEffect(() => {
                           <div className={`max-w-[85%] rounded-2xl p-3.5 text-[clamp(12px,2.8vw,15px)] font-sans leading-relaxed shadow-md ${
                             isMentora 
                               ? "bg-white/5 border border-white/[0.04] text-slate-200 rounded-tl-sm" 
-                              : "bg-gradient-to-br from-amber-600 to-orange-600 text-white rounded-tr-sm font-medium"
+                              : "bg-gradient-to-br from-purple-600 to-purple-600 text-white rounded-tr-sm font-medium"
                           }`}>
                             {textoExibido}
                           </div>
@@ -1596,9 +1596,9 @@ React.useEffect(() => {
                             {idiomaSelecionado === "PT" ? "Haas está digitando" : idiomaSelecionado === "ES" ? "Haas está escribiendo" : "Haas is typing"}
                           </span>
                           <div className="flex gap-1 items-center h-2 mb-0.5">
-                            <span className="w-1.5 h-1.5 bg-amber-500/80 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                            <span className="w-1.5 h-1.5 bg-amber-500/80 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                            <span className="w-1.5 h-1.5 bg-amber-500/80 rounded-full animate-bounce"></span>
+                            <span className="w-1.5 h-1.5 bg-cyan-400/80 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                            <span className="w-1.5 h-1.5 bg-cyan-400/80 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                            <span className="w-1.5 h-1.5 bg-cyan-400/80 rounded-full animate-bounce"></span>
                           </div>
                         </div>
                       </div>
@@ -1624,7 +1624,7 @@ React.useEffect(() => {
               <div className="flex items-center gap-1.5 w-full shrink-0">
                 <button 
                   onClick={() => { setCapaAtiva(true); setContador(null); setArenaAtiva(true); }}
-                  className="flex-1 bg-gradient-to-r from-cyan-400 to-amber-500 text-white font-black py-1.5 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-1.5 border-none active:scale-[0.98] transition-all shadow-lg shadow-cyan-400/10 cursor-pointer shrink-0"
+                  className="flex-1 bg-gradient-to-r from-cyan-400 to-cyan-400 text-white font-black py-1.5 px-3 rounded-xl text-[clamp(11px,3.5vw,16px)] uppercase tracking-widest flex items-center justify-center gap-1.5 border-none active:scale-[0.98] transition-all shadow-lg shadow-cyan-400/10 cursor-pointer shrink-0"
                 >
                   <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" /> {idiomaSelecionado === "PT" ? "INICIAR TREINO PRÁTICO" : idiomaSelecionado === "ES" ? "INICIAR ENTRENAMIENTO" : "START TRAINING"}
                 </button>
@@ -1646,7 +1646,7 @@ React.useEffect(() => {
                 </button>
 
                 {/* Botão de Envio Seta (>) */}
-                <button onClick={enviarDuda} className="h-10 w-10 sm:h-12 sm:w-12 bg-amber-600 text-white rounded-lg flex items-center justify-center border-none font-bold text-sm sm:text-base cursor-pointer shrink-0 active:scale-[0.95] transition-all">
+                <button onClick={enviarDuda} className="h-10 w-10 sm:h-12 sm:w-12 bg-purple-600 text-white rounded-lg flex items-center justify-center border-none font-bold text-sm sm:text-base cursor-pointer shrink-0 active:scale-[0.95] transition-all">
                   ➔
                 </button>
               </div>
@@ -1667,7 +1667,7 @@ React.useEffect(() => {
                     </span>
                     <div className="grid grid-cols-3 gap-1.5">
                       {[8, 12, 20].map((cr) => (
-                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-cyan-400 to-amber-500 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
+                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-cyan-400 to-cyan-400 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
                           {cr} CLASES
                         </button>
                       ))}
@@ -1702,7 +1702,7 @@ React.useEffect(() => {
                 </div>
 
                 {/* BOTÃO FINAL: CONTINUAR AO PAGO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : "Continuar al Pago"}
                 </button>
               </div>
@@ -1921,7 +1921,7 @@ React.useEffect(() => {
                 </div>
 
                 {/* BOTÃO DE AÇÃO */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
                   Continuar al Pago
                 </button>
               </div>
@@ -1955,7 +1955,7 @@ React.useEffect(() => {
                   <div className="grid grid-cols-2 gap-1.5 shrink-0">
                     <button 
                       onClick={() => { (window as any)._filtroAgenda = 'regular'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
-                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-cyan-400/10 to-amber-500/5 border-cyan-500/30 shadow-md shadow-cyan-400/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'regular' ? 'bg-gradient-to-r from-cyan-400/10 to-cyan-400/5 border-cyan-500/30 shadow-md shadow-cyan-400/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
                     >
                       <span className="text-[clamp(10px,2.8vw,12px)] md:text-xs font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões Regulares" : idiomaSelecionado === "ES" ? "Sesiones Regulares" : "Regular Sessions"}</span>
                       <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">{creditosRegulares}<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "disp." : idiomaSelecionado === "ES" ? "disp." : "avail."}</span></p>
@@ -1963,7 +1963,7 @@ React.useEffect(() => {
 
                     <button 
                       onClick={() => { (window as any)._filtroAgenda = 'reposicao'; if (typeof window !== "undefined") (window as any).dispatchEvent(new Event("resize")); }}
-                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'reposicao' ? 'bg-gradient-to-r from-cyan-400/10 to-amber-500/5 border-cyan-500/30 shadow-md shadow-cyan-400/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${((window as any)._filtroAgenda || 'regular') === 'reposicao' ? 'bg-gradient-to-r from-cyan-400/10 to-cyan-400/5 border-cyan-500/30 shadow-md shadow-cyan-400/5' : 'bg-slate-900/40 border-white/[0.05] opacity-60'}`}
                     >
                       <span className="text-[clamp(10px,2.8vw,12px)] md:text-xs font-mono font-bold text-white uppercase tracking-wider block mb-0.5">{idiomaSelecionado === "PT" ? "Sessões de Reposição" : idiomaSelecionado === "ES" ? "Sesiones de Reposición" : "Makeup Sessions"}</span>
                       <p className="text-[clamp(16px,4.5vw,20px)] md:text-2xl font-black text-slate-300 flex items-baseline gap-1">{creditosReposicao}<span className="text-[clamp(11px,3.2vw,13px)] md:text-sm font-medium text-white">{idiomaSelecionado === "PT" ? "ativa" : idiomaSelecionado === "ES" ? "activa" : "active"}</span></p>
@@ -2185,7 +2185,7 @@ React.useEffect(() => {
                           onClick={() => { setTipoAgendamento('REGULAR'); setModalidadeSelecionada('vip_std'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
                           className="w-full p-2.5 bg-slate-900/60 border border-white/[0.03] rounded-xl flex items-center gap-1.5 text-left cursor-pointer active:scale-[0.99] transition-transform"
                         >
-                          <div className="w-3.5 h-3.5 bg-transparent border-2 border-cyan-500/40/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-400" /></div>
+                          <div className="w-3.5 h-3.5 bg-transparent border-2 border-cyan-500/40/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-purple-400" /></div>
                           <div className="flex flex-col font-mono text-left">
                             <span className="text-[11px] md:text-base font-black text-slate-200 uppercase tracking-wider">VIP Standard</span>
                             <span className="text-[9.5px] md:text-sm text-slate-400 leading-tight mt-0.5">{idiomaSelecionado === "PT" ? "Foco individualizado com professor exclusivo" : idiomaSelecionado === "ES" ? "Enfoque individualizado con profesor exclusivo" : "One-on-one focus with an exclusive teacher"}</span>
@@ -2969,7 +2969,7 @@ React.useEffect(() => {
               <button 
                 onClick={acionarInputNativo}
                 disabled={uploading}
-              className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
+              className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-cyan-400 hover:from-purple-600 hover:to-purple-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
               >
                                 {txt.btnPhoto}
               </button>
@@ -3013,7 +3013,7 @@ React.useEffect(() => {
             <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 md:p-3 sm:p-6 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
               <div className="w-full flex items-center justify-between mb-2 shrink-0">
                 <span className="text-[clamp(11px,3.2vw,15px)] md:text-base font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
-                <span className="text-[8px] md:text-xs bg-amber-500/10 text-purple-300 border border-cyan-500/40/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
+                <span className="text-[8px] md:text-xs bg-cyan-400/10 text-purple-300 border border-cyan-500/40/20 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
               </div>
               
               {/* Gráfico Radar Dinâmico Conectado à Tabela user_competencias */}
@@ -3052,7 +3052,7 @@ React.useEffect(() => {
             <div className="flex flex-col gap-1.5 w-full"> 
               {/* 🏆 GATILHO PREMIUM: LIGA DE ELITE / RANKING GLOBAL */}
               <button onClick={() => setGavetaRankingAberta(true)} className="bg-slate-950/40 border-[0.5px] border-cyan-500/40/15 p-3 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center justify-center gap-2.5 text-center w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0 hover:bg-slate-900/40"> 
-                <div className="w-9 h-9 bg-amber-500/10 border border-cyan-500/40/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-cyan-400" /></div> 
+                <div className="w-9 h-9 bg-cyan-400/10 border border-cyan-500/40/20 rounded-xl flex items-center justify-center shrink-0"><Trophy className="w-5 h-5 text-cyan-400" /></div> 
                 <span className="text-[clamp(12px,3.5vw,18px)] uppercase font-mono font-black text-cyan-400 tracking-widest break-words leading-tight">{idiomaSelecionado === "PT" ? "LIGA DE ELITE" : idiomaSelecionado === "ES" ? "LIGA DE ÉLITE" : "ELITE LEAGUE"}</span>
               </button> 
             </div> 
@@ -3099,7 +3099,7 @@ React.useEffect(() => {
               
               <h2 className="text-[clamp(15px,4.5vw,17px)] md:text-xl font-black text-white mt-1.5 uppercase tracking-tight">{nomeBruto}</h2>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-cyan-500/40/20 text-purple-300 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">{nivelAluno ? (nivelAluno.toUpperCase().startsWith("NÍVEL") || nivelAluno.toUpperCase().startsWith("NIVEL") ? nivelAluno : `NÍVEL ${nivelAluno}`) : "NÍVEL B2"}</span>
+                <span className="px-1.5 py-0.5 bg-cyan-400/10 border border-cyan-500/40/20 text-purple-300 text-[clamp(11px,3.2vw,15px)] md:text-sm font-mono font-black rounded uppercase">{nivelAluno ? (nivelAluno.toUpperCase().startsWith("NÍVEL") || nivelAluno.toUpperCase().startsWith("NIVEL") ? nivelAluno : `NÍVEL ${nivelAluno}`) : "NÍVEL B2"}</span>
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{nomeTituloNivel || 'EXPLORADOR'}</span>
               </div>
             </div>
@@ -3228,7 +3228,7 @@ if (!vencimentoPlano) return "--/--/----";
               </button>
               <button 
                 onClick={() => setGavetaErroresAberta(true)} 
-                className="w-full py-3.5 bg-amber-500/5 border border-cyan-500/40/20 rounded-xl px-4 flex items-center justify-between text-purple-300 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px] md:py-5"
+                className="w-full py-3.5 bg-cyan-400/5 border border-cyan-500/40/20 rounded-xl px-4 flex items-center justify-between text-purple-300 font-mono font-bold text-sm md:text-lg cursor-pointer hover:bg-cyan-400/10 transition-colors min-h-[48px] md:py-5"
               >
                 <div className="flex items-center gap-1.5">
                   
@@ -3236,7 +3236,7 @@ if (!vencimentoPlano) return "--/--/----";
                     {idiomaSelecionado === "PT" ? "Cofre de Erros" : idiomaSelecionado === "ES" ? "Cofre de Errores" : "Error Vault"}
                   </span>
                 </div>
-                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-amber-500/10 border border-cyan-500/40/20 px-2.5 py-1 rounded-lg font-bold">
+                <span className="text-[10px] md:text-xs uppercase tracking-wider bg-cyan-400/10 border border-cyan-500/40/20 px-2.5 py-1 rounded-lg font-bold">
                   {idiomaSelecionado === "PT" ? "Revisar" : idiomaSelecionado === "ES" ? "Revisar" : "Review"}
                 </span>
               </button>
@@ -3429,7 +3429,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </button>
 
                 {/* 4. PACK GRUPO */}
-                <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
+                <button onClick={() => { setModalidadeSelecionada('pack_grupo'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-cyan-400/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-cyan-400/20">
                   <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">Pack Grupo</span>
                   <span className="text-[10px] md:text-sm text-purple-300 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack Avulso | +10 Consultas IA e +7 Dias por crédito (Teto 30)" : 
@@ -3439,7 +3439,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </button>
 
                 {/* 5. PACK VIP STD */}
-                <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
+                <button onClick={() => { setModalidadeSelecionada('pack_vip'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-cyan-400/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-cyan-400/20">
                   <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">Pack VIP Std</span>
                   <span className="text-[10px] md:text-sm text-purple-300 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack VIP | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
@@ -3449,7 +3449,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </button>
 
                 {/* 6. PARTICULARES FLEX */}
-                <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-amber-500/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-amber-500/20">
+                <button onClick={() => { setModalidadeSelecionada('flex'); setEtapaPagamento(1); setCreditosSelecionados(1); }} className="w-full p-4 bg-gradient-to-r from-cyan-400/10 to-transparent border border-cyan-500/40/30 rounded-xl flex flex-col gap-0.5 text-left cursor-pointer active:from-cyan-400/20">
                   <span className="text-sm md:text-base font-black text-white uppercase tracking-wide">{idiomaSelecionado === "PT" ? "Particulares Flex" : idiomaSelecionado === "EN" ? "Private Flex" : "Privadas Flex"}</span>
                   <span className="text-[10px] md:text-sm text-purple-300 font-medium leading-normal mt-0.5">
                     {idiomaSelecionado === "PT" ? "Pack Flex | +25 Consultas IA e +7 Dias por crédito (Teto 30)" : 
@@ -3475,7 +3475,7 @@ if (!vencimentoPlano) return "--/--/----";
                     </span>
                     <div className="grid grid-cols-3 gap-1.5">
                       {[8, 12, 20].map((cr) => (
-                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-cyan-400 to-amber-500 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
+                        <button key={cr} onClick={() => setCreditosSelecionados(cr)} className={`p-3.5 rounded-xl border text-xs font-black uppercase cursor-pointer transition-all ${creditosSelecionados === cr ? 'bg-gradient-to-r from-cyan-400 to-cyan-400 border-cyan-400 text-slate-950 shadow-lg shadow-cyan-400/20' : 'bg-[#0a1324] border-white/10 text-slate-200'}`}>
                           {cr} {idiomaSelecionado === "PT" ? "AULAS" : idiomaSelecionado === "EN" ? "CLASSES" : "CLASES"}
                         </button>
                       ))}
@@ -3520,7 +3520,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </div>
 
                 {/* BOTÃO CONTINUAR */}
-                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(2)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Continuar para o Pagamento" : idiomaSelecionado === "EN" ? "Continue to Payment" : "Continuar al Pago"}
                 </button>
               </div>
@@ -3591,7 +3591,7 @@ if (!vencimentoPlano) return "--/--/----";
                 </div>
 
                 {/* BOTÃO PRINCIPAL DE PAGAMENTO */}
-                <button onClick={() => setEtapaPagamento(3)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
+                <button onClick={() => setEtapaPagamento(3)} className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] border-none cursor-pointer shadow-lg shadow-cyan-400/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "Ir para o Pagamento Seguro" : idiomaSelecionado === "EN" ? "Proceed to Secure Payment" : "Ir al Pago Seguro"}
                 </button>
               </div>
@@ -3605,7 +3605,7 @@ if (!vencimentoPlano) return "--/--/----";
                   <span className="text-[11px] md:text-sm font-bold text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "Onde você está?" : idiomaSelecionado === "EN" ? "Where are you?" : "¿Dónde te encuentras?"}
                   </span>
-                  <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-cyan-500/40/40 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-black text-cyan-400 tracking-wider uppercase cursor-pointer hover:bg-amber-500/10 px-4 py-2">
+                  <button onClick={() => setEtapaPagamento(4)} className="bg-transparent border border-cyan-500/40/40 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-black text-cyan-400 tracking-wider uppercase cursor-pointer hover:bg-cyan-400/10 px-4 py-2">
                     🌐 {idiomaSelecionado === "PT" ? "Fora da Colômbia" : idiomaSelecionado === "EN" ? "Outside Colombia" : "Fuera de Colombia"}
                   </button>
                 </div>
@@ -3644,7 +3644,7 @@ if (!vencimentoPlano) return "--/--/----";
 
                 {/* CARD 2: LLAVE BRE-B (QR CODE - DESCONTO DO ROBÔ) */}
                 <div className="w-full p-4 bg-[#0a1324] border border-cyan-500/30 rounded-xl flex flex-col gap-1.5.5 relative overflow-hidden">
-                  <div className="absolute top-2 right-2 bg-amber-500 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
+                  <div className="absolute top-2 right-2 bg-cyan-400 text-slate-950 text-[8px] font-black uppercase px-2 py-0.5 rounded-md font-mono tracking-wider">¡AHORRA COMISIÓN!</div>
                   <span className="text-xs md:text-base font-black text-purple-300 uppercase tracking-wider flex items-center gap-1.5">● LLAVE BRE-B</span>
                   <div className="w-full flex justify-center my-1 bg-white p-2 rounded-xl max-w-[140px] mx-auto">
                     <img src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg" alt="QR Llave Bre-B" className="w-32 h-32 object-contain" />
@@ -3654,7 +3654,7 @@ if (!vencimentoPlano) return "--/--/----";
                     <div className="flex justify-between text-emerald-400"><span>Comisión:</span><span>$ 0 (¡Gratis!)</span></div>
                     <div className="flex justify-between border-t border-white/10 pt-1.5 font-black text-purple-300 text-sm md:text-lg"><span>A transferir:</span><span>$ {(Math.round(obterPrecoPacote(modalidadeSelecionada, creditosSelecionados) * (1 - descontoCupom)) - 34).toLocaleString('de-DE')}</span></div>
                   </div>
-                  <span className="text-[9px] md:text-xs text-cyan-400/90 font-bold leading-relaxed block text-center bg-amber-500/5 p-3 rounded-lg border border-cyan-500/40/10">
+                  <span className="text-[9px] md:text-xs text-cyan-400/90 font-bold leading-relaxed block text-center bg-cyan-400/5 p-3 rounded-lg border border-cyan-500/40/10">
                     {idiomaSelecionado === "PT" ? "▲ ATENÇÃO: Lembre-se de transferir o valor exato com o desconto no seu aplicativo bancário; isso permite que nosso sistema valide seu pagamento automaticamente." : idiomaSelecionado === "EN" ? "▲ ATTENTION: Remember to transfer the exact amount with the discount in your banking app; this allows our system to validate your payment automatically." : "▲ ATENCIÓN: Recuerda ingresar el valor exacto con descuento en tu banco; esto permite que nuestro sistema valide tu pago digitalmente y gestione la activación de tu plan."}
                   </span>
                 </div>
@@ -3709,7 +3709,7 @@ if (!vencimentoPlano) return "--/--/----";
                       </div>
                     );
                   })()}
-                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-cyan-400/10 hover:brightness-110">
+                  <a href="https://checkout.nequi.wompi.co/l/Nhopn2" target="_blank" rel="noreferrer" className="w-full py-1.5 md:py-5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 text-center text-xs md:text-sm font-black uppercase tracking-wider rounded-xl transition-all block no-underline shadow-md shadow-cyan-400/10 hover:brightness-110">
                     {idiomaSelecionado === "PT" ? "Ir para o Gateway (COP)" : idiomaSelecionado === "EN" ? "PAY WITH INTERNATIONAL CARD" : "PAGAR CON TARJETA INTERNACIONAL"}
                   </a>
                   <span className="text-[9px] md:text-xs text-slate-500 font-medium leading-relaxed block text-center mt-1">
@@ -3734,7 +3734,7 @@ if (!vencimentoPlano) return "--/--/----";
                   <p><strong className="text-white">¿Qué pasa ahora?</strong> {idiomaSelecionado === "PT" ? "Assim que o sistema validar o recebimento do valor, prosseguiremos com a ativação automática de sua matrícula." : idiomaSelecionado === "EN" ? "Once the system validates the receipt of the amount, we will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                   <p><strong className="text-white">Acceso Completo:</strong> {idiomaSelecionado === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso à plataforma será liberado." : idiomaSelecionado === "EN" ? "Upon successful confirmation, you will receive a notification email and your access to the platform will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acceso a la plataforma."}</p>
                 </div>
-                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-1.5 md:py-1.5.5 bg-amber-500 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-cyan-400/10 hover:brightness-110">
+                <button onClick={() => { setModalCreditosAberto(false); setEtapaPagamento(0); }} className="w-full py-1.5 md:py-1.5.5 bg-cyan-400 text-slate-950 text-xs md:text-sm font-black uppercase tracking-wider rounded-xl cursor-pointer font-mono shadow-md shadow-cyan-400/10 hover:brightness-110">
                   {idiomaSelecionado === "PT" ? "ENTENDIDO" : idiomaSelecionado === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                 </button>
               </div>
@@ -3796,7 +3796,7 @@ if (!vencimentoPlano) return "--/--/----";
                 const nome = aluno.nickname || aluno.full_name || aluno.name || 'Aluno Haas';
                 const xp = Number(aluno.total_xp || 0).toLocaleString('pt-BR') + ' PTS';
                 return (
-                  <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-500/[0.04] border border-cyan-500/40/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
+                  <div key={aluno.id || i} className={`flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-cyan-400/[0.04] border border-cyan-500/40/30' : 'bg-slate-950/20 border border-white/[0.02]'}`}>
                     <div className="flex items-center gap-1.5">
                       <span className={`w-4 ${isFirst ? 'font-black text-cyan-400 text-sm' : 'font-medium text-slate-400'}`}>{i + 1}</span>
                       <span className={isFirst ? 'text-white font-black' : 'text-slate-200'}>{nome}</span>
@@ -3826,7 +3826,7 @@ if (!vencimentoPlano) return "--/--/----";
           <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalidadeSelecionada('acumulador_grupo'); }} className="py-3 md:py-1.5 bg-slate-900 border border-white/5 text-slate-400 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Não" : "No"}
           </button>
-          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 md:py-1.5 bg-gradient-to-r from-cyan-400 to-amber-500 text-slate-950 border-none rounded-xl text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer md:min-h-[54px]">
+          <button type="button" onClick={() => { setGavetaAvisoCompraAberta(false); setModalCreditosAberto(true); setEtapaPagamento(0); }} className="py-3 md:py-1.5 bg-gradient-to-r from-cyan-400 to-cyan-400 text-slate-950 border-none rounded-xl text-xs md:text-sm font-black uppercase tracking-wider cursor-pointer md:min-h-[54px]">
             {idiomaSelecionado === "PT" ? "Sim" : idiomaSelecionado === "ES" ? "Sí" : "Yes"}
           </button>
         </div>

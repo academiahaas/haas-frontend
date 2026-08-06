@@ -116,7 +116,7 @@ export default function CronogramaProgresso() {
               key={modulo.id} 
               className={`rounded-2xl border transition-all duration-300 ${
                 isCurrent 
-                  ? "bg-amber-500/[0.01] border-cyan-500/40/20" 
+                  ? "bg-cyan-400/[0.01] border-cyan-500/40/20" 
                   : isCompleted 
                   ? "bg-black/20 border-emerald-500/10 opacity-80" 
                   : "bg-black/40 border-white/5 opacity-40"
@@ -136,7 +136,7 @@ export default function CronogramaProgresso() {
                 {/* Badge de Status Dinâmico */}
                 <span className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
                   isCurrent 
-                    ? "bg-amber-500/10 text-purple-300 border border-cyan-500/40/20" 
+                    ? "bg-cyan-400/10 text-purple-300 border border-cyan-500/40/20" 
                     : isCompleted 
                     ? "bg-emerald-500/10 text-emerald-400" 
                     : "bg-zinc-800 text-zinc-500"
@@ -168,7 +168,7 @@ export default function CronogramaProgresso() {
                             </button>
                           )
                         ) : (
-                          <button className="text-[10px] font-mono font-bold bg-amber-500 text-black px-3 py-1 rounded-lg hover:bg-amber-400 transition-all">
+                          <button className="text-[10px] font-mono font-bold bg-cyan-400 text-black px-3 py-1 rounded-lg hover:bg-purple-400 transition-all">
                             ⚡ Iniciar Arena
                           </button>
                         )}

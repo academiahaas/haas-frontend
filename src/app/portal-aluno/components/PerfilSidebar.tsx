@@ -25,7 +25,7 @@ export function PerfilSidebar({ idioma = "PT" }: PerfilSidebarProps) {
           <span className="text-purple-300">({idioma === "PT" ? "81% para B2" : idioma === "ES" ? "81% para B2" : "81% to B2"})</span>
         </div>
         <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden shadow-inner">
-          <div className="bg-gradient-to-r from-indigo-500 to-amber-400 h-full w-[81%]"></div>
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-400 h-full w-[81%]"></div>
         </div>
       </div>
       <div className="pt-2 border-t border-slate-800/60 text-left">

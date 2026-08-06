@@ -21,10 +21,10 @@ interface ModalConclusaoProps {
 const PALETA_NIVEIS: Record<NivelCurso, { border: string; bgGlow: string; badgeBg: string; badgeText: string; btnBg: string }> = {
   A1: {
     border: "border-cyan-500/40/40",
-    bgGlow: "bg-amber-500/15",
-    badgeBg: "bg-amber-500/20",
+    bgGlow: "bg-cyan-400/15",
+    badgeBg: "bg-cyan-400/20",
     badgeText: "text-purple-300",
-    btnBg: "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black",
+    btnBg: "bg-gradient-to-r from-cyan-400 to-purple-600 hover:from-purple-400 hover:to-cyan-400 text-black",
   },
   A2: {
     border: "border-emerald-500/40",

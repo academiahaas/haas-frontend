@@ -75,7 +75,7 @@ export function TrilhaMisiones({ supabase }) {
               </div>
             </div>
             <span className="bg-slate-800 text-white font-mono text-[10px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-inner">
-              <Star size={11} className="text-purple-300 fill-amber-400" /> {m.xp}
+              <Star size={11} className="text-purple-300 fill-purple-400" /> {m.xp}
             </span>
           </Link>
         );

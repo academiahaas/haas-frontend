@@ -121,7 +121,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
       <div className="relative w-full max-w-md bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/5 pb-3">
           <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
             {t.title}
           </h2>
           <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
@@ -136,7 +136,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="bg-amber-500/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
+            <div className="bg-cyan-400/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
               <Upload size={14} className="text-cyan-400 shrink-0" />
               <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
             </div>
@@ -160,7 +160,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
               </div>
             )}
 
-            <button onClick={enviarArquivos} disabled={loading || files.length === 0} className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-30 disabled:hover:bg-amber-500 text-slate-950 font-mono font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer">
+            <button onClick={enviarArquivos} disabled={loading || files.length === 0} className="w-full py-3 bg-cyan-400 hover:bg-purple-600 disabled:opacity-30 disabled:hover:bg-cyan-400 text-slate-950 font-mono font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer">
               {loading ? "..." : t.submit}
             </button>
           </div>
@@ -175,7 +175,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
             <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {entregas.map((ent, idx) => {
                 const statusTexto = ent.status === "approved" || ent.status === "corrigida" ? (idioma === "PT" ? "Corrigida" : idioma === "EN" ? "Reviewed" : "Corregida") : (idioma === "PT" ? "Pendente" : idioma === "EN" ? "Pending" : "Pendiente");
-                const statusCor = ent.status === "approved" || ent.status === "corrigida" ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10" : "text-purple-300 bg-amber-500/5 border-cyan-500/40/10";
+                const statusCor = ent.status === "approved" || ent.status === "corrigida" ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10" : "text-purple-300 bg-cyan-400/5 border-cyan-500/40/10";
 
                 return (
                   <div key={ent.id || idx} className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-start gap-2.5 text-[10px]">
