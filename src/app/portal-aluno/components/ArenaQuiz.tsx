@@ -1830,7 +1830,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           <span className={msg.tipo === "user" ? ((msg as any).audioUrl ? "inline-block" : "inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30") : "block w-full"}>
                             {(msg as any).audioUrl ? (
                               <div className="py-1">
-<div className="flex items-center gap-3 bg-violet-950/40 rounded-xl px-4 py-2.5 border border-violet-500/20">
+<div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
                                   <button onClick={(e) => {
                                     const p = e.currentTarget.parentElement;
                                     if (p) {
@@ -1852,7 +1852,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-[#0B0E17] border border-purple-500/30 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 max-w-max my-1 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -2031,7 +2031,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-[#0B0E17] border border-purple-500/30 rounded-xl px-4 py-2.5 border border-cyan-500/30 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 max-w-max my-1 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
       
       <button onClick={(e) => {
         e.stopPropagation();
