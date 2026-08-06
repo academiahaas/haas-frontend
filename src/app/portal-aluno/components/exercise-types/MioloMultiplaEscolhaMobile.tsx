@@ -44,7 +44,7 @@ export default function MioloMultiplaEscolhaMobile({
       
       {options.map((opcao, idx) => {
         const isThisSelected = selecionado === opcao;
-        let customStyle = "bg-[#0c192e] border-white/[0.04] text-[#F8FAFC] shadow-[0_6px_18px_rgba(0,0,0,0.15)] hover:brightness-[1.03] hover:border-[#8b5cf6]/40 hover:brightness-[1.08] hover:shadow-lg";
+        let customStyle = "bg-[#0A0F1D] border-white/10 text-[#F8FAFC] shadow-[0_6px_18px_rgba(0,0,0,0.15)] hover:brightness-[1.03] hover:border-[#8b5cf6]/40 hover:brightness-[1.08] hover:shadow-lg";
         
         if (isThisSelected) {
           if (status === 'CORRECT') {
@@ -63,7 +63,7 @@ export default function MioloMultiplaEscolhaMobile({
             className={`w-full flex-1 min-h-0 flex items-center justify-start text-left gap-3 p-3 rounded-xl font-sans font-medium text-[clamp(11px,3.2vw,15px)] whitespace-normal break-words leading-tight border cursor-pointer transition-all duration-180 ease-out ${customStyle}`}
           >
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black font-mono border shrink-0 transition-all ${
-              isThisSelected ? 'bg-white/20 border-white/40 text-white' : 'bg-[#070d19] border-[#8b5cf6]/30 text-[#8b5cf6]'
+              isThisSelected ? 'bg-white/20 border-white/40 text-white' : 'bg-[#080C16] border-[#8b5cf6]/30 text-[#8b5cf6]'
             }`}>
               {String.fromCharCode(65 + idx)}
             </span>

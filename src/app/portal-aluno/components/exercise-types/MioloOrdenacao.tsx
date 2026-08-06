@@ -396,7 +396,7 @@ export default function MioloOrdenacao({
         <button 
           type="button"
           onClick={playAudioOrdenacao}
-          className="p-2.5 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
+          className="p-2.5 bg-[#0E1726] hover:bg-[#162238] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
           title="Ouvir áudio"
         >
           <Volume2 size={16} />
@@ -407,7 +407,7 @@ export default function MioloOrdenacao({
       <div className={`w-full p-4 rounded-xl flex flex-wrap content-start gap-3 items-center transition-all duration-300 min-h-[140px] shadow-inner ${exibirContainerInferior ? "hidden" : ""} ${
         localStatus === "CORRECT" ? "bg-emerald-950/20 border border-emerald-500/30" :
         localStatus === "WRONG" ? "bg-rose-950/20 border border-rose-500/30" :
-        "bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50"
+        "bg-[#080C16]/60 border-2 border-dashed border-slate-700/50"
       }`}>
         {deposit.length === 0 && (
           <div className="w-full h-full flex items-center justify-center pointer-events-none opacity-40">
@@ -435,14 +435,14 @@ export default function MioloOrdenacao({
 
       {/* BANCO DE BLOCOS DISPONÍVEIS */}
       {!exibirContainerInferior && (
-        <div className="flex flex-wrap gap-3 w-full p-5 bg-[#0a1120]/80 border border-slate-800/80 rounded-xl justify-center items-center shrink-0 min-h-[100px] overflow-y-auto shadow-sm">
+        <div className="flex flex-wrap gap-3 w-full p-5 bg-[#080C16]/80 border border-slate-800/80 rounded-xl justify-center items-center shrink-0 min-h-[100px] overflow-y-auto shadow-sm">
           {bank.map((item) => (
             <button
               key={item.id}
               type="button"
               disabled={localStatus !== 'IDLE' || analisando}
               onClick={() => toggleToDeposit(item)}
-              className="px-5 py-2.5 bg-[#070d19] hover:bg-[#13233f] border border-slate-700/80 hover:border-slate-500 text-slate-200 text-[clamp(14px,1.6vw,16px)] font-medium rounded-lg cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
+              className="px-5 py-2.5 bg-[#080C16] hover:bg-[#0E1726] border border-slate-700/80 hover:border-slate-500 text-slate-200 text-[clamp(14px,1.6vw,16px)] font-medium rounded-lg cursor-pointer transition-all shadow-sm active:scale-95 whitespace-nowrap"
             >
               {item.text}
             </button>
@@ -454,7 +454,7 @@ export default function MioloOrdenacao({
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -464,7 +464,7 @@ export default function MioloOrdenacao({
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Sintaxe Correta!</span>
               </div>
@@ -473,7 +473,7 @@ export default function MioloOrdenacao({
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Análise de Estrutura</span>
               </div>

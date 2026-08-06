@@ -224,7 +224,7 @@ export default function MioloBlitzChallenge({
   if (gameOver) {
     return (
       <div className='w-full h-full flex flex-col items-center justify-center animate-fade-in p-2 select-none'>
-        <div className='w-full max-w-xl bg-[#070d19]/90 border border-[#a855f7]/30 rounded-2xl p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-[0_0_35px_rgba(168,85,247,0.15)] gap-4'>
+        <div className='w-full max-w-xl bg-[#080C16]/90 border border-[#a855f7]/30 rounded-2xl p-8 md:p-10 flex flex-col items-center justify-center text-center shadow-[0_0_35px_rgba(168,85,247,0.15)] gap-4'>
           <Award className='w-14 h-14 text-[#a855f7] animate-pulse drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]' />
           
           <div className='flex flex-col gap-1'>
@@ -248,7 +248,7 @@ export default function MioloBlitzChallenge({
     <div className='flex flex-col items-stretch justify-between w-full h-full font-sans animate-fade-in flex-1 min-h-0 gap-4 p-1 select-none'>
       
       {/* Barra Superior - Timer & Nível */}
-      <div className='flex items-center justify-between bg-[#070d19]/80 border border-slate-800/80 px-4 py-3 rounded-xl shadow-sm shrink-0'>
+      <div className='flex items-center justify-between bg-[#080C16]/80 border border-slate-800/80 px-4 py-3 rounded-xl shadow-sm shrink-0'>
         <div className='flex items-center gap-2'>
           <Zap className='w-4 h-4 text-[#a855f7]' />
           <span className='text-[11px] md:text-xs font-bold text-slate-400 tracking-widest uppercase'>DESAFIO BLITZ</span>
@@ -259,7 +259,7 @@ export default function MioloBlitzChallenge({
       </div>
       
       {/* Card Central - Alvo */}
-      <div className='flex-1 flex flex-col items-center justify-center bg-[#070d19]/80 border border-slate-800/80 rounded-2xl p-6 relative shadow-inner overflow-hidden min-h-[130px]'>
+      <div className='flex-1 flex flex-col items-center justify-center bg-[#080C16]/80 border border-slate-800/80 rounded-2xl p-6 relative shadow-inner overflow-hidden min-h-[130px]'>
         <span className='absolute top-3 left-4 text-[10px] font-bold text-cyan-400/70 tracking-widest uppercase'>OPÇÃO ALVO</span>
         <h2 className='text-xl md:text-3xl font-extrabold text-slate-100 tracking-wide uppercase select-none text-center px-4'>
           {currentQuestion.word}
@@ -276,7 +276,7 @@ export default function MioloBlitzChallenge({
       <div className='grid grid-cols-2 gap-3 w-full shrink-0'>
         {currentQuestion.options.map((opcao, idx) => {
           const isThisClicked = clickedOption === opcao;
-          let btnStyle = 'bg-[#13233f] hover:bg-[#1a2f55] border-slate-700/60 text-slate-200 hover:border-cyan-500/50 shadow-sm active:scale-95';
+          let btnStyle = 'bg-[#0E1726] hover:bg-[#162238] border-slate-700/60 text-slate-200 hover:border-cyan-500/50 shadow-sm active:scale-95';
           
           if (isThisClicked) {
             btnStyle = opcao === currentQuestion.correct

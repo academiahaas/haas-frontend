@@ -311,14 +311,14 @@ streak = 0,
       </div>
 
       {/* CARD DA FRASE DE REFERÊNCIA */}
-      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 shadow-sm shrink-0 flex items-center justify-center min-h-[90px]">
+      <div className="bg-[#080C16]/80 border border-slate-700/50 rounded-xl p-5 shadow-sm shrink-0 flex items-center justify-center min-h-[90px]">
         <p className="text-[clamp(17px,2.2vw,22px)] font-bold leading-relaxed text-slate-100 w-full break-words text-center tracking-wide">
           "{fraseMatrizPT}"
         </p>
       </div>
 
       {/* ÁREA DE DEPÓSITO (Drop Zone Premium) */}
-      <div className={`w-full min-h-[110px] bg-[#0a1120]/60 border-2 border-dashed border-slate-700/50 rounded-xl p-4 flex flex-wrap gap-3 items-center justify-center shadow-inner transition-all duration-300 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      <div className={`w-full min-h-[110px] bg-[#080C16]/60 border-2 border-dashed border-slate-700/50 rounded-xl p-4 flex flex-wrap gap-3 items-center justify-center shadow-inner transition-all duration-300 ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {depositPieces.length === 0 ? (
           <span className="text-[13px] md:text-[15px] text-slate-500 font-medium tracking-wide pointer-events-none text-center">
             {t.aguardando}
@@ -339,14 +339,14 @@ streak = 0,
       </div>
 
       {/* BANCO DE BLOCOS DISPONÍVEIS */}
-      <div className={`w-full flex flex-wrap gap-3 py-2 items-center justify-center shrink-0 min-h-[90px] p-4 bg-[#070d19]/60 border border-slate-800/80 rounded-xl ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      <div className={`w-full flex flex-wrap gap-3 py-2 items-center justify-center shrink-0 min-h-[90px] p-4 bg-[#080C16]/60 border border-slate-800/80 rounded-xl ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {bankPieces.map((piece) => (
           <button
             key={piece.id}
             type="button"
             disabled={localStatus !== 'IDLE' || analisando}
             onClick={() => handlePushToDeposit(piece)}
-            className="px-5 py-2.5 bg-[#13233f] hover:bg-[#1a2f55] hover:border-slate-500 border border-slate-600/50 text-slate-200 font-medium rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap"
+            className="px-5 py-2.5 bg-[#0E1726] hover:bg-[#162238] hover:border-slate-500 border border-slate-600/50 text-slate-200 font-medium rounded-lg text-[clamp(14px,1.6vw,17px)] cursor-pointer shadow-sm active:scale-95 transition-all whitespace-nowrap"
           >
             {piece.text}
           </button>
@@ -357,7 +357,7 @@ streak = 0,
       {(localStatus !== 'IDLE' || analisando) && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -367,7 +367,7 @@ streak = 0,
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Estrutura Correta!</span>
               </div>
@@ -376,7 +376,7 @@ streak = 0,
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Análise de Tradução</span>
               </div>

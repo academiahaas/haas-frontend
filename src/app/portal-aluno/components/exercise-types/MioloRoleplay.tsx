@@ -417,7 +417,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       </div>
 
       {/* CARD DA PERGUNTA DA MENTORA HAAS */}
-      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-2xl p-6 shadow-sm flex-1 min-h-[140px] flex items-center justify-between gap-4 animate-fade-in w-full">
+      <div className="bg-[#080C16]/80 border border-slate-700/50 rounded-2xl p-6 shadow-sm flex-1 min-h-[140px] flex items-center justify-between gap-4 animate-fade-in w-full">
         <div className="flex-1 flex items-center justify-center text-center">
           <p className="text-[clamp(16px,2vw,22px)] text-slate-100 font-bold leading-relaxed break-words max-w-[95%]">
             "{phraseIA}"
@@ -427,7 +427,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         <button 
           type="button"
           onClick={escutarFraseMentora}
-          className="p-3 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-xl transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
+          className="p-3 bg-[#0E1726] hover:bg-[#162238] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-xl transition-all cursor-pointer shrink-0 shadow-sm active:scale-95"
           title="Escutar"
         >
           <Volume2 size={20} />
@@ -472,7 +472,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
         {/* Caso 3: Analisando */}
         {flowState === "ANALYZING" && (
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] min-h-[110px]">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] min-h-[110px]">
             <Loader2 size={24} className="text-cyan-400 animate-spin" />
             <span className="text-[12px] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
               {textInt.analisando}...
@@ -482,7 +482,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
 
         {/* Caso 4: Análise Concluída (Feedback em Camadas) */}
         {flowState === "DONE" && feedback && (
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] text-left">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] text-left">
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[12px] uppercase tracking-widest">
                 <Sparkles size={16} />

@@ -424,7 +424,7 @@ Regras Estritas:
       </div>
 
       {/* CARD CENTRAL DE REPRODUÇÃO DA PRONÚNCIA DE REFERÊNCIA */}
-      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-8 flex flex-col items-center justify-center gap-4 flex-1 w-full animate-fade-in text-center min-h-[160px] shadow-sm">
+      <div className="bg-[#080C16]/80 border border-slate-700/50 rounded-xl p-8 flex flex-col items-center justify-center gap-4 flex-1 w-full animate-fade-in text-center min-h-[160px] shadow-sm">
         <button 
           type="button"
           onClick={playNativo}
@@ -443,7 +443,7 @@ Regras Estritas:
         
         {/* Caso: Analisando / Processando Áudio */}
         {flowState === "ANALYZING" && (
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
             <Sparkles size={22} className="animate-spin text-cyan-400" />
             <span className="text-[12px] font-bold uppercase tracking-widest text-cyan-400">
               {t?.avaliando || "Avaliando"}...
@@ -453,7 +453,7 @@ Regras Estritas:
 
         {/* Caso: Análise Concluída (Exibe Card de Feedback em Camadas) */}
         {flowState === "DONE" && feedback && (
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] text-left">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col gap-3 animate-fade-in shadow-[0_0_30px_rgba(6,182,212,0.12)] text-left">
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[12px] uppercase tracking-widest">
                 <Sparkles size={16} />
@@ -511,7 +511,7 @@ Regras Estritas:
                   <button 
                     type="button"
                     onClick={() => { if (audioUrl) new Audio(audioUrl).play(); }}
-                    className="p-3 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
+                    className="p-3 bg-[#0E1726] hover:bg-[#162238] border border-cyan-500/30 text-cyan-400 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
                     title="Escutar gravação"
                   >
                     <Volume2 size={18} />

@@ -285,7 +285,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
       </div>
 
       {/* CARD DO ENUNCIADO / PERGUNTA */}
-      <div className="w-full bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[80px] shadow-sm">
+      <div className="w-full bg-[#080C16]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[80px] shadow-sm">
         <p className="text-[clamp(16px,2vw,20px)] font-bold leading-relaxed text-center text-slate-100 w-full break-words tracking-wide">
           {pergunta}
         </p>
@@ -297,8 +297,8 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
           const isThisSelected = selecionado === opcao;
           const letterBadge = String.fromCharCode(65 + idx);
           
-          let cardStyle = "border-slate-700/50 bg-[#0a1120]/60 hover:bg-[#13233f] hover:border-slate-500 text-slate-200";
-          let badgeStyle = "bg-[#070d19] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
+          let cardStyle = "border-slate-700/50 bg-[#080C16]/60 hover:bg-[#0E1726] hover:border-slate-500 text-slate-200";
+          let badgeStyle = "bg-[#080C16] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
 
           if (isThisSelected) {
             if (localStatus === 'CORRECT') {
@@ -334,7 +334,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -344,7 +344,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Excelente! Opção Correta</span>
               </div>
@@ -353,7 +353,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Ajuste Necessário</span>
               </div>

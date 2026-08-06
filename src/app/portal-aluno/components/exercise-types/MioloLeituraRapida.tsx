@@ -388,7 +388,7 @@ export default function MioloLeituraRapida({
       </div>
 
       {/* ÁREA CENTRAL PRINCIPAL (CONTAINER EM CAMADAS) */}
-      <div className="bg-[#0a1120]/80 border border-slate-700/50 rounded-xl flex-1 min-h-0 w-full overflow-hidden flex flex-col items-center justify-center shadow-sm p-4 md:p-6">
+      <div className="bg-[#080C16]/80 border border-slate-700/50 rounded-xl flex-1 min-h-0 w-full overflow-hidden flex flex-col items-center justify-center shadow-sm p-4 md:p-6">
         {analisando ? (
           <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 gap-3 animate-pulse flex-1">
             <Sparkles size={26} className="animate-spin text-cyan-400" />
@@ -396,7 +396,7 @@ export default function MioloLeituraRapida({
           </div>
         ) : localStatus === 'CORRECT' && feedbackIA ? (
           /* CARD EM CAMADAS DE SUCESSO */
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
             <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
               <CheckCircle size={16} /> <span>Excelente Retenção!</span>
             </div>
@@ -404,7 +404,7 @@ export default function MioloLeituraRapida({
           </div>
         ) : localStatus === 'WRONG' && feedbackIA ? (
           /* CARD EM CAMADAS DE ANÁLISE / ERRO */
-          <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+          <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
             <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
               <XCircle size={16} /> <span>Análise de Leitura</span>
             </div>
@@ -417,7 +417,7 @@ export default function MioloLeituraRapida({
         ) : (
           /* FASE DE DIGITAÇÃO */
           <div className="w-full h-full flex flex-col gap-4 flex-1 min-h-0">
-            <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#070d19]/80 text-[14px] text-slate-400 leading-relaxed select-none blur-[1.5px] opacity-40 pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
+            <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#080C16]/80 text-[14px] text-slate-400 leading-relaxed select-none blur-[1.5px] opacity-40 pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
               <p className="font-sans text-justify whitespace-pre-wrap line-clamp-3">
                 {textoLongo}
               </p>
@@ -430,7 +430,7 @@ export default function MioloLeituraRapida({
                 disabled={localStatus !== 'IDLE' || analisando}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder={t.placeholder}
-                className="w-full flex-1 bg-[#070d19] border border-slate-700/80 rounded-xl font-sans text-[14px] md:text-[15px] text-slate-100 p-4 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 resize-none leading-relaxed placeholder-slate-500 transition-all shadow-inner"
+                className="w-full flex-1 bg-[#080C16] border border-slate-700/80 rounded-xl font-sans text-[14px] md:text-[15px] text-slate-100 p-4 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 resize-none leading-relaxed placeholder-slate-500 transition-all shadow-inner"
               />
             </div>
           </div>

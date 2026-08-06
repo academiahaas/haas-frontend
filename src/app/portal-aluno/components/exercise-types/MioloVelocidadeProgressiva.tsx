@@ -371,7 +371,7 @@ onValidateResult
           className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
             activeSpeed === 'slow' 
               ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
-              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
+              : 'bg-[#080C16]/60 hover:bg-[#0E1726] border-slate-700/50 text-slate-300'
           }`}
         >
           <Turtle size={16} className={activeSpeed === 'slow' ? 'text-cyan-400' : 'text-slate-400'} />
@@ -384,7 +384,7 @@ onValidateResult
           className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
             activeSpeed === 'normal' 
               ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
-              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
+              : 'bg-[#080C16]/60 hover:bg-[#0E1726] border-slate-700/50 text-slate-300'
           }`}
         >
           <Zap size={16} className={activeSpeed === 'normal' ? 'text-cyan-400' : 'text-slate-400'} />
@@ -397,7 +397,7 @@ onValidateResult
           className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-[13px] md:text-[14px] uppercase cursor-pointer min-h-[46px] transition-all shadow-sm ${
             activeSpeed === 'native' 
               ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 ring-1 ring-cyan-400/30' 
-              : 'bg-[#0a1120]/60 hover:bg-[#13233f] border-slate-700/50 text-slate-300'
+              : 'bg-[#080C16]/60 hover:bg-[#0E1726] border-slate-700/50 text-slate-300'
           }`}
         >
           <Rocket size={16} className={activeSpeed === 'native' ? 'text-cyan-400' : 'text-slate-400'} />
@@ -406,7 +406,7 @@ onValidateResult
       </div>
 
       {/* 3. CARD DO PARÁGRAFO/ENUNCIADO */}
-      <div className="w-full bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[75px] shadow-sm">
+      <div className="w-full bg-[#080C16]/80 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center shrink-0 min-h-[75px] shadow-sm">
         <p className="text-[clamp(16px,2vw,20px)] font-bold leading-relaxed text-center text-slate-100 w-full break-words tracking-wide">
           {renderDynamicText()}
         </p>
@@ -418,8 +418,8 @@ onValidateResult
           const isSelected = selectedId === opt.id;
           const letterBadge = String.fromCharCode(65 + idx);
           
-          let cardStyle = "border-slate-700/50 bg-[#0a1120]/60 hover:bg-[#13233f] hover:border-slate-500 text-slate-200";
-          let badgeStyle = "bg-[#070d19] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
+          let cardStyle = "border-slate-700/50 bg-[#080C16]/60 hover:bg-[#0E1726] hover:border-slate-500 text-slate-200";
+          let badgeStyle = "bg-[#080C16] border-slate-800 text-slate-400 group-hover:border-cyan-900/50 group-hover:text-cyan-400";
 
           if (isSelected) {
             if ((localStatus as any) === 'CORRECT') {
@@ -455,7 +455,7 @@ onValidateResult
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -465,7 +465,7 @@ onValidateResult
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Excelente! Resposta Correta</span>
               </div>
@@ -474,7 +474,7 @@ onValidateResult
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Ajuste Necessário</span>
               </div>

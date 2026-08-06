@@ -422,7 +422,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
   return (
     <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 p-1">
       
-      <div className="bg-[#070d19]/80 border border-white/[0.03] p-3 rounded-xl flex items-center gap-3 shrink-0">
+      <div className="bg-[#080C16]/80 border border-white/[0.03] p-3 rounded-xl flex items-center gap-3 shrink-0">
         <HelpCircle size={15} className="text-cyan-400 shrink-0" />
         <p className="text-[clamp(11px,1.3vw,13px)] font-bold uppercase tracking-wider text-slate-300">
           {t.instrucao}
@@ -432,7 +432,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
       <div className={`w-full flex-1 min-h-0 justify-stretch gap-2.5 ${isShortText ? "grid grid-cols-1 sm:grid-cols-2" : "flex flex-col"} ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {opcoes.map((op, idx) => {
           const isThisSelected = selecionado === op.texto;
-          let optStyle = "border-slate-800/80 bg-[#04111C]/30 text-slate-300 hover:bg-[#1C3B50]/10";
+          let optStyle = "border-slate-800/80 bg-[#060A12]/30 text-slate-300 hover:bg-[#121C2D]/10";
 
           if (isThisSelected) {
             if (localStatus === "CORRECT") optStyle = "border-emerald-500 bg-emerald-950/20 text-emerald-400 font-black";

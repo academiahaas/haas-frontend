@@ -424,10 +424,10 @@ export default function MioloReordenacaoParagrafos({
           {items.map((item, index) => (
             <div 
               key={item.id} 
-              className="group flex items-center justify-between gap-4 bg-[#0a1120]/80 hover:bg-[#13233f] border border-slate-700/50 hover:border-cyan-500/30 p-3 rounded-xl transition-all shadow-sm"
+              className="group flex items-center justify-between gap-4 bg-[#080C16]/80 hover:bg-[#0E1726] border border-slate-700/50 hover:border-cyan-500/30 p-3 rounded-xl transition-all shadow-sm"
             >
               {/* INDICADOR NUMÉRICO DE ORDEM */}
-              <div className="flex items-center justify-center w-11 h-11 shrink-0 bg-[#070d19] border border-slate-800 rounded-lg text-cyan-500 font-black text-[15px] tracking-wider shadow-inner group-hover:border-cyan-900/50 group-hover:bg-cyan-950/20 transition-all select-none">
+              <div className="flex items-center justify-center w-11 h-11 shrink-0 bg-[#080C16] border border-slate-800 rounded-lg text-cyan-500 font-black text-[15px] tracking-wider shadow-inner group-hover:border-cyan-900/50 group-hover:bg-cyan-950/20 transition-all select-none">
                 {String(index + 1).padStart(2, '0')}
               </div>
 
@@ -442,7 +442,7 @@ export default function MioloReordenacaoParagrafos({
                   type="button"
                   onClick={() => moverItem(index, "UP")} 
                   disabled={index === 0 || localStatus !== 'IDLE' || analisando} 
-                  className="p-2.5 bg-[#070d19] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#070d19] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  className="p-2.5 bg-[#080C16] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#080C16] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
                   title="Mover para cima"
                 >
                   <ArrowDown size={16} className="rotate-180" />
@@ -451,7 +451,7 @@ export default function MioloReordenacaoParagrafos({
                   type="button"
                   onClick={() => moverItem(index, "DOWN")} 
                   disabled={index === items.length - 1 || localStatus !== 'IDLE' || analisando} 
-                  className="p-2.5 bg-[#070d19] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#070d19] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
+                  className="p-2.5 bg-[#080C16] hover:bg-cyan-700 disabled:opacity-20 disabled:hover:bg-[#080C16] border border-slate-700 hover:border-cyan-500 text-slate-400 hover:text-white rounded-lg cursor-pointer transition-all flex items-center justify-center shadow-sm active:scale-95"
                   title="Mover para baixo"
                 >
                   <ArrowDown size={16} />
@@ -466,7 +466,7 @@ export default function MioloReordenacaoParagrafos({
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -476,7 +476,7 @@ export default function MioloReordenacaoParagrafos({
           )}
 
           {localStatus === 'CORRECT' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Coerência Textual Perfeita!</span>
               </div>
@@ -485,7 +485,7 @@ export default function MioloReordenacaoParagrafos({
           )}
 
           {localStatus === 'WRONG' && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Análise de Coesão</span>
               </div>

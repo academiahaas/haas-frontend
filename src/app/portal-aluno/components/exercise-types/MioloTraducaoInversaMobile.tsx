@@ -100,7 +100,7 @@ export default function MioloTraducaoInversaMobile({
     <div className="w-full h-full flex flex-col justify-between gap-4 font-mono select-none items-stretch flex-1 min-h-0 mb-0 pb-0">
       
       {/* 1) ENUNCIADO MATRIZ (TOPO) */}
-      <div className="text-left bg-[#020B12] border border-slate-800 rounded-xl p-4 shadow-sm w-full shrink-0">
+      <div className="text-left bg-[#050811] border border-slate-800 rounded-xl p-4 shadow-sm w-full shrink-0">
         <span className="text-[clamp(11px,3vw,13px)] font-black text-cyan-400 block mb-1.5 uppercase tracking-wider">
           Traduza o requisito corporativo nativo:
         </span>
@@ -113,7 +113,7 @@ export default function MioloTraducaoInversaMobile({
       <div className={`w-full rounded-xl p-4 min-h-[100px] flex-1 flex flex-wrap content-center justify-center gap-2.5 items-center transition-all duration-200 shadow-inner ${
         status === 'CORRECT' ? 'border-2 border-[#22C55E]/30 bg-[#042414]/20' :
         status === 'WRONG' ? 'border-2 border-red-500/30 bg-[#2E0B0E]/20 animate-shake' :
-        'bg-[#020B12]/80 border-2 border-dashed border-slate-800/60 shadow-2xl'
+        'bg-[#050811]/80 border-2 border-dashed border-slate-800/60 shadow-2xl'
       }`}>
         {depositPieces.length === 0 ? (
           <span className="text-[clamp(11px,3.2vw,13px)] font-black text-slate-500 uppercase tracking-widest select-none font-sans text-center">
@@ -134,13 +134,13 @@ export default function MioloTraducaoInversaMobile({
       </div>
 
       {/* 3) BANCO DE PALAVRAS DISPONÍVEIS (BASE ABSOLUTA - MARGENS E PADDINGS INFERIORES ZERADOS) */}
-      <div className="w-full flex flex-wrap gap-2.5 p-3 bg-[#070d19]/40 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 min-h-[90px] mb-0 pb-3">
+      <div className="w-full flex flex-wrap gap-2.5 p-3 bg-[#080C16]/40 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 min-h-[90px] mb-0 pb-3">
         {bankPieces.map((piece) => (
           <button 
             key={piece.id} 
             disabled={status === 'CORRECT'} 
             onClick={() => handlePushToDeposit(piece)} 
-            className="px-3 py-2.5 bg-[#1C3B50]/80 active:bg-[#1C3B50] text-slate-200 font-black border border-slate-700/60 rounded-xl text-[clamp(13px,3.6vw,15px)] shadow-md cursor-pointer transition-all active:scale-95 whitespace-nowrap"
+            className="px-3 py-2.5 bg-[#121C2D]/80 active:bg-[#121C2D] text-slate-200 font-black border border-slate-700/60 rounded-xl text-[clamp(13px,3.6vw,15px)] shadow-md cursor-pointer transition-all active:scale-95 whitespace-nowrap"
           >
             {piece.text}
           </button>

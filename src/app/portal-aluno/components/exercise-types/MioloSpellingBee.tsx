@@ -389,7 +389,7 @@ USER_ID_ALVO]);
       </div>
 
       {/* CARD CENTRAL DE ÁUDIO E SLOTS DAS LETRAS */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-5 p-5 bg-[#0a1120]/80 border border-slate-700/50 rounded-xl min-h-[140px] shadow-sm">
+      <div className="flex-1 flex flex-col items-center justify-center gap-5 p-5 bg-[#080C16]/80 border border-slate-700/50 rounded-xl min-h-[140px] shadow-sm">
         
         {/* Botão de Áudio Centralizado com Glow */}
         <button 
@@ -406,7 +406,7 @@ USER_ID_ALVO]);
           {userInput.map((char, idx) => {
             const isCurrent = idx === currentIndex && status !== "CORRECT" && status !== "WRONG";
             
-            let slotStyle = "border-slate-700/60 text-slate-300 bg-[#070d19]";
+            let slotStyle = "border-slate-700/60 text-slate-300 bg-[#080C16]";
             if (status === "CORRECT") {
               slotStyle = "border-emerald-500 text-emerald-400 bg-emerald-950/30 font-black shadow-sm";
             } else if (status === "WRONG") {
@@ -429,7 +429,7 @@ USER_ID_ALVO]);
 
       {/* TECLADO VIRTUAL DARK PREMIUM */}
       {status === "IDLE" && !analisando && (
-        <div className="flex flex-col gap-1.5 w-full items-center bg-[#070d19]/80 p-3 rounded-xl border border-slate-800/80 shrink-0">
+        <div className="flex flex-col gap-1.5 w-full items-center bg-[#080C16]/80 p-3 rounded-xl border border-slate-800/80 shrink-0">
           
           {/* Linha de Acentos */}
           <div className="flex gap-1 justify-center w-full mb-1 border-b border-slate-800/60 pb-2 overflow-x-auto select-none no-scrollbar">
@@ -453,7 +453,7 @@ USER_ID_ALVO]);
                   key={letter}
                   type="button"
                   onClick={() => handleKeyPress(letter)}
-                  className={`h-[36px] bg-[#13233f] hover:bg-[#1a2f55] active:bg-cyan-900/40 text-slate-200 border border-slate-700/50 rounded-md font-sans text-[14px] font-bold cursor-pointer transition-all select-none flex items-center justify-center ${
+                  className={`h-[36px] bg-[#0E1726] hover:bg-[#162238] active:bg-cyan-900/40 text-slate-200 border border-slate-700/50 rounded-md font-sans text-[14px] font-bold cursor-pointer transition-all select-none flex items-center justify-center ${
                     letter === "⌫" ? "w-[14%] bg-rose-950/30 hover:bg-rose-900/40 border-rose-800/50 text-rose-400" : "w-[9%]"
                   }`}
                 >
@@ -469,7 +469,7 @@ USER_ID_ALVO]);
       {exibirContainerInferior && (
         <div className="w-full flex-1 flex flex-col items-center justify-center animate-fade-in p-2">
           {analisando && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-pulse shadow-[0_0_30px_rgba(6,182,212,0.12)] gap-3">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-[13px] uppercase tracking-widest">
                 <Sparkles size={16} className="animate-spin" />
                 <span>Mentora Haas</span>
@@ -479,7 +479,7 @@ USER_ID_ALVO]);
           )}
 
           {status === "CORRECT" && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
                 <CheckCircle size={16} /> <span>Soletração Perfeita!</span>
               </div>
@@ -488,7 +488,7 @@ USER_ID_ALVO]);
           )}
 
           {status === "WRONG" && feedbackIA && (
-            <div className="w-full max-w-2xl bg-[#070d19]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
+            <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
                 <XCircle size={16} /> <span>Análise de Soletração</span>
               </div>

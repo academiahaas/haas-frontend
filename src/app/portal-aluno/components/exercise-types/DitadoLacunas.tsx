@@ -331,7 +331,7 @@ export default function DitadoLacunas({
         <button 
           type="button"
           onClick={playAudio} 
-          className="p-2.5 bg-[#13233f] hover:bg-[#1a2f55] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
+          className="p-2.5 bg-[#0E1726] hover:bg-[#162238] border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 rounded-lg transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm active:scale-95"
           title="Ouvir áudio"
         >
           <Volume2 size={16} />
@@ -339,7 +339,7 @@ export default function DitadoLacunas({
       </div>
 
       {/* CARD PRINCIPAL COM A FRASE E LACUNA INLINE */}
-      <div className={`bg-[#0a1120]/80 border border-slate-700/50 rounded-xl p-6 text-center text-[clamp(16px,2vw,22px)] font-semibold text-slate-100 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-2 flex-1 min-h-[140px] w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
+      <div className={`bg-[#080C16]/80 border border-slate-700/50 rounded-xl p-6 text-center text-[clamp(16px,2vw,22px)] font-semibold text-slate-100 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-2 flex-1 min-h-[140px] w-full overflow-y-auto shadow-inner ${localStatus !== "IDLE" || analisando ? "hidden" : ""}`}>
         {partesDaFrase.map((parte, index) => (
           <React.Fragment key={index}>
             <span className="text-slate-100">{parte}</span>
@@ -351,7 +351,7 @@ export default function DitadoLacunas({
                 onChange={(e) => handleInputChange(e.target.value, index)}
                 onKeyDown={(e) => e.key === "Enter" && executarValidacaoInterna()}
                 placeholder="???"
-                className={`bg-[#070d19] border-2 rounded-lg px-3 py-1 text-center font-bold text-cyan-400 placeholder-slate-600 tracking-wide text-[clamp(15px,1.8vw,19px)] w-32 sm:w-40 transition-all focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 shadow-inner ${
+                className={`bg-[#080C16] border-2 rounded-lg px-3 py-1 text-center font-bold text-cyan-400 placeholder-slate-600 tracking-wide text-[clamp(15px,1.8vw,19px)] w-32 sm:w-40 transition-all focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 shadow-inner ${
                   localStatus === "CORRECT" ? "border-emerald-500 text-emerald-400" : localStatus === "WRONG" ? "border-rose-500 text-rose-400" : "border-slate-700"
                 }`}
               />
