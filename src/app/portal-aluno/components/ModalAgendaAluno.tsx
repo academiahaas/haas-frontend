@@ -671,7 +671,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           <div className="grid grid-cols-2 gap-2 mt-3 shrink-0">
             <div 
               onClick={() => setModoAgendamento("clase")}
-              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "clase" ? "bg-white/[0.06] border-cyan-500/40/80 shadow-[0_0_15px_rgba(245,158,11,0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
+              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "clase" ? "bg-white/[0.06] border-cyan-500/40/80 shadow-[0_0_15px_rgba(168, 85, 247, 0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
               <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Ticket size={10} className="text-cyan-400" />
                 {t.mainCredits}

@@ -1539,7 +1539,7 @@ React.useEffect(() => {
             </button>
             <span className="text-[clamp(11px,3.2vw,15px)] bg-cyan-400/10 text-purple-300 font-black px-2.5 py-1 rounded-lg border border-cyan-500/40/20 uppercase font-mono tracking-wide">{nivelAluno || "B1"}</span>
           </div>
-          <span className="text-[clamp(13px,3.8vw,18px)] md:text-base font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> {streakDias}d</span>
+          <span className="text-[clamp(13px,3.8vw,18px)] md:text-base font-black font-mono text-[#a855f7] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> {streakDias}d</span>
         </div>
       </div>
 
@@ -2969,7 +2969,7 @@ React.useEffect(() => {
               <button 
                 onClick={acionarInputNativo}
                 disabled={uploading}
-              className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-cyan-400 hover:from-purple-600 hover:to-purple-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-orange-950/20"
+              className="w-full py-3.5 bg-gradient-to-r from-cyan-400 to-cyan-400 hover:from-purple-600 hover:to-purple-600 text-white font-black rounded-xl text-[clamp(13px,3.8vw,15px)] md:text-sm font-mono uppercase tracking-widest flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shrink-0 min-h-[44px] border-none shadow-lg shadow-purple-500/50"
               >
                                 {txt.btnPhoto}
               </button>

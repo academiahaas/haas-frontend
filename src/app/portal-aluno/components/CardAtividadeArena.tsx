@@ -47,7 +47,7 @@ export default function CardAtividadeArena({
         {/* BARRA DE PROGRESSO DE ETAPA MESTRE */}
         <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden p-[1px] border border-white/[0.02]">
           <div 
-            className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+            className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(168, 85, 247, 0.3)]"
             style={{ width: `${porcentagemProgresso}%` }}
           />
         </div>

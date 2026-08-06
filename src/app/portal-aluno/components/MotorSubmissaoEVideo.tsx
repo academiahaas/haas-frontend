@@ -96,7 +96,7 @@ export default function MotorSubmissaoEVideo() {
           className={`w-full py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
             !opcaoSelecionada 
               ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" 
-              : "bg-cyan-400 text-black hover:bg-purple-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+              : "bg-cyan-400 text-black hover:bg-purple-400 shadow-[0_0_15px_rgba(168, 85, 247, 0.1)]"
           }`}
         >
           {statusResposta === "correto" ? "✓ Resposta Correta!" : statusResposta === "errado" ? "⚠️ Resposta Incorreta!" : "Submeter Resposta"}

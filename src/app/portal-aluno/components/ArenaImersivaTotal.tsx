@@ -162,7 +162,7 @@ export default function ArenaImersivaTotal({
         <div className="w-full max-w-2xl md:max-w-3xl flex-1 flex flex-col justify-evenly gap-4 my-auto">
 
           {balaoIaAberto && (
-            <div className="bg-cyan-400/10 border border-cyan-500/40/30 rounded-2xl p-4 text-xs sm:text-sm md:text-base text-amber-200 flex items-start gap-3 relative animate-fadeIn shadow-lg shrink-0">
+            <div className="bg-cyan-400/10 border border-cyan-500/40/30 rounded-2xl p-4 text-xs sm:text-sm md:text-base text-cyan-400 flex items-start gap-3 relative animate-fadeIn shadow-lg shrink-0">
               <Sparkles size={18} className="text-purple-300 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
               <div className="flex-1 pr-4">
                 <p className="font-bold mb-1 text-purple-300">Assistente IA:</p>
@@ -246,7 +246,7 @@ export default function ArenaImersivaTotal({
                 <span className="text-[10px] sm:text-xs md:text-sm font-mono font-bold text-purple-300 uppercase tracking-wider block mb-0.5">
                   DITADO POPULAR / INCENTIVO
                 </span>
-                <p className="text-xs sm:text-sm md:text-base text-amber-200/90 italic font-serif">
+                <p className="text-xs sm:text-sm md:text-base text-cyan-400/90 italic font-serif">
                   "{ditadoExibido}"
                 </p>
               </div>

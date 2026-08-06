@@ -73,7 +73,7 @@ export default function RankingTop10() {
               key={student.id}
               className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 ${
                 isPrimeiro
-                  ? "bg-cyan-400/[0.04] border-cyan-500/40/30 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+                  ? "bg-cyan-400/[0.04] border-cyan-500/40/30 shadow-[0_0_15px_rgba(168, 85, 247, 0.05)]"
                   : "bg-white/[0.01] border-white/5 hover:border-white/10"
               }`}
             >

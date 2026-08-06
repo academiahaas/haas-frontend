@@ -41,7 +41,7 @@ export default function ModalPedagogo({ isOpen, onClose, tipo }: Props) {
           </div>
         ) : (
           <div className="w-full flex flex-col gap-3">
-            <span className="text-[10px] font-black text-[#FF8A2B] tracking-widest uppercase flex items-center gap-1.5">
+            <span className="text-[10px] font-black text-[#a855f7] tracking-widest uppercase flex items-center gap-1.5">
               <BookOpen size={12} /> CONTEÚDO ESCRITO DE FIXAÇÃO
             </span>
             <h3 className="text-base font-bold text-white font-sans">A Regra dos Clusters de Réplica</h3>

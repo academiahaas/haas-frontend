@@ -25,7 +25,7 @@ export function TrilhaMisiones({ supabase }) {
             { id: 'audio', nome: 'Inmersión Auditiva IA', icon: Headphones, route: '/lesson-audio', color: 'border-blue-500 text-blue-500 hover:bg-blue-50/20', xp: '150 PTS' },
             { id: 'reading', nome: 'Comprensión de Lectura', icon: BookOpen, route: '/lesson-reading', color: 'border-emerald-500 text-emerald-500 hover:bg-emerald-50/20', xp: '120 PTS' },
             { id: 'spelling', nome: 'Laboratorio de Ortografía', icon: SpellCheck, route: '/lesson-spelling', color: 'border-purple-500 text-purple-500 hover:bg-purple-50/20', xp: '100 PTS' },
-            { id: 'writing', nome: 'Desafío de Escritura Pro', icon: PenTool, route: '/lesson-writing', color: 'border-cyan-500/40 text-cyan-400 hover:bg-amber-50/20', xp: '200 PTS' }
+            { id: 'writing', nome: 'Desafío de Escritura Pro', icon: PenTool, route: '/lesson-writing', color: 'border-cyan-500/40 text-cyan-400 hover:bg-purple-950/40/20', xp: '200 PTS' }
           ]);
         }
       } catch (err) {
