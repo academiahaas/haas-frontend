@@ -1830,7 +1830,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                           <span className={msg.tipo === "user" ? ((msg as any).audioUrl ? "inline-block" : "inline-block bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/30") : "block w-full"}>
                             {(msg as any).audioUrl ? (
                               <div className="py-1">
-<div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
+<div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/80 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)] hover:shadow-[0_0_18px_rgba(168,85,247,0.35)] group max-w-max my-1">
                                   <button onClick={(e) => {
                                     const p = e.currentTarget.parentElement;
                                     if (p) {
@@ -1843,7 +1843,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                         }
                                       }
                                     }
-                                  }} className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-violet-900/30" title="Ouvir mensagem">
+                                  }} className="w-8 h-8 rounded-full bg-purple-600 group-hover:bg-cyan-400 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-purple-900/30 shrink-0" title="Ouvir mensagem">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" /></svg>
                                   </button>
                                   <audio src={(msg as any).audioUrl} className="hidden" />
@@ -1852,7 +1852,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 max-w-max my-1 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
+    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/80 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)] hover:shadow-[0_0_18px_rgba(168,85,247,0.35)] group max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -2031,7 +2031,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/60 max-w-max my-1 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)]">
+    <div className="flex items-center gap-3 bg-[#0B0E17] hover:bg-[#0E1526] rounded-xl px-4 py-2.5 border border-purple-500/30 hover:border-purple-500/80 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(168,85,247,0.12)] hover:shadow-[0_0_18px_rgba(168,85,247,0.35)] group max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
