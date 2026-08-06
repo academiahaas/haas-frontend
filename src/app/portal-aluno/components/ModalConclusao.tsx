@@ -18,10 +18,7 @@ interface ModalConclusaoProps {
   onClose?: () => void;
 }
 
-const PALETA_NIVEIS: Record<
-  NivelCurso,
-  { border: string; bgGlow: string; badgeBg: string; badgeText: string; btnBg: string }
-> = {
+const PALETA_NIVEIS: Record<NivelCurso, { border: string; bgGlow: string; badgeBg: string; badgeText: string; btnBg: string }> = {
   A1: {
     border: "border-amber-500/40",
     bgGlow: "bg-amber-500/15",
@@ -34,7 +31,7 @@ const PALETA_NIVEIS: Record<
     bgGlow: "bg-emerald-500/15",
     badgeBg: "bg-emerald-500/20",
     badgeText: "text-emerald-400",
-    btnBg: "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white",
+    btnBg: "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black",
   },
   B1: {
     border: "border-cyan-500/40",
@@ -120,7 +117,7 @@ const DADOS_IDIOMA = {
 };
 
 const IconeCheck = () => (
-  <svg className="w-12 h-12 text-amber-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-12 h-12 text-violet-400 mx-auto drop-shadow-[0_0_10px_rgba(167,139,250,0.4)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
@@ -155,24 +152,38 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
   const configNivel = PALETA_NIVEIS[nivel] || PALETA_NIVEIS.A1;
 
   const isNivel = tipo === "NIVEL";
+  const isUnidade = tipo === "UNIDADE";
   const acaoBotao = isNivel ? onIniciarProvaEscrita : onContinuar;
+
+  // Visual Roxo Elétrico Deep para UNIDADE
+  const borderClass = isNivel
+    ? configNivel.border
+    : isUnidade
+    ? "border-violet-500/40 shadow-[0_0_25px_rgba(139,92,246,0.15)]"
+    : "border-amber-500/30";
+
+  const glowClass = isNivel
+    ? configNivel.bgGlow
+    : isUnidade
+    ? "bg-violet-500/15"
+    : "bg-amber-500/10";
+
+  const btnClass = isNivel
+    ? configNivel.btnBg
+    : isUnidade
+    ? "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+    : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
       <div
-        className={`bg-[#181b22] border ${
-          isNivel ? configNivel.border : "border-amber-500/30"
-        } rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden transition-all duration-300`}
+        className={`bg-[#181b22] border ${borderClass} rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden transition-all duration-300`}
       >
         <div
-          className={`absolute -top-16 -left-16 w-36 h-36 ${
-            isNivel ? configNivel.bgGlow : "bg-amber-500/10"
-          } rounded-full blur-3xl pointer-events-none`}
+          className={`absolute -top-16 -left-16 w-36 h-36 ${glowClass} rounded-full blur-3xl pointer-events-none`}
         />
         <div
-          className={`absolute -bottom-16 -right-16 w-36 h-36 ${
-            isNivel ? configNivel.bgGlow : "bg-amber-500/10"
-          } rounded-full blur-3xl pointer-events-none`}
+          className={`absolute -bottom-16 -right-16 w-36 h-36 ${glowClass} rounded-full blur-3xl pointer-events-none`}
         />
 
         <div className="relative z-10 space-y-4">
@@ -197,9 +208,9 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
           </p>
 
           {!isNivel && (unidadeNome || moduloNome) && (
-            <div className="bg-[#212530] border border-white/5 rounded-2xl p-3 text-xs text-amber-300 font-medium text-center">
-              {unidadeNome && <div>{unidadeNome}</div>}
-              {moduloNome && <div>{moduloNome}</div>}
+            <div className="bg-[#212530] border border-white/5 rounded-2xl p-3 text-xs font-medium text-center">
+              {unidadeNome && <div className="text-violet-300 drop-shadow-[0_0_8px_rgba(167,139,250,0.3)]">{unidadeNome}</div>}
+              {moduloNome && <div className="text-amber-300">{moduloNome}</div>}
             </div>
           )}
 
@@ -217,11 +228,7 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
           <div className="pt-2">
             <button
               onClick={acaoBotao || onClose}
-              className={`w-full py-4 px-6 font-black rounded-2xl shadow-xl transform transition active:scale-95 cursor-pointer text-sm tracking-wider uppercase ${
-                isNivel
-                  ? configNivel.btnBg
-                  : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black"
-              }`}
+              className={`w-full py-4 px-6 font-black rounded-2xl shadow-xl transform transition active:scale-95 cursor-pointer text-sm tracking-wider uppercase ${btnClass}`}
             >
               {t[tipo].btn}
             </button>
