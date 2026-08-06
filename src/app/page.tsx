@@ -126,15 +126,15 @@ export default function LandingPage() {
                   </svg>
                 </a>
 
-                <button
-                  onClick={() => setIsDiagnosticOpen(true)}
+                <a
+                  href="/diagnostico"
                   className="flex items-center justify-center gap-2 rounded-xl bg-slate-900/80 px-6 py-4 text-xs font-mono font-bold text-cyan-300 border border-slate-800 hover:border-cyan-500/40 hover:bg-slate-900 transition-all shadow-lg"
                 >
                   <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <span>Diagnóstico Express IA (2 min)</span>
-                </button>
+                </a>
               </div>
 
               <div className="flex items-center gap-6 pt-4 text-xs font-mono text-slate-500">
