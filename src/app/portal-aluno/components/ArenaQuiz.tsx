@@ -1410,25 +1410,49 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-cyan-500/30 bg-[#060A12] border border-white/10 shadow-2xl flex-shrink-0 mt-0">
-        <div className="flex items-center gap-6 text-[11px] font-bold text-[#94A3B8] tracking-wider">
-          <span className={`flex items-center gap-1 font-black transition-all duration-200 ${
-            comboQuebrado ? 'text-red-500 line-through opacity-60 scale-95' : 'text-[#a855f7]'
-          } ${streak >= 3 ? 'text-cyan-400 font-black' : ''}`}>
-            <Flame size={13} fill="currentColor" /> 
-            {comboQuebrado ? "COMBO QUEBRADO" : `${streak || 0}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
-          </span>
-          <span className="flex items-center gap-1 text-[#22C55E]"><Award size={13} /> {xpAcumulado} XP TOTAL</span>
+            <div className="w-full bg-[#030712]/90 backdrop-blur-2xl border-b border-purple-500/30 px-6 xl:px-10 py-3.5 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 shadow-2xl shadow-purple-950/30 z-10 relative">
+        <div className="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-start">
+          {/* MARCA OFICIAL HAAS LANGUAGE - ARENA MODE */}
+          <div className="flex items-center gap-3 group shrink-0">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 font-black text-white text-xl shadow-lg shadow-purple-600/30">
+              H
+            </div>
+            <span className="text-lg xl:text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+              HAAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 font-extrabold">Language</span>
+            </span>
+          </div>
+
+          <div className="h-8 w-[1px] bg-slate-800 hidden sm:block" />
+
+          {/* STATUS: STREAK & XP */}
+          <div className="flex items-center gap-4 text-[11px] font-bold text-slate-300 tracking-wider">
+            <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all duration-300 ${
+              comboQuebrado ? 'bg-red-500/10 border-red-500/30 text-red-400 line-through opacity-80' : 
+              streak >= 3 ? 'bg-purple-600/20 border-purple-500/40 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]' : 
+              'bg-slate-900/80 border-slate-700'
+            }`}>
+              <Flame size={14} className={streak >= 3 ? "text-cyan-400" : ""} /> 
+              {comboQuebrado ? "COMBO QUEBRADO" : `${streak || 0}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
+            </span>
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700 text-emerald-400 shadow-inner">
+              <Award size={14} /> {xpAcumulado} XP
+            </span>
+          </div>
         </div>
 
+        {/* BOTÃO FECHAR */}
         {onClose && (
-          <button onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} className="text-[9.5px] font-black font-mono tracking-widest px-3 py-1.5 bg-transparent text-[#8b5cf6] rounded-xl border border-[#8b5cf6]/40 cursor-pointer hover:text-white hover:bg-[#8b5cf6]/10 transition-all hover:border-[#8b5cf6]/70">
+          <button 
+            onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} 
+            className="flex items-center gap-2 text-[10px] font-black font-mono tracking-widest px-4 py-2 bg-slate-900 text-slate-400 rounded-xl border border-slate-700 hover:text-white hover:bg-slate-800 transition-all shadow-md group"
+          >
             {tArena.close}
+            <X size={14} className="group-hover:text-cyan-400 transition-colors" />
           </button>
         )}
       </div>
 
-      <div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
+<div onClick={(e) => { if (e.target === e.currentTarget) { if (typeof interromperMentora === 'function') interromperMentora(); /* clique no fundo desativado */ } }} className="w-full max-w-[97vw] flex-1 flex flex-col md:flex-row gap-6 text-left justify-center items-center mx-auto my-auto py-2 cursor-default">
         
         <div className="w-full md:w-[68%] h-auto min-h-0 md:h-[82vh] md:min-h-[580px] md:max-h-[850px] bg-[#060A12] border border-white/10 border border-white/[0.04] rounded-[24px] p-5 flex flex-col justify-between backdrop-blur-md relative overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="w-full flex justify-between items-center select-none pb-3 border-b border-white/[0.03]">
