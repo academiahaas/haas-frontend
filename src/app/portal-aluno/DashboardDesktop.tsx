@@ -709,7 +709,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
             <div>
               <h1 className="text-white font-extrabold text-xl xl:text-2xl tracking-tight leading-none flex items-center gap-2">
-                {t.greeting} {aluno1?.split(' ')[0]}.
+                {idioma === "ES" ? "¡" : ""}{t.greeting} {aluno1?.split(' ')[0]}!
                 
                 {isAdminMode && !isSimuladorLiberado ? (
                   <button 
