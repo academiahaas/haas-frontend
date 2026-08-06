@@ -1,3 +1,4 @@
+import BotaoEntrarAula from "./BotaoEntrarAula";
 import { useAlunoMetrics } from "@/hooks/useAlunoMetrics";
 import { fetchCentralPortalData, getTopRanking } from "@/services/centralService";
 import ArenaQuiz from "./ArenaQuiz";
@@ -3032,10 +3033,7 @@ React.useEffect(() => {
         {((abaAtiva as string) === "dashboard") && ( 
           <div className="flex flex-col flex-1 gap-4 px-0 pb-0 pt-0 overflow-y-auto scrollbar-none [&>*]:flex-1">
             {/* 1. Entrar na Aula */} 
-            <button onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1&hs=122&ijlm=1783058944948", "_blank")} className="w-full py-3 bg-gradient-to-r from-orange-600/20 via-amber-600/10 to-transparent border border-orange-500/40 text-orange-400 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.1)] border-[0.5px] border-orange-400/30 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-1.5">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0" style={{ display: "inline-block" }}><path d="M8 5v14l11-7z"/></svg>
-              {idiomaSelecionado === "PT" ? "Entrar na Aula" : idiomaSelecionado === "ES" ? "Entrar a la Clase" : "Enter Class"} 
-            </button> 
+            <BotaoEntrarAula userId={(alunoData as any)?.id} idioma={idiomaSelecionado} variant="mobile" /> 
  
             {/* 2. Foco Estratégico - Hub Mentora HAAS */} 
             <MobileMentorFocusCard

@@ -442,3 +442,42 @@ export async function clearPendingExamCentral(userId: string) {
     .eq('id', userId);
   return !error;
 }
+
+/**
+ * Consulta a tabela user_agenda_appointments via centralService.
+ * Retorna notification_sent e o link dinâmico da aula meeting_link.
+ */
+export async function buscarAulaAoVivoCentral(overrideUid?: string) {
+  try {
+    let targetUid = overrideUid;
+    if (!targetUid && typeof window !== "undefined") {
+      targetUid = localStorage.getItem("haas_uid") || localStorage.getItem("user_id") || undefined;
+    }
+    if (!targetUid) {
+      targetUid = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+    }
+
+    const { data, error } = await supabase
+      .from("user_agenda_appointments")
+      .select("meeting_link, notification_sent, appointment_date, status")
+      .eq("user_id", targetUid)
+      .eq("status", "agendada")
+      .eq("notification_sent", true)
+      .is("canceled_at", null)
+      .order("appointment_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return { notificationSent: false, meetingLink: null };
+    }
+
+    return {
+      notificationSent: Boolean(data.notification_sent),
+      meetingLink: data.meeting_link || null,
+    };
+  } catch (err) {
+    console.error("❌ Erro ao buscar aula ao vivo no centralService:", err);
+    return { notificationSent: false, meetingLink: null };
+  }
+}

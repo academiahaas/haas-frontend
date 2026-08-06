@@ -1,4 +1,5 @@
 'use client';
+import BotaoEntrarAula from "./components/BotaoEntrarAula";
 import { useRouter } from 'next/navigation';
 import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
@@ -1086,13 +1087,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
 
           <div className="w-full flex flex-col shrink-0 mt-2">
-            <button 
-              onClick={() => window.open("https://meet.google.com/mnk-jcqh-yuz?authuser=1", "_blank")}
-              className="w-full py-3 bg-transparent hover:bg-orange-500/5 border border-orange-500/40 text-cyan-400 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2" 
-            >
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-orange-400 shrink-0"><path d="M8 5v14l11-7z"/></svg>
-              {idioma === "PT" ? "Entrar na Aula" : idioma === "ES" ? "Entrar a la Clase" : "Enter Class"}
-            </button>
+            <BotaoEntrarAula userId={userIdBanco} idioma={idioma} variant="desktop" />
           </div>
         </div>
 
