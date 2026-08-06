@@ -153,7 +153,7 @@ export default function LandingPage() {
                     <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
                     <span className="h-3 w-3 rounded-full bg-green-500/80" />
                   </div>
-                  <span className="text-[10px] font-mono text-cyan-400 tracking-wider">campus.academiahaas.com</span>
+                  <span className="text-[10px] font-mono text-cyan-400 tracking-wider">academiahaas.com</span>
                 </div>
 
                 <div className="space-y-4">
@@ -320,7 +320,7 @@ export default function LandingPage() {
               <ul className="text-xs font-mono text-slate-300 space-y-2">
                 <li className="flex items-center gap-2"><span className="text-purple-400">✓</span> Clases 1:1 o grupos reducidos</li>
                 <li className="flex items-center gap-2"><span className="text-purple-400">✓</span> Horarios flexibles adaptados a tu agenda</li>
-                <li className="flex items-center gap-2"><span className="text-purple-400">✓</span> Feedback docente al finalizar cada módulo</li>
+                <li className="flex items-center gap-2"><span className="text-purple-400">✓</span> Feedback docente al finalizar cada nivel</li>
               </ul>
             </div>
 
