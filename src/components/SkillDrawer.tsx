@@ -77,9 +77,9 @@ export function SkillDrawer({
           <span className="font-mono text-base text-[#00FF66] font-black">{pontosLeitura}/100</span>
         </div>
         
-        <div className={`flex flex-col gap-1 p-2 rounded-xl bg-slate-800/40 border text-center transition-all ${pontosConversacao >= 100 ? 'border-emerald-500/50 bg-[#122b20]' : 'border-orange-500/30'}`}>
-          <span className="text-orange-400 uppercase text-[9px] flex items-center justify-center gap-1"><Flame size={10} /> Aula Humana</span>
-          <span className={`font-mono text-base font-black ${pontosConversacao >= 100 ? 'text-[#00FF66]' : 'text-orange-400'}`}>{pontosConversacao}/100</span>
+        <div className={`flex flex-col gap-1 p-2 rounded-xl bg-slate-800/40 border text-center transition-all ${pontosConversacao >= 100 ? 'border-emerald-500/50 bg-[#122b20]' : 'border-purple-500/40/30'}`}>
+          <span className="text-purple-300 uppercase text-[9px] flex items-center justify-center gap-1"><Flame size={10} /> Aula Humana</span>
+          <span className={`font-mono text-base font-black ${pontosConversacao >= 100 ? 'text-[#00FF66]' : 'text-purple-300'}`}>{pontosConversacao}/100</span>
         </div>
       </div>
     </div>

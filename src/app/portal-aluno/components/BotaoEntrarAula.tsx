@@ -39,7 +39,7 @@ export default function BotaoEntrarAula({ userId, idioma = "PT", variant = "desk
         className={`w-full py-3 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
           aulaAtiva
             ? "bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-black border border-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.8)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-            : "bg-gradient-to-r from-orange-600/10 via-amber-600/5 to-transparent border border-orange-500/20 text-gray-500 cursor-not-allowed opacity-50"
+            : "bg-gradient-to-r from-orange-600/10 via-amber-600/5 to-transparent border border-cyan-500/30 text-gray-500 cursor-not-allowed opacity-50"
         }`}
       >
         <svg viewBox="0 0 24 24" className={`w-3.5 h-3.5 shrink-0 ${aulaAtiva ? "fill-black" : "fill-gray-500"}`}><path d="M8 5v14l11-7z"/></svg>

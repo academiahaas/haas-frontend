@@ -42,8 +42,8 @@ export default function GraficoCompetencias({ dados }: GraficoProps) {
             <Radar
               name="Competências"
               dataKey="value"
-              stroke="#f59e0b"
-              fill="#f59e0b"
+              stroke="#8b5cf6"
+              fill="#8b5cf6"
               fillOpacity={0.15}
             />
           </RadarChart>

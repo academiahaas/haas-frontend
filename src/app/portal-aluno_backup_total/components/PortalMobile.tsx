@@ -386,11 +386,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <div className="flex items-center gap-1.5">
             <button 
               onClick={() => setGavetaExerciciosAberta(true)}
-              className="bg-slate-800 border border-white/[0.08] active:scale-95 transition-all text-orange-500 p-1 rounded flex items-center justify-center cursor-pointer"
+              className="bg-slate-800 border border-white/[0.08] active:scale-95 transition-all text-cyan-400 p-1 rounded flex items-center justify-center cursor-pointer"
             >
               <AlertTriangle size={12} className="animate-pulse" />
             </button>
-            <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-amber-400 font-black px-2.5 py-1 rounded-lg border border-amber-500/20 uppercase font-mono tracking-wide">B1</span>
+            <span className="text-[clamp(11px,3.2vw,15px)] bg-amber-500/10 text-purple-300 font-black px-2.5 py-1 rounded-lg border border-cyan-500/40/20 uppercase font-mono tracking-wide">B1</span>
           </div>
           <span className="text-[clamp(13px,3.8vw,18px)] font-black font-mono text-[#FF8A2B] flex items-center gap-1"><Flame size={15} className="sm:w-[20px] sm:h-[20px]" /> 12d</span>
         </div>
@@ -550,7 +550,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                 >
                   <div>
                     <div className="flex justify-between items-center pb-2 border-b border-white/[0.05] mb-4">
-                      <span className="text-[10px] font-black tracking-widest text-orange-500 uppercase">SELECIONAR EXERCÍCIO</span>
+                      <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">SELECIONAR EXERCÍCIO</span>
                       <button 
                         onClick={() => setGavetaExerciciosAberta(false)}
                         className="text-slate-400 bg-transparent text-xs font-bold border-none cursor-pointer"
@@ -583,7 +583,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                             setArenaAtiva(true);
                             setStatusRespostaMobile('IDLE');
                           }}
-                          className={`w-full text-left text-xs font-bold px-3 py-2.5 rounded-xl border-none cursor-pointer transition-all ${jogoSelecionadoMobile === j.id ? 'bg-orange-500 text-white' : 'bg-slate-900/60 text-slate-400'}`}
+                          className={`w-full text-left text-xs font-bold px-3 py-2.5 rounded-xl border-none cursor-pointer transition-all ${jogoSelecionadoMobile === j.id ? 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white' : 'bg-slate-900/60 text-slate-400'}`}
                         >
                           {j.label}
                         </button>
@@ -633,11 +633,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     <span className="text-[clamp(11px,3vw,13px)] font-mono font-black text-slate-600 uppercase tracking-widest block px-1 shrink-0">{idiomaSelecionado === "PT" ? "Próximos Agendamentos" : idiomaSelecionado === "ES" ? "Próximos Agendamientos" : "Upcoming Sessions"}</span>
                     <div className="flex flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-none">
                       {/* 1º CARD CRONOLÓGICO: HOJE (REPOSIÇÃO RETIDA - MENOS DE 12H) */}
-                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
+                      <div className="bg-gradient-to-r from-purple-600 to-cyan-500/[0.02] border border-purple-500/40/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
                         <div className="flex justify-between items-center">
-                          <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-purple-600 to-cyan-500/10 text-purple-300 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-purple-500/40/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
                         </div>
-                        <div className="flex flex-col gap-0.5 border-l-2 border-orange-500 pl-2 py-0.5">
+                        <div className="flex flex-col gap-0.5 border-l-2 border-purple-500/40 pl-2 py-0.5">
                           <p className="text-[clamp(13px,3.6vw,15px)] text-white font-bold">{idiomaSelecionado === "PT" ? "Hoje às 18:30" : idiomaSelecionado === "ES" ? "Hoy a las 18:30" : "Today at 18:30"}</p>
                         </div>
                         <button 
@@ -665,11 +665,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </div>
 
                       {/* 3º CARD CRONOLÓGICO: DATA FUTURA (REPOSIÇÃO NO PRAZO / GAMEFICADO) */}
-                      <div className="bg-orange-500/[0.02] border border-orange-500/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
+                      <div className="bg-gradient-to-r from-purple-600 to-cyan-500/[0.02] border border-purple-500/40/10 p-3 rounded-xl flex flex-col gap-2 shrink-0">
                         <div className="flex justify-between items-center">
-                          <span className="px-2 py-0.5 bg-orange-500/10 text-orange-400 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-orange-500/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-purple-600 to-cyan-500/10 text-purple-300 text-[clamp(10px,2.8vw,11px)] font-black uppercase rounded-md tracking-wider border border-purple-500/40/20">{idiomaSelecionado === "PT" ? "Reposição" : idiomaSelecionado === "ES" ? "Reposición" : "Makeup"}</span>
                         </div>
-                        <div className="flex flex-col gap-0.5 border-l-2 border-orange-500 pl-2 py-0.5">
+                        <div className="flex flex-col gap-0.5 border-l-2 border-purple-500/40 pl-2 py-0.5">
                           <p className="text-[clamp(13px,3.6vw,15px)] text-white font-bold">{idiomaSelecionado === "PT" ? "26/06/2026 às 15:00" : idiomaSelecionado === "ES" ? "26/06/2026 a las 15:00" : "06/26/2026 at 15:00"}</p>
                         </div>
                         <button 
@@ -739,7 +739,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       onClick={() => { setTipoAgendamento('REPOSICAO'); setGavetaTipoAulaAberta(false); setGavetaCalendarioAberta(true); }}
                       className="w-full p-3 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] rounded-xl flex items-center gap-3 text-left cursor-pointer active:scale-[0.99] transition-transform"
                     >
-                      <div className="w-4 h-4 bg-transparent border-2 border-orange-500/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
+                      <div className="w-4 h-4 bg-transparent border-2 border-purple-500/40/40 rounded-full flex items-center justify-center shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-orange-400" /></div>
                       <div className="flex flex-col">
                         <span className="text-[clamp(13px,3.8vw,15px)] font-bold text-slate-300">
                           {idiomaSelecionado === "PT" ? "Sessão de Reposição" : idiomaSelecionado === "ES" ? "Sesión de Reposición" : "Makeup Session"}
@@ -787,9 +787,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </p>
                       
                       <div className="w-full bg-slate-900/60 border border-white/[0.03] rounded-xl p-3.5 mt-2 flex flex-col gap-1 font-mono">
-                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-orange-400 uppercase font-bold tracking-wider">
+                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-purple-300 uppercase font-bold tracking-wider">
                           <span>{idiomaSelecionado === "PT" ? "Categoria" : idiomaSelecionado === "ES" ? "Categoría" : "Category"}</span>
-                          <span className="text-orange-400 font-black">{idiomaSelecionado === "PT" ? "Sessão Regular" : idiomaSelecionado === "ES" ? "Sesión Regular" : "Regular Session"}</span>
+                          <span className="text-purple-300 font-black">{idiomaSelecionado === "PT" ? "Sessão Regular" : idiomaSelecionado === "ES" ? "Sesión Regular" : "Regular Session"}</span>
                         </div>
                         <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] text-white font-black mt-1">
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
@@ -805,7 +805,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
                   {sucessoAgendamento === 'REPOSICAO' && (
                     <div className="flex flex-col items-center text-center gap-3 py-2">
-                      <div className="p-3.5 bg-purple-500/10 border border-orange-500/20 text-purple-400 rounded-full shadow-xl shadow-purple-500/5">
+                      <div className="p-3.5 bg-purple-500/10 border border-purple-500/40/20 text-purple-400 rounded-full shadow-xl shadow-purple-500/5">
                         <CheckCircle size={26} />
                       </div>
                       <h3 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase tracking-wide text-white mt-1">
@@ -818,9 +818,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </p>
                       
                       <div className="w-full bg-slate-900/60 border border-white/[0.03] rounded-xl p-3.5 mt-2 flex flex-col gap-1 font-mono">
-                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-orange-400 uppercase font-bold tracking-wider">
+                        <div className="flex justify-between text-[clamp(11px,3.2vw,15px)] text-purple-300 uppercase font-bold tracking-wider">
                           <span>{idiomaSelecionado === "PT" ? "Categoria" : idiomaSelecionado === "ES" ? "Categoría" : "Category"}</span>
-                          <span className="text-orange-400 font-black">{idiomaSelecionado === "PT" ? "Reposição Ativa" : idiomaSelecionado === "ES" ? "Reposición Activa" : "Active Makeup"}</span>
+                          <span className="text-purple-300 font-black">{idiomaSelecionado === "PT" ? "Reposição Ativa" : idiomaSelecionado === "ES" ? "Reposición Activa" : "Active Makeup"}</span>
                         </div>
                         <div className="flex justify-between text-[clamp(13px,3.8vw,18px)] text-white font-black mt-1">
                           <span>{idiomaSelecionado === "PT" ? "Data & Horário" : idiomaSelecionado === "ES" ? "Fecha y Hora" : "Date & Time"}</span>
@@ -869,11 +869,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </h3>
                       <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
-                          <>Você está solicitando o cancelamento desta <span className="text-orange-400 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-orange-400 font-black">Reposição</span> e você terá até 5 dias para reagendá-la.</>
+                          <>Você está solicitando o cancelamento desta <span className="text-purple-300 font-black">Sessão Regular</span>. Se prosseguir, este crédito se transformará em uma <span className="text-purple-300 font-black">Reposição</span> e você terá até 5 dias para reagendá-la.</>
                         ) : idiomaSelecionado === "ES" ? (
-                          <>Está solicitando la cancelación de esta <span className="text-orange-400 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-orange-400 font-black">Reposición</span> y tendrá hasta 5 días para programarla de nuevo.</>
+                          <>Está solicitando la cancelación de esta <span className="text-purple-300 font-black">Sesión Regular</span>. Si continúa, este crédito se convertirá en una <span className="text-purple-300 font-black">Reposición</span> y tendrá hasta 5 días para programarla de nuevo.</>
                         ) : (
-                          <>You are requesting to cancel this <span className="text-orange-400 font-black">Regular Session</span>. If you proceed, this credit will become a <span className="text-orange-400 font-black">Makeup Session</span> and you will have up to 5 days to reschedule it.</>
+                          <>You are requesting to cancel this <span className="text-purple-300 font-black">Regular Session</span>. If you proceed, this credit will become a <span className="text-purple-300 font-black">Makeup Session</span> and you will have up to 5 days to reschedule it.</>
                         )}
                       </p>
                       <div className="w-full flex flex-col gap-2 mt-3">
@@ -908,11 +908,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </h3>
                       <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
-                          <>Atenção: Esta sessão <span className="text-orange-400 font-black">já é uma reposição</span>. Para não quebrar o ritmo da sua evolução, evite remarcações consecutivas. O prazo limite para uso deste crédito continua correndo a partir da data original.</>
+                          <>Atenção: Esta sessão <span className="text-purple-300 font-black">já é uma reposição</span>. Para não quebrar o ritmo da sua evolução, evite remarcações consecutivas. O prazo limite para uso deste crédito continua correndo a partir da data original.</>
                         ) : idiomaSelecionado === "ES" ? (
-                          <>Atención: Esta sesión <span className="text-orange-400 font-black">ya es una reposición</span>. Para no interrumpir el ritmo de su evolución, evite reprogramaciones consecutivas. El plazo límite para el uso de este crédito sigue corriendo a partir de la fecha original.</>
+                          <>Atención: Esta sesión <span className="text-purple-300 font-black">ya es una reposición</span>. Para no interrumpir el ritmo de su evolución, evite reprogramaciones consecutivas. El plazo límite para el uso de este crédito sigue corriendo a partir de la fecha original.</>
                         ) : (
-                          <>Notice: This session <span className="text-orange-400 font-black">is already a makeup</span>. To maintain your momentum and progress, avoid consecutive rescheduling. The deadline to use this credit continues running from the original date.</>
+                          <>Notice: This session <span className="text-purple-300 font-black">is already a makeup</span>. To maintain your momentum and progress, avoid consecutive rescheduling. The deadline to use this credit continues running from the original date.</>
                         )}
                       </p>
                       <div className="w-full flex flex-col gap-2 mt-3">
@@ -947,11 +947,11 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       </h3>
                       <p className="text-[clamp(12px,3.4vw,15px)] text-white font-medium leading-relaxed max-w-[95%]">
                         {idiomaSelecionado === "PT" ? (
-                          <>As diretrizes operacionais exigem o mínimo de <span className="text-orange-400 font-black">12 horas de antecedência</span> para cancelamentos. O prazo limite expirou e esta vaga não pode mais ser alterada.</>
+                          <>As diretrizes operacionais exigem o mínimo de <span className="text-purple-300 font-black">12 horas de antecedência</span> para cancelamentos. O prazo limite expirou e esta vaga não pode mais ser alterada.</>
                         ) : idiomaSelecionado === "ES" ? (
-                          <>Las directrizes operativas exigen un mínimo de <span className="text-orange-400 font-black">12 horas de anticipación</span> para cancelaciones. El plazo límite ha expirado y este cupo ya no se puede modificar.</>
+                          <>Las directrizes operativas exigen un mínimo de <span className="text-purple-300 font-black">12 horas de anticipación</span> para cancelaciones. El plazo límite ha expirado y este cupo ya no se puede modificar.</>
                         ) : (
-                          <>Operational guidelines require a minimum of <span className="text-orange-400 font-black">12 hours notice</span> for cancellations. The deadline has expired and this slot can no longer be changed.</>
+                          <>Operational guidelines require a minimum of <span className="text-purple-300 font-black">12 hours notice</span> for cancellations. The deadline has expired and this slot can no longer be changed.</>
                         )}
                       </p>
                       <button onClick={() => setModalAgenda('CLOSED')} className="w-full py-3.5 bg-slate-900/60 hover:bg-slate-800/80 border border-white/[0.03] text-slate-300 hover:text-white text-[clamp(13px,3.6vw,17px)] font-mono font-black uppercase tracking-wider rounded-xl transition-all select-none min-h-[48px]">
@@ -1034,9 +1034,9 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                       <h2 className="text-[clamp(15px,4.5vw,17px)] font-mono font-black uppercase text-white tracking-wide">
                         {idiomaSelecionado === "PT" ? "Selecione a Data" : idiomaSelecionado === "ES" ? "Seleccione la Fecha" : "Select the Date"}
                       </h2>
-                      <p className="text-[clamp(12px,3.4vw,13px)] text-orange-400 mt-0.5">
+                      <p className="text-[clamp(12px,3.4vw,13px)] text-purple-300 mt-0.5">
                         {idiomaSelecionado === "PT" ? "Limite do ciclo atual: " : idiomaSelecionado === "ES" ? "Límite del ciclo actual: " : "Current cycle deadline: "}
-                        <span className="text-orange-400 font-bold">{idiomaSelecionado === "EN" ? "06/25" : "25/06"}</span>
+                        <span className="text-purple-300 font-bold">{idiomaSelecionado === "EN" ? "06/25" : "25/06"}</span>
                       </p>
                     </div>
                     {/* CONTROLE CONTRASTANTE E SEGURO DE MUDANÇA DE MÊS */}
@@ -1103,8 +1103,8 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     
                     if (travaAtiva) {
                       return (
-                        <div className="flex flex-col gap-2 bg-orange-500/10 border border-orange-500/20 p-3 rounded-xl animate-fade-in">
-                          <p className="text-[clamp(12px,3.5vw,13.5px)] text-orange-400 text-center font-medium leading-relaxed font-medium px-1">
+                        <div className="flex flex-col gap-2 bg-gradient-to-r from-purple-600 to-cyan-500/10 border border-purple-500/40/20 p-3 rounded-xl animate-fade-in">
+                          <p className="text-[clamp(12px,3.5vw,13.5px)] text-purple-300 text-center font-medium leading-relaxed font-medium px-1">
                             {idiomaSelecionado === "PT" ? (
                               <>Agendamento Regular indisponível após o dia <span className="font-bold">25/06</span> devido à data de renovação da sua assinatura. Renove seu ciclo para liberar ou utilize uma Sessão de Reposição.</>
                             ) : idiomaSelecionado === "ES" ? (
@@ -1168,7 +1168,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                        idiomaSelecionado === "ES" ? `Horarios para el Día ${diaSelecionado}/${mesAgendamento === 6 ? '06' : '07'}` : 
                        `Available Times for ${mesAgendamento === 6 ? '06' : '07'}/${diaSelecionado}`}
                     </h2>
-                    <p className="text-[clamp(12px,3.4vw,13px)] text-orange-400 mt-0.5">
+                    <p className="text-[clamp(12px,3.4vw,13px)] text-purple-300 mt-0.5">
                       {idiomaSelecionado === "PT" ? "Arraste para ver todas as janelas disponíveis." : 
                        idiomaSelecionado === "ES" ? "Deslice para ver todas las ventanas disponibles." : 
                        "Swipe to view all available slots."}
@@ -1303,7 +1303,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             <div className="bg-gradient-to-br from-[#091527] to-[#050b14] border border-white/[0.05] p-4 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden">
               <div className="w-full flex items-center justify-between mb-2 shrink-0">
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-white uppercase tracking-wider block">{txt.radarTitle}</span>
-                <span className="text-[8px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
+                <span className="text-[8px] bg-amber-500/10 text-purple-300 border border-cyan-500/40/20 px-1.5 py-0.5 rounded font-black flex items-center gap-1"><TrendingUp size={10} /> {txt.radarLive}</span>
               </div>
               
               {/* O container interno do pentágono agora cresce ocupando o espaço central da teia */}
@@ -1346,12 +1346,12 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               {/* Container do Balão + Robozinho */}
               <div className="flex flex-row items-center justify-between gap-3 mt-2">
                 {/* Balão de Fala Dinâmico Estilo Mentora */}
-                <div className="flex-1 bg-black/20 border-[0.5px] border-amber-500/10 p-3 rounded-xl flex items-center justify-center relative bg-black/40">
+                <div className="flex-1 bg-black/20 border-[0.5px] border-cyan-500/40/10 p-3 rounded-xl flex items-center justify-center relative bg-black/40">
                   <p className="text-[clamp(12px,3.2vw,16px)] text-white/90 font-medium leading-relaxed">
-                    {idiomaSelecionado === "PT" ? <><span className="font-bold text-amber-400">Notei que o seu ponto fraco atual é Preposições.</span> Clique para reforçar esse conteúdo!</> : idiomaSelecionado === "ES" ? <><span className="font-bold text-amber-400">Noté que tu punto débil actual são as Preposiciones.</span> ¡Haz clic para reforzar este contenido!</> : <><span className="font-bold text-amber-400">I noticed your current weak point is Prepositions.</span> Click to reinforce this content!</>}
+                    {idiomaSelecionado === "PT" ? <><span className="font-bold text-purple-300">Notei que o seu ponto fraco atual é Preposições.</span> Clique para reforçar esse conteúdo!</> : idiomaSelecionado === "ES" ? <><span className="font-bold text-purple-300">Noté que tu punto débil actual são as Preposiciones.</span> ¡Haz clic para reforzar este contenido!</> : <><span className="font-bold text-purple-300">I noticed your current weak point is Prepositions.</span> Click to reinforce this content!</>}
                   </p>
                   {/* Seta do Balão apontando para o robô */}
-                  <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-amber-500/10 rotate-45" />
+                  <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-cyan-500/40/10 rotate-45" />
                 </div>
 
                 {/* Box do Avatar da Mentora HAAS Clicável */}
@@ -1364,14 +1364,14 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
  
             {/* 3. Sequência de Dias & Próxima Recompensa */} 
             <div className="grid grid-cols-2 gap-2 w-full"> 
-              <button onClick={() => setAbaAtiva("perfil")} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
-                <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-center shrink-0"><Flame className="w-5 h-5 text-amber-500" /></div> 
+              <button onClick={() => setAbaAtiva("perfil")} className="bg-slate-950/40 border-[0.5px] border-cyan-500/40/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
+                <div className="w-9 h-9 bg-amber-500/10 border border-cyan-500/40/20 rounded-xl flex items-center justify-center shrink-0"><Flame className="w-5 h-5 text-cyan-400" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
                   <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-white truncate">{idiomaSelecionado === "PT" ? "12 Dias" : idiomaSelecionado === "ES" ? "12 Días" : "12 Days"}</span> 
                   <span className="text-[clamp(9px,2.5vw,13px)] uppercase font-bold tracking-wider text-slate-300 font-black truncate">{idiomaSelecionado === "PT" ? "Consistência" : idiomaSelecionado === "ES" ? "Consistencia" : "Streak"}</span> 
                 </div> 
               </button> 
-              <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-amber-500/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
+              <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(true); if(typeof setStatusRespostaMobile === "function") setStatusRespostaMobile("IDLE"); }} className="bg-slate-950/40 border-[0.5px] border-cyan-500/40/10 p-5 rounded-2xl shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md flex items-center gap-2 text-left w-full cursor-pointer active:scale-[0.98] transition-transform select-none min-w-0"> 
                 <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center shrink-0"><Gift className="w-5 h-5 text-emerald-400" /></div> 
                 <div className="flex flex-col min-w-0 truncate"> 
                   <span className="text-[clamp(13px,3.8vw,19px)] font-mono font-black text-white truncate">{idiomaSelecionado === "PT" ? "Faltam 40 UT" : idiomaSelecionado === "ES" ? "Faltan 40 UT" : "40 UT Remaining"}</span> 
@@ -1386,7 +1386,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             
 
             {/* 4. Campo de Prática */} 
-            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 bg-slate-950/40 border-[0.5px] border-amber-500/10 rounded-xl flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
+            <button onClick={() => { setAbaAtiva("inicio"); setArenaAtiva(false); }} className="w-full p-4 bg-slate-950/40 border-[0.5px] border-cyan-500/40/10 rounded-xl flex items-center justify-between gap-2 transition-all cursor-pointer active:scale-[0.98] group min-w-0 max-w-full overflow-hidden shadow-[0_0_20px_rgba(4,12,22,0.4)] backdrop-blur-md"> 
               <div className="flex items-center gap-3 min-w-0 flex-1"> 
                  
                 <div className="flex flex-col text-left min-w-0 flex-1"> 
@@ -1420,7 +1420,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               
               <h2 className="text-[clamp(15px,4.5vw,17px)] font-black text-white mt-1.5 uppercase tracking-tight">Bruna Haas</h2>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[clamp(11px,3.2vw,15px)] font-mono font-black rounded uppercase">Nível B2</span>
+                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-cyan-500/40/20 text-purple-300 text-[clamp(11px,3.2vw,15px)] font-mono font-black rounded uppercase">Nível B2</span>
                 <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-purple-400 uppercase tracking-wider font-bold">{idiomaSelecionado === 'es' ? 'Explorador' : 'Explorador'}</span>
               </div>
 
@@ -1438,7 +1438,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
             {/* 2. BLOCO CENTRAL: STATS (XP, HORAS, DIAS, SEQUÊNCIA) */}
             <div className="grid grid-cols-2 gap-2 w-full px-0 m-0 h-auto">
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
-                <div className="text-amber-400 shrink-0"><Zap size={16} className="text-amber-400" /></div>
+                <div className="text-purple-300 shrink-0"><Zap size={16} className="text-purple-300" /></div>
                 <div className="flex flex-col">
                   <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">8.450</span>
                   <span className="text-[clamp(11px,3.2vw,15px)] uppercase font-bold tracking-wider text-slate-500">Total PTS</span>
@@ -1479,7 +1479,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </div>
 
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-2.5">
-                <div className="text-amber-500 shrink-0"><Flame size={16} className="text-amber-500" /></div>
+                <div className="text-cyan-400 shrink-0"><Flame size={16} className="text-cyan-400" /></div>
                 <div className="flex flex-col">
                   <span className="text-[clamp(14px,4vw,22px)] font-mono font-black text-white">23</span>
                   <span className="text-[clamp(11px,3.2vw,15px)] uppercase font-bold tracking-wider text-slate-500">
@@ -1491,7 +1491,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
 
             {/* CARD FINANCEIRO INTEGRADO E ORGANIZADO */}
             <div className="w-full px-0 mt-2 flex-initial">
-              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-amber-500/10 p-3 rounded-xl flex items-center justify-between gap-3 shadow-md">
+              <div className="bg-gradient-to-r from-slate-950 via-[#070d19]/80 to-slate-950 border border-cyan-500/40/10 p-3 rounded-xl flex items-center justify-between gap-3 shadow-md">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[clamp(11px,3.2vw,15px)] font-mono font-black text-slate-400 uppercase tracking-wider">
                     {idiomaSelecionado === "PT" ? "STATUS DO PLANO" : idiomaSelecionado === "ES" ? "ESTADO DEL PLANO" : "PLAN STATUS"}
@@ -1526,7 +1526,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="w-11 h-11 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-base"><Flame size={16} className="text-amber-400" /></div>
+                  <div className="w-11 h-11 bg-amber-500/10 border border-cyan-500/40/30 text-purple-300 rounded-xl flex items-center justify-center text-base"><Flame size={16} className="text-purple-300" /></div>
                   <span className="text-[clamp(10px,3vw,11px)] font-bold text-slate-400">7 Days</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 shrink-0 opacity-40 grayscale">
@@ -1595,7 +1595,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
               </button>
               <button 
                 onClick={() => alert(idiomaSelecionado === "PT" ? "Abrindo Cofre de Erros..." : idiomaSelecionado === "ES" ? "Abriendo Cofre de Errores..." : "Opening Error Vault...")} 
-                className="w-full py-3.5 bg-amber-500/5 border border-amber-500/20 rounded-xl px-4 flex items-center justify-between text-amber-400 font-mono font-bold text-[clamp(13px,3.8vw,18px)] cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px]"
+                className="w-full py-3.5 bg-amber-500/5 border border-cyan-500/40/20 rounded-xl px-4 flex items-center justify-between text-purple-300 font-mono font-bold text-[clamp(13px,3.8vw,18px)] cursor-pointer hover:bg-amber-500/10 transition-colors min-h-[48px]"
               >
                 <div className="flex items-center gap-2">
                   
@@ -1603,7 +1603,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
                     {idiomaSelecionado === "PT" ? "Cofre de Erros" : idiomaSelecionado === "ES" ? "Cofre de Errores" : "Error Vault"}
                   </span>
                 </div>
-                <span className="text-[clamp(11px,3vw,12px)] uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                <span className="text-[clamp(11px,3vw,12px)] uppercase tracking-wider bg-amber-500/10 border border-cyan-500/40/20 px-1.5 py-0.5 rounded">
                   {idiomaSelecionado === "PT" ? "Revisar" : idiomaSelecionado === "ES" ? "Revisar" : "Review"}
                 </span>
               </button>
@@ -1673,7 +1673,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <LayoutDashboard size={18} className="sm:w-[22px] sm:h-[22px]" />
           <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">Painel</span>
         </button>
-<button onClick={() => { setAbaAtiva('inicio'); setArenaAtiva(false); setStatusRespostaMobile('IDLE'); }} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'inicio' ? 'text-orange-500 font-black' : 'text-slate-500 font-bold'}`}>
+<button onClick={() => { setAbaAtiva('inicio'); setArenaAtiva(false); setStatusRespostaMobile('IDLE'); }} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'inicio' ? 'text-cyan-400 font-black' : 'text-slate-500 font-bold'}`}>
           <BookOpen size={18} className="sm:w-[22px] sm:h-[22px]" />
           <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabLearn}</span>
         </button>
@@ -1683,7 +1683,7 @@ export default function PortalMobile({ alunoData, moduloActual, onIniciarQuiz, i
           <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabSchedule}</span>
         </button>
         
-        <button onClick={() => setAbaAtiva('tarefas')} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'tarefas' ? 'text-amber-500 font-black' : 'text-slate-500 font-bold'}`}>
+        <button onClick={() => setAbaAtiva('tarefas')} className={`flex flex-col items-center justify-center gap-0.5 flex-1 border-none bg-transparent cursor-pointer ${(abaAtiva as string) === 'tarefas' ? 'text-cyan-400 font-black' : 'text-slate-500 font-bold'}`}>
           <Camera size={18} className="sm:w-[22px] sm:h-[22px]" />
           <span className="text-[clamp(10px,2.8vw,14px)] uppercase tracking-wider font-medium mt-0.5">{txt.tabTasks}</span>
         </button>

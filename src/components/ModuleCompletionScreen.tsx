@@ -37,7 +37,7 @@ export function ModuleCompletionScreen({ mostrar, moedasGanhas, precisaoFinal, o
       <div className="w-full max-w-lg bg-[#09131f] border-2 border-slate-800 rounded-[36px] p-8 text-center flex flex-col items-center gap-6 shadow-[0_30px_70px_rgba(0,0,0,0.95)] animate-scale-up-gamer">
         
         {/* Ícone de Troféu Amarelo Clássico */}
-        <div className="p-4 rounded-3xl bg-amber-500/10 border-2 border-amber-500/30 text-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.2)] relative">
+        <div className="p-4 rounded-3xl bg-amber-500/10 border-2 border-cyan-500/40/30 text-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.2)] relative">
           <Trophy size={48} strokeWidth={2} className="animate-bounce" />
           <div className="absolute -top-1 -right-1 text-yellow-400 animate-pulse">
             <Sparkles size={16} />

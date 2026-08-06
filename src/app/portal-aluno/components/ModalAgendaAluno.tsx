@@ -671,9 +671,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           <div className="grid grid-cols-2 gap-2 mt-3 shrink-0">
             <div 
               onClick={() => setModoAgendamento("clase")}
-              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "clase" ? "bg-white/[0.06] border-amber-500/80 shadow-[0_0_15px_rgba(245,158,11,0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
+              className={`border rounded-xl p-2.5 flex flex-col gap-1 cursor-pointer transition-all ${modoAgendamento === "clase" ? "bg-white/[0.06] border-cyan-500/40/80 shadow-[0_0_15px_rgba(245,158,11,0.1)]" : "bg-white/[0.01] border-white/5 opacity-50"}`}>
               <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Ticket size={10} className="text-amber-500" />
+                <Ticket size={10} className="text-cyan-400" />
                 {t.mainCredits}
               </span>
               <span className="text-[clamp(13px,3.8vw,16px)] font-mono font-black text-white">{planoAluno.creditosAulas}</span>
@@ -701,7 +701,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             <button
               type="button"
               onClick={() => setIsReglamentoOpen(!isReglamentoOpen)}
-              className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-amber-500/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
+              className="w-full py-2 px-3 bg-[#111923] hover:bg-[#182330] border border-cyan-500/40/30 rounded-xl flex items-center justify-between transition-all cursor-pointer shadow-md"
             >
               <div className="flex items-center gap-2">
                 
@@ -717,10 +717,10 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
             </button>
 
             {isReglamentoOpen && (
-              <div className="mt-2 p-3.5 bg-[#0d131c] border border-amber-500/20 rounded-xl flex flex-col gap-2 transition-all">
+              <div className="mt-2 p-3.5 bg-[#0d131c] border border-cyan-500/40/20 rounded-xl flex flex-col gap-2 transition-all">
                 <ul className="space-y-2 text-[11px] font-mono text-slate-300 leading-relaxed list-none p-0 m-0">
                   <li className="flex gap-2 items-start">
-                    <span className="text-amber-500 font-bold">•</span>
+                    <span className="text-cyan-400 font-bold">•</span>
                     <span>
                       <strong className="text-white">
                         {idioma === "EN" ? "Makeup Credit:" : idioma === "ES" ? "Reposición:" : "Reposição:"}
@@ -734,7 +734,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   </li>
 
                   <li className="flex gap-2 items-start">
-                    <span className="text-amber-500 font-bold">•</span>
+                    <span className="text-cyan-400 font-bold">•</span>
                     <span>
                       <strong className="text-white">
                         {idioma === "EN" ? "Cancellation:" : idioma === "ES" ? "Cancelación:" : "Cancelamento:"}
@@ -748,7 +748,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   </li>
 
                   <li className="flex gap-2 items-start">
-                    <span className="text-amber-500 font-bold">•</span>
+                    <span className="text-cyan-400 font-bold">•</span>
                     <span>
                       <strong className="text-white">
                         {idioma === "EN" ? "Booking:" : idioma === "ES" ? "Reserva:" : "Agendamento:"}
@@ -801,10 +801,10 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                     <div key={aula.id} className="p-3 rounded-xl border border-white/[0.06] bg-white/5 flex justify-between items-center shrink-0">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-200">
-                          <Calendar size={13} className="text-amber-500" />
+                          <Calendar size={13} className="text-cyan-400" />
                           <span>{aula.data.split("-").reverse().join("/")}</span>
                           <span className="text-slate-600">•</span>
-                          <Clock size={13} className="text-amber-500" />
+                          <Clock size={13} className="text-cyan-400" />
                           <span>{aula.horario}</span>
                         </div>
                         <span className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-400">
@@ -837,7 +837,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                               {aula.status === "cancelada" ? (idioma === "EN" ? "CANCELED" : "CANCELADA") : (idioma === "EN" ? "Cancel" : "Cancelar")}
                             </button>
                             {naoPodeCancelar && (
-                              <span className="text-[9px] text-amber-500/80 font-mono mt-1 block text-right max-w-[150px] leading-tight">
+                              <span className="text-[9px] text-cyan-400/80 font-mono mt-1 block text-right max-w-[150px] leading-tight">
                                 {idioma === "EN" ? "* Cannot cancel. Less than 12h." : idioma === "ES" ? "* No puedes cancelar. Menos de 12h." : "* Não pode cancelar. Menos de 12h."}
                               </span>
                             )}
@@ -870,19 +870,19 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         <button
                           type="button"
                           onClick={() => { setIsTipoDropdownOpen(!isTipoDropdownOpen); setIsHorarioDropdownOpen(false); }}
-                          className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                          className="w-full bg-white/5 border border-cyan-500/40/40 hover:border-cyan-500/40 rounded-xl px-3 py-2 text-xs font-mono text-cyan-400 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                         >
-                          <span className="font-black text-amber-500">{getNomeModalidade(tipoAula)}</span>
-                          <ChevronDown size={14} className="text-amber-500" />
+                          <span className="font-black text-cyan-400">{getNomeModalidade(tipoAula)}</span>
+                          <ChevronDown size={14} className="text-cyan-400" />
                         </button>
                         
                         {isTipoDropdownOpen && (
-                          <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-hidden z-50 shadow-2xl">
+                          <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-hidden z-50 shadow-2xl">
                             {["group", "vip_std", "vip_pro", "pack_group", "pack_vip_std", "flex"].map((m) => (
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
-                                className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === m ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500 hover:bg-amber-500 hover:text-[#030914]"}`}
+                                className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === m ? "bg-amber-500 text-[#030914] font-black" : "text-cyan-400 hover:bg-amber-500 hover:text-[#030914]"}`}
                               >
                                 {getNomeModalidade(m)}
                               </div>
@@ -896,15 +896,15 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   {/* SELETOR DE DATA */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
-                      <Calendar size={12} className="text-amber-500" />
+                      <Calendar size={12} className="text-cyan-400" />
                       {t.qDate}
                     </label>
                     <button
                       type="button"
                       onClick={() => { setIsCalendarModalOpen(true); setIsTipoDropdownOpen(false); setIsHorarioDropdownOpen(false); }}
-                      className="w-full bg-white/5 border border-white/[0.08] hover:border-amber-500/50 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                      className="w-full bg-white/5 border border-white/[0.08] hover:border-cyan-500/40/50 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                     >
-                      <span className="text-amber-400 font-black">{formatDisplayDate(selectedDate)}</span>
+                      <span className="text-purple-300 font-black">{formatDisplayDate(selectedDate)}</span>
                       <span className="text-[9px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-slate-400">{t.selectDateBtn}</span>
                     </button>
                   </div>
@@ -916,14 +916,14 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                       type="button"
                       disabled={!podeAgendarData}
                       onClick={() => { if(podeAgendarData) { setIsHorarioDropdownOpen(!isHorarioDropdownOpen); setIsTipoDropdownOpen(false); } }}
-                      className={`w-full bg-white/5 border rounded-xl px-3 py-2 text-xs font-mono flex justify-between items-center transition-all focus:outline-none ${!podeAgendarData ? "opacity-40 border-slate-700 text-slate-500 cursor-not-allowed" : "border-amber-500/40 hover:border-amber-500 text-amber-500 cursor-pointer"}`}
+                      className={`w-full bg-white/5 border rounded-xl px-3 py-2 text-xs font-mono flex justify-between items-center transition-all focus:outline-none ${!podeAgendarData ? "opacity-40 border-slate-700 text-slate-500 cursor-not-allowed" : "border-cyan-500/40/40 hover:border-cyan-500/40 text-cyan-400 cursor-pointer"}`}
                     >
-                      <span className="text-amber-500 font-black">{selectedHorario}</span>
-                      <ChevronDown size={14} className="text-amber-500" />
+                      <span className="text-cyan-400 font-black">{selectedHorario}</span>
+                      <ChevronDown size={14} className="text-cyan-400" />
                     </button>
                     
                     {isHorarioDropdownOpen && (
-                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
+                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
                         {listaHorarios.map((h) => {
                           const isSelected = selectedHorario === h;
                           const isLotado = ocupacaoHorarios[h]; // Verifica no mapa do Supabase se esta cheio
@@ -942,7 +942,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                                   ? "opacity-30 text-slate-500 bg-transparent cursor-not-allowed line-through" 
                                   : isSelected 
                                     ? "bg-amber-500 text-[#030914] font-black cursor-pointer" 
-                                    : "text-amber-500/90 hover:bg-amber-500 hover:text-[#030914] cursor-pointer"
+                                    : "text-cyan-400/90 hover:bg-amber-500 hover:text-[#030914] cursor-pointer"
                               }`}
                             >
                               <span>{h}</span>
@@ -973,7 +973,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Calendar size={12} className="text-amber-500" />
+              <Calendar size={12} className="text-cyan-400" />
               {t.calTitle}
             </span>
             <button type="button" onClick={() => setIsCalendarModalOpen(false)} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border-none cursor-pointer">
@@ -1037,7 +1037,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                       ? "text-slate-600 bg-white/[0.02] opacity-20 cursor-not-allowed line-through" 
                       : isSelected 
                         ? "bg-amber-500 text-black shadow-md font-black scale-105 cursor-pointer" 
-                        : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-amber-400 cursor-pointer"
+                        : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-purple-300 cursor-pointer"
                   }`}
                 >
                   {day}
@@ -1094,7 +1094,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {mensagemCancelamento && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl flex flex-col gap-4">
-            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-amber-500/10 border-amber-500/20 text-amber-500")}>
+            <div className={"w-12 h-12 rounded-full flex items-center justify-center mx-auto border " + (tipoErroCancelamento === "bloqueio" ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-amber-500/10 border-cyan-500/40/20 text-cyan-400")}>
               <span className="font-mono text-xl font-black">!</span>
             </div>
             
@@ -1140,8 +1140,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       {isLembreteOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all duration-300">
           <div className="bg-[#111923] border border-white/[0.08] w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative overflow-hidden flex flex-col gap-4">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto border border-amber-500/20">
-              <span className="text-amber-500 font-mono text-xl font-black">!</span>
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto border border-cyan-500/40/20">
+              <span className="text-cyan-400 font-mono text-xl font-black">!</span>
             </div>
             
             <h3 className="text-white text-sm font-black font-mono tracking-widest uppercase">

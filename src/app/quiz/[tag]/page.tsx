@@ -88,7 +88,7 @@ export default function ArenaQuiz() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b1724] flex flex-col items-center justify-center text-slate-400 font-sans gap-3">
-        <Loader2 className="animate-spin text-orange-400 h-8 w-8" />
+        <Loader2 className="animate-spin text-purple-300 h-8 w-8" />
         <span className="text-xs font-mono uppercase">Cargando Misión Arena...</span>
       </div>
     );
@@ -112,7 +112,7 @@ export default function ArenaQuiz() {
             const isSelected = selectedOption === opcao;
             let btnStyle = 'bg-[#122538]/60 border-[#233744]/70 text-slate-300 hover:border-[#334e63]';
             
-            if (isSelected) btnStyle = 'bg-[#1a3652] border-orange-500 text-orange-400 shadow-md';
+            if (isSelected) btnStyle = 'bg-[#1a3652] border-purple-500/40 text-purple-300 shadow-md';
             
             if (submitted) {
               if (opcao === quiz.opcao_correta) {
@@ -141,7 +141,7 @@ export default function ArenaQuiz() {
             onClick={handleValidation}
             className={`w-full py-4 rounded-xl font-black text-xs tracking-widest uppercase transition-all shadow-xl cursor-pointer ${
               selectedOption 
-                ? 'bg-orange-500 text-white border-b-4 border-orange-700' 
+                ? 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white border-b-4 border-orange-700' 
                 : 'bg-[#122538] text-slate-500 cursor-not-allowed'
             }`}
           >

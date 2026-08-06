@@ -10,7 +10,7 @@ export default function RobozinhoMascoteArena({ comboCount = 0 }: RobozinhoMasco
   return (
     <div className={`w-full rounded-2xl p-5 border transition-all duration-500 relative overflow-hidden ${
       isComboAtivo 
-        ? "bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-orange-500/40 shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse" 
+        ? "bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-purple-500/40/40 shadow-[0_0_25px_rgba(245,158,11,0.15)] animate-pulse" 
         : "bg-slate-900/40 border-white/5"
     }`}>
       
@@ -22,7 +22,7 @@ export default function RobozinhoMascoteArena({ comboCount = 0 }: RobozinhoMasco
       <div className="flex items-center gap-4 relative z-10">
         {/* AVATAR DO ROBOZINHO COMBO */}
         <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 ${
-          isComboAtivo ? "bg-orange-500 text-black scale-110 rotate-3" : "bg-white/5 text-slate-400"
+          isComboAtivo ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-black scale-110 rotate-3" : "bg-white/5 text-slate-400"
         }`}>
           {isComboAtivo ? "🤖🔥" : "🤖"}
         </div>
@@ -36,7 +36,7 @@ export default function RobozinhoMascoteArena({ comboCount = 0 }: RobozinhoMasco
 
             {/* Contador de sequência de fogo */}
             <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-              comboCount > 0 ? "bg-orange-500/10 text-orange-400" : "bg-white/5 text-slate-600"
+              comboCount > 0 ? "bg-gradient-to-r from-purple-600 to-cyan-500/10 text-purple-300" : "bg-white/5 text-slate-600"
             }`}>
               🔥 {comboCount} {comboCount === 1 ? "acerto" : "acertos"}
             </span>
@@ -45,11 +45,11 @@ export default function RobozinhoMascoteArena({ comboCount = 0 }: RobozinhoMasco
           {/* Anúncio Dinâmico do Robozinho */}
           {isComboAtivo ? (
             <div>
-              <h4 className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider animate-bounce mb-0.5">
+              <h4 className="text-xs font-mono font-bold text-purple-300 uppercase tracking-wider animate-bounce mb-0.5">
                 ⚡ COMBO ATIVADO! ⚡
               </h4>
               <p className="text-xs text-slate-200 leading-relaxed">
-                "Sensacional, Alpha! Você desbloqueou o modo de ultra performance. Cada acerto agora concede <span className="text-amber-400 font-bold">+5 XP Bônus</span> diretamente para o seu saldo!"
+                "Sensacional, Alpha! Você desbloqueou o modo de ultra performance. Cada acerto agora concede <span className="text-purple-300 font-bold">+5 XP Bônus</span> diretamente para o seu saldo!"
               </p>
             </div>
           ) : (

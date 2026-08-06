@@ -70,7 +70,7 @@ export default function PainelModulos({ onSelectUnit }: { onSelectUnit: (unit: U
   if (loading) {
     return (
       <div className="flex justify-center items-center h-48">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500/40" />
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function PainelModulos({ onSelectUnit }: { onSelectUnit: (unit: U
               className="w-full flex items-center justify-between p-5 text-left bg-white/[0.01] hover:bg-white/[0.03] transition-colors"
             >
               <div>
-                <span className="text-[10px] font-mono tracking-wider text-amber-500 uppercase block mb-1">
+                <span className="text-[10px] font-mono tracking-wider text-cyan-400 uppercase block mb-1">
                   Módulo {String(mod.module_number).padStart(2, '0')}
                 </span>
                 <h3 className="text-lg font-bold text-white tracking-tight">
@@ -114,12 +114,12 @@ export default function PainelModulos({ onSelectUnit }: { onSelectUnit: (unit: U
               {mod.units.map((unit) => (
                 <div 
                   key={unit.id}
-                  className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-amber-500/30 transition-all duration-300"
+                  className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-cyan-500/40/30 transition-all duration-300"
                 >
                   <div className="flex-1 space-y-4">
                     <div className="flex flex-wrap items-center gap-4 text-[10px] font-mono text-slate-400">
                       <span>UNIDADE {unit.unit_number}</span>
-                      <span className="text-amber-500">• SCORE ATIVO: +{unit.score_points} PTS</span>
+                      <span className="text-cyan-400">• SCORE ATIVO: +{unit.score_points} PTS</span>
                       <span className="text-cyan-400">• META DIÁRIA: {unit.daily_goal_minutes} MIN</span>
                     </div>
 

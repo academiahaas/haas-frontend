@@ -104,7 +104,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
   }, []);
 
   if (carregando) {
-    return <div className="text-center py-10 text-amber-500 font-mono animate-pulse text-xs">SINCRONIZANDO MAPA PEDAGÓGICO...</div>;
+    return <div className="text-center py-10 text-cyan-400 font-mono animate-pulse text-xs">SINCRONIZANDO MAPA PEDAGÓGICO...</div>;
   }
 
   return (
@@ -122,9 +122,9 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
         let badgeStyle = "border-slate-800 bg-slate-900/40 text-slate-400";
 
         if (isAtual) { 
-          cardStyle = "border-amber-500/30 bg-[#0a1424] shadow-lg"; 
-          tagColor = "text-amber-500";
-          badgeStyle = "border-amber-500/20 bg-amber-500/10 text-amber-400";
+          cardStyle = "border-cyan-500/40/30 bg-[#0a1424] shadow-lg"; 
+          tagColor = "text-cyan-400";
+          badgeStyle = "border-cyan-500/40/20 bg-amber-500/10 text-purple-300";
         } else if (isConcluido) { 
           cardStyle = "border-emerald-500/10 bg-[#050d18] opacity-75"; 
           tagColor = "text-emerald-500";
@@ -147,7 +147,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                   {idiomaAtivo === 'PT' ? fase.titulo_pt : fase.titulo_en}
                 </h3>
               </div>
-              <ChevronDown className={"transition-transform duration-500 ease-in-out " + (isOpen ? 'rotate-180 text-amber-500' : 'text-slate-400')} size={16} />
+              <ChevronDown className={"transition-transform duration-500 ease-in-out " + (isOpen ? 'rotate-180 text-cyan-400' : 'text-slate-400')} size={16} />
             </div>
 
             <div className={"transition-all duration-500 ease-in-out overflow-hidden " + (isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0')}>
@@ -158,13 +158,13 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                       <div key={m.id} onClick={() => { !isBloqueado && aoAbrirArena?.(m.id); }} className={"p-4 rounded-xl border flex justify-between items-center transition-all duration-300 transform " + (isBloqueado ? 'border-white/[0.02] opacity-40 bg-black/10 select-none' : 'border-white/[0.05] bg-[#111c2e] hover:bg-[#16253d] hover:scale-[1.005] cursor-pointer')}>
                         <div className="flex items-center gap-4">
                           <div className="flex-shrink-0">
-                            {isConcluido ? <CheckCircle2 size={14} className="text-emerald-500" /> : isAtual ? <PlayCircle size={14} className="text-amber-500 animate-pulse" /> : <Lock size={14} className="text-slate-500" />}
+                            {isConcluido ? <CheckCircle2 size={14} className="text-emerald-500" /> : isAtual ? <PlayCircle size={14} className="text-cyan-400 animate-pulse" /> : <Lock size={14} className="text-slate-500" />}
                           </div>
                           <div className="flex flex-col gap-0.5">
                             <h4 className="text-xs font-bold text-slate-200 tracking-wide">{idiomaAtivo === 'PT' ? m.titulo_pt : m.titulo_en}</h4>
                           </div>
                         </div>
-                        <button disabled={isBloqueado} className={"text-[9px] font-bold border px-3 py-1.5 rounded-lg font-mono tracking-wider transition-all duration-300 " + (isBloqueado ? 'border-slate-700 text-slate-500 bg-transparent' : 'border-amber-500/30 text-amber-500 bg-amber-500/[0.02] hover:bg-amber-500/10 shadow-sm')}>
+                        <button disabled={isBloqueado} className={"text-[9px] font-bold border px-3 py-1.5 rounded-lg font-mono tracking-wider transition-all duration-300 " + (isBloqueado ? 'border-slate-700 text-slate-500 bg-transparent' : 'border-cyan-500/40/30 text-cyan-400 bg-amber-500/[0.02] hover:bg-amber-500/10 shadow-sm')}>
                           {isBloqueado ? 'LOCK' : 'INICIAR'}
                         </button>
                       </div>

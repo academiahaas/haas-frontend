@@ -47,7 +47,7 @@ export default function ArenaQuizMobile({
   if (!quizzes || quizzes.length === 0) {
     return (
       <div className="fixed inset-0 bg-[#040914] flex flex-col items-center justify-center p-6 text-center text-white z-[9999]">
-        <AlertTriangle className="text-amber-500 mb-4 animate-bounce" size={48} />
+        <AlertTriangle className="text-cyan-400 mb-4 animate-bounce" size={48} />
         <h3 className="text-lg font-black tracking-wide uppercase">Nenhum exercício na Arena</h3>
         <p className="text-slate-400 text-xs mt-2 max-w-xs">Aguardando a Inteligência Artificial carregar as cascas...</p>
       </div>
@@ -119,7 +119,7 @@ export default function ArenaQuizMobile({
           <span className="text-[8px] font-mono tracking-widest text-slate-500 mt-0.5 uppercase">Precisão</span>
         </div>
         <div className="flex flex-col items-center border-x border-white/10">
-          <div className="flex items-center gap-1 text-orange-400 text-xs font-black font-mono animate-pulse">
+          <div className="flex items-center gap-1 text-purple-300 text-xs font-black font-mono animate-pulse">
             <Zap size={12} fill="currentColor" />
             <span>{streak}x</span>
           </div>
@@ -136,7 +136,7 @@ export default function ArenaQuizMobile({
 
       <div className="flex justify-between items-center mb-5 px-1">
         <div>
-          <span className="text-[9px] font-mono font-black text-amber-500 tracking-widest block uppercase mb-0.5">
+          <span className="text-[9px] font-mono font-black text-cyan-400 tracking-widest block uppercase mb-0.5">
             MÓDULO {currentQuiz.nivel} • EXERCÍCIO {currentIndex + 1} DE {quizzes.length}
           </span>
           <h2 className="text-xs font-black text-slate-200 uppercase tracking-wide">

@@ -133,15 +133,15 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
           <div className="text-center py-8 text-emerald-400 font-mono text-xs font-bold animate-pulse">{t.success}</div>
         ) : (
           <div className="space-y-4">
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-3 flex gap-2 items-center">
-              <ShieldCheck size={14} className="text-amber-500 shrink-0" />
+            <div className="bg-amber-500/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
+              <ShieldCheck size={14} className="text-cyan-400 shrink-0" />
               <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
             </div>
 
             {/* SELETOR DE DATA INTERNACIONALIZADO CONTROLADO */}
             <div className="space-y-1.5 relative" ref={calendarRef}>
               <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
-                <Calendar size={12} className="text-amber-500" />
+                <Calendar size={12} className="text-cyan-400" />
                 {t.qDate}
               </label>
               
@@ -150,7 +150,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
                 className="w-full bg-white/5 border border-white/[0.08] hover:border-white/20 rounded-xl px-4 py-3 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all"
               >
                 <span>{formatDisplayDate(classDate)}</span>
-                <Calendar size={14} className="text-amber-500/80" />
+                <Calendar size={14} className="text-cyan-400/80" />
               </div>
 
               {/* POPUP DO CALENDÁRIO FLUTUANTE PREMIUM MULTILÍNGUE */}
@@ -200,7 +200,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
                           className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all border-none cursor-pointer ${
                             isSelected 
                               ? "bg-amber-500 text-black shadow-md" 
-                              : "text-slate-300 bg-white/[0.02] hover:bg-amber-500/15 hover:text-amber-400"
+                              : "text-slate-300 bg-white/[0.02] hover:bg-amber-500/15 hover:text-purple-300"
                           }`}
                         >
                           {day}
@@ -237,7 +237,7 @@ export default function ModalAvaliacaoFidelidade({ isOpen, onClose, idioma }: Pr
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="..."
                 rows={3}
-                className="w-full bg-white/5 border border-white/5 rounded-xl p-3 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-amber-500/40 focus:bg-white/10 transition-all resize-none"
+                className="w-full bg-white/5 border border-white/5 rounded-xl p-3 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-cyan-500/40/40 focus:bg-white/10 transition-all resize-none"
               />
             </div>
 

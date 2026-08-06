@@ -87,13 +87,13 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
 
   return (
     <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn" onClick={onClose}>
-      <div className="relative w-full max-w-lg bg-[#040a17] border border-amber-500/30 rounded-[24px] p-6 flex flex-col gap-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg bg-[#040a17] border border-cyan-500/40/30 rounded-[24px] p-6 flex flex-col gap-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         
         {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <h3 className="text-xs font-mono font-black text-amber-500 uppercase tracking-wider">
+            <h3 className="text-xs font-mono font-black text-cyan-400 uppercase tracking-wider">
               {getTitle()}
             </h3>
           </div>
@@ -114,7 +114,7 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
 
         {/* Grid de Níveis */}
         {loading ? (
-          <div className="flex items-center justify-center py-8 text-amber-500 gap-2">
+          <div className="flex items-center justify-center py-8 text-cyan-400 gap-2">
             <Loader2 className="animate-spin" size={20} />
             <span className="text-xs font-mono">Carregando certificados...</span>
           </div>
@@ -130,18 +130,18 @@ export const ModalCertificados: React.FC<ModalCertificadosProps> = ({
                   onClick={() => isUnlocked && handleDownload(cert)}
                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${
                     isUnlocked
-                      ? 'border-amber-500/60 bg-gradient-to-b from-amber-500/10 to-amber-950/30 shadow-lg shadow-amber-500/10 cursor-pointer hover:scale-105'
+                      ? 'border-cyan-500/40/60 bg-gradient-to-b from-amber-500/10 to-amber-950/30 shadow-lg shadow-amber-500/10 cursor-pointer hover:scale-105'
                       : 'border-white/5 bg-white/[0.02] opacity-30 grayscale cursor-not-allowed'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
                     isUnlocked
-                      ? 'border-amber-400 bg-amber-500/20 text-amber-400'
+                      ? 'border-amber-400 bg-amber-500/20 text-purple-300'
                       : 'border-slate-700 bg-slate-900 text-slate-500'
                   }`}>
                     <Shield size={20} />
                   </div>
-                  <span className={`text-xs font-mono font-black ${isUnlocked ? 'text-amber-400' : 'text-slate-500'}`}>
+                  <span className={`text-xs font-mono font-black ${isUnlocked ? 'text-purple-300' : 'text-slate-500'}`}>
                     {lvl}
                   </span>
                 </div>

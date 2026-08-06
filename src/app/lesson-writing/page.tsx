@@ -164,7 +164,7 @@ export default function LessonWritingPage() {
             
             {/* HUD Contador de Caracteres Corrigido para Plural */}
             <div className="absolute bottom-3 right-4 flex items-center gap-3 text-[10px] font-mono font-bold text-slate-500 bg-[#020508]/80 px-2.5 py-1 rounded-md border border-slate-900">
-              <span className={tamanhoMinimoAtingido ? 'text-emerald-400' : 'text-amber-500'}>
+              <span className={tamanhoMinimoAtingido ? 'text-emerald-400' : 'text-cyan-400'}>
                 {textoUsuario.trim().length}/20 MIN CARACTERES
               </span>
             </div>

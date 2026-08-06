@@ -488,7 +488,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
                 <Sparkles size={16} />
                 <span>Feedback Mentora Haas</span>
               </div>
-              <div className="text-amber-400 font-bold text-[12px] bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30 tracking-wider shadow-sm">
+              <div className="text-purple-300 font-bold text-[12px] bg-amber-500/10 px-3 py-1 rounded-lg border border-cyan-500/40/30 tracking-wider shadow-sm">
                 +{scoreFinal} PTS
               </div>
             </div>

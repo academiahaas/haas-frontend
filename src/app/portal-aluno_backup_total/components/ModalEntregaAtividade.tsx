@@ -115,17 +115,17 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-3 flex gap-2 items-center">
-              <Upload size={14} className="text-amber-500 shrink-0" />
+            <div className="bg-amber-500/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
+              <Upload size={14} className="text-cyan-400 shrink-0" />
               <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
             </div>
 
             {files.length < 3 && (
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border border-dashed border-white/10 hover:border-amber-500/40 rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer group"
+                className="w-full border border-dashed border-white/10 hover:border-cyan-500/40/40 rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-amber-500 transition-all">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-cyan-400 transition-all">
                   <Camera size={18} />
                 </div>
                 <span className="text-[11px] font-mono font-black uppercase text-slate-300 group-hover:text-white transition-all">
@@ -154,7 +154,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma }: Props
                           className="w-10 h-10 rounded-lg object-cover border border-white/10"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+                        <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-cyan-400">
                           <FileText size={18} />
                         </div>
                       )}

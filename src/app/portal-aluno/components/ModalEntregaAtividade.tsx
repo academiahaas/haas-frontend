@@ -136,13 +136,13 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-3 flex gap-2 items-center">
-              <Upload size={14} className="text-amber-500 shrink-0" />
+            <div className="bg-amber-500/5 border border-cyan-500/40/10 rounded-xl p-3 flex gap-2 items-center">
+              <Upload size={14} className="text-cyan-400 shrink-0" />
               <span className="text-[10px] text-slate-400 font-medium leading-tight">{t.desc}</span>
             </div>
 
             {files.length < 3 && (
-              <div onClick={() => fileInputRef.current?.click()} className="w-full border border-dashed border-white/10 hover:border-amber-500/40 rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer">
+              <div onClick={() => fileInputRef.current?.click()} className="w-full border border-dashed border-white/10 hover:border-cyan-500/40/40 rounded-xl p-6 flex flex-col items-center justify-center gap-2 bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer">
                 <Camera size={18} className="text-slate-400" />
                 <span className="text-[10px] text-slate-400 font-bold">{t.labelBtn}</span>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" multiple />
@@ -175,7 +175,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
             <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
               {entregas.map((ent, idx) => {
                 const statusTexto = ent.status === "approved" || ent.status === "corrigida" ? (idioma === "PT" ? "Corrigida" : idioma === "EN" ? "Reviewed" : "Corregida") : (idioma === "PT" ? "Pendente" : idioma === "EN" ? "Pending" : "Pendiente");
-                const statusCor = ent.status === "approved" || ent.status === "corrigida" ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10" : "text-amber-400 bg-amber-500/5 border-amber-500/10";
+                const statusCor = ent.status === "approved" || ent.status === "corrigida" ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10" : "text-purple-300 bg-amber-500/5 border-cyan-500/40/10";
 
                 return (
                   <div key={ent.id || idx} className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-start gap-2.5 text-[10px]">
@@ -194,7 +194,7 @@ export default function ModalEntregaAtividade({ isOpen, onClose, idioma, entrega
                       </div>
                       {ent.grade !== undefined && ent.grade !== null && (
                         <div className="text-slate-300 font-bold">
-                          {idioma === "PT" ? "Nota:" : idioma === "EN" ? "Grade:" : "Nota:"} <span className="text-amber-400 font-mono">{ent.grade}</span>
+                          {idioma === "PT" ? "Nota:" : idioma === "EN" ? "Grade:" : "Nota:"} <span className="text-purple-300 font-mono">{ent.grade}</span>
                         </div>
                       )}
                       {ent.teacher_feedback && (

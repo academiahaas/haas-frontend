@@ -19,7 +19,7 @@ export function EvolucaoPanel({ idioma = "PT" }: EvolucaoPanelProps) {
         <div className="font-mono space-y-1">
           <p>{idioma === "PT" ? "Nível Atual" : idioma === "ES" ? "Nivel Actual" : "Current Level"}: <span className="text-white font-black">B1</span></p>
           <p>{idioma === "PT" ? "Próximo Nível" : idioma === "ES" ? "Próximo Nivel" : "Next Level"}: <span className="text-indigo-400 font-black">B2</span></p>
-          <p>{idioma === "PT" ? "Restante" : idioma === "ES" ? "Restante" : "Remaining"}: <span className="text-amber-400 font-black">--- PTS</span></p>
+          <p>{idioma === "PT" ? "Restante" : idioma === "ES" ? "Restante" : "Remaining"}: <span className="text-purple-300 font-black">--- PTS</span></p>
         </div>
       </div>
       <div className="bg-[#0f172a] border border-slate-800 p-5 rounded-2xl shadow-xl text-xs font-bold text-slate-300 space-y-2">

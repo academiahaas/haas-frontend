@@ -66,7 +66,7 @@ export function CursosTab({ supabase }) {
                   <td className="p-4 text-center font-bold text-indigo-600 font-mono">{c.alumnos}</td>
                   <td className="p-4 text-center">
                     <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-lg font-mono font-black flex items-center gap-1 justify-center w-14 mx-auto">
-                      <Star size={11} className="fill-amber-500 text-amber-500"/> {c.nota}
+                      <Star size={11} className="fill-amber-500 text-cyan-400"/> {c.nota}
                     </span>
                   </td>
                   <td className="p-4 text-center">

@@ -98,7 +98,7 @@ export default function LessonParagraphsPage() {
     return (
       <div className="fixed inset-0 bg-[#050b11] flex items-center justify-center text-white font-sans">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500/40 mx-auto mb-4"></div>
           <p className="text-slate-400 uppercase tracking-widest text-xs font-bold">Sincronizando Arena com o Banco...</p>
         </div>
       </div>
@@ -150,7 +150,7 @@ export default function LessonParagraphsPage() {
     return (
       <div className="fixed inset-0 bg-[#050b11] flex items-center justify-center text-white font-sans">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500/40 mx-auto mb-4"></div>
           <p className="text-slate-400 uppercase tracking-widest text-xs font-bold">Sincronizando Arena com o Banco...</p>
         </div>
       </div>

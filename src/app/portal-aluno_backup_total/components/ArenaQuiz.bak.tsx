@@ -612,11 +612,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-amber-500/15 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
+      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-cyan-500/40/15 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
         <div className="flex items-center gap-6 text-[11px] font-bold text-[#94A3B8] tracking-wider">
           <span className={`flex items-center gap-1 font-black transition-all duration-200 ${
             comboQuebrado ? 'text-red-500 line-through opacity-60 scale-95' : 'text-[#FF8A2B]'
-          } ${streak >= 3 ? 'text-amber-500 font-black' : ''}`}>
+          } ${streak >= 3 ? 'text-cyan-400 font-black' : ''}`}>
             <Flame size={13} fill="currentColor" /> 
             {comboQuebrado ? "COMBO QUEBRADO" : `${streak}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
           </span>
@@ -718,7 +718,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           <div className="w-full bg-[#070d19] border border-[#38BDF8]/20 py-2 px-4 rounded-xl flex items-center justify-between font-mono text-[11px] font-black tracking-wider text-slate-200 shadow-lg shrink-0">
             <span className="flex items-center gap-1"><Target size={12} className="text-[#38BDF8]" /> {precision}%</span>
             <span className="text-white/10">|</span>
-            <span className="flex items-center gap-1"><Flame size={12} className={`text-[#FF8A2B] ${streak >= 3 ? 'text-amber-500 font-black' : ''}`} fill="currentColor" /> {streak}</span>
+            <span className="flex items-center gap-1"><Flame size={12} className={`text-[#FF8A2B] ${streak >= 3 ? 'text-cyan-400 font-black' : ''}`} fill="currentColor" /> {streak}</span>
             <span className="text-white/10">|</span>
             <span className="flex items-center gap-1"><Star size={12} className="text-[#22C55E]" /> 5/8</span>
             <span className="text-white/10">|</span>
@@ -743,7 +743,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-lg border z-10 ${
               gameStatus === 'CORRECT' ? 'bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/30 shadow-[0_0_20px_rgba(34,197,94,0.3)] scale-110' :
               gameStatus === 'WRONG' ? 'bg-red-500/20 text-red-500 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-shake' :
-              streak >= 3 ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.25)] scale-105' :
+              streak >= 3 ? 'bg-amber-500/20 text-purple-300 border-cyan-500/40/40 shadow-[0_0_20px_rgba(245,158,11,0.25)] scale-105' :
               'bg-[#38BDF8]/20 text-[#00D4FF] border-[#00D4FF]/40 shadow-[0_0_20px_rgba(0,212,255,0.35)]'
             }`}>
               <Bot size={32} className="" />
@@ -858,7 +858,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       </div>
 
-      <div className="hidden fixed bottom-0 inset-x-0 w-full px-8 py-3.5 justify-between items-center z-[10000] border-t border-amber-500/15 bg-[#0B1528] backdrop-blur-md select-none text-[#94A3B8]/35 font-mono text-[9px] font-bold tracking-widest uppercase shrink-0">
+      <div className="hidden fixed bottom-0 inset-x-0 w-full px-8 py-3.5 justify-between items-center z-[10000] border-t border-cyan-500/40/15 bg-[#0B1528] backdrop-blur-md select-none text-[#94A3B8]/35 font-mono text-[9px] font-bold tracking-widest uppercase shrink-0">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
           <span>HAAS ENGINE v2.5.0 • SECURE REWARD SYSTEM GAMEPLAY</span>
@@ -903,7 +903,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
       
       {/* 🚀 RODAPÉ INTEGRADO DA ARENA QUIZ PARA EQUILÍBRIO GEOMÉTRICO */}
-      <div className="w-full px-8 py-3 flex justify-between items-center border-t border-amber-500/15 bg-[#0B1528] text-[10px] font-mono text-slate-500 flex-shrink-0 select-none">
+      <div className="w-full px-8 py-3 flex justify-between items-center border-t border-cyan-500/40/15 bg-[#0B1528] text-[10px] font-mono text-slate-500 flex-shrink-0 select-none">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />
           <span>HAAS ENGINE V2.5.0 • SECURE REWARD SYSTEM GAMEPLAY</span>

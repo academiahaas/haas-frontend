@@ -77,7 +77,7 @@ export default function MissionLive({ lessonTime, meetLink }: MissionLiveProps) 
           <div className="bg-[#1a1a1e] p-4 rounded-lg border border-zinc-800 text-center">
             <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Liberação em</p>
             {/* Subtrai os 15 minutos do tempo restante para o cronômetro indicar o momento exato da liberação */}
-            <p className="text-2xl font-mono font-bold text-amber-400 mt-1">
+            <p className="text-2xl font-mono font-bold text-purple-300 mt-1">
               {formatCountdown(timeLeft - (15 * 60 * 1000))}
             </p>
           </div>

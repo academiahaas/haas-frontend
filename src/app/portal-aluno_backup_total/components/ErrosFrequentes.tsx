@@ -54,9 +54,9 @@ export default function ErrosFrequentes({ erroAlto, erroMedio }: ErrosFrequentes
         </div>
 
         {/* CARD DA DIREITA: ERRO FREQUENTE MÉDIO */}
-        <div className="bg-black/20 border border-amber-500/10 rounded-xl p-5 flex flex-col justify-between hover:border-amber-500/30 transition-all duration-300">
+        <div className="bg-black/20 border border-cyan-500/40/10 rounded-xl p-5 flex flex-col justify-between hover:border-cyan-500/40/30 transition-all duration-300">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/10 text-purple-300 px-2.5 py-1 rounded">
               ⚡ Frequência: Média
             </span>
             <span className="text-[10px] font-mono text-slate-500 uppercase">

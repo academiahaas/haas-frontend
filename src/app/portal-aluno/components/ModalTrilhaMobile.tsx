@@ -125,12 +125,12 @@ export const ModalTrilhaMobile: React.FC<ModalTrilhaMobileProps> = ({
               const isExpanded = moduloExpandido === mod.module_number;
 
               const borderClass = isAtual
-                ? "border-orange-500/30 bg-orange-500/[0.02] shadow-lg shadow-orange-500/5"
+                ? "border-cyan-500/30 bg-gradient-to-r from-purple-600 to-cyan-500/[0.02] shadow-lg shadow-cyan-400/5"
                 : isConcluido
                 ? "border-emerald-500/10 bg-emerald-500/[0.01]"
                 : "border-slate-800 bg-slate-900/20 opacity-60";
 
-              const tagColorClass = isAtual ? "text-orange-400 animate-pulse" : isConcluido ? "text-emerald-400" : "text-slate-500";
+              const tagColorClass = isAtual ? "text-purple-400 animate-pulse" : isConcluido ? "text-emerald-400" : "text-slate-500";
 
               const statusLabel = isConcluido
                 ? idiomaSelecionado === "PT" ? "CONCLUÍDO" : idiomaSelecionado === "ES" ? "COMPLETADO" : "COMPLETED"
@@ -170,7 +170,7 @@ export const ModalTrilhaMobile: React.FC<ModalTrilhaMobileProps> = ({
                             <button
                               disabled={isBloqueado}
                               className={`text-[10px] md:text-xs font-mono font-black uppercase px-3 py-1 rounded border transition-all ${
-                                isConcluido ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10" : isAtual ? "text-slate-950 border-orange-500 bg-orange-500 hover:brightness-110 shadow-md shadow-orange-500/20" : "text-slate-600 border-slate-800 bg-slate-900/50 cursor-not-allowed"
+                                isConcluido ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10" : isAtual ? "text-slate-950 border-cyan-400 bg-gradient-to-r from-purple-600 to-cyan-500 hover:brightness-110 shadow-md shadow-cyan-400/20" : "text-slate-600 border-slate-800 bg-slate-900/50 cursor-not-allowed"
                               }`}
                             >
                               {isConcluido ? (idiomaSelecionado === "PT" ? "REVISAR" : "REVIEW") : isAtual ? (idiomaSelecionado === "PT" ? "INICIAR" : idiomaSelecionado === "ES" ? "INICIAR" : "START") : (idiomaSelecionado === "PT" ? "TRAVADO" : "LOCKED")}

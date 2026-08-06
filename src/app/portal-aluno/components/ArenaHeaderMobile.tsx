@@ -53,7 +53,7 @@ export function ArenaHeaderMobile({
 
         <div className="flex flex-col">
           <span className="text-[10px] text-slate-400 uppercase tracking-wider">Ofensiva</span>
-          <span className="text-sm font-bold text-amber-400">
+          <span className="text-sm font-bold text-purple-300">
             {loading ? "..." : `🔥 ${streak}d`}
           </span>
         </div>

@@ -166,7 +166,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
           <div className="grid grid-cols-2 gap-2 mt-3 shrink-0">
             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col gap-1">
               <span className="text-[clamp(10px,2.8vw,12px)] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Ticket size={10} className="text-amber-500" />
+                <Ticket size={10} className="text-cyan-400" />
                 {t.mainCredits}
               </span>
               <span className="text-[clamp(13px,3.8vw,16px)] font-mono font-black text-white">{creditosAulas}</span>
@@ -206,10 +206,10 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
                     <div key={aula.id} className="p-3 rounded-xl border border-white/[0.06] bg-white/5 flex justify-between items-center shrink-0">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-200">
-                          <Calendar size={13} className="text-amber-500" />
+                          <Calendar size={13} className="text-cyan-400" />
                           <span>{aula.data.split("-").reverse().join("/")}</span>
                           <span className="text-slate-600">•</span>
-                          <Clock size={13} className="text-amber-500" />
+                          <Clock size={13} className="text-cyan-400" />
                           <span>{aula.horario}</span>
                         </div>
                         <span className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-400">
@@ -233,23 +233,23 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
                     <button
                       type="button"
                       onClick={() => { setIsTipoDropdownOpen(!isTipoDropdownOpen); setIsHorarioDropdownOpen(false); }}
-                      className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                      className="w-full bg-white/5 border border-cyan-500/40/40 hover:border-cyan-500/40 rounded-xl px-3 py-2 text-xs font-mono text-cyan-400 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                     >
-                      <span className="font-black text-amber-500">{tipoAula === "regular" ? t.optRegular : t.optReposicion}</span>
-                      <ChevronDown size={14} className="text-amber-500" />
+                      <span className="font-black text-cyan-400">{tipoAula === "regular" ? t.optRegular : t.optReposicion}</span>
+                      <ChevronDown size={14} className="text-cyan-400" />
                     </button>
                     
                     {isTipoDropdownOpen && (
-                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-hidden z-50 shadow-2xl">
+                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-hidden z-50 shadow-2xl">
                         <div
                           onClick={() => { setTipoAula("regular"); setIsTipoDropdownOpen(false); }}
-                          className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === "regular" ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500 hover:bg-amber-500 hover:text-[#030914]"}`}
+                          className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === "regular" ? "bg-amber-500 text-[#030914] font-black" : "text-cyan-400 hover:bg-amber-500 hover:text-[#030914]"}`}
                         >
                           {t.optRegular}
                         </div>
                         <div
                           onClick={() => { setTipoAula("reposicao"); setIsTipoDropdownOpen(false); }}
-                          className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === "reposicao" ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500 hover:bg-amber-500 hover:text-[#030914]"}`}
+                          className={`px-3 py-2 text-xs font-mono cursor-pointer transition-all ${tipoAula === "reposicao" ? "bg-amber-500 text-[#030914] font-black" : "text-cyan-400 hover:bg-amber-500 hover:text-[#030914]"}`}
                         >
                           {t.optReposicion}
                         </div>
@@ -260,15 +260,15 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
                   {/* SELETOR DE DATA */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
-                      <Calendar size={12} className="text-amber-500" />
+                      <Calendar size={12} className="text-cyan-400" />
                       {t.qDate}
                     </label>
                     <button
                       type="button"
                       onClick={() => { setIsCalendarModalOpen(true); setIsTipoDropdownOpen(false); setIsHorarioDropdownOpen(false); }}
-                      className="w-full bg-white/5 border border-white/[0.08] hover:border-amber-500/50 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                      className="w-full bg-white/5 border border-white/[0.08] hover:border-cyan-500/40/50 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                     >
-                      <span className="text-amber-400 font-black">{formatDisplayDate(selectedDate)}</span>
+                      <span className="text-purple-300 font-black">{formatDisplayDate(selectedDate)}</span>
                       <span className="text-[9px] bg-white/5 px-2 py-0.5 rounded border border-white/10 text-slate-400">{t.selectDateBtn}</span>
                     </button>
                   </div>
@@ -279,21 +279,21 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
                     <button
                       type="button"
                       onClick={() => { setIsHorarioDropdownOpen(!isHorarioDropdownOpen); setIsTipoDropdownOpen(false); }}
-                      className="w-full bg-white/5 border border-amber-500/40 hover:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono text-amber-500 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
+                      className="w-full bg-white/5 border border-cyan-500/40/40 hover:border-cyan-500/40 rounded-xl px-3 py-2 text-xs font-mono text-cyan-400 flex justify-between items-center cursor-pointer transition-all focus:outline-none"
                     >
-                      <span className="text-amber-500 font-black">{selectedHorario}</span>
-                      <ChevronDown size={14} className="text-amber-500" />
+                      <span className="text-cyan-400 font-black">{selectedHorario}</span>
+                      <ChevronDown size={14} className="text-cyan-400" />
                     </button>
                     
                     {isHorarioDropdownOpen && (
-                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-amber-500/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
+                      <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-y-auto max-h-[130px] z-50 shadow-2xl custom-scrollbar">
                         {listaHorarios.map((h) => {
                           const isSelected = selectedHorario === h;
                           return (
                             <div
                               key={h}
                               onClick={() => { setSelectedHorario(h); setIsHorarioDropdownOpen(false); }}
-                              className={`px-3 py-1.5 text-xs font-mono cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-[#030914] font-black" : "text-amber-500/90 hover:bg-amber-500 hover:text-[#030914]"}`}
+                              className={`px-3 py-1.5 text-xs font-mono cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-[#030914] font-black" : "text-cyan-400/90 hover:bg-amber-500 hover:text-[#030914]"}`}
                             >
                               {h}
                             </div>
@@ -322,7 +322,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
           
           <div className="flex items-center justify-between border-b border-white/5 pb-2">
             <span className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Calendar size={12} className="text-amber-500" />
+              <Calendar size={12} className="text-cyan-400" />
               {t.calTitle}
             </span>
             <button type="button" onClick={() => setIsCalendarModalOpen(false)} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border-none cursor-pointer">
@@ -351,7 +351,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
                   key={index}
                   type="button"
                   onClick={() => handleSelectDay(day)}
-                  className={`py-2 rounded-xl text-xs font-mono font-bold border-none cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-black shadow-md font-black scale-105" : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-amber-400"}`}
+                  className={`py-2 rounded-xl text-xs font-mono font-bold border-none cursor-pointer transition-all ${isSelected ? "bg-amber-500 text-black shadow-md font-black scale-105" : "text-slate-300 bg-white/[0.01] hover:bg-amber-500/20 hover:text-purple-300"}`}
                 >
                   {day}
                 </button>

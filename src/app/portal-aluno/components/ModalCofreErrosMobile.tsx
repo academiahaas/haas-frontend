@@ -89,7 +89,7 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
         {/* LISTA DINÂMICA DE ERROS */}
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar-none pb-8 text-left">
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-amber-400 font-mono text-xs">
+            <div className="flex items-center justify-center py-12 text-purple-300 font-mono text-xs">
               <span className="animate-pulse">
                 {idiomaSelecionado === "PT"
                   ? "CARREGANDO COFRE..."
@@ -112,10 +112,10 @@ export const ModalCofreErrosMobile: React.FC<ModalCofreErrosMobileProps> = ({
               return (
                 <div
                   key={item.id || index}
-                  className="bg-slate-900/40 border border-amber-500/10 hover:border-amber-500/30 rounded-xl p-3 flex justify-between items-center transition-all"
+                  className="bg-slate-900/40 border border-cyan-500/40/10 hover:border-cyan-500/40/30 rounded-xl p-3 flex justify-between items-center transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-black text-amber-500 text-xs md:text-sm">
+                    <span className="font-mono font-black text-cyan-400 text-xs md:text-sm">
                       #{formattedNum}
                     </span>
                     <span className="text-slate-200 font-mono font-bold text-xs md:text-base">

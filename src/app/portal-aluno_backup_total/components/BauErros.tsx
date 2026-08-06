@@ -22,7 +22,7 @@ export function BauErros({ idioma = "PT" }: BauErrosProps) {
         {erros.map(e => (
           <div key={e.id} className="flex justify-between items-center bg-slate-950/40 p-2 rounded-xl border border-slate-800/50">
             <span className="text-slate-300 font-sans">{e.termo}</span>
-            <span className="text-amber-500 font-black">{e.score}</span>
+            <span className="text-cyan-400 font-black">{e.score}</span>
           </div>
         ))}
       </div>

@@ -68,8 +68,8 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
         let tagColor = "text-slate-500";
 
         if (isAtual) {
-          cardStyle = "border-amber-500/30 bg-[#0a1424] shadow-lg";
-          tagColor = "text-amber-500";
+          cardStyle = "border-cyan-500/40/30 bg-[#0a1424] shadow-lg";
+          tagColor = "text-cyan-400";
         } else if (isConcluido) {
           cardStyle = "border-emerald-500/10 bg-[#050d18] opacity-75";
           tagColor = "text-emerald-500";
@@ -105,7 +105,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                 </h3>
               </div>
               <div className="p-1 ml-2">
-                <ChevronDown className={`transition-transform duration-300 ${isAtual ? 'text-amber-500' : isConcluido ? 'text-emerald-500' : 'text-slate-600'} ${isOpen ? 'rotate-180' : ''}`} size={14} />
+                <ChevronDown className={`transition-transform duration-300 ${isAtual ? 'text-cyan-400' : isConcluido ? 'text-emerald-500' : 'text-slate-600'} ${isOpen ? 'rotate-180' : ''}`} size={14} />
               </div>
             </div>
 
@@ -119,14 +119,14 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
                     className={`flex items-center justify-between p-2.5 rounded-lg border transition-all ${
                       isBloqueado 
                         ? 'bg-black/20 border-white/[0.01]' 
-                        : 'bg-[#111c2e]/50 border-white/[0.04] cursor-pointer hover:bg-[#16253d]/80 hover:border-amber-500/20'
+                        : 'bg-[#111c2e]/50 border-white/[0.04] cursor-pointer hover:bg-[#16253d]/80 hover:border-cyan-500/40/20'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {isConcluido ? (
                         <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
                       ) : isAtual ? (
-                        <PlayCircle size={11} className="text-amber-500 shrink-0" />
+                        <PlayCircle size={11} className="text-cyan-400 shrink-0" />
                       ) : (
                         <Lock size={10} className="text-slate-600 shrink-0" />
                       )}
@@ -142,7 +142,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
 
                     <div className={`text-[8px] font-black font-mono border px-1.5 py-0.5 rounded ${
                       isAtual 
-                        ? 'text-amber-500 border-amber-500/20 bg-amber-500/[0.02]' 
+                        ? 'text-cyan-400 border-cyan-500/40/20 bg-amber-500/[0.02]' 
                         : isConcluido 
                         ? 'text-emerald-500 border-emerald-500/10 bg-emerald-500/[0.01]' 
                         : 'text-slate-600 border-white/5 bg-white/[0.01]'

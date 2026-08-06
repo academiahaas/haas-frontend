@@ -110,9 +110,9 @@ export default function LessonCertifyPage() {
             </div>
 
             {/* CARD LARANJA - ORAL */}
-            <div className="bg-[#050b11] border-2 border-slate-800/80 rounded-[24px] p-5 md:p-6 flex flex-col items-center justify-between gap-4 transition-all duration-300 hover:border-orange-500/50 hover:shadow-[0_15px_30px_rgba(248,137,29,0.03)] group">
+            <div className="bg-[#050b11] border-2 border-slate-800/80 rounded-[24px] p-5 md:p-6 flex flex-col items-center justify-between gap-4 transition-all duration-300 hover:border-purple-500/40/50 hover:shadow-[0_15px_30px_rgba(248,137,29,0.03)] group">
               <div className="flex flex-col items-center gap-3">
-                <div className="p-3 rounded-xl bg-orange-500/10 text-[#F8891D] group-hover:scale-105 transition-transform">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500/10 text-[#F8891D] group-hover:scale-105 transition-transform">
                   <Calendar size={24} />
                 </div>
                 <div className="space-y-0.5">

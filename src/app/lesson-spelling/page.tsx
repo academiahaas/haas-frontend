@@ -175,7 +175,7 @@ export default function LessonSpellingPage() {
               className={`h-11 px-3 rounded-lg border font-mono text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                 jaRespondeu || letrasDigitadas.length === 0
                   ? 'bg-slate-900/40 border-transparent text-slate-700 cursor-not-allowed opacity-10'
-                  : 'bg-[#09131f] border-slate-800 text-amber-500 active:scale-90 hover:border-amber-600'
+                  : 'bg-[#09131f] border-slate-800 text-cyan-400 active:scale-90 hover:border-amber-600'
               }`}
             >
               <Delete size={14} />

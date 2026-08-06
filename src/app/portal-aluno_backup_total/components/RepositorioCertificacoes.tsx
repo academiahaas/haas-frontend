@@ -38,7 +38,7 @@ export default function RepositorioCertificacoes() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-32">
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500" />
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cyan-500/40" />
       </div>
     );
   }
@@ -62,13 +62,13 @@ export default function RepositorioCertificacoes() {
                 key={item.id} 
                 className={`p-4 rounded-xl border transition-all duration-300 ${
                   isActive 
-                    ? "bg-amber-500/[0.02] border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.02)]" 
+                    ? "bg-amber-500/[0.02] border-cyan-500/40/20 shadow-[0_0_10px_rgba(245,158,11,0.02)]" 
                     : "bg-black/40 border-white/5 opacity-50 select-none"
                 }`}
               >
                 <div className="flex items-start justify-between gap-4 mb-1.5">
                   {/* Nome da Insígnia */}
-                  <h5 className={`text-sm font-bold tracking-tight ${isActive ? "text-amber-400" : "text-slate-500 line-through"}`}>
+                  <h5 className={`text-sm font-bold tracking-tight ${isActive ? "text-purple-300" : "text-slate-500 line-through"}`}>
                     🏅 {item.badge_name}
                   </h5>
                   

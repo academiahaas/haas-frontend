@@ -93,7 +93,7 @@ export default function CronogramaProgresso() {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500" />
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500/40" />
       </div>
     );
   }
@@ -116,7 +116,7 @@ export default function CronogramaProgresso() {
               key={modulo.id} 
               className={`rounded-2xl border transition-all duration-300 ${
                 isCurrent 
-                  ? "bg-amber-500/[0.01] border-amber-500/20" 
+                  ? "bg-amber-500/[0.01] border-cyan-500/40/20" 
                   : isCompleted 
                   ? "bg-black/20 border-emerald-500/10 opacity-80" 
                   : "bg-black/40 border-white/5 opacity-40"
@@ -125,7 +125,7 @@ export default function CronogramaProgresso() {
               {/* Cabeçalho do Módulo */}
               <div className="p-4 flex items-center justify-between gap-4 border-b border-white/5">
                 <div>
-                  <span className="text-[10px] font-mono tracking-widest text-amber-500 block uppercase font-bold">
+                  <span className="text-[10px] font-mono tracking-widest text-cyan-400 block uppercase font-bold">
                     MÓDULO {modulo.module_number}
                   </span>
                   <h4 className={`text-sm font-bold tracking-tight ${isLocked ? "text-slate-400" : "text-white"}`}>
@@ -136,7 +136,7 @@ export default function CronogramaProgresso() {
                 {/* Badge de Status Dinâmico */}
                 <span className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
                   isCurrent 
-                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" 
+                    ? "bg-amber-500/10 text-purple-300 border border-cyan-500/40/20" 
                     : isCompleted 
                     ? "bg-emerald-500/10 text-emerald-400" 
                     : "bg-zinc-800 text-zinc-500"

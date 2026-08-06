@@ -63,7 +63,7 @@ export default function MotorSubmissaoEVideo() {
           {videoConcluido ? (
             <p className="text-xs text-emerald-400 font-mono">✓ Conteúdo concluído! Botão de progresso liberado.</p>
           ) : assistindo ? (
-            <p className="text-xs text-amber-400 font-mono animate-pulse">🎥 Monitorando player... Assista até o final.</p>
+            <p className="text-xs text-purple-300 font-mono animate-pulse">🎥 Monitorando player... Assista até o final.</p>
           ) : (
             <button 
               onClick={simularFimDoVideo}

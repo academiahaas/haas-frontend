@@ -379,7 +379,7 @@ export default function MioloLeituraRapida({
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[12px] tracking-wider shrink-0 transition-all ${
             timeLeft <= 10 
               ? 'text-rose-400 border-rose-500/40 bg-rose-950/30 animate-pulse shadow-[0_0_12px_rgba(244,63,94,0.2)]' 
-              : 'text-amber-400 border-amber-500/30 bg-amber-950/30'
+              : 'text-purple-300 border-cyan-500/40/30 bg-amber-950/30'
           }`}>
             <Timer size={14} />
             <span>{timeLeft}s</span>

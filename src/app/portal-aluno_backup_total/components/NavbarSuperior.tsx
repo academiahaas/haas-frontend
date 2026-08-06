@@ -6,8 +6,8 @@ export function NavbarSuperior({ t }) {
   return (
     <div className="bg-[#0A131C] border border-[#1C2C39] rounded-2xl p-3 flex justify-between items-center shadow-2xl">
       <nav className="flex gap-5 text-[10px] font-black uppercase tracking-wider font-sans items-center pl-1">
-        <button className="flex flex-col items-center justify-center gap-0.5 text-orange-400 font-black border-b-2 border-orange-400 pb-0.5 transition-all">
-          <Home size={15} className="text-orange-400 fill-orange-400/20" /> <span>{t.inicio}</span>
+        <button className="flex flex-col items-center justify-center gap-0.5 text-purple-300 font-black border-b-2 border-orange-400 pb-0.5 transition-all">
+          <Home size={15} className="text-purple-300 fill-orange-400/20" /> <span>{t.inicio}</span>
         </button>
         <button className="flex flex-col items-center justify-center gap-0.5 text-[#3CD070] hover:text-white font-bold transition-all">
           <MapPin size={15} className="text-[#3CD070]" /> <span>{t.trilha}</span>
@@ -18,8 +18,8 @@ export function NavbarSuperior({ t }) {
         <button className="flex flex-col items-center justify-center gap-0.5 text-purple-400 hover:text-white font-bold transition-all">
           <BookOpen size={15} className="text-purple-400" /> <span>{t.recursos}</span>
         </button>
-        <button className="flex flex-col items-center justify-center gap-0.5 text-amber-400 hover:text-white font-bold transition-all">
-          <Trophy size={15} className="text-amber-400" /> <span>{t.desafios}</span>
+        <button className="flex flex-col items-center justify-center gap-0.5 text-purple-300 hover:text-white font-bold transition-all">
+          <Trophy size={15} className="text-purple-300" /> <span>{t.desafios}</span>
         </button>
         <button className="flex flex-col items-center justify-center gap-0.5 text-blue-400 hover:text-white font-bold transition-all">
           <Shield size={15} className="text-blue-400" /> <span>{t.ligas}</span>

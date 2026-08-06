@@ -72,7 +72,7 @@ export function LevelCompletionScreen({ mostrar, nivelNome, onLiberarExames }: L
         </div>
 
         {/* Alerta de Destravamento de Provas */}
-        <p className="text-[11px] font-semibold text-amber-400/90 leading-relaxed max-w-md bg-amber-950/10 border border-amber-500/20 p-4 rounded-xl shadow-inner">
+        <p className="text-[11px] font-semibold text-purple-300/90 leading-relaxed max-w-md bg-amber-950/10 border border-cyan-500/40/20 p-4 rounded-xl shadow-inner">
           ⚠️ <span className="text-white font-bold">PORTÃO DE EXAMES DESTRAVADO:</span> Você já está apto a realizar a sua prova escrita assistida por IA e agendar a sua banca oral humana.
         </p>
 

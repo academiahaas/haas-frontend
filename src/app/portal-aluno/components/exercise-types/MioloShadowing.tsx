@@ -459,7 +459,7 @@ Regras Estritas:
                 <Sparkles size={16} />
                 <span>Avaliação de Pronúncia</span>
               </div>
-              <div className="text-amber-400 font-bold text-[12px] bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30 tracking-wider shadow-sm">
+              <div className="text-purple-300 font-bold text-[12px] bg-amber-500/10 px-3 py-1 rounded-lg border border-cyan-500/40/30 tracking-wider shadow-sm">
                 +{scoreFinal} NOTA
               </div>
             </div>
@@ -524,7 +524,7 @@ Regras Estritas:
                       setAudioUrl(null);
                       setTranscricaoAluno("");
                     }}
-                    className="p-3 bg-amber-950/40 hover:bg-amber-950/80 border border-amber-500/40 text-amber-400 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
+                    className="p-3 bg-amber-950/40 hover:bg-amber-950/80 border border-cyan-500/40/40 text-purple-300 rounded-full transition-all cursor-pointer shadow-sm active:scale-95 flex items-center justify-center"
                     title="Gravar novamente"
                   >
                     <RotateCcw size={18} />

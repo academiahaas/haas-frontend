@@ -119,7 +119,7 @@ export default function ArenaImersivaTotal({
               animandoSplit ? "-translate-y-full" : "translate-y-0"
             }`}
           >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-mono font-black tracking-widest text-amber-400 uppercase text-center px-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-mono font-black tracking-widest text-purple-300 uppercase text-center px-4">
               {idiomaSelecionado === "PT" ? "TREINO PRONTIFICADO" : idiomaSelecionado === "ES" ? "ENTRENAMIENTO LISTO" : "TRAINING READY"}
             </h1>
           </div>
@@ -134,7 +134,7 @@ export default function ArenaImersivaTotal({
                 {idiomaSelecionado === "PT" ? "Toque em qualquer lugar para iniciar" : "Tap anywhere to start"}
               </p>
             ) : (
-              <div className="text-6xl sm:text-8xl md:text-9xl font-mono font-black text-amber-500 animate-bounce">
+              <div className="text-6xl sm:text-8xl md:text-9xl font-mono font-black text-cyan-400 animate-bounce">
                 {contador}
               </div>
             )}
@@ -162,15 +162,15 @@ export default function ArenaImersivaTotal({
         <div className="w-full max-w-2xl md:max-w-3xl flex-1 flex flex-col justify-evenly gap-4 my-auto">
 
           {balaoIaAberto && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-xs sm:text-sm md:text-base text-amber-200 flex items-start gap-3 relative animate-fadeIn shadow-lg shrink-0">
-              <Sparkles size={18} className="text-amber-400 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
+            <div className="bg-amber-500/10 border border-cyan-500/40/30 rounded-2xl p-4 text-xs sm:text-sm md:text-base text-amber-200 flex items-start gap-3 relative animate-fadeIn shadow-lg shrink-0">
+              <Sparkles size={18} className="text-purple-300 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
               <div className="flex-1 pr-4">
                 <p className="font-bold mb-1 text-amber-300">Assistente IA:</p>
                 <p>Análise em tempo real do exercício. Leia cada elemento com cuidado!</p>
               </div>
               <button 
                 onClick={() => setBalaoIaAberto(false)}
-                className="text-amber-400/60 hover:text-amber-300 absolute top-2 right-2 p-1"
+                className="text-purple-300/60 hover:text-amber-300 absolute top-2 right-2 p-1"
               >
                 <X size={14} className="sm:w-4 sm:h-4" />
               </button>
@@ -213,12 +213,12 @@ export default function ArenaImersivaTotal({
             ) : statusAtual === "WRONG" ? (
               <XCircle size={24} className="text-rose-400 shrink-0 sm:w-7 sm:h-7 md:w-8 md:h-8" />
             ) : (
-              <HelpCircle size={24} className="text-amber-400 shrink-0 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+              <HelpCircle size={24} className="text-purple-300 shrink-0 sm:w-7 sm:h-7 md:w-8 md:h-8" />
             )}
             
             <div className="flex flex-col">
               <span className={`font-black text-sm sm:text-base md:text-lg ${
-                statusAtual === "CORRECT" ? "text-emerald-400" : statusAtual === "WRONG" ? "text-rose-400" : "text-amber-400"
+                statusAtual === "CORRECT" ? "text-emerald-400" : statusAtual === "WRONG" ? "text-rose-400" : "text-purple-300"
               }`}>
                 {statusAtual === "CORRECT" 
                   ? "Muito bem, você acertou!" 
@@ -233,17 +233,17 @@ export default function ArenaImersivaTotal({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-amber-400 hover:bg-amber-500/10 transition-colors">
+          <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-purple-300 hover:bg-amber-500/10 transition-colors">
             {gavetaExpandida ? <ChevronDown size={18} className="sm:w-5 sm:h-5" /> : <ChevronUp size={18} className="sm:w-5 sm:h-5 animate-bounce" />}
           </div>
         </div>
 
         <div className="px-5 sm:px-8 pb-5 flex-1 overflow-y-auto flex flex-col justify-between bg-[#030712]/90 rounded-b-3xl">
           <div className="space-y-3 sm:space-y-4 pt-2">
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 sm:p-4 flex items-start gap-2.5 sm:gap-3.5">
-              <Quote size={16} className="text-amber-400 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
+            <div className="bg-amber-500/10 border border-cyan-500/40/20 rounded-xl p-3 sm:p-4 flex items-start gap-2.5 sm:gap-3.5">
+              <Quote size={16} className="text-purple-300 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
               <div>
-                <span className="text-[10px] sm:text-xs md:text-sm font-mono font-bold text-amber-400 uppercase tracking-wider block mb-0.5">
+                <span className="text-[10px] sm:text-xs md:text-sm font-mono font-bold text-purple-300 uppercase tracking-wider block mb-0.5">
                   DITADO POPULAR / INCENTIVO
                 </span>
                 <p className="text-xs sm:text-sm md:text-base text-amber-200/90 italic font-serif">
@@ -271,7 +271,7 @@ export default function ArenaImersivaTotal({
           {statusAtual !== "IDLE" && (
             <button
               onClick={resetarParaProximo}
-              className="w-full py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs sm:text-sm md:text-base rounded-xl uppercase tracking-wider active:scale-95 transition-transform cursor-pointer shadow-lg shadow-orange-500/20 mt-3"
+              className="w-full py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-cyan-400 text-white font-black text-xs sm:text-sm md:text-base rounded-xl uppercase tracking-wider active:scale-95 transition-transform cursor-pointer shadow-lg shadow-cyan-400/20 mt-3"
             >
               CONTINUAR ➔
             </button>

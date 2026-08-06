@@ -40,7 +40,7 @@ export default function SkillMap() {
             
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
               error.severity === 'alta' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-              error.severity === 'media' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+              error.severity === 'media' ? 'bg-amber-500/10 text-purple-300 border border-cyan-500/40/20' :
               'bg-green-500/10 text-green-400 border border-green-500/20'
             }`}>
               Foco {error.severity.toUpperCase()}

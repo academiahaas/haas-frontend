@@ -103,7 +103,7 @@ export default function MioloReordenacaoParagrafos({ onValidateResult, status = 
       {/* BARRA DO CRONÔMETRO AUTOMÁTICO INDEPENDENTE */}
       <div className="flex items-center justify-between bg-[#070d19] border border-white/[0.04] rounded-xl px-3 py-2 w-full select-none shrink-0">
         <span className="text-[clamp(11px,3vw,13px)] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Timer size={13} className={timerActive ? 'animate-pulse text-orange-400' : 'text-slate-500'} />
+          <Timer size={13} className={timerActive ? 'animate-pulse text-purple-300' : 'text-slate-500'} />
           {timerActive ? (
             idioma === "PT" ? "Ordene antes do envio automático" : 
             idioma === "ES" ? "Ordene antes del envío automático" : 
@@ -114,7 +114,7 @@ export default function MioloReordenacaoParagrafos({ onValidateResult, status = 
             "Validation completed"
           )}
         </span>
-        <span className={`text-xs font-mono font-black ${timeLeft <= 5 && timerActive ? 'text-red-500 animate-bounce' : 'text-orange-400'}`}>
+        <span className={`text-xs font-mono font-black ${timeLeft <= 5 && timerActive ? 'text-red-500 animate-bounce' : 'text-purple-300'}`}>
           00:{timeLeft < 10 ? '0' : ''}{timeLeft}
         </span>
       </div>

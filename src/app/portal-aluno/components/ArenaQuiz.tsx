@@ -1410,11 +1410,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         )}
       </div>
 
-      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-amber-500/15 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
+      <div className="w-full px-8 py-4 flex justify-between items-center border-b border-cyan-500/40/15 bg-[#0B1528] shadow-2xl flex-shrink-0 mt-0">
         <div className="flex items-center gap-6 text-[11px] font-bold text-[#94A3B8] tracking-wider">
           <span className={`flex items-center gap-1 font-black transition-all duration-200 ${
             comboQuebrado ? 'text-red-500 line-through opacity-60 scale-95' : 'text-[#FF8A2B]'
-          } ${streak >= 3 ? 'text-amber-500 font-black' : ''}`}>
+          } ${streak >= 3 ? 'text-cyan-400 font-black' : ''}`}>
             <Flame size={13} fill="currentColor" /> 
             {comboQuebrado ? "COMBO QUEBRADO" : `${streak || 0}X STREAK ${streak >= 3 ? `(x${getMultiplicador()})` : ''}`}
           </span>
@@ -1422,7 +1422,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         </div>
 
         {onClose && (
-          <button onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} className="text-[9.5px] font-black font-mono tracking-widest px-3 py-1.5 bg-transparent text-[#f59e0b] rounded-xl border border-[#f59e0b]/40 cursor-pointer hover:text-white hover:bg-[#f59e0b]/10 transition-all hover:border-[#f59e0b]/70">
+          <button onClick={() => { tocarSom('click'); if (typeof cancelVoiceRecording === 'function') cancelVoiceRecording(); if (typeof interromperMentora === 'function') interromperMentora(); onClose(); }} className="text-[9.5px] font-black font-mono tracking-widest px-3 py-1.5 bg-transparent text-[#8b5cf6] rounded-xl border border-[#8b5cf6]/40 cursor-pointer hover:text-white hover:bg-[#8b5cf6]/10 transition-all hover:border-[#8b5cf6]/70">
             {tArena.close}
           </button>
         )}
@@ -1461,7 +1461,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
               gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
               gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
-              streak >= 3 ? "bg-amber-500/20 text-amber-400 border-amber-500/50 scale-102" :
+              streak >= 3 ? "bg-amber-500/20 text-purple-300 border-cyan-500/40/50 scale-102" :
               "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/20"
             }`}>
               <Bot size={20} />
@@ -1813,7 +1813,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                 <span className="text-[10px] font-black font-mono text-[#38BDF8] tracking-widest uppercase">
                   {tArena.mentorName}
                 </span>
-                <div className="flex items-center gap-1.5 text-[10px] font-black font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-md tracking-wider">
+                <div className="flex items-center gap-1.5 text-[10px] font-black font-mono text-purple-300 bg-amber-400/10 px-2.5 py-1 rounded-md tracking-wider">
                   <Zap size={12} className="fill-amber-400 stroke-amber-400" />
                   <span>{creditosPlano !== null ? `${creditosPlano} REQS` : "..."}</span>
                 </div>
@@ -1852,7 +1852,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                               ) : 
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/40/20 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();
@@ -2031,7 +2031,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                                   
 <span className="block w-full">
   {msg.tipo !== "user" && (msg as any).isAudioMode ? (
-    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-amber-500/20 max-w-max my-1">
+    <div className="flex items-center gap-3 bg-amber-950/40 rounded-xl px-4 py-2.5 border border-cyan-500/40/20 max-w-max my-1">
       
       <button onClick={(e) => {
         e.stopPropagation();

@@ -78,10 +78,10 @@ export default function ModalVitoriaArena({
   }
 
   return (
-    <div className="w-full max-w-md mx-auto bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.1)] backdrop-blur-md text-center space-y-6">
+    <div className="w-full max-w-md mx-auto bg-slate-900 border border-cyan-500/40/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.1)] backdrop-blur-md text-center space-y-6">
       
       {/* ÍCONE DE VITÓRIA / ANIMAÇÃO */}
-      <div className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-4xl mx-auto shadow-lg animate-bounce mt-2">
+      <div className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-cyan-400 rounded-2xl flex items-center justify-center text-4xl mx-auto shadow-lg animate-bounce mt-2">
         🏆
       </div>
 
@@ -97,7 +97,7 @@ export default function ModalVitoriaArena({
       <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
         <div className="bg-black/40 border border-white/5 rounded-2xl p-4">
           <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-0.5">Recompensa</span>
-          <span className="text-base font-mono font-bold text-amber-400">+{xpGanho} XP</span>
+          <span className="text-base font-mono font-bold text-purple-300">+{xpGanho} XP</span>
         </div>
         <div className="bg-black/40 border border-white/5 rounded-2xl p-4">
           <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-0.5">Progresso</span>

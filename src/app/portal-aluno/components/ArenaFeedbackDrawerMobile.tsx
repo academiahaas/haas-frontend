@@ -76,7 +76,7 @@ export default function ArenaFeedbackDrawerMobile({
 
         {(feedbackPedagogico || expandido) && (
           <div className="mt-1 p-3 rounded-xl bg-slate-950/60 border border-white/5 text-xs text-slate-200 flex items-start gap-2.5">
-            <Lightbulb size={16} className="text-amber-400 shrink-0 mt-0.5" />
+            <Lightbulb size={16} className="text-purple-300 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {feedbackPedagogico || "Sigue practicando para consolidar tu aprendizaje en esta unidad."}
             </p>

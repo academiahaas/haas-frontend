@@ -30,7 +30,7 @@ export default function CardResumoArena({
         {/* 1. PONTOS ACUMULADOS NA UNIDADE (O que você pediu foco!) */}
         <div className="bg-black/20 border border-white/5 rounded-xl p-3 flex flex-col justify-center items-center">
           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Acumulado</span>
-          <span className="text-sm font-mono font-bold text-amber-400 animate-pulse">
+          <span className="text-sm font-mono font-bold text-purple-300 animate-pulse">
             {unitScoreCurrent} <span className="text-[10px] text-slate-500 font-normal">PTS</span>
           </span>
         </div>
@@ -46,7 +46,7 @@ export default function CardResumoArena({
         {/* 3. DIAS CONSECUTIVOS */}
         <div className="bg-black/20 border border-white/5 rounded-xl p-3 flex flex-col justify-center items-center">
           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Racha Dias</span>
-          <span className="text-sm font-mono font-bold text-orange-400 flex items-center gap-1">
+          <span className="text-sm font-mono font-bold text-purple-300 flex items-center gap-1">
             🔥 {currentStreak}d
           </span>
         </div>

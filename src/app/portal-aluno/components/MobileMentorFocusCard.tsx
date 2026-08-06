@@ -111,12 +111,12 @@ export const MobileMentorFocusCard: React.FC<MobileMentorFocusCardProps> = ({
       {/* Container do Balão + Robozinho Mobile Exclusivo */}
       <div className="flex flex-row items-center justify-between gap-3 mt-2">
         {/* Balão de Fala Dinâmico Estilo Mentora */}
-        <div className="flex-1 bg-black/40 border-[0.5px] border-amber-500/10 p-3 rounded-xl flex items-center justify-center relative min-h-[64px]">
+        <div className="flex-1 bg-black/40 border-[0.5px] border-cyan-500/40/10 p-3 rounded-xl flex items-center justify-center relative min-h-[64px]">
           <p className="text-[clamp(11px,3vw,15px)] text-white/90 font-medium leading-relaxed transition-all">
             {obterMensagemMentora()}
           </p>
           {/* Seta do Balão apontando para o robô */}
-          <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-amber-500/10 rotate-45" />
+          <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-950 border-t border-r border-cyan-500/40/10 rotate-45" />
         </div>
 
         {/* Box do Avatar da Mentora HAAS Clicável */}

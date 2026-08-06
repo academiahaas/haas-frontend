@@ -43,11 +43,11 @@ export default function CabecalhoArena({ unitTitle, precision, totalXp, currentS
       <div className="flex items-center gap-3.5 md:gap-5 font-mono">
         
         {/* 🔥 O MULTIPLICADOR MISTERIOSO X1.2 */}
-        <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl animate-pulse">
-          <span className="text-[10px] text-amber-400 font-bold tracking-tight">
+        <div className="flex items-center gap-1.5 bg-amber-500/10 border border-cyan-500/40/20 px-3 py-1.5 rounded-xl animate-pulse">
+          <span className="text-[10px] text-purple-300 font-bold tracking-tight">
             {multiplicadorText}
           </span>
-          <span className="text-[8px] text-amber-500 font-bold uppercase tracking-wider hidden sm:inline">
+          <span className="text-[8px] text-cyan-400 font-bold uppercase tracking-wider hidden sm:inline">
             Bônus
           </span>
         </div>
@@ -63,7 +63,7 @@ export default function CabecalhoArena({ unitTitle, precision, totalXp, currentS
         {/* 💎 XP TOTAL */}
         <div className="text-right border-l border-white/5 pl-3.5 md:pl-5">
           <span className="text-[9px] text-slate-500 block uppercase font-bold tracking-wider">Total XP</span>
-          <span className="text-xs font-bold text-amber-500">
+          <span className="text-xs font-bold text-cyan-400">
             {totalXp} <span className="text-[9px] text-slate-400 font-normal">pts</span>
           </span>
         </div>

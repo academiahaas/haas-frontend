@@ -116,7 +116,7 @@ const obterMensagemBase = () => {
         return {
           titulo: "AUDITOR TÁTICO",
           subtitulo: "TIMEOUT",
-          estiloBorda: "border-amber-500/30 bg-[#1f1a11]/95",
+          estiloBorda: "border-cyan-500/40/30 bg-[#1f1a11]/95",
           estiloIcone: "bg-amber-500/10 text-[#FFB84D]",
           icone: <AlertTriangle size={14} />,
         };

@@ -669,18 +669,18 @@ export default function DashboardDesktop({ alunoData }: any) {
         <svg width="100%" height="100%" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
           <defs>
             <radialGradient id="funilLanterna3D" cx="40%" cy="10%" r="65%" fx="40%" fy="10%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
-              <stop offset="15%" stopColor="#f59e0b" stopOpacity="0.5" />
-              <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.12" />
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="1" />
+              <stop offset="15%" stopColor="#8b5cf6" stopOpacity="0.5" />
+              <stop offset="45%" stopColor="#8b5cf6" stopOpacity="0.12" />
               <stop offset="100%" stopColor="#030914" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="nevoaComplementar" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0" />
-              <stop offset="12%" stopColor="#f59e0b" stopOpacity="0.24" />
-              <stop offset="42%" stopColor="#f59e0b" stopOpacity="0.11" />
-              <stop offset="78%" stopColor="#f59e0b" stopOpacity="0.06" />
-              <stop offset="82%" stopColor="#f59e0b" stopOpacity="0" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
+              <stop offset="12%" stopColor="#8b5cf6" stopOpacity="0.24" />
+              <stop offset="42%" stopColor="#8b5cf6" stopOpacity="0.11" />
+              <stop offset="78%" stopColor="#8b5cf6" stopOpacity="0.06" />
+              <stop offset="82%" stopColor="#8b5cf6" stopOpacity="0" />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
             </linearGradient>
             <filter id="blurNeonFunil" x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="40" />
@@ -703,7 +703,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         .animate-ai-mascot-pulse { animation: glowPulse 2.5s ease-in-out infinite; }
       `}</style>
 
-      <div className="w-full bg-[#061324] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#f59e0b]/40 relative">
+      <div className="w-full bg-[#061324] px-4 xl:px-10 py-4 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-[#8b5cf6]/40 relative">
         <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-4">
             <a href="https://academiahaas.com/" target="_blank" rel="noopener noreferrer" title="Voltar para a Academia Haas" className="bg-slate-900/60 hover:bg-gradient-to-tr hover:from-purple-600 hover:to-indigo-600 h-10 w-10 rounded-2xl text-slate-400 hover:text-white border border-slate-800 hover:border-transparent font-black flex items-center justify-center text-lg shadow-inner transition-all duration-300 transform hover:scale-[1.03] cursor-pointer">H</a>
@@ -814,9 +814,9 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <defs>
                   <linearGradient id="eclipseAgulhaFina" x1="100%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor="#061324" stopOpacity="1" />
-                    <stop offset="30%" stopColor="#f59e0b" stopOpacity="0.4" />
-                    <stop offset="60%" stopColor="#f59e0b" stopOpacity="1" />
-                    <stop offset="85%" stopColor="#f59e0b" stopOpacity="0.2" />
+                    <stop offset="30%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                    <stop offset="60%" stopColor="#8b5cf6" stopOpacity="1" />
+                    <stop offset="85%" stopColor="#8b5cf6" stopOpacity="0.2" />
                     <stop offset="100%" stopColor="#061324" stopOpacity="1" />
                   </linearGradient>
                 </defs>
@@ -910,7 +910,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             <div className="w-full mt-auto shrink-0 pt-4">
               <button 
                 onClick={() => { setArenaModo({ tipo: null, idx: null }); handleAbrirArenaComTransicao(); }} 
-                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(237,108,2,0.25)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
+                className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 hover:from-purple-500 hover:to-indigo-500 text-white font-mono font-black py-4 rounded-2xl text-base uppercase tracking-[0.25em] border border-white/10 shadow-lg hover:shadow-[0_0_25px_rgba(124,58,237,0.3)] active:scale-[0.99] transition-all duration-300 cursor-pointer text-center"
               >
               {transicaoModo && <TelaTransicaoHibrida modo={transicaoModo} idioma={typeof idioma !== 'undefined' ? idioma : 'PT'} />}
                 {t.trainBtn}
@@ -931,7 +931,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <span className="text-[9px] font-black uppercase text-cyan-400 font-mono tracking-wider">{({ PT: "PROGRESSO DA UNIDADE", ES: "PROGRESO DE LA UNIDAD", EN: "UNIT PROGRESS" }[(idioma || "PT").toUpperCase()] || "PROGRESSO DA UNIDADE")}</span>
               <div className="space-y-1.5">
                 <span className="text-xl xl:text-2xl font-black text-white tracking-tight font-mono">{scoreAtivo} <span className="text-[11px] font-bold text-slate-400">/ {xpTotalUnidade} PTS</span></span>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(scoreAtivo) / Number(xpTotalUnidade || 1)) * 100), 100)}%` }} /></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(scoreAtivo) / Number(xpTotalUnidade || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
 
@@ -948,7 +948,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     };
                     return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
                   })()}</span><span className="text-cyan-400 font-mono font-bold">-{Math.max(0, Number(xpTotal) - Number(xpAtual))} PTS</span></div>
-                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal || 1)) * 100), 100)}%` }} /></div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(xpTotal || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>
           </div>
@@ -962,8 +962,8 @@ export default function DashboardDesktop({ alunoData }: any) {
                   <RadarChart cx="50%" cy="54%" outerRadius="75%" data={dadosRadar} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                     <defs>
                       <linearGradient id="radarPremiumGlow" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25"/>
-                        <stop offset="100%" stopColor="#d97706" stopOpacity="0.02"/>
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25"/>
+                        <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.02"/>
                       </linearGradient>
                     </defs>
                     <PolarGrid stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
@@ -972,7 +972,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     <Radar 
                       name="Proficiência" 
                       dataKey="nota" 
-                      stroke="#f59e0b" 
+                      stroke="#8b5cf6" 
                       strokeWidth={1.5}
                       strokeOpacity={0.5}
                       fill="url(#radarPremiumGlow)" 
@@ -1024,7 +1024,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider group-hover:text-slate-200 transition-colors">{t.leaderboard}</span>
                 <ChevronDown size={12} className={`text-slate-500 transition-transform duration-300 ${isLigaOpen ? 'rotate-180 text-cyan-400' : ''}`} />
               </div>
-              <div className="bg-gradient-to-r from-amber-500/10 to-amber-600/20 border border-cyan-500/40/50 text-[#f59e0b] px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
+              <div className="bg-gradient-to-r from-purple-600/10 to-purple-600/20 border border-cyan-500/40/50 text-[#8b5cf6] px-2.5 py-0.5 rounded-full text-[10px] font-black shadow-sm tracking-wide flex items-center">
                 <span>{nicknameAluno}</span>
               </div>
             </div>
@@ -1039,7 +1039,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                   const rank = index + 1;
                   const ptsFormatados = (user.total_xp || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                   return (
-                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-cyan-500/30 text-cyan-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
+                    <div key={user.id} className={`flex items-center justify-between px-2 py-0.5 rounded-lg text-[10px] font-sans ${rank === 1 ? 'bg-gradient-to-r from-purple-600/20 to-yellow-600/10 border border-cyan-500/30 text-cyan-400 font-bold' : 'bg-slate-900/40 text-slate-300'}`}>
                       <div className="flex items-center gap-2.5">
                         <span className="font-mono text-[10px] font-black w-4 text-center">{rank}</span>
                         <span className="truncate">{user.nickname || "Aluno Anônimo"}</span>
@@ -1059,7 +1059,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
 
           <div className="border-t border-white/5 pt-2 flex flex-col gap-1.5 shrink-0 mt-2">
-            <span className="text-[9px] font-black text-[#f59e0b] font-mono uppercase tracking-wider">{t.chestTitle}</span>
+            <span className="text-[9px] font-black text-[#8b5cf6] font-mono uppercase tracking-wider">{t.chestTitle}</span>
             <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] py-1.5 px-3 rounded-xl text-white/90 border border-white/5">
               {(() => {
                 const peso = { "Alto": 3, "Módulo": 2, "Médio": 2, "Baixo": 1 };
@@ -1082,7 +1082,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               })()}
             </div>
             <button onClick={() => setIsDepurarOpen(true)} className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2 uppercase tracking-widest rounded-xl border border-cyan-500/40/60 shadow-sm transition-all">
-              <span className="text-[#f59e0b]">{t.clearBtn}</span>
+              <span className="text-[#8b5cf6]">{t.clearBtn}</span>
             </button>
           </div>
 
@@ -1157,7 +1157,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           <div onClick={() => setIsDepurarOpen(false)} className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" />
           <div className="relative w-full max-w-md bg-[#040c16] border border-cyan-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
-              <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#f59e0b]">
+              <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#8b5cf6]">
                 {idioma === "PT" ? "Depuração de Logs" : idioma === "ES" ? "Depuración de Logs" : "Logs Debugger"}
               </h3>
               <button onClick={() => setIsDepurarOpen(false)} className="text-slate-400 hover:text-white font-black font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-md transition-colors">X</button>
@@ -1264,7 +1264,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
-                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-amber-400/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/5 opacity-40'}`} />
+                    <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-cyan-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/5 opacity-40'}`} />
                     <span className="text-[7.5px] font-mono font-black text-slate-500 uppercase">{idioma === "EN" ? ["M","T","W","T","F","S","S"][idx] : idioma === "ES" ? ["L","M","X","J","V","S","D"][idx] : ["S","T","Q","Q","S","S","D"][idx]}</span>
                   </div>
                 ))}
@@ -1287,7 +1287,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </div>
               
               {/* Card de Pagamento Premium Reativo */}
-              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-amber-600/20 via-amber-500/10 to-transparent border border-cyan-500/40/40 hover:border-amber-400 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
+              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-cyan-500/40/40 hover:border-purple-300 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
                 <span className="font-sans text-[9px] font-black tracking-wider text-cyan-400/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>
@@ -1463,7 +1463,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
         
         {/* Cabeçalho */}
         <div className="flex justify-between items-center border-b border-white/5 pb-3">
-          <span className="text-[#f59e0b] font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="text-[#8b5cf6] font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full font-bold text-cyan-400 animate-pulse" />
             {passo === 1 ? (
               idioma === "PT" ? "CENTRAL DE CRÉDITOS & MATRÍCULAS" : 
@@ -1633,7 +1633,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       setPasso(2);
                     }
                   }} 
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black py-3 rounded-xl text-xs uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-600 text-black font-black py-3 rounded-xl text-xs uppercase tracking-widest shadow-md hover:brightness-110 transition-all cursor-pointer text-center"
                 >
                   {idioma === "PT" ? "CONTINUAR PARA O PAGAMENTO" : idioma === "EN" ? "PROCEED TO PAYMENT" : "CONTINUAR AL PAGO"}
                 </button>
@@ -1681,7 +1681,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       <div className="flex flex-col gap-2 mt-2">
                         <button 
                           onClick={() => { (window as any)._showPopUpHAAS = false; setPasso(2); (window as any).dispatchEvent(new Event("resize")); }} 
-                          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black py-2.5 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all font-mono"
+                          className="w-full bg-gradient-to-r from-purple-600 to-purple-600 text-black font-black py-2.5 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all font-mono"
                         >
                           {idioma === 'PT' ? 'Aceito Regras e Continuar' : idioma === 'EN' ? 'Accept Rules & Proceed' : 'Acepto Reglas y Continuar'}
                         </button>
@@ -1749,9 +1749,9 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                     <input 
                       type="text" 
                       placeholder="HAAS10" 
-                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-orange-500/50 transition-all" 
+                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500/50 transition-all" 
                     />
-                    <button className="bg-gradient-to-r from-orange-500/10 to-transparent border border-cyan-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                    <button className="bg-gradient-to-r from-purple-500/10 to-transparent border border-cyan-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
                       {idioma === "PT" ? "Aplicar" : idioma === "EN" ? "Apply" : "Aplicar"}
                     </button>
                   </div>
@@ -1939,7 +1939,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                                 (window as any)._pagoNotificado = false; if(typeof forceUpdate === "function") forceUpdate(Math.random());
                                 setPasso(1); setModalidade(null); setIsOpen(false);
                               }}
-                              className="w-full mt-2 font-bold text-cyan-400 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono"
+                              className="w-full mt-2 font-bold text-cyan-400 hover:bg-purple-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono"
                             >
                               {idioma === "PT" ? "ENTENDIDO" : idioma === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                             </button>
@@ -1973,7 +1973,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                                 <p>• <b class="text-white">${idioma === "PT" ? "O que acontece agora?" : idioma === "EN" ? "What happens now?" : "¿Qué pasa agora?"}</b> ${idioma === "PT" ? "Assim que o sistema validar o recebimento do valor, procederemos com a ativação automática da sua matrícula." : idioma === "EN" ? "Once the system validates the receipt of the amount, it will proceed with the automatic activation of your enrollment." : "Una vez que el sistema valide el ingreso del valor, se procederá con la activación automática de tu matrícula."}</p>
                                 <p>• <b class="text-white">${idioma === "PT" ? "Acesso Completo:" : idioma === "EN" ? "Full Access:" : "Acceso Completo:"}</b> ${idioma === "PT" ? "Após a confirmação bem-sucedida, você receberá um e-mail de notificação e seu acesso será liberado." : idioma === "EN" ? "Upon successful confirmation, you will receive a notification email and your access will be enabled." : "Tras la confirmación exitosa, recibirás un e-mail de notificación y se habilitará tu acesso a la plataforma."}</p>
                               </div>
-                              <button id="btn-entendido-aviso" class="w-full font-bold text-cyan-400 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono">
+                              <button id="btn-entendido-aviso" class="w-full font-bold text-cyan-400 hover:bg-purple-600 text-slate-950 font-black py-2.5 rounded-xl text-[11px] uppercase tracking-widest shadow-md transition-all cursor-pointer text-center font-mono">
                                 ${idioma === "PT" ? "ENTENDIDO" : idioma === "EN" ? "UNDERSTOOD" : "ENTENDIDO"}
                               </button>
                             </div>

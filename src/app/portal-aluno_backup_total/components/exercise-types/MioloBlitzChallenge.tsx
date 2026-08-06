@@ -106,11 +106,11 @@ export default function MioloBlitzChallenge({
       )}
 
       {gameOver ? (
-        <div className="w-full flex-1 flex flex-col items-center justify-center bg-[#040D17] border-2 border-amber-500 p-6 rounded-2xl text-center space-y-4 shadow-[0_0_30px_rgba(245,158,11,0.15)] animate-in zoom-in-95 duration-200 my-auto">
-          <Award size={42} className="mx-auto text-amber-500 animate-pulse" />
+        <div className="w-full flex-1 flex flex-col items-center justify-center bg-[#040D17] border-2 border-cyan-500/40 p-6 rounded-2xl text-center space-y-4 shadow-[0_0_30px_rgba(245,158,11,0.15)] animate-in zoom-in-95 duration-200 my-auto">
+          <Award size={42} className="mx-auto text-cyan-400 animate-pulse" />
           <h3 className="text-[clamp(14px,4.5vw,18px)] font-mono font-black text-white tracking-widest uppercase">TEMPO ESGOTADO</h3>
           <p className="text-[clamp(14px,4vw,16px)] text-slate-300 font-medium max-w-sm px-2 leading-relaxed text-center">Módulos de vocabulário técnico processados e synchronized com o ecossistema Haas.</p>
-          <div className="inline-block px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono font-black text-[clamp(11px,3.5vw,14px)] rounded-xl tracking-wider w-11/12 max-w-xs text-center">
+          <div className="inline-block px-4 py-2 bg-amber-500/10 border border-cyan-500/40/30 text-purple-300 font-mono font-black text-[clamp(11px,3.5vw,14px)] rounded-xl tracking-wider w-11/12 max-w-xs text-center">
             TOTAL DE PROGRESSO: +{totalXp} PTS
           </div>
         </div>

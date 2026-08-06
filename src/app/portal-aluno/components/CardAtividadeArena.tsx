@@ -38,7 +38,7 @@ export default function CardAtividadeArena({
           {/* Marcador de Etapa Estilo HAAS */}
           <div className="bg-white/[0.03] border border-white/5 px-3 py-1 rounded-xl font-mono">
             <span className="text-[10px] text-slate-500 uppercase tracking-wider mr-1.5 font-bold">Etapa</span>
-            <span className="text-xs font-bold text-amber-400">{currentStep}</span>
+            <span className="text-xs font-bold text-purple-300">{currentStep}</span>
             <span className="text-[10px] text-slate-500 font-normal mx-0.5">/</span>
             <span className="text-xs text-slate-400 font-medium">{totalSteps}</span>
           </div>

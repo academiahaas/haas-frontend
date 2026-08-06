@@ -84,10 +84,10 @@ export default function SidebarEsquerda() {
           <div className="absolute top-8 left-6 h-5 w-5 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center animate-pulse">
             <span className="text-[7px] text-indigo-300">⭐</span>
           </div>
-          <div className="absolute top-0 right-10 h-4 w-4 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center">
+          <div className="absolute top-0 right-10 h-4 w-4 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500/20 border border-purple-500/40/40 flex items-center justify-center">
             <span className="text-[6px] text-orange-300">⭐</span>
           </div>
-          <div className="absolute top-10 right-4 h-5 w-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center animate-pulse" style={{ animationDuration: '2s' }}>
+          <div className="absolute top-10 right-4 h-5 w-5 rounded-full bg-amber-500/20 border border-cyan-500/40/40 flex items-center justify-center animate-pulse" style={{ animationDuration: '2s' }}>
             <span className="text-[7px] text-amber-300">⭐</span>
           </div>
         </div>

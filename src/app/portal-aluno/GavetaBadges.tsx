@@ -8,8 +8,8 @@ interface InsigniaDinamica {
   titulo: { PT: string; EN: string; ES: string };
   requisito: { PT: string; EN: string; ES: string };
   iconeNome: string; // Ex: 'Target', 'Flame', 'Shield', 'Zap', 'Crown', 'Award'
-  corSimbolo: string; // Ex: 'text-amber-500', 'text-orange-500'
-  bgSimbolo: string; // Ex: 'bg-amber-500/10', 'bg-orange-500/10'
+  corSimbolo: string; // Ex: 'text-cyan-400', 'text-cyan-400'
+  bgSimbolo: string; // Ex: 'bg-amber-500/10', 'bg-gradient-to-r from-purple-600 to-cyan-500/10'
   sombra: string; // Ex: 'shadow-[0_0_10px_rgba(245,158,11,0.1)]'
   ativa: boolean;
 }
@@ -30,7 +30,7 @@ export default function GavetaBadges({ isOpen, onClose, idioma }: GavetaBadgesPr
       titulo: { PT: "Coesão Absoluta", EN: "Absolute Cohesion", ES: "Cohesión Absoluta" },
       requisito: { PT: "Desbloqueada recentemente", EN: "Unlocked recently", ES: "Desbloqueado recientemente" },
       iconeNome: "Target",
-      corSimbolo: "text-amber-500",
+      corSimbolo: "text-cyan-400",
       bgSimbolo: "bg-amber-500/10",
       sombra: "shadow-[0_0_10px_rgba(245,158,11,0.1)]",
       ativa: true
@@ -40,8 +40,8 @@ export default function GavetaBadges({ isOpen, onClose, idioma }: GavetaBadgesPr
       titulo: { PT: "Constância 12D", EN: "12D Streak", ES: "Constancia 12D" },
       requisito: { PT: "Ritmo tático impecável", EN: "Tactical pace", ES: "Ritmo táctico impecable" },
       iconeNome: "Flame",
-      corSimbolo: "text-orange-500",
-      bgSimbolo: "bg-orange-500/10",
+      corSimbolo: "text-cyan-400",
+      bgSimbolo: "bg-gradient-to-r from-purple-600 to-cyan-500/10",
       sombra: "shadow-[0_0_10px_rgba(249,115,22,0.1)]",
       ativa: true
     },
@@ -95,8 +95,8 @@ export default function GavetaBadges({ isOpen, onClose, idioma }: GavetaBadgesPr
         <div className="flex flex-col gap-4 overflow-hidden w-full">
           {/* Header */}
           <div className="flex flex-row justify-between items-center border-b border-white/5 pb-2">
-            <div className="flex items-center gap-2 text-amber-500 font-mono text-[9px] font-black uppercase tracking-widest">
-              <Trophy size={12} className="text-amber-500" />
+            <div className="flex items-center gap-2 text-cyan-400 font-mono text-[9px] font-black uppercase tracking-widest">
+              <Trophy size={12} className="text-cyan-400" />
               <span>{idioma === 'PT' ? 'REPOSITÓRIO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'REPOSITORIO DE CERTIFICACIONES' : 'CERTIFICATION REPOSITORY'}</span>
             </div>
             <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors"><X size={16} /></button>
@@ -117,7 +117,7 @@ export default function GavetaBadges({ isOpen, onClose, idioma }: GavetaBadgesPr
 
               return badge.ativa ? (
                 /* CARD ATIVO AUTOMÁTICO */
-                <div key={badge.id} className="bg-[#071324] border border-amber-500/20 p-2.5 rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-[#09182d]">
+                <div key={badge.id} className="bg-[#071324] border border-cyan-500/40/20 p-2.5 rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-[#09182d]">
                   <div className="flex items-center gap-3">
                     <div className={`w-7 h-7 rounded-lg ${badge.bgSimbolo} flex items-center justify-center ${badge.corSimbolo} ${badge.sombra}`}>
                       <IconeComponente size={14} />
@@ -127,7 +127,7 @@ export default function GavetaBadges({ isOpen, onClose, idioma }: GavetaBadgesPr
                       <span className="text-[8px] text-slate-500 font-sans">{txtRequisito}</span>
                     </div>
                   </div>
-                  <span className="text-[7px] font-mono text-amber-400 font-black uppercase bg-amber-500/10 px-1 py-0.5 rounded tracking-wider">
+                  <span className="text-[7px] font-mono text-purple-300 font-black uppercase bg-amber-500/10 px-1 py-0.5 rounded tracking-wider">
                     {idioma === 'PT' ? 'Ativa' : 'Active'}
                   </span>
                 </div>

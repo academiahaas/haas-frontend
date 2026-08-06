@@ -7,7 +7,7 @@ export function TrilhaFasesCentral({ t }) {
       <h2 className="text-xs font-black text-slate-400 uppercase tracking-wider font-mono">{t.trilhaCompetencias}</h2>
       
       <div className="border border-[#1C2C39] rounded-xl p-3.5 bg-[#101D28] flex items-center gap-3 shadow-sm opacity-60">
-        <div className="h-6 w-6 rounded-full bg-orange-500/10 border border-orange-500 flex items-center justify-center text-orange-400 text-xs font-bold">✓</div>
+        <div className="h-6 w-6 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500/10 border border-purple-500/40 flex items-center justify-center text-purple-300 text-xs font-bold">✓</div>
         <div className="flex-1 min-w-0">
           <span className="block text-[10px] text-slate-400 font-bold">{t.modulo} 1</span>
           <p className="font-bold text-xs text-slate-400 truncate">Verb Tenses (CEFR B1)</p>
@@ -16,7 +16,7 @@ export function TrilhaFasesCentral({ t }) {
       </div>
 
       <div className="border border-[#1C2C39] rounded-xl p-3.5 bg-[#101D28] flex items-center gap-3 shadow-sm opacity-60">
-        <div className="h-6 w-6 rounded-full bg-orange-500/10 border border-orange-500 flex items-center justify-center text-orange-400 text-xs font-bold">✓</div>
+        <div className="h-6 w-6 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500/10 border border-purple-500/40 flex items-center justify-center text-purple-300 text-xs font-bold">✓</div>
         <div className="flex-1 min-w-0">
           <span className="block text-[10px] text-slate-400 font-bold">{t.modulo} 2</span>
           <p className="font-bold text-xs text-slate-400 truncate">Prepositions (CEFR B2)</p>
@@ -30,10 +30,10 @@ export function TrilhaFasesCentral({ t }) {
             <span className="block text-[10px] text-[#00E5FF] font-black uppercase tracking-wide font-mono">{t.modulo} 3</span>
             <h3 className="font-black text-sm text-white tracking-wide">If Clauses (CEFR B2)</h3>
           </div>
-          <span className="text-[9px] bg-orange-500 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wider shadow-lg">MISSION</span>
+          <span className="text-[9px] bg-gradient-to-r from-purple-600 to-cyan-500 text-slate-950 font-black px-2 py-0.5 rounded uppercase tracking-wider shadow-lg">MISSION</span>
         </div>
         <p className="text-xs text-cyan-300/90 font-bold leading-tight">⚠️ Domínio atual: 68% • Último treino: há 3 dias. Vértice recuou 12%.</p>
-        <button className="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-black text-xs py-2.5 rounded-xl uppercase tracking-widest transition-colors shadow-lg shadow-orange-500/30">
+        <button className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 hover:bg-orange-400 text-slate-950 font-black text-xs py-2.5 rounded-xl uppercase tracking-widest transition-colors shadow-lg shadow-orange-500/30">
           {t.treinarReativar}
         </button>
       </div>

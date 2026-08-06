@@ -182,7 +182,7 @@ export default function PortalProfessor() {
               </div>
 
               <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400">
+                <div className="p-3 rounded-xl bg-amber-500/10 text-purple-300">
                   <TrendingUp size={20} />
                 </div>
                 <div className="flex flex-col">

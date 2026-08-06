@@ -34,7 +34,7 @@ export async function gerarLoteSlides24h() {
       {
         slide: 1,
         fase: "Alinhamento",
-        html: "<div class='p-8 bg-slate-900 text-white rounded-xl'><h2 class='text-xl font-bold text-amber-400'>Fase 1: Quick Tuning</h2><p class='text-sm text-slate-300'>Vamos calibrar a sua fluência revisando padrões recentes de tempo verbal e vocabulário.</p></div>"
+        html: "<div class='p-8 bg-slate-900 text-white rounded-xl'><h2 class='text-xl font-bold text-purple-300'>Fase 1: Quick Tuning</h2><p class='text-sm text-slate-300'>Vamos calibrar a sua fluência revisando padrões recentes de tempo verbal e vocabulário.</p></div>"
       },
       {
         slide: 2,

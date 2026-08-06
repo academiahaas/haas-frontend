@@ -22,7 +22,7 @@ export function PerfilSidebar({ idioma = "PT" }: PerfilSidebarProps) {
       <div className="space-y-1">
         <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase font-mono">
           <span>PTS: 7.450 / 1.000</span>
-          <span className="text-amber-400">({idioma === "PT" ? "81% para B2" : idioma === "ES" ? "81% para B2" : "81% to B2"})</span>
+          <span className="text-purple-300">({idioma === "PT" ? "81% para B2" : idioma === "ES" ? "81% para B2" : "81% to B2"})</span>
         </div>
         <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden shadow-inner">
           <div className="bg-gradient-to-r from-indigo-500 to-amber-400 h-full w-[81%]"></div>
