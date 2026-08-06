@@ -806,7 +806,7 @@ export default function DashboardDesktop({ alunoData }: any) {
 <div className="flex-1 px-4 xl:px-6 pt-3 pb-4 flex flex-col xl:grid xl:grid-cols-[1fr_360px] gap-5 w-full xl:items-stretch xl:min-h-0 relative">
 
         <div className="flex flex-col gap-4 w-full xl:h-full xl:min-h-0 flex-1">
-          <div className="bg-[#0A0F1D] pt-5 pb-5 px-5 xl:px-6 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/10 relative overflow-hidden xl:flex-1 min-h-0">
+          <div className="bg-[#0A0F1D] pt-5 pb-5 px-5 xl:px-6 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/10 relative overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden xl:flex-1 min-h-0">
             <div className="absolute top-0 left-0 w-[600px] h-[400px] pointer-events-none z-10 overflow-visible">
               <svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
                 <defs>
@@ -952,7 +952,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
         </div>
 
-        <div className="w-full xl:w-auto bg-[#0A0F1D] pt-5 pb-5 px-5 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between xl:h-full border border-white/10 relative min-h-[580px] xl:min-h-0 overflow-hidden shrink-0">
+        <div className="w-full xl:w-auto bg-[#0A0F1D] pt-5 pb-5 px-5 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between xl:h-full border border-white/10 relative min-h-[580px] xl:min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden shrink-0">
           <div className="w-full flex flex-col gap-2 shrink-0">
             <div className="w-full h-[165px] shrink-0 bg-[#080C16] rounded-2xl flex items-center justify-center overflow-hidden p-1 border border-white/10 shadow-inner">
               {mounted ? (
@@ -1028,7 +1028,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
 
             <div className={`absolute top-full left-0 right-0 z-[999999] mt-1 overflow-visible transition-all duration-200 ease-in-out bg-[#080C16] border border-white/10 rounded-xl flex flex-col gap-1 shadow-[0_20px_40px_rgba(0,0,0,0.8)] ${isLigaOpen ? 'max-h-[180px] p-2 opacity-100 pointer-events-auto' : 'max-h-0 opacity-0 pointer-events-none border-transparent'}`}>
-              <div className="w-full flex justify-between px-2 text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider select-none border-b border-white/10 pb-1">
+              <div className="w-full flex justify-between px-2 text-[8.5px] font-mono font-black text-slate-500 uppercase tracking-wider select-none border-b border-white/10 pb-1">
                 <span>{idioma === "PT" ? "RANK & USUÁRIO" : idioma === "ES" ? "PUESTO & USUARIO" : "RANK & USER"}</span>
                 <span>{(t as any).rankPts || "PTS"}</span>
               </div>
@@ -1175,7 +1175,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                   return (
                     <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/10 text-[10px] font-mono font-bold">
                       <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
-                      <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${
+                      <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wide ${
                         isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "font-bold text-cyan-400/10 text-cyan-400 border border-cyan-500/20"
                       }`}>
                         {item.frequencia}
@@ -1192,8 +1192,7 @@ export default function DashboardDesktop({ alunoData }: any) {
       {/* 🗂️ GAVETA LUXO PERFIL 100% COMPLETA, COM IDIOMAS E BOTÃO DE PAGAMENTO */}
       <div className={`fixed inset-0 z-50 transition-all duration-300 flex justify-start ${isPerfilOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'}`}>
         <div onClick={() => setIsPerfilOpen(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
-        <div className={`relative w-[340px] h-screen max-h-screen bg-[#060912] border-r border-white/10 py-4 px-5 flex flex-col justify-between gap-[1.5vh] shadow-2xl transition-transform duration-300 overflow-y-hidden ${isPerfilOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          
+        <div className={`relative w-[340px] h-screen max-h-screen bg-[#060912] border-r border-white/10 py-5 px-4 flex flex-col gap-3  shadow-2xl transition-transform duration-300 overflow-hidden ${isPerfilOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex justify-between items-center border-b border-white/10 pb-2 shrink-0">
             <div className="flex items-center gap-2 text-slate-400 font-mono text-[9px] font-black uppercase tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full font-bold text-cyan-400 animate-pulse"></span>
@@ -1202,7 +1201,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             <button onClick={() => setIsPerfilOpen(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
           </div>
 
-          <div className="flex flex-col gap-2 bg-[#071324]/60 p-2.5 rounded-2xl border border-white/[0.03] w-full min-h-0">
+          <div className="flex flex-col gap-2.5 bg-[#071324]/60 p-3.5 rounded-2xl border border-white/[0.04] w-full shrink-0">
             <div className="flex items-center gap-3.5">
               <div className="relative w-10 h-10 rounded-full bg-slate-900 border-2 border-cyan-500/40 flex items-center justify-center font-mono font-black text-cyan-400 text-base select-none">{getLastNameInitial(userName)}<div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#040c16]"></div></div>
               <div className="flex flex-col">
@@ -1229,7 +1228,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               textoBadge = idioma === "PT" ? "PARTICULAR" : idioma === "ES" ? "PARTICULAR" : "PRIVATE";
             }
                   return (
-                    <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[#00E5FF] font-mono text-[8px] font-black uppercase tracking-wider shadow-sm">
+                    <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[#00E5FF] font-mono text-[8.5px] font-black uppercase tracking-wider shadow-sm">
                       {textoBadge}
                     </span>
                   );
@@ -1238,67 +1237,67 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
             </div>
             <div className="flex flex-col gap-1.5 border-t border-white/[0.04] pt-2.5 relative">
-              <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
-              <div className="hidden absolute top-2 right-2 font-bold text-cyan-400/10 hover:font-bold text-cyan-400/20 text-cyan-400 text-[8px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
-              <div className="grid grid-cols-3 gap-1.5 text-center">
-                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-white/10 hover:border-purple-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
+              <span className="text-[8.5px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
+              <div className="hidden absolute top-2 right-2 font-bold text-cyan-400/10 hover:font-bold text-cyan-400/20 text-cyan-400 text-[8.5px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
+              <div className="grid grid-cols-3 gap-1 text-center items-stretch w-full">
+                <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-white/10 hover:border-purple-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-2 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
               <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-[1.5vh] w-full min-h-0 flex-grow justify-between py-[1vh]">
-            <span className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'DIAGNÓSTICO GERAL' : idioma === 'ES' ? 'DIAGNÓSTICO GENERAL' : 'GENERAL DIAGNOSTIC'}</span>
-            <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex items-center justify-between shadow-sm">
+          <div className="flex flex-col gap-2.5 w-full flex-1 min-h-0">
+            <span className="text-[8.5px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'DIAGNÓSTICO GERAL' : idioma === 'ES' ? 'DIAGNÓSTICO GENERAL' : 'GENERAL DIAGNOSTIC'}</span>
+            <div className="bg-[#071324] border border-white/[0.02] py-2.5 px-3 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">{precisaoClinica}%</div>
                 <div className="flex flex-col"><span className="text-[11px] text-slate-200 font-bold">{idioma === 'PT' ? 'Eficiência Clínica' : idioma === 'ES' ? 'Precisión Clínica' : 'Clinical Accuracy'}</span><span className="text-[9px] text-slate-500 font-medium">{idioma === 'PT' ? 'Precisão Geral' : idioma === 'ES' ? 'Precisión General' : 'Overall Precision'}</span></div>
               </div>
             </div>
             
-            <div className="bg-[#071324] border border-white/[0.02] py-[1vh] px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
+            <div className="bg-[#071324] border border-white/[0.02] py-2.5 px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
               <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-cyan-400 font-bold text-cyan-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
-              <div className="grid grid-cols-7 gap-1.5 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
+              <div className="grid grid-cols-7 gap-1 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
                     <div className={`w-full aspect-square rounded border transition-all duration-300 ${item.treinou ? 'font-bold text-cyan-400 border-white/10 hover:border-purple-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]' : 'bg-slate-900 border-white/10 opacity-40'}`} />
-                    <span className="text-[7.5px] font-mono font-black text-slate-500 uppercase">{idioma === "EN" ? ["M","T","W","T","F","S","S"][idx] : idioma === "ES" ? ["L","M","X","J","V","S","D"][idx] : ["S","T","Q","Q","S","S","D"][idx]}</span>
+                    <span className="text-[8.5px] font-mono font-black text-slate-500 uppercase">{idioma === "EN" ? ["M","T","W","T","F","S","S"][idx] : idioma === "ES" ? ["L","M","X","J","V","S","D"][idx] : ["S","T","Q","Q","S","S","D"][idx]}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* GRID DOS 4 CARDS RESTAURADOS COM ACESSO DIRETO AO PAGAMENTO */}
-            <div className="grid grid-cols-2 gap-2 w-full">
-              <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-sky-400 block leading-none">{imersaoTotal}</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Horas de Imersão' : idioma === 'ES' ? 'Horas de Inmersión' : 'Immersion Hours'}</span>
+            <div className="grid grid-cols-2 gap-2 w-full flex-1 min-h-0">
+              <div className="bg-[#071324] border border-white/[0.02] w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center">
+                <span className="text-[15px] font-mono font-black text-sky-400 block leading-none">{imersaoTotal}</span>
+                <span className="font-sans text-[8.5px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Horas de Imersão' : idioma === 'ES' ? 'Horas de Inmersión' : 'Immersion Hours'}</span>
               </div>
-              <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
-                <span className="text-[14px] font-mono font-black text-indigo-400 block leading-none">{vocabularioAtivo}</span>
-                <span className="font-sans text-[8px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Dias Ativos' : idioma === 'ES' ? 'Días Activos' : 'Active Days'}</span>
+              <div className="bg-[#071324] border border-white/[0.02] w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center">
+                <span className="text-[15px] font-mono font-black text-indigo-400 block leading-none">{vocabularioAtivo}</span>
+                <span className="font-sans text-[8.5px] font-bold tracking-tight text-slate-400 block uppercase mt-1">{idioma === 'PT' ? 'Dias Ativos' : idioma === 'ES' ? 'Días Activos' : 'Active Days'}</span>
               </div>
-              <div className="bg-[#071324] border border-white/[0.02] py-2 px-2 rounded-xl text-center flex flex-col justify-center items-center">
+              <div className="bg-[#071324] border border-white/[0.02] w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center">
                 <span className="text-[11px] font-mono font-bold text-emerald-400 block leading-none">{proximoVencimento}</span>
-                <span className="font-sans text-[7.5px] font-bold tracking-tight text-slate-500 block uppercase mt-1">{idioma === 'PT' ? 'Próximo Vencimento' : idioma === 'ES' ? 'Próximo Vencimiento' : 'Next Due Date'}</span>
+                <span className="font-sans text-[8.5px] font-bold tracking-tight text-slate-500 block uppercase mt-1">{idioma === 'PT' ? 'Próximo Vencimento' : idioma === 'ES' ? 'Próximo Vencimiento' : 'Next Due Date'}</span>
               </div>
               
               {/* Card de Pagamento Premium Reativo */}
-              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-purple-500/30 hover:border-purple-300 py-3 px-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
+              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-purple-500/30 hover:border-purple-300 w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
                 <span className="font-sans text-[9px] font-black tracking-wider text-cyan-400/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-[1.5vh] w-full flex flex-col gap-2 shrink-0">
+          <div className="border-t border-white/10 pt-3 mt-auto w-full flex flex-col gap-2 shrink-0">
             <button 
               onClick={() => window.open('https://wa.me/5491168809228', '_blank')} 
-              className="w-full bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 hover:text-emerald-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-emerald-500/10 text-center transition-all flex items-center justify-center"
+              className="w-full bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 hover:text-emerald-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-lg border border-emerald-500/10 text-center transition-all flex items-center justify-center"
             >
               {idioma === 'PT' ? 'Contato' : idioma === 'ES' ? 'Contacto' : 'Contact'}
             </button>
-            <button onClick={() => { if(confirm(idioma === 'PT' ? 'Deseja realmente sair da conta?' : idioma === 'ES' ? '¿Realmente deseja salir de la cuenta?' : 'Are you sure you want to log out?')) { window.location.href = '/'; } }} className="w-full bg-red-950/20 hover:bg-red-950/40 text-red-400 hover:text-red-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-red-500/10 text-center transition-all">{idioma === 'PT' ? 'Sair da Conta' : idioma === 'ES' ? 'Cerrar Sesión' : 'Log Out'}</button>
+            <button onClick={() => { if(confirm(idioma === 'PT' ? 'Deseja realmente sair da conta?' : idioma === 'ES' ? '¿Realmente deseja salir de la cuenta?' : 'Are you sure you want to log out?')) { window.location.href = '/'; } }} className="w-full bg-red-950/20 hover:bg-red-950/40 text-red-400 hover:text-red-300 font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-lg border border-red-500/10 text-center transition-all">{idioma === 'PT' ? 'Sair da Conta' : idioma === 'ES' ? 'Cerrar Sesión' : 'Log Out'}</button>
           </div>
 
         </div>
@@ -1513,19 +1512,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 {/* Linha 1: Planos Padrão Fechados */}
                 <button onClick={() => { setModalidade("grupo"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Users className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Grupo" : idioma === "EN" ? "Group" : "Grupo"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "Group")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Standard")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("vip_pro"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_pro" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Briefcase className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Pro" : idioma === "EN" ? "VIP Pro" : "VIP Pro"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Pro")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
@@ -1533,19 +1532,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                 {/* Linha 2: Aulas Avulsas / Packs Progressivos */}
                 <button onClick={() => { setModalidade("acumulador_grupo"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_grupo" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><TrendingUp className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack Grupo" : idioma === "EN" ? "Group Pack" : "Pack Grupo"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack Group")?.ai_status || "+10 IA /cr")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("acumulador_vip_std"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "acumulador_vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Box className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Std" : idioma === "EN" ? "VIP Std Pack" : "Pack VIP Std"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Std")?.ai_status || "+25 IA /cr")}
                   </div>
                 </button>
                 <button onClick={() => { setModalidade("avulsa"); setQtdAvulsas(1); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "avulsa" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><Ticket className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "Pack VIP Pro" : idioma === "EN" ? "VIP Pro Pack" : "Pack VIP Pro"}</div>
-                  <div className="text-[8px] text-slate-400 mt-0.5 leading-tight">
+                  <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "+7d Acesso | " : idioma === "EN" ? "+7d Access | " : "+7d Acceso | ") + (masterPlans?.find(p => p.plan_category === "Pack VIP Pro")?.ai_status || "+25 IA /cr")}
                   </div>
                 </button>
@@ -1781,7 +1780,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                             {idioma === "PT" ? "Para transferências ou cartões do exterior, processe sua matrícula diretamente através do nosso módulo global integrado de alta segurança." : idioma === "EN" ? "For international bank transfers or cards, process your enrollment directly through our highly secure integrated global module." : "Para transferencias o tarjetas desde el exterior, procese su matrícula de manera directa a través de nuestro módulo global integrado de alta seguridad."}
                           </p>
                         </div>
-                        <div className="text-[8px] text-slate-500 bg-slate-900/20 p-2 rounded-lg border border-slate-800/40">
+                        <div className="text-[8.5px] text-slate-500 bg-slate-900/20 p-2 rounded-lg border border-slate-800/40">
                           <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />{idioma === "PT" ? "Conexão criptografada de ponta a ponta. Compatível com cartões internacionais." : idioma === "EN" ? "End-to-end encrypted connection. Compatible with international cards." : "Conexión cifrada de extremo a extremo. Compatible con tarjetas internacionales."}
                         </div>
                       </div>
@@ -1805,10 +1804,10 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                             <div className="flex flex-col gap-0.5 text-[9px] bg-slate-900/40 p-2 rounded-lg border border-slate-800/60 font-mono text-left w-full">
                               <div className="flex justify-between text-slate-400"><span>{idioma === "PT" ? "Base do Plano:" : idioma === "EN" ? "Plan Base:" : "Base del Plan:"}</span><span>$ {valorTotal.toLocaleString("es-CO")} COP</span></div>
                               <div className="flex justify-between text-rose-400"><span>{idioma === "PT" ? "Taxa de Processamento (5%):" : idioma === "EN" ? "Processing Fee (5%):" : "Fee de Procesamiento (5%):"}</span><span>+ $ {Math.round(valorTotal * 0.05).toLocaleString("es-CO")} COP</span></div>
-                              <div className="flex justify-between text-slate-500 text-[8px]"><span>{idioma === "PT" ? "Desconto de Identificação do Robô:" : idioma === "EN" ? "Robot Identification Discount:" : "Descuento de Identificación del Robot:"}</span><span>- $ {diferencaCentavos} COP</span></div>
+                              <div className="flex justify-between text-slate-500 text-[8.5px]"><span>{idioma === "PT" ? "Desconto de Identificação do Robô:" : idioma === "EN" ? "Robot Identification Discount:" : "Descuento de Identificación del Robot:"}</span><span>- $ {diferencaCentavos} COP</span></div>
                               <div className="border-t border-slate-800/80 my-1"></div>
                               <div className="flex flex-col gap-0.5 text-left">
-                                <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "VALOR EXATO PARA DIGITAR NA PASSARELA (COP):" : idioma === "EN" ? "EXACT VALUE TO ENTER IN THE GATEWAY (COP):" : "VALOR EXACTO PARA INGRESAR EN LA PASARELA (COP):"}</span>
+                                <span className="text-[8.5px] font-bold text-emerald-400 uppercase tracking-wider">{idioma === "PT" ? "VALOR EXATO PARA DIGITAR NA PASSARELA (COP):" : idioma === "EN" ? "EXACT VALUE TO ENTER IN THE GATEWAY (COP):" : "VALOR EXACTO PARA INGRESAR EN LA PASARELA (COP):"}</span>
                                 <div className="flex justify-between font-black text-emerald-400 text-sm"><span>Total COP:</span><span>$ {(Math.round(valorTotal * 1.05) - diferencaCentavos).toLocaleString("es-CO")} COP</span></div>
                               </div>
                               <div className="border-t border-slate-800/40 my-0.5 opacity-30"></div>
@@ -1827,7 +1826,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       </div>
 
                     </div>
-                    <div className="text-[8px] text-slate-400 text-center mt-2">
+                    <div className="text-[8.5px] text-slate-400 text-center mt-2">
                       ⚠️ {idioma === "PT" ? (<><b>ATENÇÃO:</b> HAAS processa suas inscrições em moeda local (COP). A taxa bancária de processamento global não é reembolsável em caso de cancelamento. Certifique-se de digitar o valor em COP exato indicado na tabela acima para garantir a ativação automática pelo nosso robô.</>) : idioma === "EN" ? (<><b>ATTENTION:</b> HAAS processes enrollments in local currency (COP). The global processing bank fee is non-refundable in case of cancellation. Please make sure to enter the exact COP value shown in the table above to ensure automatic activation by our system.</>) : (<><b>ATENCIÓN:</b> HAAS procesa las inscripciones en moneda local (COP). La comisión bancaria de procesamiento global no es reembolsable en caso de cancelación. Asegúrese de ingresar el valor exacto en COP indicado en la tabla de arriba para garantizar la activación automática por nuestro robot.</>)}
                     </div>
                   </div>
@@ -1844,7 +1843,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                             {idioma === "PT" ? "Cartão de Crédito / Débito" : idioma === "EN" ? "Credit / Debit Card" : "Tarjeta de Crédito / Débito"}
                           </div>
-                          <p className="text-[8px] text-slate-500 text-left pl-3">{idioma === "PT" ? "Gateway seguro Wompi / Nequi" : idioma === "EN" ? "Secure gateway Wompi / Nequi" : "Pasarela segura Wompi / Nequi"}</p>
+                          <p className="text-[8.5px] text-slate-500 text-left pl-3">{idioma === "PT" ? "Gateway seguro Wompi / Nequi" : idioma === "EN" ? "Secure gateway Wompi / Nequi" : "Pasarela segura Wompi / Nequi"}</p>
                         </div>
                       </div>
 
@@ -1872,7 +1871,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       >
                         {idioma === "PT" ? "Pagar via Wompi / Nequi" : idioma === "EN" ? "Pay via Wompi / Nequi" : "Pagar vía Wompi / Nequi"}
                       </button>
-                      <p className="text-[7.5px] text-slate-500/90 font-medium text-center leading-tight mt-1.5 px-1">
+                      <p className="text-[8.5px] text-slate-500/90 font-medium text-center leading-tight mt-1.5 px-1">
                         <Shield className="inline-block w-3 h-3 mr-1 mb-0.5 text-slate-500" />{idioma === "PT" ? (
                           <>Ao processar o valor exato indicado, o gateway gerenciará a ativação da sua assinatura <b>de forma automática</b>. <i>Nota: A taxa de processamento é cobrada pela plataforma e não é reembolsável em caso de cancelamento.</i></>
                         ) : idioma === "EN" ? (
@@ -1906,7 +1905,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                         <div className="flex justify-between font-black text-cyan-400 text-xs"><span>{idioma === "PT" ? "A transferir:" : idioma === "EN" ? "Amount to transfer:" : "A transferir:"}</span><span>$ {valorDescontoBreve.toLocaleString("es-CO")}</span></div>
                       </div>
                       
-                      <p className="text-[7.5px] text-slate-400/90 font-medium text-center leading-tight mt-1 px-1">
+                      <p className="text-[8.5px] text-slate-400/90 font-medium text-center leading-tight mt-1 px-1">
                         ⚠️ <span className="font-bold text-cyan-400">{idioma === "PT" ? "ATENÇÃO:" : idioma === "EN" ? "ATTENTION:" : "ATENCIÓN:"}</span> {idioma === "PT" ? "Lembre-se de inserir o valor exato com desconto no seu banco; isso permite que nosso sistema valide seu pagamento digitalmente e gerencie a ativação do seu plano de forma automática." : idioma === "EN" ? "Remember to enter the exact discounted value in your bank; this allows our system to digitally validate your payment and manage the activation of your plan automatically." : "Recuerda ingresar el valor exacto con descuento en tu banco; esto permite que nuestro sistema valide tu pago digitalmente y gestione la activación de tu plan de forma automática."}
                       </p>
                     </div>
