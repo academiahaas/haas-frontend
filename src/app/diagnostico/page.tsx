@@ -132,8 +132,8 @@ function DiagnosticoContent() {
       const scoreFala = Math.round(scoreFalaBase * 0.60);
 
       // Escrita: 40% leitura + 40% escrita + 20% gramática
-      const scoreLeitura = Math.round(scoreEscritaBase * 0.40);
-      const scoreEscrita = Math.round(scoreEscritaBase * 0.40);
+      const scoreLeitura = Math.round(scoreEscritaBase * 0.45);
+      const scoreEscrita = Math.round(scoreEscritaBase * 0.35);
       const scoreGramatica = Math.round(scoreEscritaBase * 0.20);
 
       const { error } = await supabase
