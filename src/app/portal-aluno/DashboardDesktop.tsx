@@ -1324,7 +1324,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <ProgramaTrilha idiomaAtivo={idioma} aoAbrirArena={(unidId) => { setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
+            <ProgramaTrilha isTrilhaOpen={isTrilhaOpen} nivelAlunoProp={nivelAtual} idiomaAtivo={idioma} aoAbrirArena={(unidId) => { setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
           </div>
         </div>
       </div>

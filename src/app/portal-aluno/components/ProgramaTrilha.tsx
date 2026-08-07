@@ -5,10 +5,12 @@ import { ChevronDown, Lock, CheckCircle2, PlayCircle } from 'lucide-react';
 
 interface ProgramaTrilhaProps {
   idiomaAtivo: 'PT' | 'EN' | 'ES';
+  isTrilhaOpen?: boolean;
+  nivelAlunoProp?: string;
   aoAbrirArena?: (unidadeId?: any) => void;
 }
 
-export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTrilhaProps) {
+export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoProp, aoAbrirArena }: ProgramaTrilhaProps) {
   const [fases, setFases] = useState<any[]>([]);
   const [missoes, setMissoes] = useState<any[]>([]);
   const [moduloAberto, setModuloAberto] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
 
         const { modules_content, units, user } = dadosCentral;
 
-        const levelAluno = String(user?.current_level || 'A1').trim().toUpperCase();
+        const levelAluno = String(nivelAlunoProp || dadosCentral?.current_level || user?.current_level || dadosCentral?.level || 'A1').trim().toUpperCase();
         const numModuloAluno = Number(user?.modulo_atual || 1);
         const currentModuleIdAluno = user?.current_module_id ? String(user.current_module_id).trim().toLowerCase() : '';
 
@@ -84,10 +86,12 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
             }
           });
 
-          // Fallback de seguranca caso nao encontre o ID exato
-          if (!idAtualEncontrado && modulosMapeados.length > 0) {
-            const modFallback = modulosMapeados.find(m => m.nivel === levelAluno) || modulosMapeados[0];
-            idAtualEncontrado = modFallback.id;
+          // Prioridade absoluta ao nível atual do aluno (levelAluno)
+          const modDoNivel = modulosMapeados.find(m => m.nivel === levelAluno);
+          if (modDoNivel) {
+            idAtualEncontrado = modDoNivel.id;
+          } else if (!idAtualEncontrado && modulosMapeados.length > 0) {
+            idAtualEncontrado = modulosMapeados[0].id;
           }
 
           setRealModuloAtualId(idAtualEncontrado);
@@ -102,6 +106,28 @@ export default function ProgramaTrilha({ idiomaAtivo, aoAbrirArena }: ProgramaTr
     }
     sincronizarTrilha();
   }, []);
+
+
+  // O SEGREDO ESTÁ AQUI: Ficar escutando a prop nivelAlunoProp para atualizar a gaveta assim que o Dashboard terminar de carregar os dados reais da Central!
+  useEffect(() => {
+    if (fases.length > 0 && nivelAlunoProp) {
+      const nivelReal = nivelAlunoProp.trim().toUpperCase();
+      const modDoNivel = fases.find(m => m.nivel === nivelReal);
+      if (modDoNivel) {
+        setRealModuloAtualId(modDoNivel.id);
+        if (isTrilhaOpen) {
+          setModuloAberto(modDoNivel.id);
+        }
+      }
+    }
+  }, [nivelAlunoProp, fases, isTrilhaOpen]);
+
+  useEffect(() => {
+    if (isTrilhaOpen && realModuloAtualId) {
+      setModuloAberto(realModuloAtualId);
+    }
+  }, [isTrilhaOpen, realModuloAtualId]);
+
 
   if (carregando) {
     return <div className="text-center py-10 text-cyan-400 font-mono animate-pulse text-xs">SINCRONIZANDO MAPA PEDAGÓGICO...</div>;
