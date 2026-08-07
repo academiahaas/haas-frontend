@@ -1252,7 +1252,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             <div className="bg-[#071324] border border-white/[0.02] py-2.5 px-3 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">{precisaoClinica}%</div>
-                <div className="flex flex-col"><span className="text-[11px] text-slate-200 font-bold">{idioma === 'PT' ? 'Eficiência Clínica' : idioma === 'ES' ? 'Precisión Clínica' : 'Clinical Accuracy'}</span><span className="text-[9px] text-slate-500 font-medium">{idioma === 'PT' ? 'Precisão Geral' : idioma === 'ES' ? 'Precisión General' : 'Overall Precision'}</span></div>
+                <div className="flex flex-col"><span className="text-[11px] text-slate-200 font-bold">{idioma === 'PT' ? 'Eficiência' : idioma === 'ES' ? 'Precisión' : 'Accuracy'}</span><span className="text-[9px] text-slate-500 font-medium">{idioma === 'PT' ? 'Precisão Geral' : idioma === 'ES' ? 'Precisión General' : 'Overall Precision'}</span></div>
               </div>
             </div>
             
