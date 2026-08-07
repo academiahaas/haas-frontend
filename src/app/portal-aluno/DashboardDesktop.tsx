@@ -1516,7 +1516,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "Group")?.ai_status || "IA Ilimitada")}
                   </div>
                 </button>
-                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all  Pacote${modalidade === "vip_std" ? "border-cyan-500/40 font-bold text-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/10"}`}>
+                <button onClick={() => { setModalidade("vip_std"); setCreditosMensais(8); }} className={`p-2 rounded-xl border text-center transition-all ${modalidade === "vip_std" ? "border-cyan-500/40 bg-cyan-400/10" : "border-white/10 bg-slate-950/40 hover:border-white/20"}`}>
                   <div className="text-[11px] font-bold text-cyan-400"><User className="inline-block w-3.5 h-3.5 mr-1 mb-0.5 text-cyan-400" />{idioma === "PT" ? "VIP Standard" : idioma === "EN" ? "VIP Standard" : "VIP Standard"}</div>
                   <div className="text-[8.5px] text-slate-400 mt-0.5 leading-tight">
                     {(idioma === "PT" ? "30 Dias | " : idioma === "EN" ? "30 Days | " : "30 Días | ") + (masterPlans?.find(p => p.plan_category === "VIP Standard")?.ai_status || "IA Ilimitada")}
