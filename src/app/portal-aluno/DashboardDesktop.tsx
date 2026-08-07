@@ -1176,7 +1176,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                     <div key={item.id || idx} className="flex justify-between items-center bg-[#09192f] p-2.5 rounded-xl border border-white/10 text-[10px] font-mono font-bold">
                       <span className="text-white/90 truncate max-w-[70%]">{item.conteudo}</span>
                       <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-black uppercase tracking-wide ${
-                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "font-bold text-cyan-400/10 text-cyan-400 border border-cyan-500/20"
+                        isCritico ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                       }`}>
                         {item.frequencia}
                       </span>
