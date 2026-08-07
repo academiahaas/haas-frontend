@@ -12,7 +12,7 @@ export default function LandingPage() {
   const programs = [
     { id: 'ingles', title: 'Inglés General & Business', level: 'A1 - C1', desc: 'Dominio práctico con enfoque en reuniones internacionales, gramática aplicada y fluidez profesional.', tag: 'Popular' },
     { id: 'espanol', title: 'Español Conversacional', level: 'A1 - C1', desc: 'Formación estructurada para negocios y comunicación efectiva con la cultura hispana.', tag: 'Recomendado' },
-    { id: 'portugues', title: 'Português Brasil & Europa', level: 'A1 - C1', desc: 'Enfoque comunicativo acelerado para viajes, oportunidades laborales e integración cultural.', tag: 'Intensivo' },
+    { id: 'portugues', title: 'Português Brasil', level: 'A1 - C1', desc: 'Enfoque comunicativo acelerado para viajes, oportunidades laborales e integración cultural.', tag: 'Intensivo' },
   ];
 
   const filteredPrograms = selectedLanguageTab === 'all' 
@@ -560,7 +560,7 @@ export default function LandingPage() {
             <ul className="space-y-2.5">
               <li><a href="#programas" className="hover:text-purple-400 transition-colors">Inglés General & Business</a></li>
               <li><a href="#programas" className="hover:text-purple-400 transition-colors">Español Conversacional</a></li>
-              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Português Brasil & Europa</a></li>
+              <li><a href="#programas" className="hover:text-purple-400 transition-colors">Português Brasil</a></li>
               <li><button onClick={() => setIsDiagnosticOpen(true)} className="hover:text-purple-400 transition-colors text-left">Diagnóstico Express IA</button></li>
             </ul>
           </div>
