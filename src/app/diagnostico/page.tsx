@@ -144,7 +144,9 @@ function DiagnosticoContent() {
       const scoreEscrita = Math.round(pontosParaEscrita * 0.35);
       const scoreGramatica = Math.round(pontosParaEscrita * 0.20);
 
-      const { error } = await supabase
+      const nivelCefr = (resultadoIA?.nivel_cefr || "A1").toString().trim().toUpperCase();
+
+      const { data: subData, error } = await supabase
         .from("user_subscriptions")
         .insert([
           {
@@ -160,7 +162,27 @@ function DiagnosticoContent() {
             score_gramatica: scoreGramatica,
             created_at: new Date().toISOString()
           }
-        ]);
+        ])
+        .select();
+
+      // Grava o ID e dados na sessão do navegador para o Portal
+      if (subData && subData[0]) {
+        localStorage.setItem("haas_user_id", subData[0].id);
+        localStorage.setItem("haas_user_email", subData[0].email || email.trim().toLowerCase());
+
+        if (subData[0].user_id) {
+          await supabase
+            .from("users")
+            .update({ current_level: nivelCefr })
+            .eq("id", subData[0].user_id);
+        }
+      }
+
+      // Atualiza a coluna users.current_level no banco pelo e-mail do aluno
+      await supabase
+        .from("users")
+        .update({ current_level: nivelCefr })
+        .eq("email", email.trim().toLowerCase());
 
       if (error) {
         console.error("Erro ao salvar no Supabase (user_subscriptions):", error);
