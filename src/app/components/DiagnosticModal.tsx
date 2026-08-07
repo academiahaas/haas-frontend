@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DiagnosticModalProps {
   isOpen: boolean;
@@ -15,6 +15,45 @@ export default function DiagnosticModal({ isOpen, onClose }: DiagnosticModalProp
   const [speakingDone, setSpeakingDone] = useState(false);
   const [writtenAnswer, setWrittenAnswer] = useState('');
 
+  // 1. Carrega o cache armazenado no localStorage ao montar o componente
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('haas_guest_diagnostic');
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (data.step) setStep(data.step);
+        if (data.selectedLanguage) setSelectedLanguage(data.selectedLanguage);
+        if (data.speakingDone) setSpeakingDone(data.speakingDone);
+        if (data.writtenAnswer) setWrittenAnswer(data.writtenAnswer);
+      }
+    } catch (e) {
+      console.error("Erro ao ler diagnóstico do localStorage", e);
+    }
+  }, []);
+
+  // 2. Persiste as alterações no localStorage sempre que houver mudanças nas respostas
+  useEffect(() => {
+    try {
+      const payload = {
+        selectedLanguage,
+        speakingDone,
+        writtenAnswer,
+        step,
+        completed: step === 3,
+        result: step === 3 ? {
+          level: "B1",
+          accuracyScore: 84,
+          fluencyIndex: 78,
+          recommendedPath: "Module B1 + AI Arena"
+        } : null,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('haas_guest_diagnostic', JSON.stringify(payload));
+    } catch (e) {
+      console.error("Erro ao salvar diagnóstico no localStorage", e);
+    }
+  }, [step, selectedLanguage, speakingDone, writtenAnswer]);
+
   if (!isOpen) return null;
 
   const handleReset = () => {
@@ -23,7 +62,29 @@ export default function DiagnosticModal({ isOpen, onClose }: DiagnosticModalProp
     setIsRecording(false);
     setSpeakingDone(false);
     setWrittenAnswer('');
+    try {
+      localStorage.removeItem('haas_guest_diagnostic');
+    } catch (e) {}
     onClose();
+  };
+
+  const handleFinish = () => {
+    // Garante que o payload completo com status final esteja salvo antes do redirecionamento
+    const finalPayload = {
+      selectedLanguage,
+      speakingDone,
+      writtenAnswer,
+      step: 3,
+      completed: true,
+      result: {
+        level: "B1",
+        accuracyScore: 84,
+        fluencyIndex: 78,
+        recommendedPath: "Module B1 + AI Arena"
+      },
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem('haas_guest_diagnostic', JSON.stringify(finalPayload));
   };
 
   return (
@@ -218,6 +279,7 @@ export default function DiagnosticModal({ isOpen, onClose }: DiagnosticModalProp
 
               <a
                 href="/portal-aluno"
+                onClick={handleFinish}
                 className="inline-block w-full py-3.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 text-white font-bold rounded-xl transition-all shadow-xl shadow-purple-600/30 text-xs tracking-wider uppercase"
               >
                 Activar Mis 7 Días Gratis en Nivel B1
