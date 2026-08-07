@@ -1257,7 +1257,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             </div>
             
             <div className="bg-[#071324] border border-white/[0.02] py-2.5 px-3 rounded-xl flex flex-col gap-1.5 shadow-sm">
-              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-cyan-400 font-bold text-cyan-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] text-slate-400 font-bold">{idioma === 'PT' ? 'Consistência Semanal' : idioma === 'ES' ? 'Consistencia Semanal' : 'Weekly Consistency'}</span><span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{streakDays}d</span></div>
               <div className="grid grid-cols-7 gap-1 bg-slate-950/40 p-2 rounded-xl border border-white/[0.02]">
                 {consistenciaSemanal.map((item, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
