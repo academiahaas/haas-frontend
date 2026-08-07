@@ -201,9 +201,9 @@ function DiagnosticoContent() {
             <div className="space-y-6 animate-fade-in">
               <div className="text-center space-y-1">
                 <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold uppercase tracking-wider">
-                  Fase 1 • Escuta e Fala
+                  Fase 1 • Escucha y Habla
                 </span>
-                <h2 className="text-xl font-bold text-slate-100 pt-2">Escute o áudio e responda</h2>
+                <h2 className="text-xl font-bold text-slate-100 pt-2">Escucha el audio y responde</h2>
               </div>
 
               <div className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between">
@@ -215,14 +215,14 @@ function DiagnosticoContent() {
                     <Volume2 className={`w-6 h-6 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
                   </button>
                   <div>
-                    <p className="text-xs text-slate-400">Áudio HD de Avaliação (Supabase Storage)</p>
-                    <p className="text-sm font-medium text-slate-200">Áudio do Teste de Nivelamento</p>
+                    <p className="text-xs text-slate-400">Audio HD de Evaluación (Supabase Storage)</p>
+                    <p className="text-sm font-medium text-slate-200">Audio del Test de Nivelación</p>
                   </div>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40">
-                <p className="text-xs font-bold text-indigo-400 uppercase mb-1">Questão de Fala / Speaking Prompt:</p>
+                <p className="text-xs font-bold text-indigo-400 uppercase mb-1">Pregunta de Habla / Speaking Prompt:</p>
                 <p className="text-xs text-slate-200 leading-relaxed">{currentConteudo.speakingPrompt}</p>
               </div>
 
@@ -257,15 +257,15 @@ function DiagnosticoContent() {
             <div className="space-y-5 animate-fade-in">
               <div className="text-center space-y-1">
                 <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold uppercase tracking-wider">
-                  Fase 2 • Leitura e Escrita
+                  Fase 2 • Lectura y Escritura
                 </span>
-                <h2 className="text-xl font-bold text-slate-100 pt-1">Leia o texto e responda por escrito</h2>
+                <h2 className="text-xl font-bold text-slate-100 pt-1">Lee el texto y responde por escrito</h2>
               </div>
 
               {/* TEXTO DE LEITURA */}
               <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/70 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                  <BookOpen className="w-4 h-4" /> Texto de Leitura
+                  <BookOpen className="w-4 h-4" /> Texto de Lectura
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed italic">
                   "{currentConteudo.readingTexto}"
@@ -290,7 +290,7 @@ function DiagnosticoContent() {
                 onClick={handleFinalizarProva}
                 className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-cyan-500 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
               >
-                Finalizar Evaluacion <Sparkles className="w-4 h-4" />
+                Finalizar Evaluación <Sparkles className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -300,8 +300,8 @@ function DiagnosticoContent() {
             <div className="py-12 text-center space-y-6 animate-fade-in">
               <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
               <div>
-                <h3 className="text-xl font-bold text-slate-100">Gemini IA avaliando teste...</h3>
-                <p className="text-xs text-slate-400 mt-1">Analisando critérios gramaticais, vocabulário e padrão CEFR.</p>
+                <h3 className="text-xl font-bold text-slate-100">Gemini IA evaluando prueba...</h3>
+                <p className="text-xs text-slate-400 mt-1">Analizando criterios gramaticales, vocabulario y estándar CEFR.</p>
               </div>
             </div>
           )}
