@@ -397,16 +397,22 @@ function DiagnosticoContent() {
               <div className="relative">
                 <textarea
                   rows={4}
-                  maxLength={120}
                   value={textoResposta}
-                  onChange={(e) => setTextoResposta(e.target.value)}
+                  onChange={(e) => {
+                    const input = e.target.value;
+                    const wordCount = input.trim() === '' ? 0 : input.trim().split(/\s+/).length;
+                    // Permite apagar o texto ou digitar se estiver dentro do limite de 120 palavras
+                    if (wordCount <= 120 || input.length < textoResposta.length) {
+                      setTextoResposta(input);
+                    }
+                  }}
                   placeholder={currentConteudo.placeholder}
                   className="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-slate-100 placeholder-slate-600 focus:outline-none transition-all resize-none text-xs leading-relaxed"
                 />
                 <div className="flex justify-between items-center mt-1 px-1">
-                  <span className="text-[10px] text-slate-500">Máximo 120 caracteres</span>
-                  <span className={`text-[10px] font-mono ${textoResposta.length >= 120 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}>
-                    {textoResposta.length}/120
+                  <span className="text-[10px] text-slate-500">Máximo 120 palabras</span>
+                  <span className={`text-[10px] font-mono ${(textoResposta.trim() === '' ? 0 : textoResposta.trim().split(/\s+/).length) >= 120 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}>
+                    {textoResposta.trim() === '' ? 0 : textoResposta.trim().split(/\s+/).length}/120
                   </span>
                 </div>
               </div>

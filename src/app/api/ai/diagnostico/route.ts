@@ -1,6 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6I6ttBs87ZZMIvY2YAtDLXTz8UKzbgLq9UrwVQYzEtPhQ";
+
+// Função de requisição com mecanismo de retry automático para contornar instabilidades 503
+async function fetchGeminiComRetry(url: string, payload: any, maxTentativas = 3, esperaMs = 1500) {
+  for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) return res;
+
+    // Se receber 503 (Sobrecarga temporária do Google) e ainda houver tentativas, aguarda e tenta novamente
+    if (res.status === 503 && tentativa < maxTentativas) {
+      await new Promise((resolve) => setTimeout(resolve, esperaMs * tentativa));
+      continue;
+    }
+
+    const errText = await res.text();
+    throw new Error(`Gemini API Http ${res.status}: ${errText}`);
+  }
+  throw new Error("Serviço do Gemini indisponível após múltiplas tentativas.");
+}
 
 export async function POST(request: Request) {
   try {
@@ -13,28 +36,22 @@ export async function POST(request: Request) {
 
     const textoLimpo = textoResposta.trim();
 
-    // Filtro estrito para respostas irrelevantes, curtas ou testes
-    if (textoLimpo.length < 15 || /^(bla\s*)+$/i.test(textoLimpo) || /^(\w)\1+$/i.test(textoLimpo)) {
+    // Trava para respostas muito curtas, sem nexo ou testes ("bla bla bla")
+    if (textoLimpo.length < 10 || /^(bla\s*)+$/i.test(textoLimpo) || /^(\w)\1+$/i.test(textoLimpo)) {
       return NextResponse.json({
         success: true,
         data: {
-          score_fala: 0,
-          score_escrita: 0,
-          pontuacao_total: 0,
+          pontuacao_total: 10,
           nivel_cefr: "A1",
           detalhamento_pontos: {
             compreensao_conteudo: 0,
-            correcao_portunhol: 0,
-            fluencia_duracao: 0
+            correcao_portunhol: 5,
+            fluencia_duracao: 5
           },
-          erros_detectados: [
-            "Respuesta insuficiente ou sem estrutura linguística adequada ao tema."
-          ],
-          erros_portunhol_detectados: [
-            "Respuesta insuficiente ou sem estrutura linguística adequada ao tema."
-          ],
-          feedback_estudiante: "Tu respuesta es demasiado corta o no aborda la prueba planteada. Para evaluar tu nivel real, intenta responder con oraciones completas demostrando comprensión del texto.",
-          justificativa_nivel: "Tu respuesta es demasiado corta o no aborda la prueba planteada. Para evaluar tu nivel real, intenta responder con oraciones completas demostrando comprensión del texto."
+          erros_detectados: ["Respuesta insuficiente o sin contenido evaluable."],
+          erros_portunhol_detectados: ["Respuesta insuficiente."],
+          feedback_estudiante: "Tu respuesta es muy corta o no contiene texto evaluable. Por favor, escribe una respuesta completa para determinar tu nivel real.",
+          justificativa_nivel: "Tu respuesta es muy corta o no contiene texto evaluable. Por favor, escribe una respuesta completa para determinar tu nivel real."
         }
       });
     }
@@ -43,146 +60,109 @@ export async function POST(request: Request) {
 
     if (idioma === "portugues") {
       promptSistema = `
-Você é um avaliador EXTREMAMENTE RÍGIDO e EXIGENTE de proficiência em Português para Hispanofalantes (Nivelamento Institucional HAAS). Sua missão é avaliar com rigor de autoridade policial.
+Você é um avaliador especialista em proficiência de Português (padrão CEFR). Sua função é avaliar a REAL PROFICIÊNCIA LINGUÍSTICA e FLUÊNCIA do candidato, de forma holística e sem engessamentos.
 
-TEXTO DE REFERÊNCIA (O aluno DEVE demonstrar que entendeu esta situação):
-"Embora o projeto tenha sido aprovado na reunião de ontem, a diretoria exigiu que nós refizéssemos o orçamento até o fim da tarde. Caso a equipe não consiga alinhar os prazos a tempo, haverá necessidade de adiar o lançamento, o que traria prejuízos financeiros significativos para a empresa."
+Texto do Candidato: "${textoLimpo}"
+Objetivo do Candidato: "${motivo || "Não informado"}"
 
-Resposta do aluno: "${textoLimpo}"
-Objetivo: "${motivo || "Não informado"}"
+REGRAS CRÍTICAS DE AVALIAÇÃO:
+1. Se o candidato escreveu em português natural, fluido, correto e sem erros gramaticais/portunhol graves, ele DEVE ser classificado entre B2, C1 ou C2 (70 a 100 pontos). Atribua C1/C2 (90-100 pts) para textos com domínio nativo ou avançado.
+2. Atribua A1 ou A2 (0 a 49 pontos) APENAS se houver portunhol travado, erros gramaticais graves/frequentes ou incapacidade de se comunicar no idioma.
+3. Avalie a coesão, vocabulário, estrutura sintática e gramática de forma fluida.
 
-REGRAS DE PONTUAÇÃO RÍGIDA (MÁXIMO 100 PONTOS TOTAL):
-1. COMPREENSÃO DE CONTEÚDO E RELEVÂNCIA (0 a 40 pontos):
-   - CRÍTICO: Se o aluno escreveu uma frase gramaticalmente bonita, mas que NÃO ABORDA o tema (projeto, orçamento, prazos, prejuízo, diretoria), ATRIBUA 0 NESTE QUESITO.
-   - Se o aluno não entendeu o texto de referência, a pontuação total em ambas as habilidades NÃO PODE ULTRAPASSAR 20 PONTOS (Nível A1).
-2. CORREÇÃO GRAMATICAL E ZERO PORTUNHOL (0 a 30 pontos):
-   - Subtraia 10 PONTOS por QUALQUER erro de Portunhol (ex: uso de "hasta", "pero", "sin embargo", "aunque", regência inadequada ou confusão de falso cognato).
-3. ESTRUTURA E COERÊNCIA (0 a 30 pontos):
-   - Avalie se a resposta é completa, articulada e coerente.
+Tabela CEFR:
+- 0 a 29: A1 (Iniciante)
+- 30 a 49: A2 (Básico)
+- 50 a 69: B1 (Intermediário)
+- 70 a 89: B2 (Avançado)
+- 90 a 100: C1/C2 (Proficiente / Nativo)
 
-PONTUAÇÃO SEPARADA E ESCALA CEFR:
-- "score_fala": Pontuação real da habilidade Oral/Auditiva (0 a 100). Se não entendeu o tema, MÁXIMO 20.
-- "score_escrita": Pontuação real da habilidade de Leitura/Escrita e Gramática (0 a 100). Se não entendeu o tema, MÁXIMO 20.
-- "pontuacao_total": Média exata entre as duas notas.
-- Tabela CEFR: 0-20 = A1 | 21-40 = A2 | 41-60 = B1 | 61-80 = B2 | 81-100 = C1.
+REGRA OBRIGATÓRIA DO FEEDBACK:
+O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS.
 
-REGRA OBRIGATÓRIA DO FEEDBACK ALUNO:
-O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, de forma AMIGÁVEL e ENCORAJADORA, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS. Explique o motivo da pontuação sem ser agressivo no texto.
-
-Retorne ESTRITAMENTE em formato JSON puro sem markdown:
+Retorne ESTRITAMENTE o JSON puro:
 {
-  "score_fala": 15,
-  "score_escrita": 20,
-  "pontuacao_total": 18,
-  "nivel_cefr": "A1",
+  "pontuacao_total": 95,
+  "nivel_cefr": "C1",
   "detalhamento_pontos": {
-    "compreensao_conteudo": 0,
-    "correcao_portunhol": 10,
-    "fluencia_duracao": 8
+    "compreensao_conteudo": 35,
+    "correcao_portunhol": 30,
+    "fluencia_duracao": 30
   },
-  "erros_detectados": ["Respuesta fuera del tema principal y presencia de Portuñol"],
-  "feedback_estudiante": "Tu redacción es clara, pero no lograste responder sobre el tema del presupuesto y los plazos. ¡Sigue practicando para responder con precisión el contenido del texto!"
+  "erros_detectados": [],
+  "feedback_estudiante": "Demostraste un dominio fluido y natural del idioma portugués, con excelente estructura gramatical y vocabulario preciso. ¡Excelente trabajo!"
 }
 `;
     } else if (idioma === "espanhol") {
       promptSistema = `
-Você é um avaliador EXTREMAMENTE RÍGIDO e EXIGENTE de proficiência em Espanhol para Brasileiros (Nivelamento Institucional HAAS).
+Você é um avaliador especialista em proficiência de Espanhol (padrão CEFR). Sua função é avaliar a REAL PROFICIÊNCIA LINGUÍSTICA do candidato.
 
-TEXTO DE REFERÊNCIA:
-"Todavía no hemos logrado acordar los términos del contrato con los proveedores. Aunque la propuesta inicial parecía bastante ventajosa, nos dimos cuenta de que los plazos de entrega no eran los adecuados. Por lo tanto, le pediremos al equipo legal que revise las cláusulas antes de tomar una decisión definitiva."
+Texto do Candidato: "${textoLimpo}"
+Objetivo do Candidato: "${motivo || "Não informado"}"
 
-Resposta do aluno: "${textoLimpo}"
-Objetivo: "${motivo || "Não informado"}"
+REGRAS CRÍTICAS DE AVALIAÇÃO:
+1. Se o texto for escrito em espanhol correto, natural e bem estruturado, atribua nota alta (B2, C1 ou C2 - 70 a 100 pontos).
+2. Atribua A1 ou A2 (0 a 49 pontos) APENAS se houver forte interferência de portunhol, erros graves de tempos verbais/pronomes ou falta de estrutura.
 
-REGRAS DE PONTUAÇÃO RÍGIDA:
-1. COMPREENSÃO DE CONTEÚDO E RELEVÂNCIA (0 a 40 pontos):
-   - Se a resposta não tratar do contrato, prazos de entrega ou revisão legal, ATRIBUA 0 NESTE QUESITO e limite a nota final a NO MÁXIMO 20 PONTOS (Nível A1).
-2. CORREÇÃO GRAMATICAL E PORTUNHOL (0 a 30 pontos):
-   - Desconte 10 pontos por mistura com português (ex: "pedir para", falsos amigos, erros em por/para ou uso inapropriado de pronomes).
-3. ESTRUTURA E COERÊNCIA (0 a 30 pontos).
+Tabela CEFR:
+- 0 a 29: A1 | 30 a 49: A2 | 50 a 69: B1 | 70 a 89: B2 | 90 a 100: C1/C2
 
-PONTUAÇÃO SEPARADA E ESCALA CEFR:
-- "score_fala": 0 a 100 (Máximo 20 se não abordou o tema).
-- "score_escrita": 0 a 100 (Máximo 20 se não abordou o tema).
-- "pontuacao_total": Média exata.
-- Tabela CEFR: 0-20 = A1 | 21-40 = A2 | 41-60 = B1 | 61-80 = B2 | 81-100 = C1.
+REGRA OBRIGATÓRIA DO FEEDBACK:
+O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS.
 
-REGRA OBRIGATÓRIA DO FEEDBACK ALUNO:
-O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, de forma AMIGÁVEL, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS.
-
-Retorne ESTRITAMENTE em formato JSON puro sem markdown:
+Retorne ESTRITAMENTE o JSON puro:
 {
-  "score_fala": 15,
-  "score_escrita": 20,
-  "pontuacao_total": 18,
-  "nivel_cefr": "A1",
+  "pontuacao_total": 85,
+  "nivel_cefr": "B2",
   "detalhamento_pontos": {
-    "compreensao_conteudo": 0,
-    "correcao_portunhol": 10,
-    "fluencia_duracao": 8
+    "compreensao_conteudo": 30,
+    "correcao_portunhol": 25,
+    "fluencia_duracao": 30
   },
-  "erros_detectados": ["Respuesta desalineada con el tema del contrato"],
-  "feedback_estudiante": "Expresaste buenas estructuras, pero tu respuesta no abordó los puntos clave del contrato y proveedores. ¡Continúa practicando para mejorar tu comprensión!"
+  "erros_detectados": [],
+  "feedback_estudiante": "Demostraste un buen manejo del español con redacción clara y fluida. Sigue practicando para perfeccionar las estructuras más complejas."
 }
 `;
     } else {
       promptSistema = `
-You are an EXTREMELY STRICT and RIGOROUS English Language Assessment AI (HAAS Placement Test).
+You are an expert English Language Assessment AI (CEFR Standard). Evaluate the candidate's REAL LINGUISTIC PROFICIENCY holistically.
 
-REFERENCE TEXT:
-"Despite the initial setback with the software update, the development team managed to resolve the critical bugs before the official release. Had we not extended the testing phase last week, several major issues would have gone unnoticed, potentially harming our reputation with key clients."
+Candidate Response: "${textoLimpo}"
+Candidate Goal: "${motivo || "Not specified"}"
 
-Student Response: "${textoLimpo}"
-Goal: "${motivo || "Not specified"}"
+EVALUATION RULES:
+1. Evaluate grammar, vocabulary richness, sentence complexity, and natural expression in English.
+2. If the text is natural, fluent, and grammatically sound, assign a high score (B2, C1, or C2 - 70 to 100 points).
+3. Assign A1 or A2 (0 to 49 points) ONLY if there are severe grammatical breakdowns or inability to communicate.
 
-STRICT SCORING RULES:
-1. CONTENT COMPREHENSION & RELEVANCE (0 to 40 points):
-   - If the response is off-topic or fails to mention software updates, bugs, or testing, ASSIGN 0 POINTS in this section. Limit total score to MAXIMUM 20 POINTS (CEFR A1).
-2. GRAMMAR & VOCABULARY ACCURACY (0 to 30 points):
-   - Deduct 10 points for native language interference or basic grammatical errors.
-3. STRUCTURE & COHESION (0 to 30 points).
-
-SEPARATE EVALUATION & CEFR LEVEL:
-- "score_fala": 0 to 100 (Max 20 if off-topic).
-- "score_escrita": 0 to 100 (Max 20 if off-topic).
-- "pontuacao_total": Average of both scores.
-- CEFR Table: 0-20 = A1 | 21-40 = A2 | 41-60 = B1 | 61-80 = B2 | 81-100 = C1.
+CEFR Scale:
+- 0-29: A1 | 30-49: A2 | 50-69: B1 | 70-89: B2 | 90-100: C1/C2
 
 MANDATORY FEEDBACK RULE:
-"feedback_estudiante" MUST be in SPANISH, FRIENDLY, ENCOURAGING, SECOND PERSON ("tú"), MAXIMUM 40 WORDS.
+The "feedback_estudiante" field MUST be written IN SPANISH, addressing the student DIRECTLY in SECOND PERSON ("tú"), and be MAXIMUM 40 WORDS long.
 
-Return STRICTLY a JSON object without markdown:
+Return STRICTLY JSON format:
 {
-  "score_fala": 15,
-  "score_escrita": 20,
-  "pontuacao_total": 18,
-  "nivel_cefr": "A1",
+  "pontuacao_total": 85,
+  "nivel_cefr": "B2",
   "detalhamento_pontos": {
-    "compreensao_conteudo": 0,
-    "correcao_portunhol": 10,
-    "fluencia_duracao": 8
+    "compreensao_conteudo": 30,
+    "correcao_portunhol": 25,
+    "fluencia_duracao": 30
   },
-  "erros_detectados": ["Off-topic response"],
-  "feedback_estudiante": "Tus oraciones son claras, pero la respuesta no abordó el tema del software y la prueba. ¡Sigue adelante para afinar tu comprensión auditiva y lectora!"
+  "erros_detectados": [],
+  "feedback_estudiante": "Tu nivel de inglés es fluido y bien estructurado. Tienes buen vocabulario y coherencia en tus ideas. ¡Sigue así!"
 }
 `;
     }
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const resGemini = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: promptSistema }] }],
-        generationConfig: { responseMimeType: "application/json" }
-      })
+    
+    // Executa a requisição resiliente com retry
+    const resGemini = await fetchGeminiComRetry(geminiUrl, {
+      contents: [{ parts: [{ text: promptSistema }] }],
+      generationConfig: { responseMimeType: "application/json" }
     });
-
-    if (!resGemini.ok) {
-      const errBody = await resGemini.text();
-      console.error("Erro na resposta HTTP do Gemini:", resGemini.status, errBody);
-      throw new Error(`Gemini API Http ${resGemini.status}: ${errBody}`);
-    }
 
     const dataGemini = await resGemini.json();
     const textRaw = dataGemini?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -202,12 +182,10 @@ Return STRICTLY a JSON object without markdown:
     return NextResponse.json({
       success: true,
       data: {
-        score_fala: 0,
-        score_escrita: 0,
         pontuacao_total: 0,
         nivel_cefr: "A1",
-        feedback_estudiante: `Ocurrió un error al procesar tu prueba con la IA: ${error.message || "Error de conexión"}.`,
-        justificativa_nivel: `Ocurrió un error al procesar tu prueba con la IA: ${error.message || "Error de conexión"}.`
+        feedback_estudiante: "El servidor de IA experimentó una alta demanda temporal. Por favor, intenta enviar tu respuesta de nuevo en unos segundos.",
+        justificativa_nivel: "El servidor de IA experimentó una alta demanda temporal. Por favor, intenta enviar tu respuesta de nuevo en unos segundos."
       }
     });
   }
