@@ -1156,7 +1156,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           <div className="relative w-full max-w-md bg-[#060912] border border-white/10 hover:border-purple-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh] z-10 text-white font-sans">
             <div className="flex justify-between items-center border-b border-white/10 pb-2">
               <h3 className="text-xs font-black uppercase font-mono tracking-wider text-[#8b5cf6]">
-                {idioma === "PT" ? "Depuração de Logs" : idioma === "ES" ? "Depuración de Logs" : "Logs Debugger"}
+                {idioma === "PT" ? "Pontos de Melhoria" : idioma === "ES" ? "Puntos de Mejora" : "Improvement Areas"}
               </h3>
               <button onClick={() => setIsDepurarOpen(false)} className="text-slate-400 hover:text-white font-black font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-md transition-colors">X</button>
             </div>
