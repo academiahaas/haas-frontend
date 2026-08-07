@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Volume2, Mic, Square, Sparkles, ArrowRight, ShieldCheck, LogIn, BookOpen } from "lucide-react";
 
@@ -105,6 +106,71 @@ function DiagnosticoContent() {
       setIsRecording(true);
     }
   };
+
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCadastro = async () => {
+    if (!nome.trim() || !email.trim() || !senha.trim()) {
+      alert("Por favor, preencha nome, e-mail e senha para criar sua conta.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const partesNome = nome.trim().split(" ");
+      const firstName = partesNome[0] || "";
+      const lastName = partesNome.slice(1).join(" ") || "";
+
+      const totalScore = Number(resultadoIA?.pontuacao_total) || 80;
+      const scoreFalaBase = Number(resultadoIA?.score_fala) || totalScore;
+      const scoreEscritaBase = Number(resultadoIA?.score_escrita) || totalScore;
+
+      // Regras Ponderadas Solicitações:
+      // Fala: 40% escuta + 60% fala
+      const scoreEscuta = Math.round(scoreFalaBase * 0.40);
+      const scoreFala = Math.round(scoreFalaBase * 0.60);
+
+      // Escrita: 40% leitura + 40% escrita + 20% gramática
+      const scoreLeitura = Math.round(scoreEscritaBase * 0.40);
+      const scoreEscrita = Math.round(scoreEscritaBase * 0.40);
+      const scoreGramatica = Math.round(scoreEscritaBase * 0.20);
+
+      const { error } = await supabase
+        .from("user_subscriptions")
+        .insert([
+          {
+            email: email.trim().toLowerCase(),
+            first_name: firstName,
+            last_name: lastName,
+            learning_motivation: motivo || "Não especificado",
+            course_language: idioma || "ingles",
+            score_escuta: scoreEscuta,
+            score_fala: scoreFala,
+            score_leitura: scoreLeitura,
+            score_escrita: scoreEscrita,
+            score_gramatica: scoreGramatica,
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (error) {
+        console.error("Erro ao salvar no Supabase (user_subscriptions):", error);
+      }
+
+      try {
+        localStorage.removeItem("haas_guest_diagnostic");
+      } catch (e) {}
+
+      router.push("/portal-aluno");
+    } catch (err) {
+      console.error("Erro durante a criação da conta:", err);
+      router.push("/portal-aluno");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   const handleFinalizarProva = async () => {
     setStep(5);
@@ -400,7 +466,7 @@ function DiagnosticoContent() {
                 />
 
                 <button 
-                  onClick={() => router.push('/portal-aluno')}
+                  disabled={isSubmitting} onClick={handleCadastro}
                   className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/30 text-sm flex items-center justify-center gap-2 mt-2"
                 >
                   <ShieldCheck className="w-5 h-5" /> Comenzar 7 Días Gratis en la Arena
