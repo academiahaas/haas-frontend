@@ -238,11 +238,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   }, [isOpen, userId]);
 
   
-  const [aulas, setAulas] = useState<Aula[]>([
-    { id: "1", data: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], horario: "10:00", tipo: "regular", status: "agendada" },
-    { id: "2", data: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0], horario: "15:30", tipo: "reposicao", status: "agendada" },
-    { id: "test_bloqueio", data: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().split('T')[0], horario: new Date(Date.now() + 2 * 60 * 60 * 1000).toTimeString().split(' ')[0].substring(0, 5), tipo: "regular", status: "agendada" }
-  ]);
+  const [aulas, setAulas] = useState<Aula[]>([]);
 
   const listaHorariosGrupo = ["07:00", "08:00", "09:00", "18:00", "19:00", "20:00"];
   const listaHorariosRegulares = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
