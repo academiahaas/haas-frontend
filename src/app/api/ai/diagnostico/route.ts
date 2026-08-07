@@ -18,6 +18,8 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         data: {
+          score_fala: 10,
+          score_escrita: 10,
           pontuacao_total: 10,
           nivel_cefr: "A1",
           detalhamento_pontos: {
@@ -60,8 +62,15 @@ Critérios (Total: 100 pontos):
 REGRA OBRIGATÓRIA DO FEEDBACK:
 O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS. Deve ser um conselho direto e amigável ao aluno sobre seus acertos e o que precisa melhorar.
 
+AVALIAÇÃO SEPARADA (Obrigatório):
+- "score_fala": Pontuação real da habilidade Oral/Auditiva (0 a 100).
+- "score_escrita": Pontuação real da habilidade de Leitura/Escrita e Gramática (0 a 100).
+- "pontuacao_total": Média entre as duas notas.
+
 Retorne ESTRITAMENTE em formato JSON puro sem markdown:
 {
+  "score_fala": 80,
+  "score_escrita": 90,
   "pontuacao_total": 85,
   "nivel_cefr": "B2",
   "detalhamento_pontos": {
@@ -94,8 +103,15 @@ Critérios (Total: 100 pontos):
 REGRA OBRIGATÓRIA DO FEEDBACK:
 O campo "feedback_estudiante" DEVE ser escrito EM ESPANHOL, em SEGUNDA PESSOA ("tú") e ter no MÁXIMO 40 PALAVRAS.
 
+AVALIAÇÃO SEPARADA (Obrigatório):
+- "score_fala": Pontuação real da habilidade Oral/Auditiva (0 a 100).
+- "score_escrita": Pontuação real da habilidade de Leitura/Escrita e Gramática (0 a 100).
+- "pontuacao_total": Média entre as duas notas.
+
 Retorne ESTRITAMENTE em formato JSON puro sem markdown:
 {
+  "score_fala": 65,
+  "score_escrita": 75,
   "pontuacao_total": 70,
   "nivel_cefr": "B1",
   "detalhamento_pontos": {
@@ -128,8 +144,15 @@ Criteria (Total: 100 points):
 MANDATORY FEEDBACK RULE:
 The "feedback_estudiante" field MUST be written IN SPANISH, addressing the student DIRECTLY in SECOND PERSON ("tú"), and be MAXIMUM 40 WORDS long.
 
+SEPARATE EVALUATION (Mandatory):
+- "score_fala": Real oral/speaking proficiency score (0 to 100).
+- "score_escrita": Real reading/writing proficiency score (0 to 100).
+- "pontuacao_total": Average of both scores.
+
 Return STRICTLY a JSON object without markdown:
 {
+  "score_fala": 70,
+  "score_escrita": 80,
   "pontuacao_total": 75,
   "nivel_cefr": "B2",
   "detalhamento_pontos": {

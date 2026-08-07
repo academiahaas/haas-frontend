@@ -36,7 +36,7 @@ export default function PortalAluno() {
 
     async function carregarDados() {
       try {
-        const uid = (typeof window !== 'undefined' && (localStorage.getItem('haas_uid') || localStorage.getItem('supabase_uid'))) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+        const uid = (typeof window !== 'undefined' && (localStorage.getItem('haas_user_id') || localStorage.getItem('haas_uid') || localStorage.getItem('supabase_uid'))) || "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
         const res = await fetchCentralPortalData(uid);
         if (isMounted && res && res.user) {
           setAlunoData(res.user);
