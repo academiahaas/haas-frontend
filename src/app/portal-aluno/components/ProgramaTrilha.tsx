@@ -125,6 +125,13 @@ export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoPr
   useEffect(() => {
     if (isTrilhaOpen && realModuloAtualId) {
       setModuloAberto(realModuloAtualId);
+      // Auto-scroll suave para o módulo atual
+      setTimeout(() => {
+        const elemento = document.getElementById(`modulo-${realModuloAtualId}`);
+        if (elemento) {
+          elemento.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300); // 300ms de delay para aguardar a animação de expansão da gaveta
     }
   }, [isTrilhaOpen, realModuloAtualId]);
 
@@ -158,7 +165,7 @@ export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoPr
         }
 
         return (
-          <div key={fase.id} className={"border rounded-xl transition-all duration-300 " + cardStyle}>
+          <div key={fase.id} id={`modulo-${fase.id}`} className={"border rounded-xl transition-all duration-300 " + cardStyle}>
             <div onClick={() => setModuloAberto(isOpen ? null : fase.id)} className="p-4 flex justify-between items-center cursor-pointer select-none">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">
