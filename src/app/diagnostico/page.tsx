@@ -215,7 +215,7 @@ function DiagnosticoContent() {
                     <Volume2 className={`w-6 h-6 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
                   </button>
                   <div>
-                    <p className="text-xs text-slate-400">Audio HD de Evaluación (Supabase Storage)</p>
+                    <p className="text-xs text-slate-400">Audio HD de Evaluación</p>
                     <p className="text-sm font-medium text-slate-200">Audio del Test de Nivelación</p>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ function DiagnosticoContent() {
             <div className="py-12 text-center space-y-6 animate-fade-in">
               <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
               <div>
-                <h3 className="text-xl font-bold text-slate-100">Gemini IA evaluando prueba...</h3>
+                <h3 className="text-xl font-bold text-slate-100">HAAS AI Engine evaluando prueba...</h3>
                 <p className="text-xs text-slate-400 mt-1">Analizando criterios gramaticales, vocabulario y estándar CEFR.</p>
               </div>
             </div>
@@ -310,7 +310,7 @@ function DiagnosticoContent() {
           {step === 6 && (
             <div className="space-y-6 text-center animate-fade-in">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
-                <Sparkles className="w-4 h-4" /> ¡Diagnóstico Gemini Completado!
+                <Sparkles className="w-4 h-4" /> ¡Análisis HAAS AI Completado!
               </div>
 
               <div>
