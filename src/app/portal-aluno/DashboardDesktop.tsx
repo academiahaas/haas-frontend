@@ -1618,9 +1618,9 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                       const baseIaNum = parseInt(rawAi.replace(/[^0-9]/g, ""), 10) || (modalidade === "acumulador_grupo" ? 100 : 25);
                       const totalIaCalculado = qtdAvulsas * baseIaNum;
                       const diasVigencia = Math.min(qtdAvulsas * 7, 30);
-                      return idioma === "PT" ? `Vigência Base: +${diasVigencia} Dias (Teto 30) | Crédito IA: +${totalIaCalculado} Consultas (+${baseIaNum} IA/cr x ${qtdAvulsas} cr)` :
-                             idioma === "EN" ? `Base Term: +${diasVigencia} Days (Max 30) | AI Credit: +${totalIaCalculado} Queries (+${baseIaNum} AI/cr x ${qtdAvulsas} cr)` :
-                             `Vigencia Integral: +${diasVigencia} Días | Acceso IA: +${totalIaCalculado} IA (+${baseIaNum} IA/cr x ${qtdAvulsas} cr)`;
+                      return idioma === "PT" ? `Vigência Integral: +${diasVigencia} Dias | Acesso IA: +${totalIaCalculado} IA` :
+                             idioma === "EN" ? `Full Validity: +${diasVigencia} Days | AI Access: +${totalIaCalculado} AI` :
+                             `Vigencia Integral: +${diasVigencia} Días | Acceso IA: +${totalIaCalculado} IA`;
                     })()}
                   </div>
                 </div>
