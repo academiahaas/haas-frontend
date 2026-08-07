@@ -1,0 +1,379 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import { Calendar, Clock, XCircle, AlertTriangle, RefreshCw, CheckCircle2, ShieldAlert, BadgeDollarSign, ChevronLeft, ChevronRight, Ticket } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  idioma: "PT" | "EN" | "ES";
+}
+
+interface Aula {
+  id: string;
+  data: string; 
+  horario: string; 
+  tipo: "regular" | "reposicao";
+  status: "agendada" | "realizada" | "cancelada";
+}
+
+export default function ModalAgendaAluno({ isOpen, onClose, idioma }: Props) {
+  const [activeTab, setActiveTab] = useState<"lista" | "agendar">("lista");
+  const [loading, setLoading] = useState(false);
+  const [mensagem, setMensagem] = useState<{ tipo: "sucesso" | "erro", texto: string } | null>(null);
+
+  // Estados de controle do agendamento
+  const [tipoAula, setTipoAula] = useState<"regular" | "reposicao">("regular");
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [selectedHorario, setSelectedHorario] = useState("08:00");
+
+  // Estados do mini calendário Premium controlado
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentNavDate, setCurrentNavDate] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // ==========================================
+  // CONTROLE DE SALDO REAL DE AULAS DO ALUNO
+  // ==========================================
+  const [isAlunoAtivo, setIsAlunoAtivo] = useState(true); 
+  const [creditosAulas, setCreditosAulas] = useState(8); // Total de aulas restantes que ele comprou no mês
+  const [creditosReposicao, setCreditosReposicao] = useState(1); // Aulas canceladas no prazo de 12h
+  
+  const [aulas, setAulas] = useState<Aula[]>([
+    { id: "1", data: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], horario: "10:00", tipo: "regular", status: "agendada" },
+    { id: "2", data: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0], horario: "15:30", tipo: "reposicao", status: "agendada" },
+    { id: "3", data: "2026-06-15", horario: "14:00", tipo: "regular", status: "realizada" }
+  ]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setShowCalendar(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!isOpen) return null;
+
+  const t = {
+    PT: {
+      title: "AGENDA DE AULAS", tab1: "Minhas Aulas", tab2: "Novo Agendamento", noClasses: "Nenhuma aula encontrada.", cancel: "Cancelar",
+      rule12hError: "⚠️ Cancelamento bloqueado! As aulas só podem ser canceladas com no mínimo 12 horas de antecedência.",
+      rule12hSuccess: "✓ Aula cancelada com sucesso! Um crédito de reposição foi devolvido. Prazo máximo de 5 dias corridos para agendar.",
+      lockTitle: "MENSALIDADE OU PLANO INATIVO", lockDesc: "Você não possui um plano de aulas ativo no momento. Conheça nossos pacotes premium:",
+      plan1: "Aula 2x por semana", plan2: "Aulas Particulares Exclusivas", plan3: "Aula 3x por semana", plan4: "Aula 5x por semana (Imersão)", planFlex: "Plano Customizado 100% Flexível",
+      btnPlan: "Falar com Consultor Arena", close: "FECHAR", qDate: "DATA DA AULA",
+      warningRep: "⚠️ ATENÇÃO: O prazo de 5 dias desta reposição conta a partir do primeiro cancelamento original e NÃO será renovado se você cancelar novamente.",
+      mainCredits: "Créditos de Aula Disponíveis",
+      repCredits: "Créditos de Reposição (Prazo 5 dias)",
+      noCreditsError: "⚠️ Você não possui Créditos de Aula disponíveis para realizar um novo agendamento. Adquira mais pacotes!"
+    },
+    EN: {
+      title: "CLASS SCHEDULE", tab1: "My Classes", tab2: "Book a Class", noClasses: "No classes found.", cancel: "Cancel",
+      rule12hError: "⚠️ Cancellation blocked! Classes can only be canceled at least 12 hours in advance.",
+      rule12hSuccess: "✓ Class canceled successfully! A makeup credit was returned. Max 5 calendar days to schedule.",
+      lockTitle: "MEMBERSHIP OR PLAN INACTIVE", lockDesc: "You do not have an active lesson plan at the moment. Discover our premium packages:",
+      plan1: "Classes 2x a week", plan2: "Exclusive Private Lessons", plan3: "Classes 3x a week", plan4: "Classes 5x a week (Immersion)", planFlex: "100% Flexible Custom Plan",
+      btnPlan: "Talk to an Arena Advisor", close: "CLOSE", qDate: "CLASS DATE",
+      warningRep: "⚠️ NOTICE: The 5-day window for this makeup class counts from the original cancellation and will NOT reset if canceled again.",
+      mainCredits: "Available Class Credits",
+      repCredits: "Reschedule Credits (5-Day Limit)",
+      noCreditsError: "⚠️ You have no Class Credits available for a new booking. Please purchase a new package!"
+    },
+    ES: {
+      title: "AGENDA DE CLASES", tab1: "Mis Clases", tab2: "Agendar Clase", noClasses: "No se encontraron clases.", cancel: "Cancelar",
+      rule12hError: "⚠️ ¡Cancelación bloqueada! Las clases solo se pueden cancelar con un mínimo de 12 horas de anticipación.",
+      rule12hSuccess: "✓ ¡Clase cancelada con éxito! Se devolvió un crédito de reposición. Plazo máximo de 5 días corridos para agendar.",
+      lockTitle: "MENSUALIDAD O PLAN INACTIVO", lockDesc: "No tienes un plan de clases activo en este momento. Conoce nuestros paquetes premium:",
+      plan1: "Clase 2 veces por semana", plan2: "Clases Particulares Exclusivas", plan3: "Clase 3 veces por semana", plan4: "Clase 5 veces por semana (Inmersión)", planFlex: "Plan Personalizado 100% Flexible",
+      btnPlan: "Hablar con um Asesor de Arena", close: "CERRAR", qDate: "FECHA DE LA CLASE",
+      warningRep: "⚠️ ATENCIÓN: El plazo de 5 días de esta reposición cuenta desde el primer aviso original y NO se renovará si cancela otra vez.",
+      mainCredits: "Créditos de Clase Disponibles",
+      repCredits: "Créditos de Reposición (Límite 5 días)",
+      noCreditsError: "⚠️ No tienes Créditos de Clase disponibles para una nueva reserva. ¡Adquiere más paquetes!"
+    }
+  }[idioma];
+
+  const i18nCalendar = {
+    PT: { weekDays: ["D", "S", "T", "Q", "Q", "S", "S"], months: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"] },
+    EN: { weekDays: ["S", "M", "T", "W", "T", "F", "S"], months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] },
+    ES: { weekDays: ["D", "L", "M", "X", "J", "V", "S"], months: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Novembro", "Diciembre"] }
+  }[idioma];
+
+  const year = currentNavDate.getFullYear();
+  const month = currentNavDate.getMonth();
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const blanks = Array(firstDayIndex).fill(null);
+  const daysInMonth = Array.from({ length: totalDays }, (_, i) => i + 1);
+  const gridCells = [...blanks, ...daysInMonth];
+
+  function formatDisplayDate(dateStr: string) {
+    if (!dateStr) return "";
+    const [y, m, d] = dateStr.split("-");
+    if (idioma === "EN") return `${m}/${d}/${y}`;
+    return `${d}/${m}/${y}`;
+  }
+
+  function handleSelectDay(day: number) {
+    const formattedMonth = String(month + 1).padStart(2, "0");
+    const formattedDay = String(day).padStart(2, "0");
+    setSelectedDate(`${year}-${formattedMonth}-${formattedDay}`);
+    setShowCalendar(false);
+  }
+
+  function handleCancelarAula(aula: Aula) {
+    setMensagem(null);
+    const dataAulaCompleta = new Date(`${aula.data}T${aula.horario}:00`);
+    const agora = new Date();
+    const diferencaEmHoras = (dataAulaCompleta.getTime() - agora.getTime()) / (1000 * 60 * 60);
+
+    if (diferencaEmHoras < 12) {
+      setMensagem({ tipo: "erro", texto: t.rule12hError });
+      return;
+    }
+
+    setAulas(prev => prev.map(a => a.id === aula.id ? { ...a, status: "cancelada" } : a));
+    
+    if (aula.tipo === "regular") {
+      setCreditosReposicao(prev => prev + 1); // Devolve como crédito de reposição travado de 5 dias
+    } else {
+      setCreditosReposicao(prev => prev + 1); // Mantém como reposição mas sem resetar o cronômetro original
+    }
+
+    setMensagem({ tipo: "sucesso", texto: t.rule12hSuccess });
+  }
+
+  function executarAgendamento() {
+    setMensagem(null);
+    
+    // Validando se o aluno tem saldo para gastar
+    if (tipoAula === "regular" && creditosAulas <= 0) {
+      setMensagem({ tipo: "erro", texto: t.noCreditsError });
+      return;
+    }
+    if (tipoAula === "reposicao" && creditosReposicao <= 0) {
+      setMensagem({ tipo: "erro", texto: "⚠️ Você não possui créditos de reposição pendentes." });
+      return;
+    }
+
+    // Desconta o saldo correspondente
+    if (tipoAula === "regular") {
+      setCreditosAulas(prev => prev - 1);
+    } else {
+      setCreditosReposicao(prev => prev - 1);
+    }
+
+    // Adiciona a aula na lista reativa
+    const nova: Aula = {
+      id: String(Date.now()),
+      data: selectedDate,
+      horario: selectedHorario,
+      tipo: tipoAula,
+      status: "agendada"
+    };
+
+    setAulas(prev => [nova, ...prev]);
+    setMensagem({ tipo: "sucesso", texto: "✓ Aula agendada com sucesso! Crédito deduzido do seu painel." });
+    setActiveTab("lista");
+  }
+
+  return (
+    <div className={`fixed inset-0 z-50 transition-all duration-300 flex items-center justify-center p-4 ${isOpen ? 'visible' : 'invisible'}`}>
+      <div onClick={onClose} className={`absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`} />
+      
+      <div className={`relative w-full max-w-md bg-[#030914] border border-white/[0.06] rounded-[24px] p-6 flex flex-col gap-4 shadow-2xl transition-all duration-300 transform ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+        
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <h2 className="text-xs font-black tracking-widest text-white uppercase flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+            {t.title}
+          </h2>
+          <button type="button" onClick={onClose} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-[9px] font-black font-mono border-none cursor-pointer">
+            {t.close}
+          </button>
+        </div>
+
+        {mensagem && (
+          <div className={`p-3 rounded-xl border text-[10px] font-mono font-bold leading-tight ${mensagem.tipo === "erro" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"}`}>
+            {mensagem.texto}
+          </div>
+        )}
+
+        {!isAlunoAtivo ? (
+          <div className="space-y-4 py-2 animate-in fade-in duration-300">
+            <div className="bg-rose-500/5 border border-rose-500/10 rounded-xl p-3 flex gap-2.5 items-center">
+              <ShieldAlert size={16} className="text-rose-500 shrink-0" />
+              <span className="text-[11px] text-slate-300 font-black font-mono uppercase tracking-wider">{t.lockTitle}</span>
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{t.lockDesc}</p>
+            <div className="space-y-1.5">
+              {[t.plan1, t.plan2, t.plan3, t.plan4, t.planFlex].map((plano, idx) => (
+                <div key={idx} className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-xl px-3 py-2 text-xs text-slate-300 font-mono font-bold">
+                  <BadgeDollarSign size={14} className="text-amber-500" />
+                  {plano}
+                </div>
+              ))}
+            </div>
+            <button type="button" onClick={() => alert("Redirecionando...")} className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md text-center cursor-pointer mt-2">{t.btnPlan}</button>
+          </div>
+        ) : (
+          <div className="space-y-3 flex-1 flex flex-col">
+            
+            {/* PANEL DE CRÉDITOS PREMIUM INTEGRADO */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col gap-1">
+                <span className="text-[8px] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <Ticket size={10} className="text-amber-500" />
+                  {t.mainCredits}
+                </span>
+                <span className="text-sm font-mono font-black text-white">{creditosAulas}</span>
+              </div>
+              
+              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col gap-1">
+                <span className="text-[8px] font-mono font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <RefreshCw size={10} className="text-cyan-400" />
+                  {t.repCredits}
+                </span>
+                <span className="text-sm font-mono font-black text-cyan-400">{creditosReposicao}</span>
+              </div>
+            </div>
+
+            <div className="flex bg-white/5 rounded-xl p-1 gap-1">
+              <button type="button" onClick={() => { setActiveTab("lista"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "lista" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab1}</button>
+              <button type="button" onClick={() => { setActiveTab("agendar"); setMensagem(null); }} className={`flex-1 py-1.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer ${activeTab === "agendar" ? "bg-[#1c2735] text-white border border-white/10" : "text-slate-400 hover:text-slate-200"}`}>{t.tab2}</button>
+            </div>
+
+            {activeTab === "lista" && (
+              <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                {aulas.map((aula) => {
+                  const isAgendada = aula.status === "agendada";
+                  return (
+                    <div key={aula.id} className={`p-3 rounded-xl border transition-all flex justify-between items-center ${aula.status === "realizada" ? "bg-white/[0.01] border-white/5 opacity-50" : aula.status === "cancelada" ? "bg-rose-500/5 border-rose-500/10 opacity-60" : "bg-white/5 border-white/[0.06]"}`}>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-200">
+                          <Calendar size={13} className="text-amber-500" />
+                          <span>{aula.data.split("-").reverse().join("/")}</span>
+                          <span className="text-slate-600">•</span>
+                          <Clock size={13} className="text-amber-500" />
+                          <span>{aula.horario}</span>
+                        </div>
+                        <span className={`text-[9px] font-mono font-black uppercase tracking-widest ${aula.tipo === "reposicao" ? "text-cyan-400" : "text-slate-400"}`}>
+                          {aula.tipo === "reposicao" ? "🔄 REPOSIÇÃO" : "📖 CLASSE REGULAR"}
+                        </span>
+                      </div>
+
+                      {isAgendada && (
+                        <button type="button" onClick={() => handleCancelarAula(aula)} className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[9px] font-mono font-black uppercase tracking-wider transition-all border-none cursor-pointer">{t.cancel}</button>
+                      )}
+                      {aula.status === "cancelada" && <span className="text-[9px] font-mono font-black text-rose-500 uppercase">CANCELADA</span>}
+                      {aula.status === "realizada" && <span className="text-[9px] font-mono font-black text-emerald-500 uppercase">CONCLUÍDA</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {activeTab === "agendar" && (
+              <div className="space-y-3 py-1 animate-in fade-in duration-200 flex flex-col">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">Tipo de Aula</label>
+                  <select 
+                    value={tipoAula}
+                    onChange={(e) => setTipoAula(e.target.value as any)}
+                    className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500/40"
+                  >
+                    <option value="regular" className="bg-[#030914]">Classe Regular ({creditosAulas} restantes)</option>
+                    <option value="reposicao" className="bg-[#030914]">Aula de Reposição ({creditosReposicao} pendentes)</option>
+                  </select>
+                </div>
+
+                {tipoAula === "reposicao" && (
+                  <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5 text-[9px] font-mono font-bold leading-normal text-amber-400/90">
+                    {t.warningRep}
+                  </div>
+                )}
+
+                <div className="space-y-1 relative" ref={calendarRef}>
+                  <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
+                    <Calendar size={12} className="text-amber-500" />
+                    {t.qDate}
+                  </label>
+                  
+                  <div 
+                    onClick={() => setShowCalendar(!showCalendar)}
+                    className="w-full bg-white/5 border border-white/[0.08] hover:border-white/20 rounded-xl px-4 py-2 text-xs font-mono font-bold text-slate-200 flex justify-between items-center cursor-pointer transition-all"
+                  >
+                    <span>{formatDisplayDate(selectedDate)}</span>
+                    <Calendar size={14} className="text-amber-500/80" />
+                  </div>
+
+                  {showCalendar && (
+                    <div className="absolute top-[105%] left-0 w-full bg-[#070e1e] border border-white/[0.08] rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3">
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                        <button type="button" onClick={() => setCurrentNavDate(new Date(year, month - 1, 1))} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer border-none"><ChevronLeft size={16} /></button>
+                        <span className="text-xs font-mono font-black text-slate-200 uppercase tracking-wide">{i18nCalendar.months[month]} {year}</span>
+                        <button type="button" onClick={() => setCurrentNavDate(new Date(year, month + 1, 1))} className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer border-none"><ChevronRight size={16} /></button>
+                      </div>
+
+                      <div className="grid grid-cols-7 text-center text-[10px] font-mono font-bold text-slate-500 uppercase">
+                        {i18nCalendar.weekDays.map((wd, i) => <div key={i}>{wd}</div>)}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1 text-center">
+                        {gridCells.map((day, index) => {
+                          if (day === null) return <div key={index} />;
+                          const currentLoopStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                          const isSelected = selectedDate === currentLoopStr;
+
+                          return (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => handleSelectDay(day)}
+                              className={`py-1.5 rounded-lg text-xs font-mono font-bold transition-all border-none cursor-pointer ${isSelected ? "bg-amber-500 text-black shadow-md" : "text-slate-300 bg-white/[0.02] hover:bg-amber-500/15"}`}
+                            >
+                              {day}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase font-mono tracking-wider">Horário</label>
+                  <select 
+                    value={selectedHorario}
+                    onChange={(e) => setSelectedHorario(e.target.value)}
+                    className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500/40"
+                  >
+                    <option className="bg-[#030914]">08:00</option>
+                    <option className="bg-[#030914]">09:30</option>
+                    <option className="bg-[#030914]">11:00</option>
+                    <option className="bg-[#030914]">14:00</option>
+                    <option className="bg-[#030914]">15:30</option>
+                    <option className="bg-[#030914]">17:00</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={executarAgendamento}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase font-mono tracking-wider transition-all shadow-md cursor-pointer mt-1"
+                >
+                  Confirmar Agendamento
+                </button>
+              </div>
+            )}
+
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

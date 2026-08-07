@@ -1,0 +1,13 @@
+.bg-transparente-premium {
+  background: transparent !important;
+}
+.painel-fundo-vivo {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  border: none;
+  filter: blur(4px) brightness(0.4);
+  pointer-events: none;
+}

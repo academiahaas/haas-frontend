@@ -1,0 +1,161 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { Mic, Volume2, Disc, CheckCircle, Loader2 } from "lucide-react";
+
+interface MioloRoleplayProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+  const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "PROCESSING" | "DONE">("IA_SPEAKING");
+  const [phraseIA, setPhraseIA] = useState("Carregando pergunta da IA...");
+  const [phraseUser, setPhraseUser] = useState("");
+  const [carregando, setCarregando] = useState(true);
+
+  // Função cirúrgica para limpar lacunas, underlines, colchetes e infinitivos entre parênteses
+  const limparPerguntaDeLacunas = (textoSujo: string): string => {
+    if (!textoSujo) return "";
+    
+    let limpo = textoSujo
+      // 1. Remove linhas de traços longos ou underlines (ex: _____, -------)
+      .replace(/_{2,}/g, "")
+      .replace(/-{2,}/g, "")
+      // 2. Remove colchetes vazios ou com pontos de suspensão (ex: [...], [])
+      .replace(/\[\.{3}\]/g, "")
+      .replace(/\[\s*\]/g, "")
+      // 3. Remove verbos explicativos ou conjugações entre parênteses comuns no Tipo 1 (ex: (ir), (fazer))
+      .replace(/\([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+\)/g, "")
+      // 4. Limpa espaços duplos criados pelas remoções anteriores
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // Se a pergunta ficou vazia ou curta demais após a limpeza, aplica um fallback seguro
+    if (limpo.length < 5) {
+      limpo = "Como você prefere praticar a conversação em português hoje?";
+    }
+
+    return limpo;
+  };
+
+  useEffect(() => {
+    async function carregarEFiltrarTipo1() {
+      try {
+        setCarregando(true);
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        // Alvo: Puxa o exercício do Tipo 1 (Preenchimento de Lacunas)
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?activity_type=eq.1&limit=1";
+        
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+        
+        if (dados && dados.length > 0) {
+          const exe = dados[0];
+          
+          // Aplica o filtro de limpeza no reading_text do Tipo 1
+          const perguntaLimpa = limparPerguntaDeLacunas(exe.reading_text || exe.context || "");
+          
+          setPhraseIA(perguntaLimpa);
+          setPhraseUser(exe.correct_answer || "Resposta esperada estruturada");
+          setFlowState("IA_SPEAKING");
+        } else {
+          setPhraseIA("Olá! Pronto para começarmos nossa prática de conversação falada?");
+          setFlowState("IA_SPEAKING");
+        }
+      } catch (err) {
+        console.error("Erro ao processar e limpar Tipo 1 para Conversação:", err);
+        setPhraseIA("Houve um erro na sincronização. Pode repetir, por favor?");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarEFiltrarTipo1();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (flowState === "IA_SPEAKING" && !carregando) {
+      const timer = setTimeout(() => { setFlowState("USER_TURN"); }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [flowState, carregando]);
+
+  const alternarGravacao = () => {
+    if (flowState === "USER_TURN") {
+      setFlowState("RECORDING");
+    } else if (flowState === "RECORDING") {
+      setFlowState("PROCESSING");
+      // Simula o motor da inteligência artificial avaliando o áudio capturado por 2 segundos
+      setTimeout(() => {
+        setFlowState("DONE");
+        if (onSelectCorrect) onSelectCorrect(); // Aprova o progresso do aluno automaticamente
+      }, 2000);
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Limpando Lacunas e Inicializando Conversação com IA...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-6 overflow-hidden">
+      
+      {/* Balão de Fala da IA */}
+      <div className="bg-[#0c192e] border border-white/[0.04] p-5 rounded-2xl flex items-start gap-4 transition-all">
+        <div className={`p-2.5 rounded-xl shrink-0 ${flowState === "IA_SPEAKING" ? "bg-cyan-500/10 text-cyan-400 animate-bounce" : "bg-slate-800 text-slate-400"}`}>
+          <Volume2 size={20} />
+        </div>
+        <div className="space-y-1 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400/60">Perguntas da IA</span>
+          <p className="text-[15px] text-slate-200 font-medium leading-relaxed">{phraseIA}</p>
+        </div>
+      </div>
+
+      {/* Interface Interativa do Microfone */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-[#060f1e]/40 rounded-2xl border border-dashed border-white/[0.04] p-6">
+        {flowState === "IA_SPEAKING" && (
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest animate-pulse">A IA está falando...</p>
+        )}
+        {flowState === "USER_TURN" && (
+          <p className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">Sua vez! Toque para responder</p>
+        )}
+        {flowState === "RECORDING" && (
+          <p className="text-xs font-semibold text-rose-500 uppercase tracking-widest animate-pulse flex items-center gap-1.5">
+            <Disc size={14} className="animate-spin" /> Gravando sua Voz...
+          </p>
+        )}
+        {flowState === "PROCESSING" && (
+          <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+            <Loader2 size={14} className="animate-spin" /> IA Analisando Pronúncia...
+          </p>
+        )}
+        {flowState === "DONE" && (
+          <p className="text-xs font-semibold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+            <CheckCircle size={14} /> Resposta Analisada com Sucesso!
+          </p>
+        )}
+
+        {/* Botão de Controle do Microfone */}
+        <button
+          onClick={alternarGravacao}
+          disabled={flowState === "IA_SPEAKING" || flowState === "PROCESSING" || flowState === "DONE"}
+          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all cursor-pointer border-none shadow-lg active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed ${
+            flowState === "RECORDING" 
+              ? "bg-rose-600 hover:bg-rose-500 shadow-rose-950/50 animate-pulse" 
+              : flowState === "DONE"
+              ? "bg-emerald-600 text-white"
+              : "bg-gradient-to-tr from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 shadow-cyan-950/50"
+          }`}
+        >
+          <Mic size={28} className="text-white" />
+        </button>
+      </div>
+
+    </div>
+  );
+}

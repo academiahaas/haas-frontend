@@ -1,0 +1,79 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name academiahaas.com www.academiahaas.com;
+
+    root /var/www/haas_site/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/academiahaas.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/academiahaas.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name campus.academiahaas.com;
+
+    root /var/www/moodle/public;
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ ^(.+\.php)(.*)$ {
+        fastcgi_split_path_info ^(.+\.php)(.*);
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        
+        # A LINHA QUE MATA O ERRO: Avisa o Moodle de que o site está em HTTPS seguro
+        fastcgi_param HTTPS on;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/academiahaas.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/academiahaas.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+# BLOCO PARA O SEU PROJETO (IP DIRETO)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name 109.123.246.96;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000; # Encaminha para o seu projeto Next.js
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# BLOCO DE REDIRECIONAMENTO DOS DOMÍNIOS (PORTA 80 -> 443)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name academiahaas.com www.academiahaas.com campus.academiahaas.com;
+    return 301 https://$host$request_uri;
+}

@@ -1,0 +1,315 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { Volume2, CheckCircle, XCircle, RefreshCw, Send } from "lucide-react";
+
+interface MioloSpellingBeeProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+const traducoes: Record<string, Record<string, string>> = {
+  es: {
+    instrucao: "Escucha y soletrea a continuación:",
+    validar: "Validar",
+    correto: "¡Correcto!",
+    errado: "Inténtalo de nuevo.",
+    refazer: "Refazer"
+  },
+  en: {
+    instrucao: "Listen and spell below:",
+    validar: "Validate",
+    correto: "Correct!",
+    errado: "Try again.",
+    refazer: "Try Again"
+  },
+  pt: {
+    instrucao: "Escute e soletre abaixo:",
+    validar: "Validar",
+    correto: "Correto!",
+    errado: "Tente de novo.",
+    refazer: "Tentar De Novo"
+  }
+};
+
+export default function MioloSpellingBee({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloSpellingBeeProps) {
+  const [targetWord, setTargetWord] = useState("");
+  const [userInput, setUserInput] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [status, setStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
+  const [carregando, setCarregando] = useState(true);
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  // Linha extra dedicada aos acentos do português para facilitar o uso por jovens e idosos
+  const accentRow = ["Á", "É", "Í", "Ó", "Ú", "Â", "Ê", "Ô", "Ã", "Õ", "Ç"];
+
+  const keyboardRows = [
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    ["Z", "X", "C", "V", "B", "N", "M", "⌫"]
+  ];
+
+  const obterLangKey = () => {
+    const lang = idiomaNativoAluno?.toLowerCase() || "";
+    if (lang.includes("eng") || lang.includes("ing")) return "en";
+    if (lang.includes("por") || lang.includes("bra")) return "pt";
+    return "es";
+  };
+
+  const t = traducoes[obterLangKey()];
+
+  const salvarNovaPalavraNoCache = async (palavra: string, nivel: string) => {
+    try {
+      const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+      await fetch(`${SUPABASE_URL}/exercises`, {
+        method: "POST",
+        headers: {
+          "apikey": SERVICE_KEY,
+          "Authorization": `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({
+          unit: nomeUnidade,
+          activity_type: 11,
+          level: nivel,
+          correct_answer: palavra,
+          reading_text: palavra
+        })
+      });
+    } catch (e) {
+      console.warn("Erro ao registrar cache de spelling:", e);
+    }
+  };
+
+  const gerarPalavraIA = async (nivel: string) => {
+    try {
+      const prompt = `Gere uma única palavra curta em português com acentuação gráfica opcional para um jogo de soletrar. Nível: ${nivel}. Retorne estritamente apenas a palavra limpa em maiúsculas sem pontos. Deve ter entre 4 e 7 letras no máximo.`;
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const palavra = data?.candidates?.[0]?.content?.parts?.[0]?.text?.toUpperCase().trim() || "";
+        if (palavra.length >= 3 && palavra.length <= 8) {
+          salvarNovaPalavraNoCache(palavra, nivel);
+          return palavra;
+        }
+      }
+    } catch (e) {}
+    return "CAFÉ";
+  };
+
+  useEffect(() => {
+    async function inicializarSpelling() {
+      try {
+        setCarregando(true);
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+        });
+        const userDados = await userRes.json();
+        if (userDados && userDados.length > 0) {
+          setIdiomaNativoAluno(userDados[0].native_language || "Español");
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+        // Correção direta da URL evitando duplicações ou erros de má formação 400 Bad Request
+        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.11&limit=1`;
+        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` } });
+        
+        let palavraAlvo = "";
+        if (res.ok) {
+          const dados = await res.json();
+          if (dados && dados.length > 0) {
+            palavraAlvo = String(dados[0].correct_answer || dados[0].reading_text).toUpperCase().trim();
+          }
+        }
+
+        if (!palavraAlvo) {
+          palavraAlvo = await gerarPalavraIA("A2");
+        }
+
+        setTargetWord(palavraAlvo);
+        setUserInput(new Array(palavraAlvo.length).fill(""));
+        setCurrentIndex(0);
+        setStatus("IDLE");
+      } catch (err) {
+        setTargetWord("VISÃO");
+        setUserInput(new Array(5).fill(""));
+      } finally {
+        setCarregando(false);
+      }
+    }
+    inicializarSpelling();
+  }, [unidadeAtiva]);
+
+  const playWordAudio = () => {
+    if (targetWord && typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(targetWord.toLowerCase());
+      utterance.lang = "pt-BR";
+      utterance.rate = 1.05;
+      utterance.pitch = 1.02;
+
+      const vozes = window.speechSynthesis.getVoices();
+      const vozFeminina = 
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Google português do Brasil")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Luciana")) ||
+        vozes.find(v => v.lang.includes("pt-BR") && v.name.includes("Francisca")) ||
+        vozes.find(v => v.lang.includes("pt-BR"));
+
+      if (vozFeminina) utterance.voice = vozFeminina;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleKeyPress = (letter: string) => {
+    if (status === "CORRECT") return;
+
+    if (letter === "⌫") {
+      if (currentIndex === 0 && userInput[0] === "") return;
+      const prevIndex = Math.max(0, userInput[currentIndex] === "" ? currentIndex - 1 : currentIndex);
+      const nextInput = [...userInput];
+      nextInput[prevIndex] = "";
+      setUserInput(nextInput);
+      setCurrentIndex(prevIndex);
+      setStatus("IDLE");
+      return;
+    }
+
+    if (currentIndex >= targetWord.length) return;
+
+    const nextInput = [...userInput];
+    nextInput[currentIndex] = letter;
+    setUserInput(nextInput);
+    setCurrentIndex(Math.min(targetWord.length - 1, currentIndex + 1));
+    setStatus("IDLE");
+  };
+
+  const validarSoletradoFinal = () => {
+    const palavraMontada = userInput.join("").toUpperCase().trim();
+    if (palavraMontada === targetWord) {
+      setStatus("CORRECT");
+      if (onSelectCorrect) onSelectCorrect();
+    } else {
+      setStatus("WRONG");
+      if (onSelectWrong) onSelectWrong();
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs tracking-widest">
+        CONECTANDO...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans min-h-0 flex-1 gap-2.5 overflow-hidden p-0.5">
+      
+      <div className="flex items-center gap-3 shrink-0 bg-[#0c192e] p-2.5 rounded-xl border border-white/[0.04]">
+        <button 
+          onClick={playWordAudio} 
+          className="p-2 bg-cyan-950/60 border border-cyan-800/40 text-cyan-400 rounded-lg hover:text-cyan-300 active:scale-95 transition-all shrink-0 cursor-pointer"
+        >
+          <Volume2 size={15} />
+        </button>
+        <span className="text-[11px] font-bold text-slate-300 tracking-wider uppercase">
+          {t.instrucao}
+        </span>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center min-h-0 w-full py-2 bg-[#050b14]/40 border border-white/[0.04] rounded-xl px-2">
+        <div className="flex justify-center flex-wrap gap-1 w-full max-w-full justify-items-center">
+          {userInput.map((char, idx) => {
+            const isCurrent = idx === currentIndex && status !== "CORRECT" && status !== "WRONG";
+            return (
+              <div
+                key={idx}
+                className={`w-[clamp(24px,6.2vw,32px)] h-[clamp(34px,8.5vw,40px)] rounded-lg border flex items-center justify-center font-sans font-black text-[clamp(12px,3.5vw,15px)] transition-all shrink-0 ${
+                  status === "CORRECT" ? "border-emerald-500 text-emerald-400 bg-emerald-950/10" :
+                  status === "WRONG" ? "border-rose-500 text-rose-400 bg-rose-950/10 animate-shake" :
+                  isCurrent ? "border-cyan-400 text-cyan-400 bg-cyan-950/30" : "border-slate-800 text-slate-300 bg-[#070d19]"
+                }`}
+              >
+                {char}
+              </div>
+            );
+          })}
+        </div>
+
+        {status === "CORRECT" && (
+          <p className="text-[11px] text-emerald-400 font-bold mt-3 uppercase tracking-wider flex items-center gap-1">
+            <CheckCircle size={13} /> {t.correto}
+          </p>
+        )}
+        {status === "WRONG" && (
+          <div className="flex flex-col items-center gap-1.5 mt-2.5">
+            <p className="text-[11px] text-rose-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <XCircle size={13} /> {t.errado}
+            </p>
+            <button 
+              onClick={() => { setUserInput(new Array(targetWord.length).fill("")); setCurrentIndex(0); setStatus("IDLE"); }}
+              className="px-2 py-0.5 bg-slate-900 border border-white/[0.05] text-slate-300 text-[9px] uppercase font-black rounded flex items-center gap-1 cursor-pointer"
+            >
+              <RefreshCw size={9} /> {t.refazer}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {status === "IDLE" && (
+        <button
+          onClick={validarSoletradoFinal}
+          className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[11px] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1 shrink-0"
+        >
+          {t.validar}
+        </button>
+      )}
+
+      {/* TECLADO COM FORMATO REDUZIDO E FILA ESPECIAL DE ACENTOS */}
+      <div className="flex flex-col gap-1 w-full items-center bg-[#020B12]/80 p-1.5 rounded-xl border border-white/[0.02] shrink-0">
+        
+        {/* LINHA DE ACENTOS DO PORTUGUÊS */}
+        <div className="flex gap-0.5 justify-center w-full mb-0.5 border-b border-white/[0.03] pb-1">
+          {accentRow.map((letter) => (
+            <button
+              key={letter}
+              onClick={() => handleKeyPress(letter)}
+              disabled={status === "CORRECT"}
+              className="w-[8.5%] h-[clamp(28px,7.5vw,34px)] bg-cyan-950/20 active:bg-cyan-900 text-cyan-300 border border-cyan-900/30 rounded font-sans text-[clamp(10px,2.8vw,12px)] font-bold cursor-pointer transition-all disabled:opacity-5 select-none"
+            >
+              {letter}
+            </button>
+          ))}
+        </div>
+
+        {keyboardRows.map((row, rowIdx) => (
+          <div key={rowIdx} className="flex gap-1 justify-center w-full">
+            {row.map((letter) => (
+              <button
+                key={letter}
+                onClick={() => handleKeyPress(letter)}
+                disabled={status === "CORRECT"}
+                className={`h-[clamp(30px,8vw,36px)] bg-[#1C3B50]/30 active:bg-[#1C3B50] text-slate-200 border border-slate-800/60 rounded font-sans text-[clamp(11px,2.8vw,13px)] font-black cursor-pointer transition-all disabled:opacity-5 select-none flex items-center justify-center ${
+                  letter === "⌫" ? "w-[14%] bg-rose-950/20 border-rose-900/40 text-rose-400" : "w-[9%]"
+                }`}
+              >
+                {letter}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+}

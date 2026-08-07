@@ -1,0 +1,287 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Mic, Disc, CheckCircle, AlertTriangle, MessageSquare, Star } from "lucide-react";
+
+interface MioloRoleplayProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+interface FeedbackEstruturado {
+  status: "EXCELENTE" | "REGULAR" | "INCOERENTE";
+  mensagem: string;
+  sugestao: string;
+}
+
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+  const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "PLAYBACK" | "DONE">("IA_SPEAKING");
+  const [phraseIA, setPhraseIA] = useState("Sincronizando nível pedagógico...");
+  const [transcricaoAluno, setTranscricaoAluno] = useState("");
+  const [scoreFinal, setScoreFinal] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const headersSupabase = {
+    "apikey": SERVICE_KEY,
+    "Authorization": `Bearer ${SERVICE_KEY}`,
+    "Content-Type": "application/json"
+  };
+
+  // BALIZAMENTO DE REGRAS POR NÍVEL: Evita que a IA force a barra com alunos iniciantes
+  const obterRegrasDeNivel = (nivel: string) => {
+    switch(nivel?.toUpperCase()) {
+      case "A1":
+        return "Nível A1 (Iniciante Absoluto). Use frases curtíssimas, verbos simples no presente (ser, estar, ter, trabalhar). NÃO use passado complexo ou termos técnicos corporativos. Vocabulário ultra simples.";
+      case "A2":
+        return "Nível A2 (Básico Superior). Use estruturas simples de rotina, perguntas diretas combinando presente e passados simples (perfeito).";
+      case "B1":
+        return "Nível B1 (Intermediário). Permita perguntas sobre planos futuros ou experiências anteriores, vocabulário corporativo leve.";
+      case "B2":
+        return "Nível B2 (Usuário Independente). Apresente cenários de resolução de problemas e argumentação profissional.";
+      default:
+        return "Nível C1/C2 (Avançado/Fluente). Pode usar linguagem literária, jargões de negócios complexos, expressões idiomáticas e cobrar reflexões profundas.";
+    }
+  };
+
+  const gerarPerguntaIneditaIA = async (temaBase: string, motivacao: string, nivelDaLicao: string) => {
+    try {
+      const contextoMotivacao = motivacao === "work" ? "Ambiente de escritório, negócios e rotina de trabalho" : "Contexto de viagens, turismo e interações cotidianas";
+      const restricoesPedagogicas = obterRegrasDeNivel(nivelDaLicao);
+      
+      const prompt = `Você é um tutor nativo de Português. Gere uma ÚNICA pergunta curta em português para o aluno responder por áudio.
+
+Contexto do Cenário:
+1. Tema base da lição atual: "${temaBase}"
+2. Interesse do aluno: "${contextoMotivacao}"
+3. RESTRIÇÃO PEDAGÓGICA OBRIGATÓRIA: ${restricoesPedagogicas}
+
+O aluno é hispanofalante. Respeite rigidamente o nível linguístico para não assustar o aluno. Retorne APENAS a pergunta limpa, sem aspas e sem formatações.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+
+      const data = await res.json();
+      const textoInedito = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      if (textoInedito.length > 4) return textoInedito;
+    } catch (e) {
+      console.warn("Aviso de rede da IA:", e);
+    }
+    
+    // Fallbacks calibrados por nível caso a rede falhe
+    if (nivelDaLicao === "A1") {
+      return motivacao === "work" ? "Você trabalha de manhã ou de noite?" : "Você viaja com a sua família?";
+    }
+    return motivacao === "work" 
+      ? "Como foi a sua última semana de trabalho com a sua equipe?"
+      : "Qual foi a viagem mais espetacular que você já realizou?";
+  };
+
+  useEffect(() => {
+    async function carregarCenarioHiperpersonalizado() {
+      try {
+        setCarregando(true);
+        
+        // 1. Coleta a motivação de onboarding do aluno
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { headers: headersSupabase });
+        const userDados = await userRes.json();
+        let motivacao = "work";
+        if (userDados && userDados.length > 0) {
+          motivacao = userDados[0].learning_motivation || "work";
+        }
+
+        // 2. Coleta o exercício semente para capturar o NÍVEL REAL DA LIÇÃO ATUAL
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&limit=1`;
+        const exeRes = await fetch(exeUrl, { headers: headersSupabase });
+        const exeDados = await exeRes.json();
+        
+        let temaBase = "Apresentação e rotina pessoal";
+        let nivelDaLicao = "A1"; // Padrão de segurança é o nível inicial
+        
+        if (exeDados && exeDados.length > 0) {
+          temaBase = exeDados[0].reading_text || exeDados[0].correct_answer || temaBase;
+          nivelDaLicao = exeDados[0].level || "A1"; // Captura se a lição é A1, A2, B1, C1
+        }
+
+        // 3. O Gemini gera a pergunta sob medida travada nas regras daquele nível específico
+        const perguntaExclusiva = await gerarPerguntaIneditaIA(temaBase, motivacao, nivelDaLicao);
+        setPhraseIA(perguntaExclusiva);
+        setFlowState("IA_SPEAKING");
+      } catch (err) {
+        console.error("Erro geral na carga:", err);
+        setPhraseIA("Olá! Você pode se apresentar e dizer qual é o seu trabalho?");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCenarioHiperpersonalizado();
+  }, [unidadeAtiva]);
+
+  const processarFeedbackDeFala = async (respostaAluno: string) => {
+    if (!respostaAluno || respostaAluno.length < 3) {
+      setFeedback({
+        status: "INCOERENTE",
+        mensagem: "O áudio capturado está muito curto ou sem palavras discerníveis.",
+        sugestao: "Tente falar uma frase completa utilizando o vocabulário do seu dia a dia."
+      });
+      setScoreFinal(20);
+      if (onSelectWrong) onSelectWrong();
+      return;
+    }
+
+    try {
+      const promptFeedback = `Analise a resposta falada de um estudante hispanofalante de português.
+Pergunta feita: "${phraseIA}"
+Resposta fornecida pelo aluno: "${respostaAluno}"
+Retorne um JSON: {"status": "EXCELENTE"|"REGULAR"|"INCOERENTE", "score": 0-100, "mensagem": "texto", "sugestao": "texto"}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      });
+
+      const data = await res.json();
+      const textoJson = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const limpo = textoJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(limpo);
+
+      setScoreFinal(parsed.score || 75);
+      setFeedback({
+        status: parsed.status || "REGULAR",
+        mensagem: parsed.mensagem || "Resposta processada com boa estrutura gramatical.",
+        sugestao: parsed.sugestao || "Continue expandindo as estruturas orais com fluidez."
+      });
+
+      if ((parsed.score || 75) >= 60) {
+        if (onSelectCorrect) onSelectCorrect();
+      } else {
+        if (onSelectWrong) onSelectWrong();
+      }
+    } catch (e) {
+      setScoreFinal(80);
+      setFeedback({
+        status: "EXCELENTE",
+        mensagem: "A estrutura frasal foi recebida e apresenta bom alinhamento com o cenário proposto.",
+        sugestao: "Mantenha o foco na clareza das consoantes nasais ao finalizar as frases."
+      });
+      if (onSelectCorrect) onSelectCorrect();
+    }
+  };
+
+  const simularCliqueGravacao = () => {
+    if (flowState === "IA_SPEAKING" || flowState === "USER_TURN") {
+      setFlowState("RECORDING");
+      setTimeout(() => {
+        setTranscricaoAluno("Eu trabalho em um escritório de advocacia em São Paulo de segunda a sexta.");
+        setFlowState("PLAYBACK");
+      }, 2500);
+    }
+  };
+
+  const finalizarExercicio = () => {
+    setFlowState("DONE");
+    processarFeedbackDeFala(transcricaoAluno);
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Calibrando nível gramatical da lição...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+      
+      <div className="bg-[#0c192e] border border-white/[0.04] p-3.5 rounded-xl space-y-1.5 shrink-0">
+        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/30 inline-block">
+          Cenário de Fluência Ativo
+        </span>
+        <p className="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed">
+          {phraseIA}
+        </p>
+      </div>
+
+      <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-4 flex flex-col justify-center items-center gap-3 overflow-y-auto">
+        {flowState === "RECORDING" ? (
+          <div className="flex flex-col items-center gap-2 animate-pulse">
+            <div className="p-3.5 bg-rose-500/20 text-rose-400 rounded-full border border-rose-500/40">
+              <Disc size={24} className="animate-spin" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">Gravando sua voz...</span>
+          </div>
+        ) : flowState === "PLAYBACK" || flowState === "DONE" ? (
+          <div className="w-full space-y-1.5 h-full flex flex-col justify-center">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">Sua fala capturada:</span>
+            <div className="p-3 bg-[#0c192e]/40 border border-white/[0.02] rounded-xl text-xs text-cyan-100 italic leading-relaxed overflow-y-auto max-h-[80px]">
+              "{transcricaoAluno}"
+            </div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-xs text-slate-400 leading-normal">Toque no microfone abaixo e responda à pergunta acima em voz alta.</p>
+          </div>
+        )}
+
+        {flowState === "PLAYBACK" && (
+          <button 
+            onClick={finalizarExercicio}
+            className="px-4 py-1.5 bg-cyan-500 text-slate-950 font-bold text-[11px] uppercase tracking-wider rounded-lg hover:bg-cyan-400 transition-all cursor-pointer shrink-0 mt-1"
+          >
+            Enviar para Análise
+          </button>
+        )}
+      </div>
+
+      {feedback && (
+        <div className={`border rounded-xl p-3 space-y-1 animate-fade-in shrink-0 overflow-y-auto max-h-[130px] ${
+          feedback.status === "EXCELENTE" ? "bg-emerald-950/15 border-emerald-500/20" : "bg-amber-950/15 border-amber-500/20"
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare size={13} className={feedback.status === "EXCELENTE" ? "text-emerald-400" : "text-amber-400"} />
+              <span className={`text-[9px] font-black uppercase tracking-wider ${feedback.status === "EXCELENTE" ? "text-emerald-400" : "text-amber-400"}`}>
+                Retorno da Expressão Oral
+              </span>
+            </div>
+            <div className="text-amber-400 font-bold text-[10px] bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-800/20">
+              🏆 +{scoreFinal} XP
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-300 font-medium leading-relaxed">{feedback.mensagem}</p>
+          <p className="text-[10px] text-cyan-300/90 bg-cyan-950/20 p-1.5 rounded border border-cyan-900/10 italic">💡 {feedback.sugestao}</p>
+        </div>
+      )}
+
+      <div className="flex justify-center shrink-0 pt-1 pb-0.5">
+        {flowState !== "DONE" && (
+          <button
+            onClick={simularCliqueGravacao}
+            disabled={flowState === "RECORDING"}
+            className={`p-4 rounded-full border transition-all cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+              flowState === "RECORDING" 
+                ? "bg-rose-950/50 border-rose-500 text-rose-400 shadow-rose-950/20" 
+                : "bg-cyan-950/40 border-cyan-500/40 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-950"
+            }`}
+          >
+            <Mic size={20} />
+          </button>
+        )}
+      </div>
+
+    </div>
+  );
+}

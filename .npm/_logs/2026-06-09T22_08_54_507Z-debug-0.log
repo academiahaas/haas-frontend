@@ -1,0 +1,18 @@
+0 verbose cli /usr/bin/node /usr/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@10.8.2
+2 info using node@v20.20.2
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/var/www/haas-frontend/.npmrc
+5 silly config load:file:/var/www/.npmrc
+6 silly config load:file:/usr/etc/npmrc
+7 verbose title npm exec next telemetry disable
+8 verbose argv "exec" "--" "next" "telemetry" "disable"
+9 verbose logfile logs-max:10 dir:/var/www/.npm/_logs/2026-06-09T22_08_54_507Z-
+10 verbose logfile /var/www/.npm/_logs/2026-06-09T22_08_54_507Z-debug-0.log
+11 silly logfile done cleaning log files
+12 verbose cwd /var/www/haas-frontend
+13 verbose os Linux 6.8.0-124-generic
+14 verbose node v20.20.2
+15 verbose npm  v10.8.2
+16 verbose exit 0
+17 info ok

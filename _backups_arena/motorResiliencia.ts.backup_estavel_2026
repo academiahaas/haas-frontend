@@ -1,0 +1,78 @@
+const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+
+// Função genérica para chamar a Gemini em casos de falha crítica de dados
+async function chamarIAContingencia(prompt: string): Promise<any> {
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const textoCru = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const jsonLimpo = textoCru.replace(/```json/g, "").replace(/```/g, "").trim();
+      return JSON.parse(jsonLimpo);
+    }
+  } catch (e) {
+    console.error("Erro crítico no motor de resiliência de IA:", e);
+  }
+  return null;
+}
+
+// 1. CONTINGÊNCIA PARA JOGOS DE OPÇÕES (Múltipla Escolha e Caça Erro)
+export async function resilienciaOpcoes(fraseCorreta: string, opcoesIniciais: any, nomeUnidade: string): Promise<string[]> {
+  let bancoOpts: string[] = [];
+  if (opcoesIniciais) {
+    if (Array.isArray(opcoesIniciais)) bancoOpts = opcoesIniciais.map(o => String(o).trim());
+    else if (typeof opcoesIniciais === 'string') {
+      try { bancoOpts = JSON.parse(opcoesIniciais); } catch { bancoOpts = opcoesIniciais.split(',').map(s => s.trim()); }
+    }
+  }
+  const correta = fraseCorreta ? fraseCorreta.trim() : "";
+  let erradas = bancoOpts.filter(op => op.toLowerCase() !== correta.toLowerCase());
+  let lista = Array.from(new Set(correta ? [correta, ...erradas] : erradas)).filter(Boolean);
+
+  if (lista.length === 2) return lista; // Regra de 2 opções mantida
+  const alvo = (lista.length === 0 || lista.length === 3) ? 4 : lista.length;
+
+  if (lista.length < alvo) {
+    const prompt = `Gere alternativas incorretas em português para a unidade "${nomeUnidade}". Frase correta: "${correta}". Existentes: [${lista.join(' | ')}]. Retorne JSON: {"opcoes": ["frase_1", "frase_2"]}`;
+    const dados = await chamarIAContingencia(prompt);
+    if (dados && Array.isArray(dados.opcoes)) {
+      dados.opcoes.forEach((o: string) => { if (!lista.some(x => x.toLowerCase() === o.trim().toLowerCase())) lista.push(o.trim()); });
+    }
+    // Fallback absoluto se a própria IA der timeout
+    while (lista.length < alvo) {
+      lista.push((correta || "Opção de segurança") + " #" + lista.length);
+    }
+  }
+  return lista.slice(0, alvo);
+}
+
+// 2. CONTINGÊNCIA PARA LACUNAS / PALAVRA OCULTA / BLITZ / MARCHAS DE ÁUDIO
+export async function resilienciaLacunas(texto: string, resposta: string, nomeUnidade: string): Promise<{ texto: string, resposta: string }> {
+  if (texto && resposta && texto.includes("___")) {
+    return { texto, resposta };
+  }
+  // Se veio vazio ou sem a marcação da lacuna, a IA recria um desafio contextualizado perfeito
+  const prompt = `O banco de dados falhou para a unidade de português "${nomeUnidade}". Crie uma frase de nível intermediário contendo uma lacuna marcada com "______" e informe qual palavra preenche corretamente essa lacuna. Retorne estritamente o formato JSON: {"texto": "Frase com ______ aqui.", "resposta": "palavra_correta"}`;
+  const dados = await chamarIAContingencia(prompt);
+  if (dados && dados.texto && dados.resposta) {
+    return { texto: dados.texto, resposta: dados.resposta };
+  }
+  return { texto: "Ontem eu ______ ao parque de manhã.", resposta: "fui" };
+}
+
+// 3. CONTINGÊNCIA PARA ORDENAÇÃO DE FRASES / TEXTO / LEITURA DE VOZ
+export async function resilienciaTextoCompleto(textoOriginal: string, nomeUnidade: string): Promise<string> {
+  if (textoOriginal && textoOriginal.trim().length > 3) {
+    return textoOriginal.trim();
+  }
+  const prompt = `O banco de dados não entregou o texto de leitura para a unidade "${nomeUnidade}". Crie uma frase ou parágrafo curto, natural e correto em português para o aluno praticar leitura ou ordenação. Retorne estritamente o formato JSON: {"texto": "Texto gerado aqui"}`;
+  const dados = await chamarIAContingencia(prompt);
+  if (dados && dados.texto) {
+    return dados.texto;
+  }
+  return "O aprendizado da língua portuguesa abre portas para o mundo inteiro.";
+}

@@ -1,0 +1,402 @@
+'use client';
+import { translations } from './idiomas';
+import BotaoAula from "./BotaoAula";
+import PremiumStyle from "./PremiumStyle";
+import React, { useState, useEffect } from 'react';
+import ArenaQuiz from './components/ArenaQuiz';
+import { supabase } from '@/lib/supabase';
+import { Home, MapPin, Gift, BookOpen, Trophy, Shield, Box, Globe, Flame, Clock, Award, Star, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+
+// COMPONENTE DO MASCOTE ROBÔ PREMIUM EM SVG (100% ESTÁVEL)
+function MascoteRoboAI({ devePiscar = false }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg animate-ai-mascot-pulse w-20 h-20 shrink-0 border border-white/10" style={{ background: "linear-gradient(135deg, #7C3AED 0%, #2563EB 50%, #06B6D4 100%)" }}>
+      <svg viewBox="0 0 64 64" className="w-12 h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Orelhas de Coelho Tecnológico Premium com Degradê */}
+        <path d="M18 22C18 12 22 6 22 6C22 6 26 12 26 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M38 22C38 12 42 6 42 6C42 6 46 12 46 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+        
+        {/* Interior das Orelhas Brilhando em Neon */}
+        <path d="M22 18C22 14 23 10 23 10" stroke="#A855F7" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M42 18C42 14 43 10 43 10" stroke="#00D4FF" strokeWidth="1.5" strokeLinecap="round"/>
+        
+        {/* Cabeça do Robô - Capacete Branco Polido */}
+        <rect x="14" y="22" width="36" height="30" rx="12" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="2"/>
+        
+        {/* Visor Interno Escuro de Alta Fidelidade */}
+        <rect x="18" y="26" width="28" height="22" rx="8" fill="#0F172A" />
+        
+        {/* Olho Esquerdo Neon */}
+        <circle cx="24" cy="35" r="3" fill="#A855F7" />
+        
+        {/* Olho Direito Dinâmico Neon */}
+        {devePiscar ? (
+          <path d="M34 35H40" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round" />
+        ) : (
+          <circle cx="39" cy="35" r="3" fill="#00D4FF" />
+        )}
+        
+        {/* Bochechas com Brilho Sutil */}
+        <circle cx="21" cy="42" r="1" fill="#A855F7" opacity="0.6"/>
+        <circle cx="40" cy="42" r="1" fill="#00D4FF" opacity="0.6"/>
+
+        {/* Headset/Fones Laterais Metálicos */}
+        <path d="M11 30V40C11 41.5 12 43 13.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M53 30V40C53 41.5 52 43 50.5 43" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round"/>
+        
+        {/* Sorriso do Coelho Mentor */}
+        <path d="M28 41C28 42.5 29 43.5 30.5 43.5C32 43.5 33 42.5 33 41" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+      <span className="text-[7px] font-black font-mono text-white mt-1 tracking-wider uppercase opacity-90">IA MENTOR</span>
+    </div>
+  );
+}
+
+export default function PortalAluno() {
+  const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [idioma, setIdioma] = useState<'PT' | 'EN' | 'ES'>('PT');
+  const [activeTab, setActiveTab] = useState<string>('inicio');
+  const t = translations[idioma];
+
+  // ==========================================
+  // CÉREBRO DO ROBÔ IA (MECÂNICA ESTILO DUOLINGO)
+  // ==========================================
+  const [botPhraseIndex, setBotPhraseIndex] = useState(0);
+  const [isBotWinking, setIsBotWinking] = useState(false);
+
+  const handleBotClick = () => {
+    if (isBotWinking) return;
+    setIsBotWinking(true);
+    setBotPhraseIndex(prev => prev + 1);
+    setTimeout(() => setIsBotWinking(false), 300);
+  };
+
+  const obterConselhoIA = () => {
+    const traduzirErro = (err) => {
+      if (err === 'Prepositions') return { PT: 'Preposições', EN: 'Prepositions', ES: 'Preposiciones' }[idioma];
+      if (err === 'Phrasal Verbs') return { PT: 'Phrasal Verbs', EN: 'Phrasal Verbs', ES: 'Phrasal Verbs' }[idioma];
+      return err;
+    };
+
+    const erroTraduzido = typeof erro1 !== 'undefined' ? traduzirErro(erro1) : 'Preposições';
+    const xpPorcentagem = typeof porcentagemXp !== 'undefined' ? porcentagemXp : '65';
+    const nomeAluno = typeof aluno1 !== 'undefined' ? aluno1 : 'Alpha';
+
+    const bancoConselhos = {
+      PT: [
+        `⚡ Notei que o seu ponto fraco atual é ${erroTraduzido}. Clique para reforçar esse conteúdo!`,
+        `🎯 Você já domina ${xpPorcentagem}% desta unidade. Vamos buscar o próximo badge hoje?`,
+        `🔥 Ótimo progresso, ${nomeAluno}! Não deixe seu Racha de Retenção cair hoje.`
+      ],
+      EN: [
+        `⚡ I noticed your current weak spot is ${erroTraduzido}. Click to reinforce this content!`,
+        `🎯 You have mastered ${xpPorcentagem}% of this unit. Let's aim for the next badge today?`,
+        `🚀 Great momentum, ${nomeAluno}! Keep your Retention Streak safe today.`
+      ],
+      ES: [
+        `⚡ Noté que tu punto débil actual es ${erroTraduzido}. ¡Haz clic para reforzar este contenido!`,
+        `🎯 Ya dominas el ${xpPorcentagem}% de esta unidad. ¿Vamos por la siguiente insignia hoy?`,
+        `🔥 ¡Buen progreso, ${nomeAluno}! No dejes que tu racha de retención caiga hoy.`
+      ]
+    };
+
+    const listaAtual = bancoConselhos[idioma] || bancoConselhos['PT'];
+    return listaAtual[botPhraseIndex % listaAtual.length];
+  };
+  // ==========================================
+  
+  const [aluno1, setAluno1] = useState("Alpha_Leader");
+  const [xpAtual, setXpAtual] = useState("120"), [xpTotal, setXpTotal] = useState("500"), [porcentagemXp, setPorcentagemXp] = useState("65");
+  const [erro1, setErro1] = useState("Prepositions"), [erro2, setErro2] = useState("Phrasal Verbs");
+  const [peso1, setPeso1] = useState("High"), [peso2, setPeso2] = useState("Medium");
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const dadosRadar = [
+    { competenca: idioma === 'PT' ? 'Fala' : idioma === 'ES' ? 'Habla' : 'Speaking', nota: 75 }, { competenca: idioma === 'PT' ? 'Escuta' : idioma === 'ES' ? 'Escucha' : 'Listening', nota: 85 }, { competenca: idioma === 'PT' ? 'Gramática' : idioma === 'ES' ? 'Gramática' : 'Grammar', nota: 60 }, { competenca: idioma === 'PT' ? 'Escrita' : idioma === 'ES' ? 'Escritura' : 'Writing', nota: 70 }, { competenca: idioma === 'PT' ? 'Leitura' : idioma === 'ES' ? 'Lectura' : 'Reading', nota: 90 }
+  ];
+
+  return (
+    <div className="w-full h-screen text-white/90 select-none flex flex-col overflow-hidden bg-[#030914] relative font-sans isolate">
+      {/* 🔦 Lanterna de Profundidade 3D - Escondida no fundo mestre atrás de tudo */}
+      <div className="absolute top-0 left-[130px] w-[800px] h-[600px] pointer-events-none z-[-10] opacity-90 overflow-visible">
+        <svg width="100%" height="100%" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
+          <defs>
+            {/* 1. O Funil de Ouro Original (Intacto e perfeito) */}
+            <radialGradient id="funilLanterna3D" cx="40%" cy="10%" r="65%" fx="40%" fy="10%">
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
+              <stop offset="15%" stopColor="#f59e0b" stopOpacity="0.5" />
+              <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.12" />
+      0       <stop offset="100%" stopColor="#030914" stopOpacity="0" />
+            </radialGradient>
+
+            {/* 2. A Definição da Névoa Complementar (Restaurada no lugar certo!) */}
+            <linearGradient id="nevoaComplementar" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0" />
+              <stop offset="12%" stopColor="#f59e0b" stopOpacity="0.32" /> {/* Forte no 12 Dias */}
+              <stop offset="32%" stopColor="#f59e0b" stopOpacity="0.12" /> {/* Suave no Progresso */}
+              <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.04" /> {/* Quase fumaça no Baú */}
+              <stop offset="90%" stopColor="#f59e0b" stopOpacity="0" />
+            </linearGradient>
+
+            {/* Desfoque denso compartilhado */}
+            <filter id="blurNeonFunil" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="40" />
+            </filter>
+          </defs>
+          {/* Renderização física das camadas de luz na parede do fundo */}
+          <ellipse cx="220" cy="150" rx="380" ry="240" fill="url(#funilLanterna3D)" filter="url(#blurNeonFunil)" />
+          <rect x="-200" y="180" width="1000" height="400" fill="url(#nevoaComplementar)" filter="url(#blurNeonFunil)" opacity="0.8" />
+        </svg>
+      </div>
+      
+      {/* CSS LIMPO E SEGURO - REMOVIDO TOTALMENTE O SHIMMER QUE CAUSOU O ERRO VISUAL */}
+      <style>{`
+        @keyframes glowPulse {
+          0%, 100% { filter: drop-shadow(0 0 4px rgba(0,212,255,0.3)); transform: scale(1); }
+          50% { filter: drop-shadow(0 0 12px rgba(0,212,255,0.6)); transform: scale(1.01); }
+        }
+        .btn-3d-supreme-orange { background: linear-gradient(90deg, #7C3AED, #EC4899) !important; box-shadow: 0 8px 20px rgba(236,72,153,0.3) !important; transition: all 0.2s; }
+.btn-3d-supreme-orange:hover { transform: translateY(-2px) !important; box-shadow: 0 12px 25px rgba(236,72,153,0.45) !important; }
+.btn-3d-supreme-orange_ignored {
+          background-color: #7C3AED !important;
+          color: #FFFFFF !important;
+          box-shadow: 0 5px 0 0 #C084FC, 0 10px 20px rgba(255,85,0,0.15) !important;
+          transition: all 0.05s ease-in-out !important;
+        }
+        .btn-3d-supreme-orange:hover { background-color: #EC4899 !important; }
+        .btn-3d-supreme-orange:active {
+          transform: translateY(4px) !important;
+          box-shadow: 0 1px 0 0 #C084FC !important;
+        }
+        .card-3d-streak { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%) !important; box-shadow: 0 10px 30px rgba(249,115,22,0.15) !important; color: #ffffff !important; transition: all 0.3s ease; }
+.card-3d-streak:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(249,115,22,0.25) !important; }
+.card-3d-streak_ignored {
+          background: linear-gradient(135deg, #FB923C 0%, #F97316 100%) !important; box-shadow: 0 10px 30px rgba(249,115,22,0.12) !important; transition: all 0.3s ease-in-out;
+          box-shadow: 0 5px 0 0 #EA580C, 0 12px 24px rgba(255,69,0,0.2) !important;
+        }
+        .card-3d-reward {
+          background: linear-gradient(135deg, #F0FDF4, #ECFDF5) !important;
+          box-shadow: 0 5px 0 0 #D6A11E, 0 12px 24px rgba(218,165,32,0.1) !important;
+        }
+        .card-3d-white {
+          background: #FFFFFF !important;
+          box-shadow: 0 5px 0 0 #E2E8F0, 0 12px 24px rgba(0,0,0,0.015) !important;
+        }
+        .animate-ai-mascot-pulse {
+          animation: glowPulse 2.5s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* Topo Premium */}
+      <div className="w-[calc(100%+1rem)] -mx-2 bg-[#061324] px-10 py-5 flex flex-row items-center justify-between shrink-0 rounded-b-[36px] shadow-md z-10 border-b border-l border-r border-[#f59e0b]/60 relative">
+        <div className="flex items-center gap-6">
+          <div className="bg-gradient-to-tr from-purple-500 to-indigo-600 h-10 w-10 rounded-2xl text-white font-black flex items-center justify-center text-lg shadow-sm">H</div>
+          <div>
+            <h1 className="text-white font-extrabold text-2xl tracking-tight leading-none flex items-center gap-2">
+              Hi, 🌟 {aluno1}
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest font-black">{t.journey}</p>
+              <span className="bg-[#f59e0b] text-slate-950 text-[9px] px-2 py-0.5 rounded font-black font-mono shadow-sm">{t.level} 🌎</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 text-[9px] font-black text-white/80 flex gap-1 items-center">
+            <Globe size={11} className="text-slate-400" />
+            <button onClick={() => setIdioma('PT')} className={`px-1.5 py-0.5 rounded font-bold ${idioma === 'PT' ? 'bg-[#2563eb] text-white shadow-sm' : 'opacity-40 text-slate-400'}`}>PT</button>
+            <button onClick={() => setIdioma('EN')} className={`px-1.5 py-0.5 font-bold ${idioma === 'EN' ? 'bg-[#2563eb] text-white rounded shadow-sm' : 'opacity-40 text-slate-400'}`}>EN</button>
+            <button onClick={() => setIdioma('ES')} className={`px-1.5 py-0.5 font-bold ${idioma === 'ES' ? 'bg-[#2563eb] text-white rounded shadow-sm' : 'opacity-40 text-slate-400'}`}>ES</button>
+          </div>
+          <div className="flex bg-white/5 p-1 rounded-xl gap-0.5 border border-white/5">
+            <button className={`px-4 py-1.5 rounded-lg text-xs font-black transition-colors ${activeTab === 'inicio' ? 'bg-[#f59e0b] text-white shadow-sm' : 'text-slate-400'}`}>{idioma === 'PT' ? 'Início' : idioma === 'ES' ? 'Inicio' : 'Home'}</button>
+            <button className={`px-4 py-1.5 rounded-lg text-xs font-black transition-colors ${activeTab === 'path' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-400'}`}>{idioma === 'PT' ? 'Trilha' : idioma === 'ES' ? 'Ruta' : 'Path'}</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Miolo Principal */}
+      <div className="flex-1 p-6 -mt-4 overflow-hidden flex flex-row gap-6 w-full items-stretch relative">
+        
+        {/* Lado Esquerdo */}
+        <div className="flex-1 flex flex-col gap-6 h-full min-h-0">
+          
+          {/* Card Coral Core */}
+          <div className="flex-[1.8] bg-[#061324] p-7 rounded-[36px] shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col justify-between border border-white/5 relative overflow-hidden">
+            {/* Feixe Ultra Fino - Discreto Agulha */}
+            <div className="absolute top-0 left-0 w-[300px] h-[300px] pointer-events-none z-10 overflow-visible">
+              <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
+                <defs>
+                  <linearGradient id="eclipseAgulhaFina" x1="0%" y1="0%" x2="70%" y2="70%" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity="0.6" />
+                    <stop offset="15%" stopColor="#f59e0b" stopOpacity="0.2" />
+                    <stop offset="30%" stopColor="#061324" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#061324" stopOpacity="1" />
+                  </linearGradient>
+                </defs>
+                <path 
+                  d="M 180,1 L 36,1 A 35,35 0 0 0 1,36 L 1,180" 
+                  stroke="url(#eclipseAgulhaFina)" 
+                  strokeWidth="0.7" 
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            
+            <div className="w-full">
+              <div className="flex justify-between items-start border-b border-white/10 pb-3">
+                <div>
+                  <span className="text-[10px] font-black text-slate-100/80 uppercase font-mono tracking-widest flex items-center gap-1.5">
+                    <Star size={12} className="fill-[#f59e0b] text-[#f59e0b]" /> {t.missionTag}
+                  </span>
+                  <div className="mt-4 flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-200 font-mono tracking-wider">{t.module}</span>
+                    <h2 className="font-black text-3xl text-slate-100 tracking-tight leading-tight">Data Schema Integrity Checks</h2>
+                  </div>
+                </div>
+                
+                {/* INJEÇÃO DO COMPONENTE SVG SEGURO + BALÃO STYLE DUOLINGO */}
+                <div className="flex items-center gap-3">
+                  {/* Balão de Fala Dinâmico */}
+                  {/* BALÃO FIXO CONFORTÁVEL + PISCAR DE OLHO NO CLIQUE */}
+                  <div 
+                    onClick={handleBotClick} 
+                    className="flex items-center gap-3 cursor-pointer select-none active:scale-98"
+                    title="Clique para falar com o Co-Pilot"
+                  >
+                    <div className="relative bg-slate-900 text-[#fbbf24] font-mono text-[10px] font-bold p-3 rounded-2xl border border-[#fbbf24]/30 shadow-lg max-w-[240px] leading-relaxed animate-fade-in">
+                      {obterConselhoIA()}
+                      <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-900"></div>
+                    </div>
+                    <MascoteRoboAI devePiscar={isBotWinking} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mt-5 bg-[#061324] p-4 rounded-xl border border-white/5 text-white/90 font-mono text-[10px] font-black shadow-inner">
+                <div className="flex items-center gap-2 text-slate-200"><Star size={14} className="fill-[#f59e0b] text-[#f59e0b]" /> <span>{t.reward || 'RECOMPENSA: +50 XP'}</span></div>
+                <div className="flex items-center gap-2 text-slate-200"><Clock size={14} className="text-[#f59e0b]" /> <span>{t.time || 'TEMPO: 15 MIN'}</span></div>
+                <div className="flex items-center gap-2 text-white"><Award size={14} className="fill-[#f59e0b]/20 text-[#f59e0b]" /> <span>{t.badge}</span></div>
+              </div>
+            </div>
+
+            <div className="w-full mt-6 pb-2">
+              <div className="flex justify-between items-center text-[10px] font-mono font-black text-slate-100 mb-2.5 px-0.5 opacity-90">
+                <span>{t.mastery}</span>
+                <span className="text-[#f59e0b] tracking-wide">{t.toNext || '35% PARA O PRÓXIMO BADGE'}</span>
+              </div>
+              <button onClick={() => setIsArenaOpen(true)} className="w-full bg-gradient-to-r from-[#f59e0b] via-[#d97706] to-[#b45309] hover:brightness-110 active:scale-[0.98] text-white font-black py-4.5 rounded-2xl text-base uppercase tracking-widest border border-orange-500/20 shadow-lg shadow-orange-950/40 transition-all">
+                {t.trainBtn}
+              </button>
+            </div>
+          </div>
+
+          {/* Cards Inferiores 3D (Sem a classe shimmer-bar problemática) */}
+          <div className="grid grid-cols-3 gap-6 shrink-0 pb-1">
+            <div className="w-full border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15),inset_0_0_15px_rgba(245,158,11,0.08)] rounded-[24px] p-4 flex flex-col justify-between h-[115px] select-none relative overflow-hidden text-white" style={{ background: "radial-gradient(circle at 5% 50%, rgba(217,119,6,0.22) 0%, transparent 55%), radial-gradient(circle at 95% 50%, rgba(217,119,6,0.18) 0%, transparent 50%), #0d1520" }}>
+              <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest font-mono flex items-center gap-1">🔥 "SEQUÊNCIA DE FLUÊNCIA"</span>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-3 my-auto"><span className="text-3xl font-black text-white tracking-wide font-sans">12 {idioma === 'PT' ? 'DIAS' : idioma === 'ES' ? 'DÍAS' : 'DAYS'}</span><span className="text-3xl animate-pulse filter drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">🔥</span></div>
+                <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider text-left">{t.streakSub}</span>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between h-[115px]">
+              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider">{t.ranking}</span>
+              <div className="space-y-2">
+                <span className="text-2xl font-black text-white tracking-tight font-mono">{xpAtual} <span className="text-[11px] font-bold text-slate-400">/ {xpTotal} XP</span></span>
+                <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${porcentagemXp}%` }} /></div>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-[24px] border border-white/5 bg-[#061324] flex flex-col justify-between h-[115px]">
+              <span className="text-[9px] font-black uppercase text-amber-500 font-mono tracking-wider flex items-center gap-1"><Trophy size={10} className="fill-amber-500 stroke-amber-500"/> {t.nextReward}</span>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[10px] font-black text-slate-200 font-sans"><span className="text-white font-bold">{idioma === "PT" ? "Emblema Explorer" : idioma === "ES" ? "Insignia Explorer" : "Explorer Badge"}</span><span className="text-amber-500 font-mono font-bold">-30 XP</span></div>
+                <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#f59e0b]" style={{ width: "85%" }} /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lado Direito */}
+        <div className="w-[35%] bg-[#061324] p-4 rounded-[36px] shadow-[0_20px_50px_rgba(0,0,0,0.015)] flex flex-col justify-between h-full min-h-0 shrink-0 border border-white/5 relative">
+          <div className="w-full flex flex-col gap-1 min-h-0 flex-1">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{t.radarTitle}</span>
+            <div className="w-full h-[280px] bg-[#04101e] rounded-2xl flex items-center justify-center overflow-hidden p-2 border border-white/5 shadow-inner">
+              {mounted ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="56%" outerRadius="100%" data={dadosRadar} margin={{ top: 22, right: 0, bottom: 0, left: 0 }}>
+                    <PolarGrid stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
+                    <PolarAngleAxis dataKey="competenca" tick={{ fill: "#94A3B8", fontSize: 9.5, fontWeight: "800", letterSpacing: "0.03em" }} />
+                    <PolarRadiusAxis tick={false} domain={[0, 100]} />
+                    <Radar 
+                      name="Proficiência" 
+                      dataKey="nota" 
+                      stroke="#8B5CF6" 
+                      strokeWidth={3} 
+                      fill="url(#radarPremiumGlow)" 
+                      fillOpacity={0.3} 
+                      className="drop-shadow-[0_0_12px_rgba(139,92,246,0.4)]"
+                    />
+                    <defs>
+                      <linearGradient id="radarPremiumGlow" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8B5CF6" />
+                        <stop offset="100%" stopColor="#EC4899" />
+                      </linearGradient>
+                    </defs>
+                  </RadarChart>
+                </ResponsiveContainer>
+              ) : <div className="text-[10px] font-mono text-slate-400 animate-pulse">Sync...</div>}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-[8px] font-black uppercase font-mono mt-1 text-center">
+              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 px-1 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={10}/> {t.insights[0]}</span>
+              <span className="bg-emerald-950/40 text-emerald-400 border border-emerald-500/10 px-1 py-1 rounded-lg flex items-center justify-center gap-1"><TrendingUp size={10}/> {t.insights[1]}</span>
+              <span className="bg-rose-950/40 text-rose-400 border border-rose-500/10 px-1 py-1 rounded-lg flex items-center justify-center gap-1"><AlertTriangle size={10}/> {t.insights[2]}</span>
+            </div>
+          </div>
+
+          <div className="w-full flex flex-col gap-2 mt-4">
+            <div className="flex flex-row justify-between items-center bg-[#04101e] p-3 rounded-xl border border-white/5">
+              <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-wider">{t.leaderboard}</span>
+              <div className="bg-transparent border border-amber-500/60 text-[#f59e0b] px-3 py-0.5 rounded-full text-[10px] font-black shadow-[0_0_10px_rgba(245,158,11,0.15)] tracking-wide">
+                🏆 {aluno1}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 font-sans mt-3">
+            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-amber-500/40 shadow-[0_2px_8px_rgba(0,0,0,0.2),0_0_10px_rgba(245,158,11,0.15)] tracking-wider transition-all">{t.evalBtn}</button>
+            <button className="flex-1 bg-[#1c2735] hover:bg-[#253346] text-white font-mono text-[9px] font-black py-2.5 rounded-xl uppercase border border-amber-500/40 shadow-[0_2px_8px_rgba(0,0,0,0.2),0_0_10px_rgba(245,158,11,0.15)] tracking-wider transition-all">{t.calBtn}</button>
+          </div>
+
+          <div className="border-t border-white/5 pt-4 mt-4 flex flex-col gap-2">
+            <span className="text-[9px] font-black text-[#f59e0b] font-mono uppercase tracking-wider">{t.chestTitle}</span>
+            <div className="flex justify-between items-center text-[10px] font-mono font-bold bg-[#09192f] p-2.5 rounded-xl text-white/90 border border-white/5">
+              <span>{idioma === 'PT' ? (erro1 === 'Prepositions' ? 'Preposições' : erro1) : idioma === 'ES' ? (erro1 === 'Prepositions' ? 'Preposiciones' : erro1) : erro1} ({idioma === 'PT' ? (peso1 === 'High' ? 'Alto' : peso1) : idioma === 'ES' ? (peso1 === 'High' ? 'Alto' : peso1) : peso1})</span>
+              <span className="opacity-20">•</span>
+              <span>{erro2} ({idioma === 'PT' ? (peso2 === 'Medium' ? 'Médio' : peso2) : idioma === 'ES' ? (peso2 === 'Medium' ? 'Medio' : peso2) : peso2})</span>
+            </div>
+            <button className="w-full bg-[#04101e] hover:bg-[#0c2545] text-white font-mono text-[9px] font-black py-2.5 uppercase tracking-widest rounded-xl border border-amber-500/60 shadow-[0_0_10px_rgba(245,158,11,0.15)] transition-all">
+              <span className="text-[#f59e0b]">{t.clearBtn}</span>
+            </button>
+          </div>
+
+          <div className="h-[55px] bg-[#061324]/60 p-1.5 rounded-xl border border-white/5 mt-3 flex flex-col justify-center shrink-0 shadow-inner">
+            <BotaoAula dataAulaIso="" linkMeet="" idiomaAtivo={idioma} />
+          </div>
+        </div>
+
+      </div>
+
+      <PremiumStyle />
+      <ArenaQuiz isOpen={isArenaOpen} onClose={() => setIsArenaOpen(false)} userId="user_demo_123" />
+    </div>
+  );
+}

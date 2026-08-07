@@ -1,0 +1,6 @@
+node_modules/
+.next/
+.env
+homologacao.log
+.env.local
+_backups_arena/

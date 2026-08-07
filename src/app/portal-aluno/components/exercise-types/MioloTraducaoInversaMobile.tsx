@@ -1,0 +1,151 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+
+interface PieceItem {
+  id: number;
+  text: string;
+}
+
+interface MioloProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+}
+
+export default function MioloTraducaoInversaMobile({
+  onSelectionChange,
+  onValidateResult,
+  status = 'IDLE'
+}: MioloProps) {
+
+  
+
+  const [listaExercicios, setListaExercicios] = useState<any[]>([]);
+  const [indexAtual, setIndexAtual] = useState(0);
+  const [fraseMatrizPT, setFraseMatrizPT] = useState("Carregando desafio...");
+  const [stringAlvoCorreta, setStringAlvoCorreta] = useState("");
+  const [initialPieces, setInitialPieces] = useState<string[]>([]);
+  const [totalPecasNecessarias, setTotalPecasNecessarias] = useState(5);
+
+  const [bankPieces, setBankPieces] = useState<PieceItem[]>([]);
+  const [depositPieces, setDepositPieces] = useState<PieceItem[]>([]);
+
+  useEffect(() => {
+    async function carregarExerciciosDoBanco() {
+      try {
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?unit=eq.O+Primeiro+Impacto+e+as+Vogais+Fracas&activity_type=eq.12";
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        const res = await fetch(url, {
+          headers: { "apikey": key, "Authorization": "Bearer " + key }
+        });
+        const dados = await res.json();
+        
+        if (dados && dados.length > 0) {
+          setListaExercicios(dados);
+          configurarExercicio(dados[0]);
+        }
+      } catch (err) {
+        console.error("Erro no Supabase Mobile:", err);
+      }
+    }
+    carregarExerciciosDoBanco();
+  }, []);
+
+  const configurarExercicio = (exe: any) => {
+    if (!exe) return;
+    setFraseMatrizPT(exe.reading_text);
+    setStringAlvoCorreta(exe.correct_answer);
+    
+    const opcoes = exe.alternative_options && exe.alternative_options.length > 0 
+      ? exe.alternative_options 
+      : [exe.correct_answer];
+      
+    setInitialPieces(opcoes);
+    setTotalPecasNecessarias(opcoes.length);
+    setBankPieces(opcoes.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+    setDepositPieces([]);
+  };
+
+  useEffect(() => { resetarJogo(); }, []);
+  
+  useEffect(() => { 
+    if (status === 'IDLE' && listaExercicios.length > 0) {
+      configurarExercicio(listaExercicios[indexAtual]);
+    }
+  }, [status]);
+
+  const resetarJogo = () => {
+    setBankPieces(initialPieces.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+    setDepositPieces([]);
+  };
+
+  const handlePushToDeposit = (piece: PieceItem) => {
+    if (status === 'CORRECT') return;
+    const novosDepositos = [...depositPieces, piece];
+    setBankPieces(prev => prev.filter(p => p.id !== piece.id));
+    setDepositPieces(novosDepositos);
+    if (onSelectionChange) onSelectionChange(novosDepositos.length > 0);
+  };
+
+  const handlePullToBank = (piece: PieceItem) => {
+    if (status === 'CORRECT') return;
+    const novosDepositos = depositPieces.filter(p => p.id !== piece.id);
+    setDepositPieces(novosDepositos);
+    setBankPieces(prev => [...prev, piece]);
+    if (onSelectionChange) onSelectionChange(novosDepositos.length > 0);
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between gap-4 font-mono select-none items-stretch flex-1 min-h-0 mb-0 pb-0">
+      
+      {/* 1) ENUNCIADO MATRIZ (TOPO) */}
+      <div className="text-left bg-[#050811] border border-slate-800 rounded-xl p-4 shadow-sm w-full shrink-0">
+        <span className="text-[clamp(11px,3vw,13px)] font-black text-cyan-400 block mb-1.5 uppercase tracking-wider">
+          Traduza o requisito corporativo nativo:
+        </span>
+        <p className="text-[clamp(13px,3.8vw,15px)] font-bold text-slate-200 leading-relaxed font-sans break-words">
+          "{fraseMatrizPT}"
+        </p>
+      </div>
+
+      {/* 2) ZONA DE DEPÓSITO AMPLIADA (MEIO) */}
+      <div className={`w-full rounded-xl p-4 min-h-[100px] flex-1 flex flex-wrap content-center justify-center gap-2.5 items-center transition-all duration-200 shadow-inner ${
+        status === 'CORRECT' ? 'border-2 border-[#22C55E]/30 bg-[#042414]/20' :
+        status === 'WRONG' ? 'border-2 border-red-500/30 bg-[#2E0B0E]/20 animate-shake' :
+        'bg-[#050811]/80 border-2 border-dashed border-slate-800/60 shadow-2xl'
+      }`}>
+        {depositPieces.length === 0 ? (
+          <span className="text-[clamp(11px,3.2vw,13px)] font-black text-slate-500 uppercase tracking-widest select-none font-sans text-center">
+            Toque nos blocos abaixo para traduzir
+          </span>
+        ) : (
+          depositPieces.map((piece) => (
+            <button 
+              key={piece.id} 
+              disabled={status === 'CORRECT'} 
+              onClick={() => handlePullToBank(piece)} 
+              className="px-3 py-2.5 bg-cyan-400 text-slate-950 font-black rounded-xl text-[clamp(13px,3.6vw,15px)] border-none shadow-md cursor-pointer active:scale-95 transition-all whitespace-nowrap"
+            >
+              {piece.text}
+            </button>
+          ))
+        )}
+      </div>
+
+      {/* 3) BANCO DE PALAVRAS DISPONÍVEIS (BASE ABSOLUTA - MARGENS E PADDINGS INFERIORES ZERADOS) */}
+      <div className="w-full flex flex-wrap gap-2.5 p-3 bg-[#080C16]/40 border border-white/[0.02] rounded-xl justify-center items-center shrink-0 min-h-[90px] mb-0 pb-3">
+        {bankPieces.map((piece) => (
+          <button 
+            key={piece.id} 
+            disabled={status === 'CORRECT'} 
+            onClick={() => handlePushToDeposit(piece)} 
+            className="px-3 py-2.5 bg-[#121C2D]/80 active:bg-[#121C2D] text-slate-200 font-black border border-slate-700/60 rounded-xl text-[clamp(13px,3.6vw,15px)] shadow-md cursor-pointer transition-all active:scale-95 whitespace-nowrap"
+          >
+            {piece.text}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

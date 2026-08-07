@@ -1,0 +1,160 @@
+"use client";
+import React, { useState, useEffect } from "react";
+
+interface MioloProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: "IDLE" | "CORRECT" | "WRONG";
+  unidadeAtiva?: string;
+}
+
+interface OpcaoJogo {
+  texto: string;
+  isCorreta: boolean;
+}
+
+export default function MioloCacaErro({ onSelectionChange, onValidateResult, status = "IDLE", unidadeAtiva }: MioloProps) {
+  const [opcoes, setOpcoes] = useState<OpcaoJogo[]>([]);
+  const [indexSelecionado, setIndexSelecionado] = useState<number | null>(null);
+  const [carregando, setCarregando] = useState(true);
+
+  // Função estável para gerar variações erradas (Portunhol) baseadas na frase do banco
+  const gerarDistratores = (fraseOriginal: string, regra: number): string => {
+    let modificada = fraseOriginal;
+
+    if (regra === 1) {
+      // Erro Tipo A: Troca "m" final por "n" e "pode ser" por "puede ser"
+      modificada = fraseOriginal
+        .replace(/m(?=\s|[.!?]|$)/g, "n")
+        .replace(/\bpode ser\b/gi, "puede ser")
+        .replace(/\bSim\b/g, "Sin");
+    } else {
+      // Erro Tipo B: Troca "mais" por "más", "vou" por "bou" ou "para" por "para o"
+      modificada = fraseOriginal
+        .replace(/\bmais\b/gi, "más")
+        .replace(/\bvou\b/g, "bou")
+        .replace(/\bVou\b/g, "Bou")
+        .replace(/\bmais tarde\b/gi, "más tarde");
+    }
+
+    // Fallback de segurança se nenhuma regra encontrou palavras-chave para alterar
+    if (modificada === fraseOriginal) {
+      modificada = fraseOriginal + (regra === 1 ? " (con certeza)" : " por lo tanto");
+    }
+
+    return modificada;
+  };
+
+  useEffect(() => {
+    async function carregarCacaErroDoBanco() {
+      try {
+        setCarregando(true);
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        
+        // Alvo configurado: tipo 7
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?activity_type=eq.7&limit=1";
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+
+        if (dados && dados.length > 0 && dados[0].audio_transcript) {
+          const exe = dados[0];
+          const fraseCerta = exe.audio_transcript.trim();
+          const idExercicio = exe.id;
+
+          // Gera os dois distratores errados de forma controlada
+          const errada1 = gerarDistratores(fraseCerta, 1);
+          const errada2 = gerarDistratores(fraseCerta, 2);
+
+          const listaOpcoes: OpcaoJogo[] = [
+            { texto: fraseCerta, isCorreta: true },
+            { texto: errada1, isCorreta: false },
+            { texto: errada2, isCorreta: false }
+          ];
+
+          // Embaralha as opções usando o ID do exercício como semente estável
+          let hash = 0;
+          for (let i = 0; i < idExercicio.length; i++) {
+            hash = idExercicio.charCodeAt(i) + ((hash << 5) - hash);
+          }
+          
+          // Pseudo-randomização baseada no hash estável do ID
+          const seedRandom = () => {
+            const x = Math.sin(hash++) * 10000;
+            return x - Math.floor(x);
+          };
+          
+          const opcoesEmbaralhadas = listaOpcoes.sort(() => seedRandom() - 0.5);
+          setOpcoes(opcoesEmbaralhadas);
+        } else {
+          // Fallback visual de desenvolvimento caso não ache dados no tipo 7
+          const fallbackCerta = "A gente se encontra mais tarde? Sim, pode ser.";
+          setOpcoes([
+            { texto: "A gente se encontra más tarde? Sin, puede ser.", isCorreta: false },
+            { texto: fallbackCerta, isCorreta: true },
+            { texto: "A gente se encontra mais tarde? Sin, pode ser por lo tanto.", isCorreta: false }
+          ].sort(() => Math.random() - 0.5));
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados do Caça Erro tipo 7:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCacaErroDoBanco();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (status === "IDLE") setIndexSelecionado(null);
+  }, [status]);
+
+  const handleOpcaoClick = (idx: number) => {
+    if (status !== "IDLE") return;
+    setIndexSelecionado(idx);
+    if (onSelectionChange) onSelectionChange(true);
+    
+    // O aluno acerta se ele clicar em um dos cards que NÃO são a frase correta (ou seja, capturou o erro)
+    const acertou = !opcoes[idx].isCorreta;
+    if (onValidateResult) onValidateResult(acertou);
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-8 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Processando Transcrições e Gerando Opções...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden">
+      <div className="bg-[#0c192e] py-3 px-4 rounded-xl border border-white/[0.04] text-xs font-bold text-cyan-400 shrink-0 uppercase tracking-wider">
+        Identifique e selecione a opção que contém erros de Portunhol:
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1 custom-scrollbar">
+        {opcoes.map((opcao, index) => {
+          const estaSelecionada = indexSelecionado === index;
+          let estiloBorda = "border-white/[0.04] bg-[#0c192e]";
+          
+          if (estaSelecionada) {
+            if (status === "CORRECT") estiloBorda = "border-emerald-500/40 bg-emerald-950/20 text-emerald-400";
+            else if (status === "WRONG") estiloBorda = "border-rose-500/40 bg-rose-950/20 text-rose-400";
+            else estiloBorda = "border-cyan-500/40 bg-cyan-950/20 text-cyan-300";
+          }
+
+          return (
+            <div
+              key={index}
+              onClick={() => handleOpcaoClick(index)}
+              className={`p-4 rounded-xl border cursor-pointer transition-all hover:border-white/[0.12] active:scale-[0.99] select-none ${estiloBorda}`}
+            >
+              <p className="text-[14px] leading-relaxed font-medium">
+                {opcao.texto}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

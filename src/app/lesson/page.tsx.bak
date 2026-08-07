@@ -1,0 +1,310 @@
+/* =========================================================================
+  COCKPIT CENTRAL DE GAMIFICAÇÃO - HAAS ACADEMY 
+  BACKGROUND REAL INTEGRADO (PORTAL DO ALUNO DESFOCADO) • AÇÕES REATIVAS
+  =========================================================================
+*/
+
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Flame, Check, ArrowRight, Trophy, Award, ChevronDown, ChevronUp, Lock, PartyPopper, AlertOctagon, LogOut } from 'lucide-react'; 
+import confetti from 'canvas-confetti';
+import '../globals.css';
+
+import { BANCO_UNIDADES } from '../../data/unidades';
+import { ParticleCanvas, ParticleCanvasRef } from '../../components/ParticleCanvas';
+import { SkillDrawer } from '../../components/SkillDrawer';
+import { XpBoostPopup } from '../../components/XpBoostPopup';
+import { MascotBubble } from '../../components/MascotBubble';
+
+import { UnitCompletionScreen } from '../../components/UnitCompletionScreen';   
+import { ModuleCompletionScreen } from '../../components/ModuleCompletionScreen'; 
+import { LevelCompletionScreen } from '../../components/LevelCompletionScreen';   
+import { useVolatilityStore } from '../../utils/useVolatilityStore';
+
+const traducoesCockpit = {
+  PT: {
+    sair: 'Salir', exercicio: 'EXERCÍCIO', faltam: 'FALTAM', pronta: 'Frente Pronta!',
+    simular: 'Simular Inatividade (-45p)', modoSuper: 'Modo Super-Chance',
+    acerteProxima: 'Acerte a próxima para ativar!', concluida: 'Super-Chance Concluída!',
+    ativado: 'Modo Super-Chance Ativado', limparBau: 'Limpar Baú', requisitos: 'Requisitos B2',
+    escolha: 'Escolha uma Resposta', concluirU: 'Concluir Unidade', concluirM: 'Concluir Módulo',
+    concluirN: 'Concluir Nível', avisoTitulo: 'Relatório de Inatividade',
+    avisoCorpo: 'Você ficou {dias}d sem treinar. O sistema drenou {pontos}p da grade!', avisoBotao: 'Proteger Grade',
+    analisando: 'Analisando resposta... Solicitando relatório tático.'
+  },
+  ES: {
+    sair: 'Salir', exercicio: 'EJERCICIO', faltam: 'FALTAN', pronta: '¡Ruta Lista!',
+    simular: 'Simular Inactividad (-45p)', modoSuper: 'Modo Super-Chance',
+    acerteProxima: '¡Acerta la próxima para activar!', concluida: '¡Super-Chance Concluido!',
+    ativado: 'Modo Super-Chance Activado', limparBau: 'Limpiar Cofre', requisitos: 'Requisitos B2',
+    escolha: 'Elige una Respuesta', concluirU: 'Concluir Unidad', concluirM: 'Completar Módulo',
+    concluirN: 'Concluir Nivel', avisoTitulo: 'Reporte de Inactividad',
+    avisoCorpo: 'Te quedaste {dias}d sin entrenar. ¡El sistema drenó {pontos}p de la malla!', avisoBotao: 'Proteger Malla',
+    analisando: 'Analizando respuesta... Solicitando reporte táctico.'
+  },
+  EN: {
+    sair: 'Exit', exercicio: 'EXERCISE', faltam: 'REMAINING', pronta: 'Path Ready!',
+    simular: 'Simulate Inactivity (-45p)', modoSuper: 'Super-Chance Mode',
+    acerteProxima: 'Get the next one right to activate!', concluida: 'Super-Chance Completed!',
+    ativado: 'Super-Chance Mode Activated', limparBau: 'Clear Chest', requisitos: 'B2 Requirements',
+    escolha: 'Choose an Answer', concluirU: 'Complete Unit', concluirM: 'Complete Module',
+    concluirN: 'Complete Level', avisoTitulo: 'Inactivity Report',
+    avisoCorpo: 'You spent {dias}d without training. The system drained {pontos}p from your grid!', avisoBotao: 'Protect Grid',
+    analisando: 'Analyzing answer... Fetching tactical report.'
+  }
+};
+
+export default function LessonPage() {
+  const router = useRouter();
+  const [unidadeAtualIndex, setUnidadeAtualIndex] = useState(0);
+  const [gavetaAberta, setGavetaAberta] = useState(false);
+  const [idioma, setIdioma] = useState<'PT' | 'ES' | 'EN'>('PT');
+  const t = traducoesCockpit[idioma];
+
+  const META_MOEDAS_B2 = 600;
+  const store = useVolatilityStore(META_MOEDAS_B2);
+
+  const [mostrarTelaUnidade, setMostrarTelaUnidade] = useState(false);
+  const [mostrarTelaModulo, setMostrarTelaModulo] = useState(false);
+  const [mostrarTelaNivel, setMostrarTelaNivel] = useState(false);
+  
+  const [respostaSelecionada, setRespostaSelecionada] = useState<string | null>(null);
+  const [statusResposta, setStatusStatus] = useState<'idle' | 'correto' | 'errado' | 'timeout'>('idle');
+  const [tempoRestante, setTempoRestante] = useState(15);
+  const [precisao, setPrecisao] = useState(95);
+  const [bauDesbloqueado, setBauDesbloqueado] = useState(false);
+  const [mostrarTextoBoost, setMostrarTextoBoost] = useState(false);
+  const [mostrarGlowBarra, setMostrarGlowBarra] = useState(false);
+  const [faseSuperChance, setFaseSuperChance] = useState<'bloqueado' | 'ativado'>('bloqueado');
+  
+  const [impactoGeral, setImpactoGeral] = useState(false);
+  const [impactoHabilidade, setImpactoHabilidade] = useState<string | null>(null);
+
+  const [feedbackDinamicoIA, setFeedbackDinamicoIA] = useState<string | undefined>(undefined);
+  const [carregandoIA, setCarregandoIA] = useState(false);
+
+  const particleCanvasRef = useRef<ParticleCanvasRef | null>(null);
+  const trofeuRef = useRef<HTMLDivElement | null>(null);
+  const botaoLimparRef = useRef<HTMLButtonElement | null>(null);
+
+  const unidadeAtual = BANCO_UNIDADES[unidadeAtualIndex] || BANCO_UNIDADES[0];
+  const jaRespondeu = statusResposta !== 'idle';
+  const perguntasTotais = BANCO_UNIDADES.length;
+  const progressoExercicioGeral = ((unidadeAtualIndex + (jaRespondeu ? 1 : 0)) / perguntasTotais) * 100;
+
+  useEffect(() => {
+    const idiomaSalvo = localStorage.getItem('haas_idioma_auxiliar');
+    if (idiomaSalvo === 'PT' || idiomaSalvo === 'ES' || idiomaSalvo === 'EN') {
+      setIdioma(idiomaSalvo);
+    }
+  }, []);
+
+  const dispararFestaGamificada = () => {
+    setMostrarTextoBoost(true);
+    setMostrarGlowBarra(true);
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00FF66', '#FFD700', '#FF8A3D', '#FFFFFF'], zIndex: 10000 });
+    setTimeout(() => setMostrarTextoBoost(false), 2200);
+  };
+
+  const handleParticleFinish = (tipo: 'escrita' | 'pronuncia' | 'geral') => {
+    if (tipo === 'geral') {
+      setImpactoGeral(true);
+      store.adicionarMoedas(5);
+      setTimeout(() => {
+        if (unidadeAtual.fimDoNivel) setMostrarTelaNivel(true);
+        else if (unidadeAtual.fimDoModulo) setMostrarTelaModulo(true);
+      }, 1200);
+      setTimeout(() => setImpactoGeral(false), 100);
+    }
+  };
+
+  const handleSelecionar = async (id: string) => {
+    if (statusResposta !== 'idle') return;
+    setRespostaSelecionada(id);
+    
+    const opcaoEscolhida = unidadeAtual.opcoes.find(o => o.id === id);
+    const ehCorreto = id === unidadeAtual.respostaCorreta;
+
+    setCarregandoIA(true);
+    setFeedbackDinamicoIA(undefined);
+
+    if (ehCorreto) {
+      setStatusStatus('correto');
+      if (faseSuperChance === 'ativado') { setBauDesbloqueado(true); dispararFestaGamificada(); }
+    } else {
+      setStatusStatus('errado');
+    }
+
+    try {
+      const response = await fetch('/api/mascote-ia', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'haas-language': idioma 
+        },
+        body: JSON.stringify({
+          pergunta: unidadeAtual.pergunta,
+          alternativaMarcada: id,
+          textoAlternativa: opcaoEscolhida?.texto || '',
+          foiCorreto: ehCorreto,
+          nomeAluno: "Bruna"
+        })
+      });
+      const dados = await response.json();
+      setFeedbackDinamicoIA(dados.feedback);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCarregandoIA(false);
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 w-screen h-screen text-[#E8EDF2] flex flex-col justify-between p-6 font-sans antialiased overflow-hidden z-[9999]"
+      style={{
+        backgroundImage: 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="absolute inset-0 bg-[#070d14]/40 backdrop-blur-[3px] z-0"></div>
+
+      <ParticleCanvas ref={particleCanvasRef} onParticleFinish={handleParticleFinish} />
+
+      {store.mostrouAvisoPerda && (
+        <div className="absolute top-[14vh] left-1/2 -translate-x-1/2 z-[50] w-full max-w-xl bg-rose-950/80 border border-rose-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-4 backdrop-blur-md shadow-2xl">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400 animate-pulse"><AlertOctagon size={18} /></div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-wider">{t.avisoTitulo}</span>
+              <span className="text-[11px] font-bold text-slate-200">
+                {t.avisoCorpo.replace('{dias}', String(store.diasInativoSimulados)).replace('{pontos}', String(store.diasInativoSimulados * 15))}
+              </span>
+            </div>
+          </div>
+          <button onClick={() => store.setMostrouAvisoPerda(false)} className="px-3 py-1 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-300 font-mono text-[9px] font-black rounded-lg uppercase transition-all">{t.avisoBotao}</button>
+        </div>
+      )}
+
+      <UnitCompletionScreen mostrar={mostrarTelaUnidade} onAvancarUnidade={() => { setFeedbackDinamicoIA(undefined); setMostrarTelaUnidade(false); setUnidadeAtualIndex(prev => prev + 1); setRespostaSelecionada(null); setStatusStatus('idle'); setFaseSuperChance('bloqueado'); }} />
+      <ModuleCompletionScreen mostrar={mostrarTelaModulo} moedasGanhas={55} precisaoFinal={precisao} onAvancar={() => { setFeedbackDinamicoIA(undefined); setMostrarTelaModulo(false); setUnidadeAtualIndex(prev => prev + 1); setRespostaSelecionada(null); setStatusStatus('idle'); setFaseSuperChance('bloqueado'); }} />
+      <LevelCompletionScreen mostrar={mostrarTelaNivel} nivelNome="B2 INTERMEDIÁRIO" onLiberarExames={() => { setMostrarTelaNivel(false); router.push('/lesson-certify'); }} />
+
+<header className="absolute top-[3vh] left-1/2 -translate-x-1/2 w-full max-w-[95%] px-6 z-10 flex items-center justify-between gap-8">
+        
+        {/* 🏆 LADO ESQUERDO: SEU TROFÉU ORIGINAL + SEU TEXTO "FALTAM" */}
+        <div className="flex flex-col items-start gap-1 min-w-[140px]">
+          <div ref={trofeuRef} className={`flex items-center gap-1.5 bg-[#142334]/90 border px-3 py-1.5 rounded-xl shadow-md transition-all duration-200 h-[34px] ${impactoGeral ? 'scale-105 border-emerald-400 shadow-[0_0_15px_#00FF66] bg-[#122b20]' : 'border-emerald-500/20'}`}>
+            <Trophy size={14} className="text-[#FFD700]" />
+            <span className="text-[10px] font-mono font-black text-white">{store.moedasAcumuladas} / {META_MOEDAS_B2}</span>
+          </div>
+          <div className="text-[9px] font-black text-[#00FF66] tracking-wide uppercase px-0.5 mt-0.5 hidden sm:block">
+            {META_MOEDAS_B2 - store.moedasAcumuladas > 0 ? `${t.faltam} ${META_MOEDAS_B2 - store.moedasAcumuladas}p` : t.pronta}
+          </div>
+        </div>
+
+        {/* 📊 CENTRO: NOVA HIERARQUIA COM A SUA BARRA GROSSA + TÍTULO EMBAIXO */}
+        <div className="flex-1 flex flex-col items-center gap-2">
+          <span className="text-[10px] font-black tracking-widest text-[#00E5FF] uppercase block text-center">
+            {t.exercicio}: {unidadeAtualIndex + 1} / {perguntasTotais}
+          </span>
+          
+          {/* Sua barra de progresso original redimensionada para 32px de espessura */}
+          <div className="w-full max-w-3xl h-[32px] rounded-full overflow-hidden p-0.5 relative" style={{ background: 'linear-gradient(to right, #0F2330, #1A3142)', border: '1px solid rgba(0, 255, 102, 0.2)', boxShadow: mostrarGlowBarra ? '0 0 25px #00FF66' : 'none' }}>
+            <div className="h-full rounded-full transition-all duration-700 cubic-bezier(0.1, 0.8, 0.2, 1)" style={{ width: `${progressoExercicioGeral}%`, background: 'linear-gradient(to right, #00FF66 0%, #DBEA30 100%)' }} />
+          </div>
+
+          {/* Nome dinâmico da unidade posicionado perfeitamente abaixo da barra */}
+          <span className="text-xs font-bold text-slate-300 tracking-wide block text-center truncate max-w-xl">
+            {unidadeAtual.titulo || `Unidade ${unidadeAtualIndex + 1}: Business Performance`}
+          </span>
+        </div>
+        
+        {/* 🔥 LADO DIREITO: SUAS CHAMAS ORIGINAIS ALINHADAS */}
+        <div className="flex flex-col items-end gap-1 min-w-[140px]">
+          <div className="flex items-center gap-1.5 bg-[#142334]/90 border border-orange-500/30 px-3 py-1.5 rounded-xl shadow-md h-[34px]">
+            <Flame size={14} className="text-[#F8891D]" fill="currentColor" />
+            <span className="font-mono font-black text-xs text-white">{store.totalChamas} d</span>
+          </div>
+          {/* Seu botão de Sair original posicionado de forma limpa abaixo da chama */}
+          <button 
+            onClick={() => router.push('/portal-aluno')}
+            className="text-[9px] font-black text-rose-400/60 hover:text-rose-400 font-mono uppercase tracking-wider mt-1 transition-colors"
+          >
+            [ {t.sair} ]
+          </button>
+        </div>
+
+      </header>
+
+      <main className="w-full max-w-7xl mx-auto flex items-center justify-between gap-6 my-auto relative z-10 pt-[12vh] h-[50vh]">
+{/* 🤖 MASCOTE COM DESTRAVAMENTO DE CONTEÚDO DINÂMICO */}
+        <MascotBubble 
+          statusResposta={statusResposta} 
+          explicacaoIA={
+            carregandoIA 
+              ? t.analisando 
+              : feedbackDinamicoIA || (statusResposta === 'idle' ? "Olá, Bruna! Selecione uma das alternativas de mercado para iniciarmos a análise tática corporativa." : undefined)
+          }
+        />
+
+        <div className="w-[52%] flex flex-col gap-4 justify-center relative">
+          <div className="w-full bg-[#122234]/95 border border-slate-800 rounded-2xl p-6 text-center shadow-2xl backdrop-blur-sm">
+            <h2 className="text-xl font-bold tracking-wide text-[#FFFFFF] leading-relaxed">{unidadeAtual.pergunta}</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 w-full">
+            {unidadeAtual.opcoes.map((op) => {
+              const isSelected = respostaSelecionada === op.id; const isCorrect = op.id === unidadeAtual.respostaCorreta;
+              let bgStyle = "bg-[#D5D8DE] text-[#102331] font-extrabold border-transparent hover:bg-white transition-all shadow-md";
+              if (statusResposta !== 'idle') {
+                if (isCorrect) bgStyle = "bg-gradient-to-b from-[#00FF66] to-[#00D654] text-white border-[#5eff99] shadow-[0_0_20px_#00FF66]";
+                else if (isSelected) bgStyle = "bg-gradient-to-b from-[#D85A74] to-[#E46A82] text-white border-[#FF718F]";
+                else bgStyle = "bg-[#D5D8DE]/20 text-slate-500 opacity-25 pointer-events-none";
+              }
+              return <button disabled={statusResposta !== 'idle'} key={op.id} onClick={() => handleSelecionar(op.id)} className={`p-5 rounded-2xl border-2 text-xs tracking-wider uppercase transition-all min-h-[64px] cursor-pointer ${bgStyle}`}>{op.texto}</button>;
+            })}
+          </div>
+        </div>
+
+        <div className="w-[23%] flex flex-col justify-end h-full relative">
+          <XpBoostPopup mostrar={mostrarTextoBoost} />
+          {faseSuperChance === 'bloqueado' ? (
+            <div className="bg-[#122234]/90 border border-slate-800/80 rounded-2xl p-4 shadow-xl backdrop-blur-sm w-full flex items-center gap-3.5 transition-all duration-300 mt-auto">
+              <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[#FFB84D] animate-pulse"><Lock size={16} /></div>
+              <div className="flex flex-col"><span className="text-[10px] font-black text-slate-400 uppercase">{t.modoSuper}</span><span className="text-[11px] font-bold text-white">{t.acerteProxima}</span></div>
+            </div>
+          ) : (
+            <div className="bg-[#122234]/95 border-2 rounded-2xl p-4 shadow-2xl w-full flex flex-col gap-3 mt-auto" style={{ borderColor: bauDesbloqueado ? '#00FF66' : '#FF8A3D' }}>
+               <div className="flex flex-col items-center gap-1 text-center w-full">
+                <span className={`text-[9.5px] font-black tracking-wide uppercase ${bauDesbloqueado ? 'text-[#00FF66]' : 'text-[#FFB84D]'}`}>{bauDesbloqueado ? t.concluida : t.ativado}</span>
+                <div className="text-xl font-black font-mono flex items-center gap-1 text-[#FF8A3D]">{`0:15`}</div>
+              </div>
+              <button disabled={!bauDesbloqueado} className={`w-full text-[9px] font-black tracking-widest uppercase py-2.5 rounded-lg border transition-all ${bauDesbloqueado ? 'bg-[#00FF66] border-[#00FF66] text-[#050b10] shadow-[0_0_25px_#00FF66] cursor-pointer' : 'bg-slate-800/40 text-slate-500 cursor-not-allowed'}`}>{t.limparBau}</button>
+            </div>
+          )}
+        </div>
+      </main>
+
+<footer className="w-full pt-3 pb-1 flex flex-col items-center gap-3 z-20 bg-transparent border-none shadow-none relative">        
+  <button onClick={() => setGavetaAberta(!gavetaAberta)} className="flex items-center gap-2 px-5 py-1 rounded-full bg-slate-800/80 border border-slate-700/40 text-[10px] font-black uppercase tracking-wider text-slate-300 transition-all shadow-md cursor-pointer">
+          <Award size={12} className="text-[#00FF66]" />
+          <span>{t.requisitos}: {store.moedasAcumuladas} / {META_MOEDAS_B2}p</span>
+          <div className="w-24 h-2 rounded-full bg-slate-900 overflow-hidden ml-1 p-[1px] relative">
+            <div className="h-full bg-[#00FF66] rounded-full transition-all duration-500 shadow-[0_0_10px_#00FF66]" style={{ width: `${(store.moedasAcumuladas / META_MOEDAS_B2) * 100}%` }} />
+          </div>
+          {gavetaAberta ? <ChevronDown size={12} className="ml-1" /> : <ChevronUp size={12} className="ml-1 animate-bounce" />}
+        </button>
+
+        <button onClick={() => { if (!jaRespondeu) return; if (unidadeAtual.fimDoModulo || unidadeAtual.fimDoNivel) router.push('/portal-aluno'); else setMostrarTelaUnidade(true); }} disabled={!jaRespondeu} className={`font-black text-xs tracking-widest uppercase px-16 py-4 rounded-2xl flex items-center gap-2 transition-all ${!jaRespondeu ? 'bg-[#131f2c] text-slate-600 cursor-not-allowed opacity-40' : 'bg-gradient-to-b from-[#F8891D] to-[#E67212] text-white shadow-[0_4px_25px_rgba(248,137,29,0.3)] cursor-pointer'}`}>
+          {jaRespondeu ? (unidadeAtual.fimDoNivel ? t.concluirN : unidadeAtual.fimDoModulo ? t.concluirM : t.concluirU) : t.escolha} <ArrowRight size={14} strokeWidth={3} />
+        </button>
+
+        <SkillDrawer isOpen={gavetaAberta} moedasAcumuladas={store.moedasAcumuladas} META_MOEDAS_B2={META_MOEDAS_B2} pontosGramatica={100} pontosEscrita={62} pontosPronuncia={95} pontosEscuta={88} pontosLeitura={78} pontosConversacao={90} impactoHabilidade={impactoHabilidade} refGramatica={null} refEscrita={null} refPronuncia={null} />
+      </footer>
+    </div>
+  );
+}

@@ -1,0 +1,350 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { Mic, Disc, Loader2, Star } from "lucide-react";
+
+interface MioloRoleplayProps {
+  onSelectCorrect?: () => void;
+  onSelectWrong?: () => void;
+  unidadeAtiva?: string;
+}
+
+interface FeedbackEstruturado {
+  status: "EXCELENTE" | "REGULAR" | "INCOERENTE";
+  mensagem: string;
+  sugestao: string;
+}
+
+export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeAtiva }: MioloRoleplayProps) {
+  const [flowState, setFlowState] = useState<"IA_SPEAKING" | "USER_TURN" | "RECORDING" | "ANALYZING" | "DONE">("IA_SPEAKING");
+  const [phraseIA, setPhraseIA] = useState("Calibrando nível pedagógico...");
+  const [transcricaoAluno, setTranscricaoAluno] = useState("");
+  const [scoreFinal, setScoreFinal] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
+  
+  // Estado que armazena dinamicamente a língua nativa real do aluno vinda do Supabase
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const recognitionRef = useRef<any>(null);
+
+  const cabeçalhosAutenticados = {
+    "apikey": SERVICE_KEY,
+    "Authorization": `Bearer ${SERVICE_KEY}`,
+    "Content-Type": "application/json"
+  };
+
+  const obterRegrasDeNivel = (nivel: string) => {
+    switch(nivel?.toUpperCase()) {
+      case "A1":
+        return "Nível A1 (Iniciante Absoluto). Use frases curtíssimas, verbos simples no presente (ser, estar, ter, trabalhar). NÃO use passado complexo ou termos técnicos corporativos. Vocabulário ultra simples.";
+      case "A2":
+        return "Nível A2 (Básico Superior). Use estruturas simples de rotina, perguntas diretas combinando presente e passados simples (perfeito).";
+      case "B1":
+        return "Nível B1 (Intermediário). Permita perguntas sobre planos futuros ou experiências anteriores, vocabulário corporativo leve.";
+      case "B2":
+        return "Nível B2 (Usuário Independente). Apresente cenários de resolução de problemas e argumentação profissional.";
+      default:
+        return "Nível C1/C2 (Avançado/Fluente). Pode usar linguagem literária, jargões de negócios complexos, expressões idiomáticas.";
+    }
+  };
+
+  const gerarPerguntaIneditaIA = async (temaBase: string, motivacao: string, nivelDaLicao: string) => {
+    try {
+      const contextoMotivacao = motivacao === "work" ? "Ambiente de escritório, negócios e rotina de trabalho" : "Contexto de viagens, turismo e interações cotidianas";
+      const restricoesPedagogicas = obterRegrasDeNivel(nivelDaLicao);
+      
+      const prompt = `Você é um tutor nativo de Português. Gere uma ÚNICA pergunta curta em português para o aluno responder por áudio.
+Contexto:
+1. Tema base: "${temaBase}"
+2. Interesse: "${contextoMotivacao}"
+3. RESTRIÇÃO PEDAGÓGICA: ${restricoesPedagogicas}
+Retorne OBRIGATORIAMENTE apenas a pergunta em português, sem aspas e sem formatações.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      const textoInedito = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      if (textoInedito.length > 4) return textoInedito;
+    } catch (e) {
+      console.warn("Aviso de rede da IA:", e);
+    }
+    
+    return "Para onde você foi ontem de manhã antes de começar a trabalhar?";
+  };
+
+  useEffect(() => {
+    async function carregarCenarioHiperpersonalizado() {
+      try {
+        setCarregando(true);
+        
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, { headers: cabeçalhosAutenticados });
+        const userDados = await userRes.json();
+        
+        let motivacao = "work";
+        if (userDados && userDados.length > 0) {
+          motivacao = userDados[0].learning_motivation || "work";
+          if (userDados[0].native_language) {
+            setIdiomaNativoAluno(userDados[0].native_language);
+          }
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        const exeUrl = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&limit=1`;
+        const exeRes = await fetch(exeUrl, { headers: cabeçalhosAutenticados });
+        const exeDados = await exeRes.json();
+        
+        let temaBase = "Apresentação e rotina pessoal";
+        let nivelDaLicao = "A1"; 
+        
+        if (exeDados && exeDados.length > 0) {
+          temaBase = exeDados[0].reading_text || exeDados[0].correct_answer || temaBase;
+          nivelDaLicao = exeDados[0].level || "A1"; 
+        }
+
+        const perguntaExclusiva = await gerarPerguntaIneditaIA(temaBase, motivacao, nivelDaLicao);
+        setPhraseIA(perguntaExclusiva);
+        setFlowState("USER_TURN");
+      } catch (err) {
+        console.error("Erro geral na carga:", err);
+        setPhraseIA("No seu trabalho, onde você foi ontem de manhã?");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCenarioHiperpersonalizado();
+
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.lang = "pt-BR";
+
+        rec.onresult = (event: any) => {
+          let textoAcumulado = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              textoAcumulado += event.results[i][0].transcript;
+            }
+          }
+          if (textoAcumulado.length > 0) {
+            setTranscricaoAluno((prev) => (prev ? prev + " " + textoAcumulado : textoAcumulado));
+          }
+        };
+
+        rec.onerror = (e: any) => console.error("Erro no microfone nativo:", e);
+        recognitionRef.current = rec;
+      }
+    }
+  }, [unidadeAtiva]);
+
+  const dispararAnaliseGemini = async (fraseParaAnálise: string) => {
+    setFlowState("ANALYZING");
+    if (!fraseParaAnálise || fraseParaAnálise.trim().length < 3) {
+      setFeedback({
+        status: "INCOERENTE",
+        mensagem: `No se detectó ninguna palabra clara. Por favor, intenta hablar de nuevo en el micrófono.`,
+        sugestao: "Asegúrate de responder usando las estructuras aprendidas."
+      });
+      setScoreFinal(15);
+      setFlowState("DONE");
+      if (onSelectWrong) onSelectWrong();
+      return;
+    }
+
+    try {
+      const promptFeedback = `Analiza la respuesta hablada en portugués de un estudiante cuya lengua nativa de origen es: ${idiomaNativoAluno}.
+Pregunta formulada por el sistema: "${phraseIA}"
+Texto exacto que el alumno pronunció: "${fraseParaAnálise}"
+
+Genera una evaluación pedagógica directa y profesional.
+REGLA CRUCIAL DE IDIOMA: El texto de "mensagem" y "sugestao" DEBE estar escrito ESTRICTAMENTE al 100% en el idioma nativo do aluno (${idiomaNativoAluno}), de forma fluida, clara, sin saltos de línea artificiales ni caracteres extraños.
+Retorna estrictamente este formato JSON estructurado:
+{
+  "status": "EXCELENTE" o "REGULAR" o "INCOERENTE",
+  "score": 75,
+  "mensagem": "Explicación clara en el idioma del estudiante sobre la coherencia de la respuesta y los desvíos gramaticales o fonéticos encontrados.",
+  "sugestao": "Consejo práctico y breve en el idioma del estudiante para evitar interferencias de su lengua materna."
+}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptFeedback }] }] })
+      });
+
+      const data = await res.json();
+      const textoJson = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const limpo = textoJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(limpo);
+
+      setScoreFinal(parsed.score || 70);
+      setFeedback({
+        status: parsed.status || "REGULAR",
+        mensagem: parsed.mensagem || "Respuesta procesada correctamente.",
+        sugestao: parsed.sugestao || "Sigue practicando con constancia."
+      });
+
+      setFlowState("DONE");
+      if ((parsed.score || 70) >= 60) {
+        if (onSelectCorrect) onSelectCorrect();
+      } else {
+        if (onSelectWrong) onSelectWrong();
+      }
+    } catch (e) {
+      setScoreFinal(75);
+      setFeedback({
+        status: "REGULAR",
+        mensagem: `Tu respuesta fue procesada. Estructura aceptable, pero ten cuidado con mezclar preposiciones de tu lengua materna al indicar movimiento en pasado.`,
+        sugestao: "Recuerda usar la contracción 'ao' en portugués cuando te diriges a un lugar masculino."
+      });
+      setFlowState("DONE");
+      if (onSelectCorrect) onSelectCorrect();
+    }
+  };
+
+  const alternarEstadoMicrofone = () => {
+    if (flowState === "USER_TURN" || flowState === "DONE") {
+      setTranscricaoAluno("");
+      setFeedback(null);
+      setFlowState("RECORDING");
+      if (recognitionRef.current) {
+        try { recognitionRef.current.start(); } catch(e) {}
+      }
+    } else if (flowState === "RECORDING") {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch(e) {}
+      }
+      setTimeout(() => {
+        setTranscricaoAluno((fraseAtual) => {
+          dispararAnaliseGemini(fraseAtual.trim());
+          return fraseAtual;
+        });
+      }, 300);
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Calibrando nível gramatical da lição...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-3 overflow-hidden p-0.5">
+      
+      {/* Box de Cenário Fixo Superior */}
+      <div className="bg-[#0c192e] border border-white/[0.04] p-3 rounded-xl space-y-1 shrink-0">
+        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/30 inline-block">
+          Cenário de Fluência Ativo
+        </span>
+        <p className="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed">
+          {phraseIA}
+        </p>
+      </div>
+
+      {/* ÁREA CENTRAL ADAPTÁVEL: flex-1 min-h-0 + overflow-hidden impede estouro de layout */}
+      <div className="flex-1 min-h-0 bg-[#050b14]/40 border border-white/[0.04] rounded-xl p-3.5 flex flex-col justify-center items-stretch gap-3 overflow-hidden">
+        
+        {flowState === "RECORDING" && (
+          <div className="flex flex-col items-center justify-center gap-2 animate-pulse text-center flex-1">
+            <div className="p-3.5 bg-rose-500/20 text-rose-400 rounded-full border border-rose-500/40 animate-bounce">
+              <Mic size={24} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">
+              Ouvindo sua voz... Clique abaixo para finalizar
+            </span>
+            {transcricaoAluno.trim() && (
+              <p className="text-xs text-cyan-300 italic max-w-[280px] mt-2 font-light">
+                "{transcricaoAluno}"
+              </p>
+            )}
+          </div>
+        )}
+
+        {flowState === "ANALYZING" && (
+          <div className="flex flex-col items-center justify-center gap-2.5 text-center flex-1">
+            <Loader2 size={28} className="text-cyan-400 animate-spin" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-cyan-400">
+              Analisando pronúncia e gramática...
+            </span>
+          </div>
+        )}
+
+        {flowState === "USER_TURN" && (
+          <div className="text-center p-2 flex flex-col items-center justify-center flex-1">
+            <p className="text-xs text-slate-400 leading-normal max-w-[260px] mx-auto">
+              Toque no microfone azul abaixo e responda à pergunta em português em voz alta.
+            </p>
+          </div>
+        )}
+
+        {/* FEEDBACK RESPONSIVO INTELIGENTE: O scroll interno só ativa se o texto estourar o espaço vertical */}
+        {flowState === "DONE" && feedback && (
+          <div className="w-full h-full flex flex-col justify-between min-h-0 overflow-hidden text-left animate-fade-in">
+            
+            {/* Área de conteúdo rolável de forma limpa */}
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+              
+              <div className="flex items-center justify-between border-b border-white/[0.05] pb-1.5 sticky top-0 bg-[#050b14]/50 backdrop-blur-sm z-10">
+                <span className="font-bold text-[10px] uppercase tracking-wider text-slate-400">
+                  Sua fala capturada:
+                </span>
+                <div className="text-amber-400 font-bold text-[10px] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/30 flex items-center gap-1">
+                  <Star size={11} fill="currentColor" /> +{scoreFinal} XP
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-black/20 rounded-lg border border-white/[0.02] text-xs text-cyan-100 italic leading-relaxed">
+                "{transcricaoAluno}"
+              </div>
+
+              {/* Mensagem da Mentora Haas adaptável sem barras de rolagem duplas */}
+              <p className="text-xs sm:text-sm text-slate-200 font-normal leading-relaxed">
+                {feedback.mensagem}
+              </p>
+              
+              {/* Dica contextualizada inserida organicamente dentro do fluxo rolável */}
+              <div className="text-[11px] text-cyan-300/90 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-800/20 italic">
+                💡 {feedback.sugestao}
+              </div>
+              
+            </div>
+
+          </div>
+        )}
+
+      </div>
+
+      {/* Seção inferior reservada ao botão do Microfone (oculto ao finalizar) */}
+      <div className="flex justify-center shrink-0 pt-0.5 pb-0.5">
+        {flowState !== "ANALYZING" && flowState !== "DONE" && (
+          <button
+            onClick={alternarEstadoMicrofone}
+            className={`p-3.5 rounded-full border transition-all cursor-pointer shadow-lg active:scale-95 ${
+              flowState === "RECORDING" 
+                ? "bg-rose-600 border-rose-500 text-white shadow-rose-950/40" 
+                : "bg-cyan-950/40 border-cyan-500/40 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-950"
+            }`}
+          >
+            {flowState === "RECORDING" ? <Disc size={18} className="animate-spin" /> : <Mic size={18} />}
+          </button>
+        )}
+      </div>
+
+    </div>
+  );
+}

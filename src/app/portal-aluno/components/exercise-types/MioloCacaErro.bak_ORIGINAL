@@ -1,0 +1,231 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { CheckCircle2, XCircle, AlertCircle, HelpCircle } from "lucide-react";
+
+interface MioloProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: "IDLE" | "CORRECT" | "WRONG";
+  unidadeAtiva?: string;
+}
+
+interface OpcaoJogo {
+  texto: string;
+  isCorreta: boolean;
+  mensagemContexto?: string;
+  correcaoContexto?: string;
+}
+
+export default function MioloCacaErro({ onSelectionChange, onValidateResult, status = "IDLE", unidadeAtiva }: MioloProps) {
+  const [opcoes, setOpcoes] = useState<OpcaoJogo[]>([]);
+  const [indexSelecionado, setIndexSelecionado] = useState<number | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<{ mensagem: string; correcao: string } | null>(null);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+
+  const gerarDistratoresViaIA = async (fraseOriginal: string, nivel: string, idExercicio: string) => {
+    try {
+      const prompt = `Você é um motor linguístico especialista em ensino de Português para nativos de Espanhol. 
+Frase original correta em Português (Nível ${nivel || "Geral"}): "${fraseOriginal}"
+
+Gere dois distratores (opções incorretas) que imitem erros reais, sutis e orgânicos que um hispanofalante cometeria nesse nível de linguagem (como falsos cognatos avançados, inversões estruturais, regências incorretas ou expressões típicas do portunhol). Mantenha estritamente o nexo e o sentido original da frase, alterando apenas os elementos que denunciam a interferência idiomática.
+
+Retorne ESTRITAMENTE um JSON estruturado no seguinte formato (sem markdown, sem blocos de código):
+{
+  "distratores": [
+    {
+      "texto": "Frase com o erro sutil 1 aqui",
+      "mensagem": "Explicação direta do vício linguístico presente nesta frase.",
+      "correcao": "Como a estrutura correta deve se comportar nativamente."
+    },
+    {
+      "texto": "Frase com o erro sutil 2 aqui",
+      "mensagem": "Explicação direta do erro ou confusão idiomática presente nesta frase.",
+      "correcao": "A resolução ideal em português padrão."
+    }
+  ]
+}`;
+
+      // UTILIZANDO A ROTA OFICIAL E ATUALIZADA DO GEMINI 2.5 FLASH
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      
+      const data = await res.json();
+      const textoJson = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+      const limpo = textoJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(limpo);
+
+      if (parsed?.distratores?.length === 2) {
+        const d1 = parsed.distratores[0];
+        const d2 = parsed.distratores[1];
+
+        const payloadCache = [
+          { t: d1.texto, m: d1.mensagem, c: d1.correcao },
+          { t: d2.texto, m: d2.mensagem, c: d2.correcao }
+        ];
+
+        // Gravação em cache na coluna para salvar o processamento definitivo
+        await fetch(`${SUPABASE_URL}?id=eq.${idExercicio}`, {
+          method: "PATCH",
+          headers: {
+            "apikey": SERVICE_KEY,
+            "Authorization": `Bearer ${SERVICE_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ alternative_options: JSON.stringify(payloadCache) })
+        });
+
+        return [
+          { texto: d1.texto, isCorreta: false, mensagemContexto: d1.mensagem, correcaoContexto: d1.correcao },
+          { texto: d2.texto, isCorreta: false, mensagemContexto: d2.mensagem, correcaoContexto: d2.correcao }
+        ];
+      }
+    } catch (e) {
+      console.error("Erro na geração:", e);
+    }
+
+    // Fallbacks contextuais limpos e diretos caso falte rede temporariamente
+    return [
+      { texto: fraseOriginal.replace(/m\b/g, "n"), isCorreta: false, mensagemContexto: "Foi utilizada uma terminação nasal com N.", correcaoContexto: "Em português, o fechamento padrão correto é feito com M." },
+      { texto: fraseOriginal.replace(/v/g, "b").replace(/V/g, "B"), isCorreta: false, mensagemContexto: "Troca fonética clássica das consoantes V e B.", correcaoContexto: "As palavras mantêm estritamente a grafia com V na norma nativa." }
+    ];
+  };
+
+  useEffect(() => {
+    async function carregarCacaErroDoBanco() {
+      try {
+        setCarregando(true);
+        // BUSCANDO ESTRITAMENTE O TIPO 7 (CAÇA ERROS REAL)
+        const url = `${SUPABASE_URL}?activity_type=eq.7&limit=1`;
+        const res = await fetch(url, { headers: { "apikey": SERVICE_KEY, "Authorization": "Bearer " + SERVICE_KEY } });
+        const dados = await res.json();
+
+        if (dados && dados.length > 0) {
+          const exe = dados[0];
+          // Puxa a frase oficial correta direto do áudio ou do texto base
+          const fraseCorreta = exe.audio_transcript || exe.reading_text || exe.context || "";
+          const nivel = exe.level || "Geral";
+          
+          let distratoresFinais: OpcaoJogo[] = [];
+          
+          if (exe.alternative_options && (exe.alternative_options.includes('"m":') || exe.alternative_options.includes('"t":'))) {
+            try {
+              const cache = JSON.parse(exe.alternative_options);
+              if (Array.isArray(cache) && cache.length === 2) {
+                distratoresFinais = [
+                  { texto: cache[0].t, isCorreta: false, mensagemContexto: cache[0].m, correcaoContexto: cache[0].c },
+                  { texto: cache[1].t, isCorreta: false, mensagemContexto: cache[1].m, correcaoContexto: cache[1].c }
+                ];
+              }
+            } catch(e) { distratoresFinais = []; }
+          }
+
+          if (distratoresFinais.length === 0) {
+            distratoresFinais = await gerarDistratoresViaIA(fraseCorreta, nivel, exe.id);
+          }
+
+          const listaMontada: OpcaoJogo[] = [
+            { texto: fraseCorreta, isCorreta: true, mensagemContexto: "Frase gramaticalmente correta.", correcaoContexto: "Esta alternativa preserva a norma culta nativa sem interferências de outros idiomas." },
+            ...distratoresFinais
+          ];
+
+          listaMontada.sort(() => Math.random() - 0.5);
+          setOpcoes(listaMontada);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCacaErroDoBanco();
+  }, [unidadeAtiva]);
+
+  const tratarSelecaoOpcao = (index: number) => {
+    setIndexSelecionado(index);
+    const op = opcoes[index];
+    
+    if (onSelectionChange) onSelectionChange(true);
+    if (onValidateResult) onValidateResult(op.isCorreta);
+
+    setFeedback({
+      mensagem: op.mensagemContexto || "Estrutura contextual analisada.",
+      correcao: op.correcaoContexto || "Verifique os padrões nativos da alternativa."
+    });
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Carregando estruturas textuais...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden">
+      
+      <div className="bg-[#0c192e] border border-white/[0.04] p-4 rounded-xl flex items-center gap-3">
+        <HelpCircle size={18} className="text-cyan-400 shrink-0" />
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-300">
+          Analise as opções e selecione a alternativa <span className="text-cyan-400">correta</span> em português:
+        </p>
+      </div>
+
+      <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-1">
+        {opcoes.map((op, idx) => {
+          const estaSelecionado = indexSelecionado === idx;
+          let estiloBotao = "bg-[#0c192e]/60 border-white/[0.04] hover:bg-[#0c192e] text-slate-200";
+
+          if (estaSelecionado) {
+            estiloBotao = "bg-cyan-950/40 border-cyan-500 text-cyan-300 shadow-lg shadow-cyan-950/20";
+          }
+
+          if (status === "CORRECT" && op.isCorreta) {
+            estiloBotao = "bg-emerald-950/40 border-emerald-500 text-emerald-300";
+          }
+          if (status === "WRONG" && estaSelecionado && !op.isCorreta) {
+            estiloBotao = "bg-rose-950/40 border-rose-500 text-rose-300";
+          }
+
+          return (
+            <button
+              key={idx}
+              onClick={() => status === "IDLE" && tratarSelecaoOpcao(idx)}
+              disabled={status !== "IDLE"}
+              className={`w-full p-4 rounded-xl border text-left text-sm font-medium transition-all flex items-center justify-between gap-4 cursor-pointer disabled:cursor-not-allowed ${estiloBotao}`}
+            >
+              <span className="leading-relaxed flex-1">{op.texto}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {feedback && (
+        <div className={`border rounded-xl p-4 space-y-1 animate-fade-in shrink-0 ${
+          indexSelecionado !== null && opcoes[indexSelecionado].isCorreta 
+            ? "bg-emerald-950/15 border-emerald-500/20" 
+            : "bg-amber-950/15 border-amber-500/20"
+        }`}>
+          <div className="flex items-center gap-2 mb-0.5">
+            <AlertCircle size={14} className={indexSelecionado !== null && opcoes[indexSelecionado].isCorreta ? "text-emerald-400" : "text-amber-400"} />
+            <span className={`text-[10px] font-black uppercase tracking-wider ${
+              indexSelecionado !== null && opcoes[indexSelecionado].isCorreta ? "text-emerald-400" : "text-amber-400"
+            }`}>
+              {indexSelecionado !== null && opcoes[indexSelecionado].isCorreta ? "Validação Concluída" : "Contexto da Opção"}
+            </span>
+          </div>
+          <p className="text-xs text-slate-300 font-medium leading-relaxed">{feedback.mensagem}</p>
+          <p className="text-[11px] text-cyan-300/90 italic bg-cyan-950/10 p-2 rounded border border-cyan-900/10">💡 {feedback.correcao}</p>
+        </div>
+      )}
+
+    </div>
+  );
+}

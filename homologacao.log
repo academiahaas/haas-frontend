@@ -1,0 +1,27 @@
+nohup: ignoring input
+
+> haas-frontend@0.1.0 dev
+> next dev -p 3005
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3005
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 4.9s
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 67.7s (4631 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /portal-aluno 200 in 69086ms
+ GET /_next/static/webpack/8f5c4fa295658299.webpack.hot-update.json 404 in 69014ms
+ GET /portal-aluno 200 in 116ms
+ GET /_next/static/chunks/app/portal-aluno/lucide-react.js.map 404 in 101ms
+ ✓ Compiled in 3.9s (4631 modules)
+ ✓ Compiled in 3.8s (4631 modules)
+ GET /portal-aluno 200 in 789ms
+ GET /_next/static/chunks/app/portal-aluno/lucide-react.js.map 404 in 179ms
+ ✓ Compiled in 6.1s (4628 modules)
+ GET /portal-aluno 200 in 1013ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1343ms (4617 modules)
+ GET /_next/static/chunks/app/portal-aluno/lucide-react.js.map 404 in 1614ms

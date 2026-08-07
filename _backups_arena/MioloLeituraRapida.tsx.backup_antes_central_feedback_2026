@@ -1,0 +1,303 @@
+'use client';
+import { resilienciaTextoCompleto } from '@/utils/motorResiliencia';
+import React, { useState, useEffect, useRef } from 'react';
+import { Timer, CheckCircle, XCircle, Sparkles, Send, HelpCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+interface MioloLeituraRapidaProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+const traducoesAbas: Record<string, Record<string, string>> = {
+  es: {
+    instrucao: "Lee el texto con atención antes de que se agote el tiempo:",
+    botaoIrParaDigitacao: "¡Ya terminé de leer! Ir a la validación",
+    placeholder: "Escribe o resume el párrafo anterior con precisión textual para validar...",
+    validando: "Analizando...",
+    aguardando: "Cargando desafío..."
+  },
+  en: {
+    instrucao: "Read the text carefully before time runs out:",
+    botaoIrParaDigitacao: "I've finished reading! Go to validation",
+    placeholder: "Type or summarize the paragraph above with textual precision to validate...",
+    validando: "Analyzing...",
+    aguardando: "Loading challenge..."
+  },
+  pt: {
+    instrucao: "Leia o texto com atenção antes que o tempo acabe:",
+    botaoIrParaDigitacao: "Já terminei de ler! Ir para a validação",
+    placeholder: "Digite ou resume o parágrafo acima com precisão textual para validar...",
+    validando: "Analisando...",
+    aguardando: "Carregando desafio..."
+  }
+};
+
+export default function MioloLeituraRapida({
+  onSelectionChange,
+  onValidateResult,
+  status: propStatus = 'IDLE',
+  unidadeAtiva
+}: MioloLeituraRapidaProps) {
+  const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
+  const [textoLongo, setTextoLongo] = useState("Carregando parágrafo de interpretação...");
+  const [textoGabarito, setTextoGabarito] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [fase, setFase] = useState<'LEITURA' | 'DIGITACAO'>('LEITURA');
+  
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [feedbackIA, setFeedbackIA] = useState("");
+  const [analisando, setAnalisando] = useState(false);
+  const [carregando, setCarregando] = useState(true);
+
+  const timerRef = useRef<any>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const obterLangKey = () => {
+    const lang = idiomaNativoAluno?.toLowerCase() || "";
+    if (lang.includes("eng") || lang.includes("ing")) return "en";
+    if (lang.includes("por") || lang.includes("bra")) return "pt";
+    return "es";
+  };
+
+  const t = traducoesAbas[obterLangKey()];
+
+  useEffect(() => {
+    if (propStatus === 'IDLE') {
+      setLocalStatus('IDLE');
+      setFeedbackIA('');
+      if (fase === 'DIGITACAO') {
+        setInputValue("");
+        setFase('LEITURA');
+        setTimeLeft(30);
+      }
+    } else {
+      setLocalStatus(propStatus);
+    }
+  }, [propStatus]);
+
+  useEffect(() => {
+    async function carregarLeituraDoBanco() {
+      try {
+        setCarregando(true);
+        
+        try {
+          const { data: userDados } = await supabase
+            .from('users')
+            .select('native_language')
+            .eq('id', USER_ID_ALVO);
+          if (userDados && userDados.length > 0) {
+            setIdiomaNativoAluno(userDados[0].native_language || "Español");
+          }
+        } catch (e) { console.error(e); }
+
+        const nomeUnidade = unidadeAtiva || "O Labirinto dos Passados Irregulares";
+        
+        const { data: dados, error } = await supabase
+          .from('exercises')
+          .select('*')
+          .eq('unit', nomeUnidade)
+          .eq('activity_type', 6);
+
+        if (error) throw error;
+
+        let textoBase = dados && dados.length > 0 ? (dados[0].reading_text || dados[0].correct_answer || "") : "";
+
+        // Validação de Emergência: Caso o banco retorne vazio ou colunas corrompidas
+        if (!textoBase || textoBase.trim().length < 5) {
+          console.warn("⚠️ [CONCURSO DE EMERGÊNCIA] Texto de Leitura Rápida ausente. Acionando IA...");
+          textoBase = await resilienciaTextoCompleto("", nomeUnidade + " - Parágrafo Completo para Leitura Dinâmica");
+        }
+
+        setTextoLongo(textoBase);
+        setTextoGabarito(textoBase.trim());
+        setInputValue("");
+        setFase('LEITURA');
+        setTimeLeft(30);
+      } catch (err) {
+        console.error("Erro ao carregar Tipo 6 do Supabase:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarLeituraDoBanco();
+  }, [unidadeAtiva]);
+
+  useEffect(() => {
+    if (localStatus !== 'IDLE') {
+      clearInterval(timerRef.current);
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (fase === 'LEITURA') {
+            setFase('DIGITACAO');
+            return 60;
+          }
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [fase, localStatus]);
+
+  useEffect(() => {
+    if (fase === 'DIGITACAO' && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [fase]);
+
+  const handleInputChange = (val: string) => {
+    setInputValue(val);
+    if (onSelectionChange) onSelectionChange(val.trim().length > 0);
+  };
+
+  const executarValidacaoInterna = async () => {
+    if (localStatus !== 'IDLE' || inputValue.trim().length === 0 || analisando) return;
+    setAnalisando(true);
+    setFeedbackIA("");
+
+    const respostaAlunoLimpa = inputValue.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    const gabaritoLimpo = textoGabarito.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    const possuiAproveitamentoMinimo = respostaAlunoLimpa.length >= Math.min(20, gabaritoLimpo.length * 0.3);
+
+    try {
+      const prompt = `Você é um avaliador rigoroso de retenção de leitura e velocidade textual. O aluno leu um parágrafo e tentou transcrever/resumir o texto.
+      Texto original esperado (Gabarito): "${textoGabarito}"
+      Texto digitado pelo aluno: "${inputValue}"
+      Analise se o aluno conseguiu reter os fatos fundamentais ou transcrever o conteúdo com fidelidade (aceite pequenas variações de digitação).
+      Gere uma resposta pedagógica direta e curta (máximo 12 palavras) na língua nativa do aluno: ${idiomaNativoAluno}.
+      Retorne obrigatoriamente um JSON limpo no formato exato: {"acertou": true ou false, "feedback": "sua mensagem aqui"}`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
+        const resultadoIA = JSON.parse(jsonLimpo);
+        
+        const validouSucesso = resultadoIA.acertou === true;
+        setFeedbackIA(resultadoIA.feedback || "");
+        setLocalStatus(validouSucesso ? 'CORRECT' : 'WRONG');
+        if (onValidateResult) onValidateResult(validouSucesso);
+      } else {
+        throw new Error("API Offline");
+      }
+    } catch (e) {
+      setFeedbackIA(possuiAproveitamentoMinimo ? "Fidelidade e retenção textual validadas!" : "Texto incompleto ou distante do conteúdo original.");
+      setLocalStatus(possuiAproveitamentoMinimo ? 'CORRECT' : 'WRONG');
+      if (onValidateResult) onValidateResult(possuiAproveitamentoMinimo);
+    } finally {
+      setAnalisando(false);
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-[13px] md:text-[1.1vw] uppercase tracking-widest">
+        {t?.aguardando || "CARREGANDO DESAFIO..."}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full max-h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-2.5 p-0.5 overflow-hidden">
+      
+      {/* BARRA SUPERIOR DE INSTRUÇÃO */}
+      <div className="flex items-center justify-between shrink-0 bg-[#070d19]/40 p-2.5 rounded-xl border border-white/[0.02] gap-3">
+        <div className="flex items-center gap-2">
+          <HelpCircle size={14} className="text-cyan-400 shrink-0" />
+          <span className="text-[13px] md:text-[1.1vw] font-bold text-slate-300 uppercase tracking-wider leading-snug">
+            {t.instrucao}
+          </span>
+        </div>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-black text-[12px] md:text-[1vw] ${
+          timeLeft <= 10 ? 'text-red-500 border-red-500/20 bg-red-500/5 animate-pulse' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'
+        }`}>
+          <Timer size={13} />
+          <span>{timeLeft}s</span>
+        </div>
+      </div>
+
+      {/* ÁREA CENTRAL MANTIDA INTEGRA E GRANDE */}
+      <div className="bg-[#0c192e] border border-white/[0.04] rounded-xl flex-1 h-full w-full overflow-hidden flex flex-col items-stretch justify-start">
+        {analisando ? (
+          <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-2 animate-pulse flex-1">
+            <Sparkles size={24} className="animate-spin text-cyan-400" />
+            <span className="text-[13px] md:text-[1.1vw] text-cyan-400 font-bold uppercase tracking-widest">{t.validando}</span>
+          </div>
+        ) : localStatus === 'CORRECT' && feedbackIA ? (
+          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-emerald-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
+            <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
+              <CheckCircle size={16} /> <span>Excelente Retenção!</span>
+            </div>
+            <p className="text-[16px] md:text-[1.35vw] text-slate-200 font-medium italic max-w-2xl break-words">"{feedbackIA}"</p>
+          </div>
+        ) : localStatus === 'WRONG' && feedbackIA ? (
+          <div className="w-full h-full flex flex-col items-center justify-center text-center bg-rose-950/10 p-4 overflow-y-auto animate-fade-in flex-1">
+            <div className="flex items-center gap-1.5 text-rose-400 text-[12px] md:text-[1.1vw] font-black uppercase tracking-wider mb-1">
+              <XCircle size={16} /> <span>Análise de Leitura</span>
+            </div>
+            <p className="text-[13px] md:text-[1.35vw] text-slate-200 font-medium italic max-w-2xl break-words">"{feedbackIA}"</p>
+          </div>
+        ) : (
+          /* CALIBRAÇÃO DA FONTE FLUIDA RESPONSIVA AQUI */
+          <div className="w-full h-full p-5 text-[17px] md:text-[1.4vw] font-medium text-slate-200 leading-relaxed select-none flex-1">
+            <p className="font-sans text-slate-200 text-justify whitespace-pre-wrap tracking-wide">{textoLongo}</p>
+          </div>
+        )}
+      </div>
+
+      {/* RODAPÉ ESTÁVEL NO FIM DA TELA */}
+      <div className="w-full shrink-0 flex flex-col items-stretch">
+        {fase === 'LEITURA' ? (
+          <button
+            type="button"
+            onClick={() => { setFase('DIGITACAO'); setTimeLeft(60); }}
+            className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white font-black text-[12px] md:text-[1.1vw] uppercase tracking-widest rounded-xl shadow-md cursor-pointer transition-all active:scale-95 text-center h-[38px] md:h-[44px]"
+          >
+            {t.botaoIrParaDigitacao}
+          </button>
+        ) : (
+          <div className="w-full flex items-center gap-2 bg-[#070d19] border border-white/[0.08] rounded-xl p-1 focus-within:border-cyan-500/50 transition-all min-h-[44px]">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              disabled={localStatus !== 'IDLE' || analisando}
+              onChange={(e) => handleInputChange(e.target.value)}
+              placeholder={t.placeholder}
+              className="flex-1 bg-transparent border-none font-sans text-[13px] md:text-[1.1vw] text-slate-200 p-2 focus:outline-none resize-none h-12 md:h-14 leading-tight"
+            />
+            {localStatus === 'IDLE' && inputValue.trim().length > 0 && !analisando && (
+              <button
+                type="button"
+                onClick={executarValidacaoInterna}
+                className="mr-1 p-2.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-lg transition-all cursor-pointer flex items-center justify-center hover:from-cyan-500 hover:to-cyan-600 shadow active:scale-95 shrink-0 h-9 w-9"
+              >
+                <Send size={14} />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+    </div>
+  );
+}

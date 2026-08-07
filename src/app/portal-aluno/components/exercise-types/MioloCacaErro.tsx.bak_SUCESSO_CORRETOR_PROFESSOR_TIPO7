@@ -1,0 +1,227 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { CheckCircle2, XCircle, AlertCircle, HelpCircle } from "lucide-react";
+
+interface MioloProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: "IDLE" | "CORRECT" | "WRONG";
+  unidadeAtiva?: string;
+}
+
+interface OpcaoJogo {
+  texto: string;
+  isCorreta: boolean;
+}
+
+interface FeedbackProfessor {
+  mensagem: string;
+  correcao: string;
+}
+
+export default function MioloCacaErro({ onSelectionChange, onValidateResult, status = "IDLE", unidadeAtiva }: MioloProps) {
+  const [opcoes, setOpcoes] = useState<OpcaoJogo[]>([]);
+  const [indexSelecionado, setIndexSelecionado] = useState<number | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [feedback, setFeedback] = useState<FeedbackProfessor | null>(null);
+
+  // Função estável para gerar variações erradas (Portunhol) baseadas na frase do banco
+  const gerarDistratores = (fraseOriginal: string, regra: number): string => {
+    let modificada = fraseOriginal;
+
+    if (regra === 1) {
+      modificada = fraseOriginal
+        .replace(/mIm(?=\s|[.!?]|$)/g, "n")
+        .replace(/\bpode ser\b/gi, "puede ser")
+        .replace(/\bSim\b/g, "Sin");
+    } else {
+      modificada = fraseOriginal
+        .replace(/\bmais\b/gi, "más")
+        .replace(/\bvou\b/g, "bou")
+        .replace(/\bVou\b/g, "Bou")
+        .replace(/\bmais tarde\b/gi, "más tarde");
+    }
+
+    if (modificada === fraseOriginal) {
+      modificada = fraseOriginal + (regra === 1 ? " (con certeza)" : " por lo tanto");
+    }
+
+    return modificada;
+  };
+
+  // Analisador linguístico local que gera a explicação do professor sob demanda
+  const gerarFeedbackDoProfessor = (textoOpcao: string, fraseCorreta: string): FeedbackProfessor => {
+    const t = textoOpcao.toLowerCase();
+
+    if (t.includes("puede ser")) {
+      return {
+        mensagem: "Cuidado! O termo 'puede ser' pertence ao espanhol.",
+        correcao: "Em português correto, usamos a expressão nativa 'pode ser'."
+      };
+    }
+    if (t.includes("más")) {
+      return {
+        mensagem: "Atenção com a grafia! O termo 'más' com acento indica 'pero' em espanhol.",
+        correcao: "Para indicar quantidade ou tempo posterior em português, escreve-se 'mais' (com i)."
+      };
+    }
+    if (t.includes("bou")) {
+      return {
+        mensagem: "A IA detectou uma troca fonética clássica de portunhol (B em vez de V).",
+        correcao: "O verbo ir na primeira pessoa se escreve e fala estritamente como 'vou'."
+      };
+    }
+    if (t.endsWith("n") && !t.includes("con certeza") && !t.includes("por lo tanto")) {
+      return {
+        mensagem: "Em português, a grande maioria das palavras não termina com a letra 'N'.",
+        correcao: "A terminação correta para nasalização padrão no português é com a letra 'M' (ex: sim, bem, bom)."
+      };
+    }
+    if (t.includes("con certeza")) {
+      return {
+        mensagem: "A expressão 'con certeza' está misturando os dois idiomas.",
+        correcao: "O correto em português é escrever separado e com 'Com': 'Com certeza'."
+      };
+    }
+    if (t.includes("por lo tanto")) {
+      return {
+        mensagem: "O conectivo 'por lo tanto' é uma estrutura exclusiva do espanhol.",
+        correcao: "Substitua por conectores equivalentes em português como 'portanto' ou 'por isso'."
+      };
+    }
+
+    return {
+      mensagem: "Esta opção contém pequenas interferências e desvios de portunhol na estrutura.",
+      correcao: `A forma ideal e limpa em português é: "${fraseCorreta}".`
+    };
+  };
+
+  useEffect(() => {
+    async function carregarCacaErroDoBanco() {
+      try {
+        setCarregando(true);
+        const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU";
+        const url = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1/exercises?activity_type=eq.7&limit=1";
+        const res = await fetch(url, { headers: { "apikey": key, "Authorization": "Bearer " + key } });
+        const dados = await res.json();
+
+        if (dados && dados.length > 0 && dados[0].audio_transcript) {
+          const fraseCorreta = dados[0].audio_transcript;
+          
+          const distrator1 = gerarDistratores(fraseCorreta, 1);
+          const distrator2 = gerarDistratores(fraseCorreta, 2);
+
+          const listaMontada: OpcaoJogo[] = [
+            { texto: fraseCorreta, isCorreta: true },
+            { texto: distrator1, isCorreta: false },
+            { texto: distrator2, isCorreta: false }
+          ];
+
+          // Sorteia a ordem das alternativas para o aluno pensar de verdade
+          listaMontada.sort(() => Math.random() - 0.5);
+          setOpcoes(listaMontada);
+        }
+      } catch (err) {
+        console.error("Erro ao montar Caça Erros:", err);
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarCacaErroDoBanco();
+  }, [unidadeAtiva]);
+
+  const tratarSelecaoOpcao = (index: number) => {
+    setIndexSelecionado(index);
+    const op = opcoes[index];
+    
+    if (onSelectionChange) onSelectionChange(true);
+    if (onValidateResult) onValidateResult(op.isCorreta);
+
+    // Se o aluno tocou em uma errada, gera a explicação do professor na hora
+    if (!op.isCorreta) {
+      const corretaObj = opcoes.find(o => o.isCorreta);
+      const explicacao = gerarFeedbackDoProfessor(op.texto, corretaObj?.texto || "");
+      setFeedback(explicacao);
+    } else {
+      setFeedback({
+        mensagem: "Excelente escolha!",
+        correcao: "Você identificou perfeitamente a frase nativa sem vícios ou desvios de portunhol."
+      });
+    }
+  };
+
+  if (carregando) {
+    return (
+      <div className="w-full text-center py-12 text-cyan-400 font-bold animate-pulse text-xs uppercase tracking-widest">
+        Carregando frases e estruturando opções...
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between items-stretch text-left font-sans flex-1 min-h-0 gap-4 overflow-hidden">
+      
+      {/* Enunciado Focado em Encontrar o Correto */}
+      <div className="bg-[#0c192e] border border-white/[0.04] p-4 rounded-xl flex items-center gap-3">
+        <HelpCircle size={18} className="text-cyan-400 shrink-0" />
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-300">
+          Analise as frases e selecione a opção <span className="text-cyan-400">correta</span> em português:
+        </p>
+      </div>
+
+      {/* Lista de Alternativas */}
+      <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-1">
+        {opcoes.map((op, idx) => {
+          const estaSelecionado = indexSelecionado === idx;
+          let estiloBotao = "bg-[#0c192e]/60 border-white/[0.04] hover:bg-[#0c192e] text-slate-200";
+
+          if (estaSelecionado) {
+            estiloBotao = "bg-cyan-950/40 border-cyan-500 text-cyan-300 shadow-lg shadow-cyan-950/20";
+          }
+
+          // Revelação de cores após a validação da arena externa
+          if (status === "CORRECT" && op.isCorreta) {
+            estiloBotao = "bg-emerald-950/40 border-emerald-500 text-emerald-300";
+          }
+          if (status === "WRONG" && estaSelecionado && !op.isCorreta) {
+            estiloBotao = "bg-rose-950/40 border-rose-500 text-rose-300";
+          }
+
+          return (
+            <button
+              key={idx}
+              onClick={() => status === "IDLE" && tratarSelecaoOpcao(idx)}
+              disabled={status !== "IDLE"}
+              className={`w-full p-4 rounded-xl border text-left text-sm font-medium transition-all flex items-center justify-between gap-4 cursor-pointer disabled:cursor-not-allowed ${estiloBotao}`}
+            >
+              <span className="leading-relaxed flex-1">{op.texto}</span>
+              {estaSelecionado && op.isCorreta && <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
+              {estaSelecionado && !op.isCorreta && <XCircle size={16} className="text-rose-400 shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* CARD DO PROFESSOR: Explicação didática e feedback instantâneo */}
+      {feedback && (
+        <div className={`border rounded-xl p-4 space-y-1.5 animate-fade-in shrink-0 ${
+          indexSelecionado !== null && opcoes[indexSelecionado].isCorreta 
+            ? "bg-emerald-950/20 border-emerald-500/20" 
+            : "bg-amber-950/20 border-amber-500/20"
+        }`}>
+          <div className="flex items-center gap-2">
+            <AlertCircle size={14} className={indexSelecionado !== null && opcoes[indexSelecionado].isCorreta ? "text-emerald-400" : "text-amber-400"} />
+            <span className={`text-[10px] font-black uppercase tracking-wider ${
+              indexSelecionado !== null && opcoes[indexSelecionado].isCorreta ? "text-emerald-400" : "text-amber-400"
+            }`}>
+              Explicação do Professor:
+            </span>
+          </div>
+          <p className="text-xs text-slate-300 font-medium leading-relaxed">{feedback.mensagem}</p>
+          <p className="text-[11px] text-cyan-300/90 italic bg-cyan-950/10 p-2 rounded border border-cyan-900/10">💡 {feedback.correcao}</p>
+        </div>
+      )}
+
+    </div>
+  );
+}

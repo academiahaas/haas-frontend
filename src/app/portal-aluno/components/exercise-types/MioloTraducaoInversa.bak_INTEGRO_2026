@@ -1,0 +1,296 @@
+'use client';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle, XCircle, RefreshCw, Sparkles, Send } from 'lucide-react';
+
+interface PieceItem {
+  id: number;
+  text: string;
+}
+
+interface MioloProps {
+  onSelectionChange?: (hasItems: boolean) => void;
+  onValidateResult?: (isCorrect: boolean) => void;
+  status?: 'IDLE' | 'CORRECT' | 'WRONG';
+  unidadeAtiva?: string;
+}
+
+const traducoesAbas: Record<string, Record<string, string>> = {
+  es: {
+    instrucao: "Traduce la frase seleccionando los bloques:",
+    validando: "Analizando...",
+    validar: "Validar Respuesta",
+    refazer: "Reiniciar",
+    aguardando: "Selecciona bloques abajo..."
+  },
+  en: {
+    instrucao: "Translate the sentence by selecting the blocks:",
+    validando: "Analyzing...",
+    validar: "Validate",
+    refazer: "Reset",
+    aguardando: "Select blocks below..."
+  },
+  pt: {
+    instrucao: "Traduza a frase selecionando os blocos:",
+    validando: "Analisando...",
+    validar: "Validar Resposta",
+    refazer: "Tentar de Novo",
+    aguardando: "Selecione os blocos abaixo..."
+  }
+};
+
+export default function MioloTraducaoInversa({
+  onSelectionChange,
+  onValidateResult,
+  status = 'IDLE',
+  unidadeAtiva
+}: MioloProps) {
+  const [listaExercicios, setListaExercicios] = useState<any[]>([]);
+  const [fraseMatrizPT, setFraseMatrizPT] = useState("Carregando desafio...");
+  const [stringAlvoCorreta, setStringAlvoCorreta] = useState("");
+  const [initialPieces, setInitialPieces] = useState<string[]>([]);
+
+  const [bankPieces, setBankPieces] = useState<PieceItem[]>([]);
+  const [depositPieces, setDepositPieces] = useState<PieceItem[]>([]);
+  const [localStatus, setLocalStatus] = useState<'IDLE' | 'CORRECT' | 'WRONG'>('IDLE');
+  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  const [feedbackIA, setFeedbackIA] = useState("");
+  const [analisando, setAnalisando] = useState(false);
+
+  const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co/rest/v1";
+  const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4";
+  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const USER_ID_ALVO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
+
+  const obterLangKey = () => {
+    const lang = idiomaNativoAluno?.toLowerCase() || "";
+    if (lang.includes("eng") || lang.includes("ing")) return "en";
+    if (lang.includes("por") || lang.includes("bra")) return "pt";
+    return "es";
+  };
+
+  const t = traducoesAbas[obterLangKey()];
+
+  useEffect(() => {
+    async function carregarExerciciosDoBanco() {
+      try {
+        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+        });
+        const userDados = await userRes.json();
+        if (userDados && userDados.length > 0) {
+          setIdiomaNativoAluno(userDados[0].native_language || "Español");
+        }
+
+        const nomeUnidade = unidadeAtiva || "O Primeiro Impacto e as Vogais Fracas";
+        const url = `${SUPABASE_URL}/exercises?unit=eq.${encodeURIComponent(nomeUnidade)}&activity_type=eq.12&limit=1`;
+        
+        const res = await fetch(url, {
+          headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
+        });
+        
+        let dadoExercicio = null;
+        if (res.ok) {
+          const dados = await res.json();
+          if (dados && dados.length > 0) {
+            dadoExercicio = dados[0];
+          }
+        }
+
+        if (!dadoExercicio) {
+          dadoExercicio = {
+            reading_text: "Hola, ¿todo bien?",
+            correct_answer: "Olá, tudo bem?",
+            alternative_options: ["Olá, tudo bem?", "Bom dia, como vai?", "Oi, tudo bom?", "Tchau, tudo certo?"]
+          };
+        }
+
+        configurarExercicio(dadoExercicio);
+      } catch (err) {
+        console.error("Erro ao carregar do Supabase:", err);
+      }
+    }
+    carregarExerciciosDoBanco();
+  }, [unidadeAtiva]);
+
+  const configurarExercicio = (exe: any) => {
+    if (!exe) return;
+    setFraseMatrizPT(exe.reading_text || exe.original);
+    setStringAlvoCorreta(exe.correct_answer || exe.correta);
+    
+    const opcoes = exe.alternative_options || exe.opcoes || [];
+    setInitialPieces(opcoes);
+    setBankPieces(opcoes.map((text: string, idx: number) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+    setDepositPieces([]);
+    setLocalStatus('IDLE');
+    setFeedbackIA("");
+  };
+
+  const resetarJogo = () => {
+    setBankPieces(initialPieces.map((text, idx) => ({ id: idx, text })).sort(() => Math.random() - 0.5));
+    setDepositPieces([]);
+    setLocalStatus('IDLE');
+    setFeedbackIA("");
+    if (onSelectionChange) onSelectionChange(false);
+  };
+
+  const handlePushToDeposit = (piece: PieceItem) => {
+    if (localStatus === 'CORRECT' || analisando) return;
+    
+    const novosDepositos = [...depositPieces, piece];
+    setBankPieces(prev => prev.filter(p => p.id !== piece.id));
+    setDepositPieces(novosDepositos);
+    if (localStatus === 'WRONG') setLocalStatus('IDLE');
+    
+    if (onSelectionChange) onSelectionChange(novosDepositos.length > 0);
+  };
+
+  const handlePullToBank = (piece: PieceItem) => {
+    if (localStatus === 'CORRECT' || analisando) return;
+    
+    const novosDepositos = depositPieces.filter(p => p.id !== piece.id);
+    setDepositPieces(novosDepositos);
+    setBankPieces(prev => [...prev, piece]);
+    if (localStatus === 'WRONG') setLocalStatus('IDLE');
+    
+    if (onSelectionChange) onSelectionChange(novosDepositos.length > 0);
+  };
+
+  const executarValidacaoInterna = async () => {
+    if (depositPieces.length === 0 || analisando) return;
+
+    setAnalisando(true);
+    setFeedbackIA("");
+
+    const fraseMontada = depositPieces.map(p => p.text).join(' ').trim();
+
+    try {
+      const prompt = `Analise a tradução do aluno. Frase original: "${fraseMatrizPT}". Tradução sugerida pelo aluno: "${fraseMontada}". Tradução correta esperada: "${stringAlvoCorreta}".
+      Responda estritamente em formato JSON com duas chaves:
+      1) "valido": true ou false.
+      2) "feedback": Uma frase curtíssima (máximo 10 palavras) explicando o erro ou parabenizando. Idioma: ${idiomaNativoAluno}.`;
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const textoBruto = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const jsonLimpo = textoBruto.replace(/```json/g, "").replace(/```/g, "").trim();
+        const resultadoIA = JSON.parse(jsonLimpo);
+
+        const acertou = resultadoIA.valido === true;
+        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+        setFeedbackIA(resultadoIA.feedback || "");
+        
+        if (onValidateResult) onValidateResult(acertou);
+      } else {
+        const acertou = fraseMontada.toLowerCase() === stringAlvoCorreta.toLowerCase();
+        setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+        setFeedbackIA(acertou ? "Correto!" : "Incorreto, revise os blocos.");
+        if (onValidateResult) onValidateResult(acertou);
+      }
+    } catch (e) {
+      const acertou = fraseMontada.toLowerCase() === stringAlvoCorreta.toLowerCase();
+      setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
+    } finally {
+      setAnalisando(false);
+    }
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col justify-between text-left font-sans min-h-0 flex-1 gap-2 p-0.5 overflow-hidden select-none">
+      
+      {/* 1. CARD DA FRASE ORIGINAL */}
+      <div className="bg-[#070d19]/80 border border-white/[0.04] rounded-xl p-2.5 shadow-sm shrink-0">
+        <span className="text-[clamp(9px,1.2vw,12px)] font-black text-cyan-400 block mb-0.5 uppercase tracking-wider">
+          {t.instrucao}
+        </span>
+        <p className="text-[clamp(13px,1.6vw,18px)] font-bold text-slate-100 leading-snug">
+          "{fraseMatrizPT}"
+        </p>
+      </div>
+
+      {/* 2. ÁREA DE DEPÓSITO DE BLOCOS - ALTURA PROPORCIONAL FLEXÍVEL */}
+      <div className="w-full bg-[#030712]/60 border border-dashed border-slate-800 rounded-xl p-2 flex-1 min-h-[44px] max-h-[75px] flex flex-wrap gap-1.5 items-center justify-center shadow-inner">
+        {depositPieces.length === 0 ? (
+          <span className="text-[clamp(9px,1.2vw,12px)] text-slate-600 uppercase font-black tracking-widest pointer-events-none select-none">
+            {t.aguardando}
+          </span>
+        ) : (
+          depositPieces.map((piece) => (
+            <button
+              key={piece.id}
+              disabled={localStatus === 'CORRECT' || analisando}
+              onClick={() => handlePullToBank(piece)}
+              className="px-2.5 py-1 bg-gradient-to-b from-cyan-400 to-cyan-500 text-slate-950 font-black rounded-lg text-[clamp(11px,1.3vw,14px)] cursor-pointer shadow-sm transition-transform active:scale-95"
+            >
+              {piece.text}
+            </button>
+          ))
+        )}
+      </div>
+
+      {/* 3. BANCO DE BLOCOS PARA SELECIONAR */}
+      <div className="w-full flex flex-wrap gap-1.5 py-1 items-center justify-center shrink-0">
+        {bankPieces.map((piece) => (
+          <button
+            key={piece.id}
+            disabled={localStatus === 'CORRECT' || analisando}
+            onClick={() => handlePushToDeposit(piece)}
+            className="px-2.5 py-1.5 bg-[#1C3B50]/30 hover:bg-[#1C3B50]/50 text-slate-200 font-bold border border-slate-800/60 rounded-lg text-[clamp(11px,1.3vw,14px)] cursor-pointer active:scale-95 transition-transform"
+          >
+            {piece.text}
+          </button>
+        ))}
+      </div>
+
+      {/* 4. ÁREA DINÂMICA INFERIOR: BOTÃO OU FEEDBACKS (OCUPA APENAS O QUE SOBRA) */}
+      <div className="w-full flex flex-col justify-end shrink-0 min-h-[38px]">
+        {localStatus === 'IDLE' && depositPieces.length > 0 && (
+          <button
+            onClick={executarValidacaoInterna}
+            disabled={analisando}
+            className="w-full py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-black text-[clamp(11px,1.3vw,14px)] uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+          >
+            <Send size={11} /> {t.validar}
+          </button>
+        )}
+
+        {analisando && (
+          <div className="text-[10px] text-cyan-400 font-bold tracking-wider text-center py-1 uppercase flex items-center justify-center gap-1 animate-pulse">
+            <Sparkles size={11} className="animate-spin" /> {t.validando}
+          </div>
+        )}
+
+        {localStatus === 'CORRECT' && feedbackIA && (
+          <div className="flex flex-col items-center text-center bg-emerald-950/20 border border-emerald-500/20 p-1.5 rounded-xl animate-fade-in">
+            <div className="flex items-center gap-1 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+              <CheckCircle size={12} /> <span>Excelente!</span>
+            </div>
+            <p className="text-[11px] text-slate-300 font-medium italic max-w-full truncate">"{feedbackIA}"</p>
+          </div>
+        )}
+
+        {localStatus === 'WRONG' && feedbackIA && (
+          <div className="flex flex-col items-center gap-1 text-center bg-rose-950/20 border border-rose-500/20 p-1.5 rounded-xl animate-fade-in">
+            <div className="flex items-center gap-1 text-rose-400 text-[10px] font-black uppercase tracking-wider">
+              <XCircle size={12} /> <span>Ajuste necessário</span>
+            </div>
+            <p className="text-[11px] text-slate-300 font-medium italic max-w-full truncate mb-0.5">"{feedbackIA}"</p>
+            <button 
+              onClick={resetarJogo}
+              className="px-2 py-0.5 bg-slate-900 border border-white/[0.05] text-slate-200 text-[9px] uppercase font-black rounded-md flex items-center gap-1 cursor-pointer hover:bg-slate-800"
+            >
+              <RefreshCw size={9} /> {t.refazer}
+            </button>
+          </div>
+        )}
+      </div>
+
+      <button id="hidden-paragraph-trigger" onClick={executarValidacaoInterna} className="hidden" />
+    </div>
+  );
+}

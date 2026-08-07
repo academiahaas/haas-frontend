@@ -1,0 +1,345 @@
+/* =========================================================================
+  COCKPIT CENTRAL DE GAMIFICAÇÃO - HAAS ACADEMY 
+  DASHBOARD REAL VIVO INTEGRADO NATIVO (SEM IMAGENS - PROCESSADO VIA REACT)
+  =========================================================================
+*/
+
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { Settings, Home, MapPin, Gift, BookOpen, Trophy, Shield, Box, Flame, Sparkles, Target, Award, ChevronDown, ChevronUp, Lock, PartyPopper, AlertOctagon, LogOut, ArrowRight } from 'lucide-react'; 
+import confetti from 'canvas-confetti';
+import '../globals.css';
+
+// 📊 CONTROLADORES DO GRÁFICO REAL E COMPONENTES DO JOGO
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { BANCO_UNIDADES } from '../../data/unidades';
+import { ParticleCanvas, ParticleCanvasRef } from '../../components/ParticleCanvas';
+import { SkillDrawer } from '../../components/SkillDrawer';
+import { XpBoostPopup } from '../../components/XpBoostPopup';
+import { MascotBubble } from '../../components/MascotBubble';
+import { UnitCompletionScreen } from '../../components/UnitCompletionScreen';   
+import { ModuleCompletionScreen } from '../../components/ModuleCompletionScreen'; 
+import { LevelCompletionScreen } from '../../components/LevelCompletionScreen';   
+import { useVolatilityStore } from '../../utils/useVolatilityStore';
+
+const traducoesCockpit = {
+  PT: {
+    sair: 'Salir', exercicio: 'EXERCÍCIO', faltam: 'FALTAM', pronta: 'Frente Pronta!',
+    simular: 'Simular Inatividade (-45p)', modoSuper: 'Modo Super-Chance',
+    acerteProxima: 'Acerte a próxima para ativar!', concluida: 'Super-Chance Concluída!',
+    ativado: 'Modo Super-Chance Ativado', limparBau: 'Limpar Baú', requisitos: 'Requisitos B2',
+    escolha: 'Escolha uma Resposta', concluirU: 'Concluir Unidade', concluirM: 'Concluir Módulo',
+    concluirN: 'Concluir Nível', avisoTitulo: 'Relatório de Inatividade',
+    avisoCorpo: 'Você ficou {dias}d sem treinar. O sistema drenou {pontos}p da grade!', avisoBotao: 'Proteger Grade',
+    analisando: 'Analisando resposta... Solicitando relatório tático.',
+    inicio: 'Início', trilha: 'Trilha', recompensas: 'Recompensas', recursos: 'Recursos', desafios: 'Desafios', ligas: 'Ligas', bau: 'Baú',
+    objetivo: 'Objetivo', proximaConquista: 'Próxima Conquista', recorde: 'Recorde', nivel: 'Nível', intermediario: 'Nível B1 Intermediário',
+    restante: 'Restante', para: 'para', trilhaCompetencias: 'Trilha de Competências', completo: 'Completo', modulo: 'Módulo',
+    treinarReativar: 'TREINAR / REATIVAR AGORA', dominioAtual: 'Domínio atual', ultimoTreino: 'Último treino: há 3 dias. Vértice recuou 12%.',
+    painelEvolucao: 'Painel de Evolução', graficoProficiencia: 'Gráfico de Proficiência', ligasPopulares: 'Ligas Populares B2C',
+    metasDiarias: 'Metas Diárias', atividadesConcluidas: 'Atividades Concluídas', mediaFluencia: 'Média de Fluência',
+    faturamentoCenter: 'Faturamento Center', historicoDia: 'Histórico em dia', sequenciaAtual: 'Sequência Atual',
+    melhorSequencia: 'Melhor sequência', bauErros: 'Baú de Erros Recorrentes', oficinaReuniao: 'Oficina / Escritório', emReuniao: 'em reunião',
+    fala: 'Fala', escuta: 'Escuta', gramatica: 'Gramática', escrita: 'Escrita', leitura: 'Leitura', proximoNivel: 'Próximo nível',
+    msgMascote: "Você está a apenas 1 atividade de completar sua meta diária! 👀"
+  }
+};
+
+export default function LessonPage() {
+  const router = useRouter();
+  const [unidadeAtualIndex, setUnidadeAtualIndex] = useState(0);
+  const [gavetaAberta, setGavetaAberta] = useState(false);
+  const [idioma, setIdioma] = useState<'PT' | 'ES' | 'EN'>('PT');
+  const t = traducoesCockpit[idioma];
+
+  const META_MOEDAS_B2 = 600;
+  const store = useVolatilityStore(META_MOEDAS_B2);
+
+  const [mostrarTelaUnidade, setMostrarTelaUnidade] = useState(false);
+  const [mostrarTelaModulo, setMostrarTelaModulo] = useState(false);
+  const [mostrarTelaNivel, setMostrarTelaNivel] = useState(false);
+  
+  const [respostaSelecionada, setRespostaSelecionada] = useState<string | null>(null);
+  const [statusResposta, setStatusStatus] = useState<'idle' | 'correto' | 'errado' | 'timeout'>('idle');
+  const [bauDesbloqueado, setBauDesbloqueado] = useState(false);
+  const [mostrarTextoBoost, setMostrarTextoBoost] = useState(false);
+  const [mostrarGlowBarra, setMostrarGlowBarra] = useState(false);
+  const [faseSuperChance, setFaseSuperChance] = useState<'bloqueado' | 'ativado'>('bloqueado');
+  
+  const [impactoGeral, setImpactoGeral] = useState(false);
+  const [impactoHabilidade, setImpactoHabilidade] = useState<string | null>(null);
+  const [feedbackDinamicoIA, setFeedbackDinamicoIA] = useState<string | undefined>(undefined);
+  const [carregandoIA, setCarregandoIA] = useState(false);
+
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  const particleCanvasRef = useRef<ParticleCanvasRef | null>(null);
+  const trofeuRef = useRef<HTMLDivElement | null>(null);
+
+  const unidadeAtual = BANCO_UNIDADES[unidadeAtualIndex] || BANCO_UNIDADES[0];
+  const jaRespondeu = statusResposta !== 'idle';
+  const perguntasTotais = BANCO_UNIDADES.length;
+  const progressoExercicioGeral = ((unidadeAtualIndex + (jaRespondeu ? 1 : 0)) / perguntasTotais) * 100;
+
+  const blocosXP = Array.from({ length: 10 }, (_, i) => i < 8);
+  const [dadosRadar] = useState([
+    { competenca: 'Fala', nota: 95 }, { competenca: 'Escuta', nota: 88 }, { competenca: 'Gramática', nota: 90 }, { competenca: 'Escrita', nota: 62 }, { competenca: 'Leitura', nota: 78 },
+  ]);
+
+  useEffect(() => {
+    setMounted(true);
+    const idiomaSalvo = localStorage.getItem('haas_idioma_auxiliar');
+    if (idiomaSalvo === 'PT' || idiomaSalvo === 'ES' || idiomaSalvo === 'EN') {
+      setIdioma(idiomaSalvo);
+    }
+  }, []);
+
+  const dispararFestaGamificada = () => {
+    setMostrarTextoBoost(true);
+    setMostrarGlowBarra(true);
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00FF66', '#FFD700', '#FF8A3D', '#FFFFFF'], zIndex: 10000 });
+    setTimeout(() => setMostrarTextoBoost(false), 2200);
+  };
+
+  const handleParticleFinish = (tipo: 'escrita' | 'pronuncia' | 'geral') => {
+    if (tipo === 'geral') {
+      setImpactoGeral(true);
+      store.adicionarMoedas(5);
+      setTimeout(() => {
+        if (unidadeAtual.fimDoNivel) setMostrarTelaNivel(true);
+        else if (unidadeAtual.fimDoModulo) setMostrarTelaModulo(true);
+      }, 1200);
+      setTimeout(() => setImpactoGeral(false), 100);
+    }
+  };
+
+  const handleSelecionar = async (id: string) => {
+    if (statusResposta !== 'idle') return;
+    setRespostaSelecionada(id);
+    
+    const opcaoEscolhida = unidadeAtual.opcoes.find(o => o.id === id);
+    const ehCorreto = id === unidadeAtual.respostaCorreta;
+
+    setCarregandoIA(true);
+    setFeedbackDinamicoIA(undefined);
+
+    if (ehCorreto) {
+      setStatusStatus('correto');
+      if (faseSuperChance === 'ativado') { setBauDesbloqueado(true); dispararFestaGamificada(); }
+    } else {
+      setStatusStatus('errado');
+    }
+
+    try {
+      const response = await fetch('/api/mascote-ia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'haas-language': idioma },
+        body: JSON.stringify({
+          pergunta: unidadeAtual.pergunta,
+          alternativaMarcada: id,
+          textoAlternativa: opcaoEscolhida?.texto || '',
+          foiCorreto: ehCorreto,
+          nomeAluno: "Bruna"
+        })
+      });
+      const dados = await response.json();
+      setFeedbackDinamicoIA(dados.feedback);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCarregandoIA(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 w-screen h-screen text-[#E8EDF2] font-sans antialiased overflow-hidden select-none z-[9999]">
+      
+      {/* =========================================================================
+          🖼️ CAMADA 1: SEU DASHBOARD COMPLETO RENDERIZADO AO VIVO NO SEGUNDO PLANO
+          Ganha o desfoque dinâmico nativo do React instantaneamente!
+         ========================================================================= */}
+      <div className="w-full h-full bg-gradient-to-r from-[#0b1724] to-[#1a364f] absolute inset-0 z-0 blur-[3px] brightness-[0.25] scale-[0.99] transition-all duration-300">
+        {/* BARRA LATERAL ESQUERDA */}
+        <div style={{ left: '0.00%', top: '0.00%', width: '19.20%', height: '100.00%', zIndex: 50 }} className="absolute bg-[#122437] border-r border-[#172b40] flex flex-col justify-between p-4 shadow-2xl">
+          <div className="flex flex-col gap-4 w-full items-center">
+            <div className="flex flex-row items-center justify-center gap-3 mt-1 w-full px-1">
+              <div className="relative h-14 w-14 shrink-0 flex items-center justify-center">
+                <Image src="https://qeiinzggtrzckvcqpygs.supabase.co/storage/v1/object/public/assets/pastas/mascotes/60769c45-0c32-4d3a-9494-929e904f8da9-removebg-preview-removebg-preview.png" alt="Logo" width={56} height={56} className="object-contain block" unoptimized />
+              </div>
+              <div className="flex flex-col justify-center text-left">
+                <h1 className="text-2xl font-black text-[#3CD070] tracking-tight leading-none uppercase">Haas</h1>
+                <span className="text-[11px] text-[#498263] font-bold tracking-[0.15em] uppercase mt-0.5 leading-none">Idiomas</span>
+              </div>
+            </div>
+            <div className="bg-[#172b40] border border-[#172b40] rounded-2xl py-3 px-4 flex flex-col items-center justify-center text-center w-full overflow-hidden">
+              <div className="relative">
+                <div className="h-11 w-11 rounded-full bg-cyan-200 border border-[#0D1921] flex items-center justify-center overflow-hidden"><span className="text-xl">👦🏽</span></div>
+                <div className="absolute -bottom-1 -right-1 bg-[#00E5FF] text-[#0C1A24] font-mono text-[11px] font-black h-4 w-4 rounded-full flex items-center justify-center border border-[#122437]">B2</div>
+              </div>
+              <h2 className="text-lg font-black text-white mt-2 tracking-wide leading-none">Alvo Teste</h2>
+              <p className="text-xs text-slate-400 leading-none mt-1">{t.intermediario}</p>
+            </div>
+          </div>
+          <div style={{ width: '285px', height: '380px' }} className="absolute left-0 bottom-0 z-10 pointer-events-none">
+            <Image src="https://qeiinzggtrzckvcqpygs.supabase.co/storage/v1/object/public/assets/pastas/mascotes/sv%20cxvcxdcdclk,%20(13).png" alt="M1" width={285} height={380} className="object-contain object-left-bottom absolute left-0 bottom-0" unoptimized />
+            <Image src="https://qeiinzggtrzckvcqpygs.supabase.co/storage/v1/object/public/assets/pastas/mascotes/sv%20cxvcxdcdclk,%20(15).png" alt="M2" width={285} height={380} className="object-contain object-left-bottom absolute left-0 bottom-0" unoptimized />
+          </div>
+        </div>
+
+        {/* HEADER SUPERIOR */}
+        <header style={{ left: '19.20%', top: '0.00%', width: '80.80%', height: '10.00%' }} className="absolute bg-[#0b1c2c] border-b border-r border-[#233744]/40 px-6 flex items-center shadow-md">
+          <div style={{ top: '25%', left: '1.8%', right: '1.8%', height: '100%' }} className="absolute bg-[#1a2d42] border border-[#2d4356] rounded-xl flex items-center justify-between px-5 shadow-xl z-10">
+            <nav className="flex items-center justify-between flex-1 h-full py-1 pr-6">
+              <button className="flex items-center text-slate-400 gap-1 text-[9px] font-bold"><Home size={14} className="text-orange-400" /> {t.inicio}</button>
+              <button className="flex items-center text-emerald-400 gap-1 text-[9px] font-black"><MapPin size={14} /> {t.trilha}</button>
+            </nav>
+          </div>
+        </header>
+
+        {/* GRÁFICO RADAR VIVO */}
+        <div style={{ left: '61.40%', top: '14.50%', width: '18.60%', height: '82.00%' }} className="absolute flex flex-col gap-3">
+          <div className="bg-[#162630] border border-[#233744]/60 rounded-2xl p-4 flex flex-col shadow-md flex-1 min-h-0">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">{t.graficoProficiencia}</h3>
+            <div className="flex-1 bg-[#0D1921]/20 rounded-xl flex items-center justify-center overflow-hidden p-1">
+              {mounted && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="52%" data={dadosRadar}>
+                    <PolarGrid stroke="#233744" />
+                    <PolarAngleAxis dataKey="competenca" tick={{ fill: '#94a3b8', fontSize: 6.5, fontWeight: 'bold' }} />
+                    <Radar name="Proficiência" dataKey="nota" stroke="#00E5FF" fill="#00E5FF" fillOpacity={0.2} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================================================================
+          🎴 CAMADA 2: ELEMENTOS ACTIVOS DO SEU JOGO (SOBREPOSTOS COM PERFEIÇÃO)
+         ========================================================================= */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-between p-6 pointer-events-none">
+        <ParticleCanvas ref={particleCanvasRef} onParticleFinish={handleParticleFinish} />
+
+        {store.mostrouAvisoPerda && (
+          <div className="absolute top-[14vh] left-1/2 -translate-x-1/2 z-[50] w-full max-w-xl bg-rose-950/80 border border-rose-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-4 backdrop-blur-md shadow-2xl pointer-events-auto">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400 animate-pulse"><AlertOctagon size={18} /></div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-wider">{t.avisoTitulo}</span>
+                <span className="text-[11px] font-bold text-slate-200">
+                  {t.avisoCorpo.replace('{dias}', String(store.diasInativoSimulados)).replace('{pontos}', String(store.diasInativoSimulados * 15))}
+                </span>
+              </div>
+            </div>
+            <button onClick={() => store.setMostrouAvisoPerda(false)} className="px-3 py-1 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-300 font-mono text-[9px] font-black rounded-lg uppercase transition-all">{t.avisoBotao}</button>
+          </div>
+        )}
+
+        <UnitCompletionScreen mostrar={mostrarTelaUnidade} onAvancarUnidade={() => { setFeedbackDinamicoIA(undefined); setMostrarTelaUnidade(false); setUnidadeAtualIndex(prev => prev + 1); setRespostaSelecionada(null); setStatusStatus('idle'); setFaseSuperChance('bloqueado'); }} />
+        <ModuleCompletionScreen mostrar={mostrarTelaModulo} moedasGanhas={55} precisaoFinal={precisao} onAvancar={() => { setFeedbackDinamicoIA(undefined); setMostrarTelaModulo(false); setUnidadeAtualIndex(prev => prev + 1); setRespostaSelecionada(null); setStatusStatus('idle'); setFaseSuperChance('bloqueado'); }} />
+        <LevelCompletionScreen mostrar={mostrarTelaNivel} nivelNome="B2 INTERMEDIÁRIO" onLiberarExames={() => { setMostrarTelaNivel(false); router.push('/lesson-certify'); }} />
+
+        {/* TOP BAR DO EXERCÍCIO */}
+        <header className="w-full max-w-7xl mx-auto flex justify-between items-center gap-4 pointer-events-auto mt-[2vh]">
+          <div ref={trofeuRef} className={`flex items-center gap-1.5 bg-[#142334]/90 border px-3 py-1.5 rounded-xl shadow-md transition-all duration-200 h-[34px] ${impactoGeral ? 'scale-105 border-emerald-400 shadow-[0_0_15px_#00FF66] bg-[#122b20]' : 'border-emerald-500/20'}`}>
+            <Trophy size={14} className="text-[#FFD700]" />
+            <span className="text-[10px] font-mono font-black text-white">{store.moedasAcumuladas} / {META_MOEDAS_B2}</span>
+          </div>
+          
+          <div className="text-[9px] font-black text-[#00FF66] tracking-wide uppercase px-0.5 mt-0.5 hidden sm:block">
+            {META_MOEDAS_B2 - store.moedasAcumuladas > 0 ? `${t.faltam} ${META_MOEDAS_B2 - store.moedasAcumuladas}p` : t.pronta}
+          </div>
+
+          <div className="w-[56%] flex items-center justify-center gap-4 pt-1">
+            <span className="text-xs font-black tracking-widest text-[#FFFFFF] uppercase block text-center animate-pulse">
+              {t.exercicio}: {unidadeAtualIndex + 1} / {perguntasTotais}
+            </span>
+            <button onClick={() => store.simularInatividadeGamer(3)} className="px-2 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[8px] font-mono font-black rounded-md transition-all">{t.simular}</button>
+          </div>
+          
+          <div className="w-[22%] flex justify-end items-start gap-2 select-none">
+            <button 
+              onClick={() => router.push('/portal-aluno')}
+              className="flex items-center gap-1 bg-[#1c1414]/90 border border-rose-500/20 hover:border-rose-500/50 px-2.5 py-1.5 rounded-xl text-rose-400 font-mono text-[9px] font-black uppercase tracking-wider h-[34px] transition-all cursor-pointer group shadow-md"
+            >
+              <LogOut size={11} className="group-hover:-translate-x-0.5 transition-transform" />
+              <span>{t.sair}</span>
+            </button>
+            <div className="flex items-center gap-1.5 bg-[#142334]/90 border border-orange-500/30 px-3 py-1.5 rounded-xl shadow-md h-[34px]">
+              <Flame size={14} className="text-[#F8891D]" fill="currentColor" />
+              <span className="font-mono font-black text-xs text-white">{store.totalChamas} d</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="w-full flex justify-center -mt-6 pointer-events-auto">
+          <div className="w-[43%] h-[20px] rounded-full overflow-hidden p-0.5 relative" style={{ background: 'linear-gradient(to right, #0F2330, #1A3142)', border: '1px solid rgba(0, 255, 102, 0.2)', boxShadow: mostrarGlowBarra ? '0 0 25px #00FF66' : 'none' }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${progressoExercicioGeral}%`, background: 'linear-gradient(to right, #00FF66 0%, #DBEA30 100%)' }} />
+          </div>
+        </div>
+
+        {/* PLAYGROUND CENTRAL */}
+        <main className="w-full max-w-7xl mx-auto flex items-center justify-between gap-6 my-auto pt-[4vh] h-[50vh] pointer-events-auto">
+          <MascotBubble statusResposta={statusResposta} explicacaoIA={carregandoIA ? t.analisando : feedbackDinamicoIA} />
+
+          <div className="w-[52%] flex flex-col gap-4 justify-center relative">
+            <div className="w-full bg-[#122234]/95 border border-slate-800 rounded-2xl p-6 text-center shadow-2xl backdrop-blur-sm">
+              <h2 className="text-xl font-bold tracking-wide text-[#FFFFFF] leading-relaxed">{unidadeAtual.pergunta}</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full">
+              {unidadeAtual.opcoes.map((op) => {
+                const isSelected = respostaSelecionada === op.id; const isCorrect = op.id === unidadeAtual.respostaCorreta;
+                let bgStyle = "bg-[#D5D8DE] text-[#102331] font-extrabold border-transparent hover:bg-white transition-all shadow-md";
+                if (statusResposta !== 'idle') {
+                  if (isCorrect) bgStyle = "bg-gradient-to-b from-[#00FF66] to-[#00D654] text-white border-[#5eff99] shadow-[0_0_20px_#00FF66]";
+                  else if (isSelected) bgStyle = "bg-gradient-to-b from-[#D85A74] to-[#E46A82] text-white border-[#FF718F]";
+                  else bgStyle = "bg-[#D5D8DE]/20 text-slate-500 opacity-25 pointer-events-none";
+                }
+                return <button disabled={statusResposta !== 'idle'} key={op.id} onClick={() => handleSelecionar(op.id)} className={`p-5 rounded-2xl border-2 text-xs tracking-wider uppercase transition-all min-h-[64px] cursor-pointer ${bgStyle}`}>{op.texto}</button>;
+              })}
+            </div>
+          </div>
+
+          <div className="w-[23%] flex flex-col justify-end h-full relative">
+            <XpBoostPopup mostrar={mostrarTextoBoost} />
+            {faseSuperChance === 'bloqueado' ? (
+              <div className="bg-[#122234]/90 border border-slate-800/80 rounded-2xl p-4 shadow-xl backdrop-blur-sm w-full flex items-center gap-3.5 transition-all duration-300 mt-auto">
+                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[#FFB84D] animate-pulse"><Lock size={16} /></div>
+                <div className="flex flex-col"><span className="text-[10px] font-black text-slate-400 uppercase">{t.modoSuper}</span><span className="text-[11px] font-bold text-white">{t.acerteProxima}</span></div>
+              </div>
+            ) : (
+              <div className="bg-[#122234]/95 border-2 rounded-2xl p-4 shadow-2xl w-full flex flex-col gap-3 mt-auto" style={{ borderColor: bauDesbloqueado ? '#00FF66' : '#FF8A3D' }}>
+                 <div className="flex flex-col items-center gap-1 text-center w-full">
+                  <span className={`text-[9.5px] font-black tracking-wide uppercase ${bauDesbloqueado ? 'text-[#00FF66]' : 'text-[#FFB84D]'}`}>{bauDesbloqueado ? t.concluida : t.ativado}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* RODAPÉ DE FLUXO */}
+        <footer className="w-full border-t border-slate-800/40 pt-3 pb-1 flex flex-col items-center gap-3 bg-[#050b10]/60 relative backdrop-blur-sm pointer-events-auto">
+          <button onClick={() => setGavetaAberta(!gavetaAberta)} className="flex items-center gap-2 px-5 py-1 rounded-full bg-slate-800/80 border border-slate-700/40 text-[10px] font-black uppercase tracking-wider text-slate-300 transition-all shadow-md cursor-pointer">
+            <Award size={12} className="text-[#00FF66]" />
+            <span>{t.requisitos}: {store.moedasAcumuladas} / {META_MOEDAS_B2}p</span>
+            <div className="w-24 h-2 rounded-full bg-slate-900 overflow-hidden ml-1 p-[1px] relative">
+              <div className="h-full bg-[#00FF66] rounded-full transition-all duration-500 shadow-[0_0_10px_#00FF66]" style={{ width: `${(store.moedasAcumuladas / META_MOEDAS_B2) * 100}%` }} />
+            </div>
+          </button>
+
+          <button onClick={() => { if (!jaRespondeu) return; if (unidadeAtual.fimDoModulo || unidadeAtual.fimDoNivel) router.push('/portal-aluno'); else setMostrarTelaUnidade(true); }} disabled={!jaRespondeu} className={`font-black text-xs tracking-widest uppercase px-16 py-4 rounded-2xl flex items-center gap-2 transition-all ${!jaRespondeu ? 'bg-[#131f2c] text-slate-600 cursor-not-allowed opacity-40' : 'bg-gradient-to-b from-[#F8891D] to-[#E67212] text-white shadow-lg cursor-pointer'}`}>
+            {jaRespondeu ? (unidadeAtual.fimDoNivel ? t.concluirN : unidadeAtual.fimDoModulo ? t.concluirM : t.concluirU) : t.escolha} <ArrowRight size={14} strokeWidth={3} />
+          </button>
+
+          <SkillDrawer isOpen={gavetaAberta} moedasAcumuladas={store.moedasAcumuladas} META_MOEDAS_B2={META_MOEDAS_B2} pontosGramatica={100} pontosEscrita={62} pontosPronuncia={95} pontosEscuta={88} pontosLeitura={78} pontosConversacao={90} impactoHabilidade={impactoHabilidade} refGramatica={null} refEscrita={null} refPronuncia={null} />
+        </footer>
+      </div>
+
+    </div>
+  );
+}

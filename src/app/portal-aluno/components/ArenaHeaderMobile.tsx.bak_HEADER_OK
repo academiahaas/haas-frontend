@@ -1,0 +1,99 @@
+"use client";
+
+import React from "react";
+import { Target, Flame, Star, Trophy, Zap, BookOpen, Video, Bot, MessageSquare } from "lucide-react";
+
+interface ArenaHeaderMobileProps {
+  precisao?: number;
+  streak?: number;
+  unidadeAtual?: string;
+  nivelText?: string;
+  pts?: number;
+  creditosIA?: number;
+  statusRobo?: string;
+  onOpenLeitura?: () => void;
+  onOpenVideo?: () => void;
+  onOpenChatIA?: () => void;
+}
+
+export default function ArenaHeaderMobile({
+  precisao = 77,
+  streak = 1,
+  unidadeAtual = "1/5",
+  nivelText = "A1 • 77%",
+  pts = 3,
+  creditosIA = 499461,
+  onOpenLeitura,
+  onOpenVideo,
+  onOpenChatIA
+}: ArenaHeaderMobileProps) {
+  return (
+    <header className="w-full bg-[#030712]/90 backdrop-blur-md border-b border-white/10 px-3 py-2 flex items-center justify-between text-xs select-none">
+      
+      {/* LADO ESQUERDO: METRICAS DO ALUNO */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        {/* REQS / Créditos IA */}
+        <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono font-bold px-2 py-1 rounded-lg">
+          <Zap size={13} className="fill-amber-400" />
+          <span>{creditosIA} REQS</span>
+        </div>
+
+        {/* Precisão */}
+        <div className="flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-mono font-bold px-2 py-1 rounded-lg">
+          <Target size={13} />
+          <span>{precisao}%</span>
+        </div>
+
+        {/* Foguinho / Streak */}
+        <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/30 text-orange-400 font-mono font-bold px-2 py-1 rounded-lg">
+          <Flame size={13} className="fill-orange-400" />
+          <span>x{streak}</span>
+        </div>
+
+        {/* PTS */}
+        <div className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono font-bold px-2 py-1 rounded-lg">
+          <Trophy size={13} />
+          <span>+{pts} PTS</span>
+        </div>
+
+        {/* Unidade */}
+        <div className="flex items-center gap-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-mono font-bold px-2 py-1 rounded-lg">
+          <Star size={13} />
+          <span>{unidadeAtual}</span>
+        </div>
+      </div>
+
+      {/* LADO DIREITO: ÍCONES DE AÇÃO (LIVRINHO, IA, VÍDEO) */}
+      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+        {/* Botão de Leitura */}
+        <button
+          onClick={onOpenLeitura}
+          title="Material de Leitura"
+          className="p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:border-cyan-500/50 active:scale-95 transition-all cursor-pointer"
+        >
+          <BookOpen size={15} />
+        </button>
+
+        {/* BALÃOZINHO DA IA DO LADO DO LIVRINHO */}
+        <button
+          onClick={onOpenChatIA}
+          title="Falar com a IA"
+          className="p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer relative"
+        >
+          <MessageSquare size={15} />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-400 rounded-full animate-ping" />
+        </button>
+
+        {/* Botão de Vídeo */}
+        <button
+          onClick={onOpenVideo}
+          title="Assistir Vídeo"
+          className="p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:border-cyan-500/50 active:scale-95 transition-all cursor-pointer"
+        >
+          <Video size={15} />
+        </button>
+      </div>
+
+    </header>
+  );
+}
