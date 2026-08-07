@@ -508,11 +508,11 @@ export default function DashboardDesktop({ alunoData }: any) {
             setPrecisaoClinica(dbUser.clinical_precision);
           }
           const comp = dadosPortal?.competencias || {};
-          const valFala = dbUser?.score_fala ?? dbUser?.score_habla ?? comp.habla ?? 70;
-          const valEscuta = dbUser?.score_escuta ?? dbUser?.score_escucha ?? comp.escucha ?? 70;
-          const valGramatica = dbUser?.score_gramatica ?? comp.gramatica ?? 70;
-          const valEscrita = dbUser?.score_escrita ?? dbUser?.score_escritura ?? comp.escritura ?? 70;
-          const valLeitura = dbUser?.score_leitura ?? dbUser?.score_lectura ?? comp.lectura ?? 70;
+          const valFala = (dbUser?.score_fala && dbUser.score_fala > 0) ? dbUser.score_fala : (comp.habla ?? 70);
+          const valEscuta = (dbUser?.score_escuta && dbUser.score_escuta > 0) ? dbUser.score_escuta : (comp.escucha ?? 70);
+          const valGramatica = (dbUser?.score_gramatica && dbUser.score_gramatica > 0) ? dbUser.score_gramatica : (comp.gramatica ?? 70);
+          const valEscrita = (dbUser?.score_escrita && dbUser.score_escrita > 0) ? dbUser.score_escrita : (comp.escritura ?? 70);
+          const valLeitura = (dbUser?.score_leitura && dbUser.score_leitura > 0) ? dbUser.score_leitura : (comp.lectura ?? 70);
 
           setCHabla(Number(valFala));
           setCEscucha(Number(valEscuta));
@@ -961,7 +961,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             <div className="w-full h-[165px] shrink-0 bg-[#080C16] rounded-2xl flex items-center justify-center overflow-hidden p-1 border border-white/10 shadow-inner">
               {mounted ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="54%" outerRadius="75%" data={dadosRadar} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                  <RadarChart key={JSON.stringify(dadosRadar)} cx="50%" cy="54%" outerRadius="75%" data={dadosRadar} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
                     <defs>
                       <linearGradient id="radarPremiumGlow" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.25"/>
@@ -978,7 +978,8 @@ export default function DashboardDesktop({ alunoData }: any) {
                       strokeWidth={1.5}
                       strokeOpacity={0.5}
                       fill="url(#radarPremiumGlow)" 
-                      fillOpacity={0.12} 
+                      fillOpacity={0.12}
+                      isAnimationActive={false} 
                       className="transition-all duration-300"
                     />
                   </RadarChart>
