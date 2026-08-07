@@ -209,7 +209,7 @@ function DiagnosticoContent() {
                 onClick={() => setStep(4)}
                 className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2"
               >
-                Siguiente Etapa (Gramática) <ArrowRight className="w-4 h-4" />
+                Siguiente Etapa <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
