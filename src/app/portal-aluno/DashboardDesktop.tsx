@@ -1609,14 +1609,19 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                   {/* Linha de Status de IA Dinâmica e Minimalista para o Desktop */}
                   <div className="text-[10px] font-medium text-center text-slate-400 border-t border-white/[0.05] w-full pt-2 mt-2 leading-relaxed">
                     {["grupo", "vip_std", "vip_pro"].includes(modalidade) ? (
-                      idioma === "PT" ? "Vigência Integral: 30 Dias | Acesso IA: Ilimitado" :
-                      idioma === "EN" ? "Full Validity: 30 Days | AI Access: Unlimited" :
-                      "Vigencia Integral: 30 Días | Acceso IA: Ilimitado"
-                    ) : (
-                      idioma === "PT" ? `Vigência Base: +${Math.min(qtdAvulsas * 7, 30)} Dias (Teto 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas` :
-                      idioma === "EN" ? `Base Term: +${Math.min(qtdAvulsas * 7, 30)} Days (Max 30) | AI Credit: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Queries` :
-                      `Vigencia Base: +${Math.min(qtdAvulsas * 7, 30)} Días (Techo 30) | Crédito IA: +${modalidade === 'acumulador_grupo' ? qtdAvulsas * 10 : qtdAvulsas * 25} Consultas`
-                    )}
+                      idioma === "PT" ? `Vigência Integral: 30 Dias | Acesso IA: ${masterPlans?.find(p => p.plan_category === (modalidade === "grupo" ? "Group" : modalidade === "vip_std" ? "VIP Standard" : "VIP Pro"))?.ai_status || "Ilimitado"}` :
+                      idioma === "EN" ? `Full Validity: 30 Days | AI Access: ${masterPlans?.find(p => p.plan_category === (modalidade === "grupo" ? "Group" : modalidade === "vip_std" ? "VIP Standard" : "VIP Pro"))?.ai_status || "Unlimited"}` :
+                      `Vigencia Integral: 30 Días | Acceso IA: ${masterPlans?.find(p => p.plan_category === (modalidade === "grupo" ? "Group" : modalidade === "vip_std" ? "VIP Standard" : "VIP Pro"))?.ai_status || "Ilimitado"}`
+                    ) : (() => {
+                      const catName = modalidade === "acumulador_grupo" ? "Pack Group" : modalidade === "acumulador_vip_std" ? "Pack VIP Std" : "Pack VIP Pro";
+                      const rawAi = masterPlans?.find(p => p.plan_category === catName)?.ai_status || "";
+                      const baseIaNum = parseInt(rawAi.replace(/[^0-9]/g, ""), 10) || (modalidade === "acumulador_grupo" ? 100 : 25);
+                      const totalIaCalculado = qtdAvulsas * baseIaNum;
+                      const diasVigencia = Math.min(qtdAvulsas * 7, 30);
+                      return idioma === "PT" ? `Vigência Base: +${diasVigencia} Dias (Teto 30) | Crédito IA: +${totalIaCalculado} Consultas (+${baseIaNum} IA/cr x ${qtdAvulsas} cr)` :
+                             idioma === "EN" ? `Base Term: +${diasVigencia} Days (Max 30) | AI Credit: +${totalIaCalculado} Queries (+${baseIaNum} AI/cr x ${qtdAvulsas} cr)` :
+                             `Vigencia Integral: +${diasVigencia} Días | Acceso IA: +${totalIaCalculado} IA (+${baseIaNum} IA/cr x ${qtdAvulsas} cr)`;
+                    })()}
                   </div>
                 </div>
                 
