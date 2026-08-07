@@ -1590,11 +1590,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
                   <span className="text-lg font-mono font-black text-cyan-400">{qtdAvulsas}</span>
                   <button onClick={() => setQtdAvulsas(Math.min(20, qtdAvulsas + 1))} className="w-8 h-8 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold hover:bg-slate-800">+</button>
                 </div>
-                {qtdAvulsas === 20 && (
-                  <p className="text-cyan-400 text-xs text-center font-medium mt-2 animate-pulse">
-                    ⚠️ Limite máximo de 20 créditos extras atingido.
-                  </p>
-                )}
+                
               </div>
             )}
 
