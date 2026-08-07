@@ -15,6 +15,26 @@ function DiagnosticoContent() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [audioRecorded, setAudioRecorded] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+
+  useEffect(() => {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime((prev) => {
+          if (prev >= 59) {
+            setIsRecording(false);
+            setAudioRecorded(true);
+            return 60;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
   
   const [textoResposta, setTextoResposta] = useState("");
   const [resultadoIA, setResultadoIA] = useState<any>(null);
@@ -81,6 +101,7 @@ function DiagnosticoContent() {
       setIsRecording(false);
       setAudioRecorded(true);
     } else {
+      setRecordingTime(0);
       setIsRecording(true);
     }
   };
@@ -227,7 +248,7 @@ function DiagnosticoContent() {
               </div>
 
               <div className="p-6 rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 text-center space-y-4">
-                <p className="text-xs text-slate-400">Presione para grabar su respuesta oral</p>
+                <p className="text-xs text-slate-400">Presione para grabar su respuesta oral (Máx. 1 minuto)</p>
                 <button
                   onClick={handleToggleRecord}
                   className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center transition-all shadow-xl ${
@@ -240,7 +261,7 @@ function DiagnosticoContent() {
                 >
                   {isRecording ? <Square className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
                 </button>
-                {isRecording && <p className="text-xs text-rose-400 font-semibold animate-pulse">Grabando... Habla con claridad</p>}
+                {isRecording && <p className="text-xs text-rose-400 font-semibold animate-pulse">Grabando... 00:{recordingTime < 10 ? "0" : ""}{recordingTime} / 01:00</p>}
               </div>
 
               <button
@@ -277,13 +298,22 @@ function DiagnosticoContent() {
                 <p className="text-xs font-semibold text-slate-200">{currentConteudo.writingPrompt}</p>
               </div>
 
-              <textarea
-                rows={4}
-                value={textoResposta}
-                onChange={(e) => setTextoResposta(e.target.value)}
-                placeholder={currentConteudo.placeholder}
-                className="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-slate-100 placeholder-slate-600 focus:outline-none transition-all resize-none text-xs leading-relaxed"
-              />
+              <div className="relative">
+                <textarea
+                  rows={4}
+                  maxLength={120}
+                  value={textoResposta}
+                  onChange={(e) => setTextoResposta(e.target.value)}
+                  placeholder={currentConteudo.placeholder}
+                  className="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 focus:border-indigo-500 text-slate-100 placeholder-slate-600 focus:outline-none transition-all resize-none text-xs leading-relaxed"
+                />
+                <div className="flex justify-between items-center mt-1 px-1">
+                  <span className="text-[10px] text-slate-500">Máximo 120 caracteres</span>
+                  <span className={`text-[10px] font-mono ${textoResposta.length >= 120 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}>
+                    {textoResposta.length}/120
+                  </span>
+                </div>
+              </div>
 
               <button
                 disabled={textoResposta.trim().length < 10}
@@ -344,7 +374,7 @@ function DiagnosticoContent() {
 
               <div className="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/60 text-left space-y-3">
                 <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                  Crea tu cuenta para reclamar tus 150 XP y activar tus 7 días gratis:
+                  Crea tu cuenta para reclamar tus XP y activar tus 7 días gratis:
                 </p>
                 
                 <input 
