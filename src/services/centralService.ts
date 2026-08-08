@@ -5,19 +5,79 @@ const MEU_ID_USUARIO = "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1";
 export async function fetchCentralPortalData(overrideUid?: string): Promise<Record<string, any>> {
   try {
     let targetUid = overrideUid;
+    if (!targetUid && typeof window !== "undefined") {
+      targetUid = localStorage.getItem("haas_user_id") || localStorage.getItem("haas_uid") || localStorage.getItem("supabase_uid") || undefined;
+    }
     if (!targetUid) {
       const { data: authData } = await supabase.auth.getUser();
-      targetUid = authData?.user?.id || MEU_ID_USUARIO;
+      targetUid = authData?.user?.id || undefined;
     }
 
-    // 1. Dados do perfil do usuário
-    const { data: profile, error } = await supabase
-      .from("users")
-      .select("*, trained_days")
-      .eq("id", targetUid)
-      .maybeSingle();
+    let profile: any = null;
 
-    if (error) console.error("❌ Erro ao buscar dados na tabela users:", error.message);
+    // 1. Tenta buscar diretamente na tabela users pelo ID
+    if (targetUid) {
+      const { data: userById } = await supabase
+        .from("users")
+        .select("*, trained_days")
+        .eq("id", targetUid)
+        .maybeSingle();
+      profile = userById;
+    }
+
+    // 2. Se não encontrou em users, busca em user_subscriptions (por sub_id, user_id ou email)
+    if (!profile && targetUid) {
+      const { data: subData } = await supabase
+        .from("user_subscriptions")
+        .select("*")
+        .or(`id.eq.${targetUid},user_id.eq.${targetUid},email.eq.${targetUid}`)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (subData) {
+        const searchRef = subData.user_id || subData.email;
+        if (searchRef) {
+          const { data: userBySub } = await supabase
+            .from("users")
+            .select("*, trained_days")
+            .or(`id.eq.${searchRef},email.eq.${searchRef}`)
+            .maybeSingle();
+          profile = userBySub;
+        }
+
+        // 3. Se a linha em users ainda não existir, sintetiza o perfil direto dos dados da assinatura
+        if (!profile) {
+          const nomeCompleto = `${subData.first_name || ""} ${subData.last_name || ""}`.trim() || "Estudante";
+          profile = {
+            id: subData.user_id || subData.id,
+            email: subData.email,
+            name: nomeCompleto,
+            first_name: subData.first_name || "Estudante",
+            last_name: subData.last_name || "",
+            current_level: subData.current_level || "A1",
+            modulo_atual: 1,
+            unidade_atual: 1,
+            total_xp: 0,
+            unit_xp: 0,
+            course_language: subData.course_language || "ingles"
+          };
+        }
+      }
+    }
+
+    // 4. Fallback final por e-mail no localStorage
+    if (!profile && typeof window !== "undefined") {
+      const savedEmail = localStorage.getItem("haas_user_email");
+      if (savedEmail) {
+        const { data: userByEmail } = await supabase
+          .from("users")
+          .select("*, trained_days")
+          .eq("email", savedEmail)
+          .maybeSingle();
+        profile = userByEmail;
+      }
+    }
 
     // 1.1 Competencias do usuario
     const { data: compData } = await supabase

@@ -33,7 +33,10 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
   
   
 
-  return (
+  
+
+
+return (
     <div className="relative flex flex-col items-center justify-center p-2 rounded-2xl shadow-lg w-16 h-16 xl:w-20 xl:h-20 shrink-0 border border-white/10 hover:border-purple-500/30 bg-[#070d19]/80 backdrop-blur-md hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300 cursor-pointer select-none" >
       <svg viewBox="0 0 64 64" className="w-10 h-10 xl:w-12 xl:h-12 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path style={{ transform: devePiscar ? "rotate(-3deg) translateY(1px)" : "none", transformOrigin: "22px 22px", transition: "transform 0.15s ease-in-out" }} d="M18 22C18 12 22 6 22 6C22 6 26 12 26 22" stroke="#E2E8F0" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -67,7 +70,15 @@ function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false 
 
 export default function DashboardDesktop({ alunoData }: any) {
 
-  const [moduloUserCentral, setModuloUserCentral] = useState(alunoData?.modulo_atual ? String(alunoData.modulo_atual).padStart(2, '0') : '');
+  // Formatação dinâmica do idioma do curso para o cabeçalho
+  const obterNomeIdiomaCurso = () => {
+    const raw = String(alunoData?.course_language || alunoData?.course_language_code || "ingles").toLowerCase();
+    if (raw.includes("portug")) return "PORTUGUÊS";
+    if (raw.includes("espanh") || raw.includes("spanish") || raw === "es") return "ESPANHOL";
+    return "INGLÊS";
+  };
+
+  const [moduloUserCentral, setModuloUserCentral] = useState(String(alunoData?.modulo_atual || 1).padStart(2, '0'));
 
   // --- CORTINA DE TRANSIÇÃO (LABOR ILLUSION) ---
   const [transicaoModo, setTransicaoModo] = React.useState<'entrada' | 'saida' | 'inicial' | null>('inicial');
@@ -112,9 +123,12 @@ export default function DashboardDesktop({ alunoData }: any) {
   };
   // ---------------------------------------------
 
-  const [nivelUserCentral, setNivelUserCentral] = useState(alunoData?.current_level ? String(alunoData.current_level) : '');
+  const [nivelUserCentral, setNivelUserCentral] = useState(alunoData?.current_level ? String(alunoData.current_level).toUpperCase() : 'A1');
 
   useEffect(() => {
+    if (alunoData?.unidades && alunoData.unidades.length > 0) {
+      setListaUnidades(alunoData.unidades);
+    }
     async function carregarDadosCentral() {
       try {
         const uid = alunoData?.id || alunoData?.user_id || (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
@@ -149,13 +163,33 @@ export default function DashboardDesktop({ alunoData }: any) {
       }
     }
     carregarDadosCentral();
-  }, []);
+  }, [alunoData]);
 
       const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
           const [scoreAtivo, setScoreAtivo] = useState(alunoData?.unit_xp || 0);
   const [tempoModulo, setTempoModulo] = useState(15);
   const [nomeModulo, setNomeModulo] = useState(alunoData?.module_title || "Carregando módulo...");
-  const [listaUnidades, setListaUnidades] = useState([]);
+  const [listaUnidades, setListaUnidades] = useState(alunoData?.unidades || []);
+
+  // Sincronização reativa imediata quando os dados do aluno chegam do backend
+  useEffect(() => {
+    if (alunoData) {
+      if (alunoData.module_title) {
+        setNomeModulo(alunoData.module_title);
+      } else if (alunoData.modulo_atual) {
+        setNomeModulo("Módulo " + String(alunoData.modulo_atual).padStart(2, "0"));
+      }
+      if (alunoData.unidades && alunoData.unidades.length > 0) {
+        setListaUnidades(alunoData.unidades);
+      }
+      if (alunoData.modulo_atual) {
+        setModuloUserCentral(String(alunoData.modulo_atual).padStart(2, "0"));
+      }
+      if (alunoData.current_level) {
+        setNivelUserCentral(String(alunoData.current_level).toUpperCase());
+      }
+    }
+  }, [alunoData]);
   const [ptsTotalUnidade, setXpTotalUnidade] = useState(alunoData?.required_xp || 0);
   const [patenteBruta, setPatenteBruta] = useState("Explorador");
 
@@ -551,7 +585,8 @@ export default function DashboardDesktop({ alunoData }: any) {
     en: { PT: "INGLÊS", EN: "ENGLISH", ES: "INGLÉS" },
     es: { PT: "ESPANHOL", EN: "SPANISH", ES: "ESPAÑOL" }
   };
-  const courseCode = (dbUser.course_language || "pt").toLowerCase();
+  const rawLangDb = String(dbUser.course_language || alunoData?.course_language || "ingles").toLowerCase();
+  const courseCode = (rawLangDb.includes("ingl") || rawLangDb.includes("en")) ? "en" : (rawLangDb.includes("portug") || rawLangDb.includes("pt")) ? "pt" : "es";
   const currentUiLang = (idioma || "ES").toUpperCase();
   const idiomaReal = langNameMap[courseCode]?.[currentUiLang] || dbUser.course_language?.toUpperCase() || "";
                                     const nivelReal = dbUser.target_level ? dbUser.target_level.toUpperCase() : "";
@@ -593,7 +628,18 @@ export default function DashboardDesktop({ alunoData }: any) {
   const [cEscritura, setCEscritura] = useState(70);
   const [cLectura, setCLectura] = useState(70);
   const [vocabularioAtivo, setVocabularioAtivo] = useState(450);
-  const [proximoVencimento, setProximoVencimento] = useState("10/07/2026");
+  const [proximoVencimento, setProximoVencimento] = useState(() => {
+    const rawDate = alunoData?.next_expiration_es || alunoData?.expiration_date;
+    if (rawDate) {
+      const dateStr = String(rawDate);
+      if (dateStr.includes("-")) {
+        const [ano, mes, dia] = dateStr.split("T")[0].split("-");
+        return `${dia}/${mes}/${ano}`;
+      }
+      return dateStr;
+    }
+    return "--/--/----";
+  });
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   useEffect(() => {
@@ -775,10 +821,11 @@ export default function DashboardDesktop({ alunoData }: any) {
                     const rawLang = (idiomaCurso || "pt").toLowerCase();
                     const uiLang = (idioma || "ES").toUpperCase();
                     
-                    let code = "pt";
-                    if (rawLang.includes("en")) code = "en";
-                    else if (rawLang.includes("es")) code = "es";
-                    else if (rawLang.includes("pt")) code = "pt";
+                                        const rawLangClean = String(idiomaCurso || alunoData?.course_language || "ingles").toLowerCase();
+                    let code = "en";
+                    if (rawLangClean.includes("ingl") || rawLangClean.includes("english") || rawLangClean === "en") code = "en";
+                    else if (rawLangClean.includes("portug") || rawLangClean.includes("portuguese") || rawLangClean === "pt") code = "pt";
+                    else if (rawLangClean.includes("espanh") || rawLangClean.includes("spanish") || rawLangClean === "es") code = "es";
 
                     const labelMap: Record<string, Record<string, string>> = {
                       pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },

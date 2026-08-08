@@ -164,17 +164,28 @@ export default function MotorInteligenciaMascote({ children }: { children: (data
   useEffect(() => {
     carregarEProcessarDados();
 
-    const canalRealtime = supabase
-      .channel("mudancas_motor_badges")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "student_badges" },
-        () => carregarEProcessarDados()
-      )
-      .subscribe();
+    let canalRealtime: any;
+    
+    const iniciarCanalSeguro = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      
+      if (userId) {
+        canalRealtime = supabase
+          .channel(`badges_${userId}`)
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "student_badges", filter: `user_id=eq.${userId}` },
+            () => carregarEProcessarDados()
+          )
+          .subscribe();
+      }
+    };
+    
+    iniciarCanalSeguro();
 
     return () => {
-      supabase.removeChannel(canalRealtime);
+      if (canalRealtime) supabase.removeChannel(canalRealtime);
     };
   }, []);
 

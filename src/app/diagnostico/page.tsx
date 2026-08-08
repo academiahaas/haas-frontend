@@ -123,26 +123,16 @@ function DiagnosticoContent() {
       const lastName = partesNome.slice(1).join(" ") || "";
 
       // 1. Pega os pontos REAIS avaliados em cada habilidade e o total exibido na tela
-      const rawFala = Number(resultadoIA?.score_fala || 0);
-      const rawEscrita = Number(resultadoIA?.score_escrita || 0);
-      const totalTela = Number(resultadoIA?.pontuacao_total || 0);
+      const scoreEscuta = Number(resultadoIA?.score_escuta ?? 0);
+      const scoreFala = Number(resultadoIA?.score_fala ?? 0);
+      const scoreLeitura = Number(resultadoIA?.score_leitura ?? 0);
+      const scoreEscrita = Number(resultadoIA?.score_escrita ?? 0);
+      const scoreGramatica = Number(resultadoIA?.score_gramatica ?? 0);
 
-      // 2. Descobre de onde vieram os pontos do aluno (Se zerou a fala, proporcaoFala = 0)
-      const somaRaw = rawFala + rawEscrita;
-      const proporcaoFala = somaRaw > 0 ? (rawFala / somaRaw) : 0;
-      const proporcaoEscrita = somaRaw > 0 ? (rawEscrita / somaRaw) : 0;
-
-      // 3. Pega o total da tela e distribui EXATAMENTE onde o aluno pontuou
-      const pontosParaFala = totalTela * proporcaoFala;
-      const pontosParaEscrita = totalTela * proporcaoEscrita;
-
-      // 4. Aplica as SUAS regras (40/60 e 45/35/20) EXCLUSIVAMENTE nos blocos onde ele teve nota
-      const scoreEscuta = Math.round(pontosParaFala * 0.40);
-      const scoreFala = Math.round(pontosParaFala * 0.60);
-
-      const scoreLeitura = Math.round(pontosParaEscrita * 0.45);
-      const scoreEscrita = Math.round(pontosParaEscrita * 0.35);
-      const scoreGramatica = Math.round(pontosParaEscrita * 0.20);
+      // Sincroniza o idioma ativo no localStorage para o portal do aluno
+      const codeLangUi = idioma === "portugues" ? "PT" : idioma === "espanhol" ? "ES" : "EN";
+      localStorage.setItem("haas_idioma", codeLangUi);
+      localStorage.setItem("haas_idioma_auxiliar", codeLangUi);
 
       const nivelCefr = (resultadoIA?.nivel_cefr || "A1").toString().trim().toUpperCase();
 
@@ -167,6 +157,9 @@ function DiagnosticoContent() {
 
       // Grava o ID e dados na sessão do navegador para o Portal
       if (subData && subData[0]) {
+        localStorage.removeItem("haas_aluno_cache");
+        localStorage.removeItem("haas_uid");
+        localStorage.removeItem("supabase_uid");
         localStorage.setItem("haas_user_id", subData[0].id);
         localStorage.setItem("haas_user_email", subData[0].email || email.trim().toLowerCase());
 
@@ -192,10 +185,10 @@ function DiagnosticoContent() {
         localStorage.removeItem("haas_guest_diagnostic");
       } catch (e) {}
 
-      router.push("/portal-aluno");
+      window.location.href = "/portal-aluno";
     } catch (err) {
       console.error("Erro durante a criação da conta:", err);
-      router.push("/portal-aluno");
+      window.location.href = "/portal-aluno";
     } finally {
       setIsSubmitting(false);
     }
@@ -211,7 +204,8 @@ function DiagnosticoContent() {
         body: JSON.stringify({
           idioma,
           motivo,
-          textoResposta
+          textoResposta,
+          audioRecorded
         })
       });
       const resData = await response.json();

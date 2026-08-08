@@ -40,12 +40,18 @@ export default function LoginPage() {
         return;
       }
 
+      // Limpa dados de sessões anteriores do navegador
+      localStorage.removeItem("haas_aluno_cache");
+      localStorage.removeItem("haas_uid");
+      localStorage.removeItem("supabase_uid");
+      localStorage.removeItem("user_id");
+
       // Grava o ID do usuario (users.id) e dados no localStorage para o Portal
       localStorage.setItem("haas_user_id", data.user_id || data.id);
       localStorage.setItem("haas_user_email", data.email);
       localStorage.setItem("haas_user_name", `${data.first_name || ""} ${data.last_name || ""}`.trim());
 
-      router.push("/portal-aluno");
+      window.location.href = "/portal-aluno";
     } catch (err) {
       console.error("Erro no login:", err);
       setErro("Ocurrió un error inesperado al iniciar sesión.");

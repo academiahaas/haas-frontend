@@ -10,6 +10,7 @@ import { fetchCentralPortalData } from '@/services/centralService';
 export default function PortalAluno() {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isFetchingRealTime, setIsFetchingRealTime] = useState(true);
   
   // Cache Imediato via localStorage (Stale-While-Revalidate)
   const [alunoData, setAlunoData] = useState<any>(() => {
@@ -39,14 +40,23 @@ export default function PortalAluno() {
         const uid = (typeof window !== 'undefined' && (localStorage.getItem('haas_user_id') || localStorage.getItem('haas_uid') || localStorage.getItem('supabase_uid'))) || undefined;
         const res = await fetchCentralPortalData(uid);
         if (isMounted && res) {
-          const userData = res.user || res.profile || res;
+                    const userData = res.user || res.profile || res;
+          
+          // Resgata a data de vencimento e plano retidos na raiz da resposta e acopla ao perfil
+          userData.expiration_date = userData.expiration_date || res.expiration_date || res.user_subscriptions?.expiration_date || null;
+          userData.next_expiration_es = userData.expiration_date;
+          userData.plan_category = userData.plan_category || res.plan_category || res.user_subscriptions?.plan_category || null;
+          userData.class_credits_available = userData.class_credits_available ?? res.class_credits_available ?? res.user_subscriptions?.class_credits_available ?? 0;
+          
           setAlunoData(userData);
+          setIsFetchingRealTime(false);
           if (typeof window !== 'undefined') {
             localStorage.setItem('haas_aluno_cache', JSON.stringify(userData));
           }
         }
       } catch (err) {
         console.error("Erro ao carregar dados do portal:", err);
+        setIsFetchingRealTime(false);
       }
     }
 
@@ -57,8 +67,13 @@ export default function PortalAluno() {
     };
   }, []);
 
-  if (!mounted) {
-    return <div className="min-h-screen bg-[#030914]" />;
+  if (!mounted || isFetchingRealTime) {
+    return (
+      <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest animate-pulse">Sincronizando acesso seguro...</p>
+      </div>
+    );
   }
 
   // PortalMobile desativado (Unificação Desktop-First)
