@@ -10,6 +10,7 @@ function DiagnosticoContent() {
   const searchParams = useSearchParams();
   
   const [step, setStep] = useState(1);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [idioma, setIdioma] = useState("");
   const [motivo, setMotivo] = useState("");
   
@@ -136,6 +137,42 @@ function DiagnosticoContent() {
 
       const nivelCefr = (resultadoIA?.nivel_cefr || "A1").toString().trim().toUpperCase();
 
+      // --- BLOQUEIO DE SEGURANÇA: CHECAGEM DE E-MAIL DUPLICADO ---
+      const emailParaChecagem = email.trim().toLowerCase();
+      const { data: emailExistente } = await supabase
+        .from("user_subscriptions")
+        .select("id")
+        .eq("email", emailParaChecagem)
+        .maybeSingle();
+
+      if (emailExistente) {
+        alert("Esse e-mail já está cadastrado no sistema! Redirecionando para o login...");
+        window.location.href = "/login";
+        return;
+      }
+      // -----------------------------------------------------------
+
+      
+      // --- CHECAGEM SILENCIOSA DE E-MAIL ---
+      setEmailError(null);
+      const emailCheck = email.trim().toLowerCase();
+      // --- CHECAGEM BLINDADA SILENCIOSA (SEM POPUP) ---
+      const emailSafe = email.trim();
+      
+      // 1. Busca na tabela users (ignora maiúsculas/minúsculas)
+      const { data: checkUser } = await supabase.from("users").select("id").ilike("email", emailSafe).limit(1).maybeSingle();
+      
+      // 2. Busca na tabela subscriptions
+      const { data: checkSub } = await supabase.from("user_subscriptions").select("id").ilike("email", emailSafe).limit(1).maybeSingle();
+
+      if (checkUser || checkSub) {
+        if (typeof setIsSubmitting === "function") setIsSubmitting(false);
+        // Aborta tudo e joga direto para o login silenciosamente
+        window.location.href = "/login?msg=email_existente";
+        return;
+      }
+      // -------------------------------------
+      
       const { data: subData, error } = await supabase
         .from("user_subscriptions")
         .insert([
@@ -178,6 +215,10 @@ function DiagnosticoContent() {
         .eq("email", email.trim().toLowerCase());
 
       if (error) {
+        if (error.code === "23505" || (error.message && error.message.includes("duplicate"))) {
+          window.location.href = "/login?msg=email_existente";
+          return;
+        }
         console.error("Erro ao salvar no Supabase (user_subscriptions):", error);
       }
 
