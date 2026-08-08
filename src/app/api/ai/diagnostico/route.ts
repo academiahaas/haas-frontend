@@ -23,62 +23,81 @@ async function fetchGeminiComRetry(url: string, payload: any, maxTentativas = 3,
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { idioma, motivo, textoResposta, audioRecorded } = body;
+    const { idioma, motivo, textoResposta, audioRecorded, perguntaContexto, audioTranscript } = body;
 
     if (!idioma || !textoResposta) {
       return NextResponse.json({ success: false, error: "Parâmetros ausentes" }, { status: 400 });
     }
 
     const textoLimpo = textoResposta.trim();
+    const contextoQuestao = perguntaContexto || "Avaliação de compreensão auditiva, leitura e produção textual.";
 
+    // Trava de resposta vazia, irrelevante ou extremamente curta
     if (textoLimpo.length < 15 || /^(bla\s*)+$/i.test(textoLimpo)) {
       return NextResponse.json({
         success: true,
         data: {
-          pontuacao_total: 10,
+          pontuacao_total: 0,
           score_escuta: 0,
           score_fala: 0,
-          score_leitura: 10,
-          score_escrita: 10,
-          score_gramatica: 10,
+          score_leitura: 0,
+          score_escrita: 0,
+          score_gramatica: 0,
           nivel_cefr: "A1",
-          erros_detectados: ["Texto insuficiente para avaliação."],
-          erros_portunhol_detectados: ["Sem conteúdo avaliável."],
-          feedback_estudiante: "Tu respuesta es muy corta. Se asigna nivel A1 por falta de evidencia lingüística.",
-          justificativa_nivel: "Tu respuesta es muy corta. Se asigna nivel A1 por falta de evidencia lingüística."
+          erros_detectados: ["Resposta insuficiente ou ausência de conteúdo avaliável."],
+          erros_portunhol_detectados: ["Sem evidência linguística."],
+          feedback_estudiante: "Tu respuesta es insuficiente para ser evaluada. Se asigna nivel A1.",
+          justificativa_nivel: "Tu respuesta es insuficiente para ser evaluada. Se asigna nivel A1."
         }
       });
     }
 
     const promptSistema = `
-Você é um avaliador EXTREMAMENTE RÍGIDO de proficiência no idioma ${idioma.toUpperCase()} (Padrão CEFR).
-Sua missão é classificar a REAL capacidade do aluno sem dar pontos de graça.
+Você é uma BANCA EXAMINADORA EXTREMAMENTE RIGOROSA de proficiência no idioma ${idioma.toUpperCase()} (Padrão CEFR).
+Sua função é avaliar com precisão cirúrgica a REAL capacidade do aluno com base na pergunta realizada e na resposta fornecida.
 
-Texto submetido pelo aluno: "${textoLimpo}"
-Áudio de fala gravado pelo aluno: ${audioRecorded ? "SIM" : "NÃO (O aluno NÃO gravou áudio)"}
+[CONTEXTO / ENUNCIADO DA PERGUNTA QUE O ALUNO RECEBEU]:
+"${contextoQuestao}"
 
-REGRAS DE AVALIAÇÃO OBRIGATÓRIAS:
-1. Se o aluno NÃO gravou áudio (audioRecorded = false), os campos "score_fala" e "score_escuta" DEVEM SER RIGOROSAMENTE 0.
-2. Analise o texto em relação à gramática, tempos verbais, erros de portunhol e vocabulário.
-3. Se o texto for básico, simples, curto ou contiver erros gramaticais/portunhol, classifique estritamente como A1 (10-29 pts) ou A2 (30-49 pts).
-4. SÓ atribua B1/B2/C1 se o texto demonstrar vocabulário avançado, conectores complexos e ausência de erros.
-5. O feedback_estudiante DEVE ser em espanhol, direto ("tú"), máximo 30 palavras.
+[RESPOSTA TEXTUAL SUBMETIDA PELO ALUNO]:
+"${textoLimpo}"
+
+[ÁUDIO DE FALA DO ALUNO]:
+${audioRecorded ? `O aluno gravou áudio. Transcrição/Conteúdo: "${audioTranscript || textoLimpo}"` : "NÃO HÁ ÁUDIO (O aluno NÃO gravou áudio)"}
+
+--- REGRAS DE AVALIAÇÃO OBRIGATÓRIAS (MÁXIMO 100 PONTOS / 20 POR QUESITO) ---
+
+1. DETECÇÃO DE CÓPIA / PLÁGIO / RESPOSTA FORA DO TÓPICO:
+- Se o aluno apenas copiou o enunciado da pergunta, ou respondeu algo totalmente desconexo do que foi perguntado:
+  -> ATRIBUA ZERO (0) em TODAS as categorias.
+
+2. COMPREENSÃO DE ESCUTA E LEITURA (score_escuta: 0-20 | score_leitura: 0-20):
+- O aluno realmente respondeu ao que o enunciado/áudio pedia? 
+- Se a resposta for vaga ou demonstrar incompreensão da pergunta: máximo 5/20.
+
+3. PRODUÇÃO ORAL / FALA (score_fala: 0-20):
+- Se "Áudio gravado = NÃO", ESTES 20 PONTOS DEVEM SER OBRIGATORIAMENTE 0.
+- Se gravou áudio: avalie se a fala é fluida, se responde ao comando e a pronúncia (pela transcrição/estrutura).
+
+4. PRODUÇÃO ESCRITA (score_escrita: 0-20):
+- Avalie vocabulário, coesão, conectores e originalidade. Textos muito curtos ou simples: máximo 8/20.
+
+5. GRAMÁTICA E SINTAXE (score_gramatica: 0-20):
+- Puna severamente erros de concordância, tempos verbais incorretos e interferência de portunhol/língua materna.
 
 RETORNE ESTRITAMENTE O JSON PURO NO FORMATO:
 {
-  "pontuacao_total": 35,
-  "score_escuta": ${audioRecorded ? "35" : "0"},
-  "score_fala": ${audioRecorded ? "30" : "0"},
-  "score_leitura": 40,
-  "score_escrita": 35,
-  "score_gramatica": 35,
-  "nivel_cefr": "A2",
-  "erros_detectados": ["Erros identificados no texto"],
-  "feedback_estudiante": "Tu nivel es A2. Presentas estructuras básicas pero requieres reforzar gramática."
+  "score_escuta": 0,
+  "score_fala": 0,
+  "score_leitura": 0,
+  "score_escrita": 0,
+  "score_gramatica": 0,
+  "erros_detectados": ["Detalhamento técnico dos erros de interpretação, gramática ou fala"],
+  "feedback_estudiante": "Feedback direto e conciso em espanhol explicativo sobre o desempenho (máx 35 palavras)."
 }
 `;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${GEMINI_API_KEY}`;
     const resGemini = await fetchGeminiComRetry(geminiUrl, {
       contents: [{ parts: [{ text: promptSistema }] }],
       generationConfig: { responseMimeType: "application/json" }
@@ -90,8 +109,25 @@ RETORNE ESTRITAMENTE O JSON PURO NO FORMATO:
 
     if (!audioRecorded) {
       parsed.score_fala = 0;
-      parsed.score_escuta = 0;
+      parsed.score_escuta = parsed.score_escuta > 10 ? 10 : parsed.score_escuta;
     }
+
+    // Normalização das notas (Trava estrita 0 a 20)
+    parsed.score_fala = Math.min(20, Math.max(0, Number(parsed.score_fala) || 0));
+    parsed.score_escuta = Math.min(20, Math.max(0, Number(parsed.score_escuta) || 0));
+    parsed.score_leitura = Math.min(20, Math.max(0, Number(parsed.score_leitura) || 0));
+    parsed.score_escrita = Math.min(20, Math.max(0, Number(parsed.score_escrita) || 0));
+    parsed.score_gramatica = Math.min(20, Math.max(0, Number(parsed.score_gramatica) || 0));
+
+    // Soma exata
+    parsed.pontuacao_total = parsed.score_fala + parsed.score_escuta + parsed.score_leitura + parsed.score_escrita + parsed.score_gramatica;
+
+    // Classificação rigorosa CEFR por faixa de 100 pontos
+    if (parsed.pontuacao_total <= 20) parsed.nivel_cefr = "A1";
+    else if (parsed.pontuacao_total <= 40) parsed.nivel_cefr = "A2";
+    else if (parsed.pontuacao_total <= 60) parsed.nivel_cefr = "B1";
+    else if (parsed.pontuacao_total <= 80) parsed.nivel_cefr = "B2";
+    else parsed.nivel_cefr = "C1";
 
     if (parsed.feedback_estudiante) parsed.justificativa_nivel = parsed.feedback_estudiante;
     if (parsed.erros_detectados) parsed.erros_portunhol_detectados = parsed.erros_detectados;
@@ -103,15 +139,15 @@ RETORNE ESTRITAMENTE O JSON PURO NO FORMATO:
     return NextResponse.json({
       success: true,
       data: {
-        pontuacao_total: 15,
+        pontuacao_total: 10,
         score_escuta: 0,
         score_fala: 0,
-        score_leitura: 15,
-        score_escrita: 15,
-        score_gramatica: 15,
+        score_leitura: 5,
+        score_escrita: 5,
+        score_gramatica: 0,
         nivel_cefr: "A1",
-        feedback_estudiante: "Evaluación completada con nivel inicial A1.",
-        justificativa_nivel: "Evaluación completada con nivel inicial A1."
+        feedback_estudiante: "Evaluación completada con nivel inicial A1 por inconsistencia en las respuestas.",
+        justificativa_nivel: "Evaluación completada con nivel inicial A1 por inconsistencia en las respuestas."
       }
     });
   }
