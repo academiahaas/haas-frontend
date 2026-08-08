@@ -75,6 +75,61 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   
   
 
+
+  // 🚀 CONEXÃO NATIVA COM O SUPABASE: VÍDEOS E CONTEÚDOS LIBERADOS (CORREÇÃO PARA ARRAYS)
+  useEffect(() => {
+    async function sincronizarLiberacoes() {
+      if (!userId) return;
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("videos_liberados, conteudos_liberados")
+          .eq("id", userId)
+          .single();
+          
+        if (error) throw error;
+        
+        if (data) {
+          // Garante que estamos lidando com Arrays com segurança
+          let videos = [];
+          let conteudos = [];
+          
+          try { videos = Array.isArray(data.videos_liberados) ? data.videos_liberados : JSON.parse(data.videos_liberados || "[]"); } catch(e) {}
+          try { conteudos = Array.isArray(data.conteudos_liberados) ? data.conteudos_liberados : JSON.parse(data.conteudos_liberados || "[]"); } catch(e) {}
+
+          console.log("📊 [ARENA ARRAYS] Vídeos:", videos.length, "itens | Conteúdos:", conteudos.length, "itens");
+          
+          const totalV = videos ? videos.length : 0;
+          const totalC = conteudos ? conteudos.length : 0;
+          setQtdVideosLiberados(totalV);
+          setQtdConteudosLiberados(totalC);
+
+          if (totalC > 0) {
+            setUnidadesConcluidas(totalC);
+          }
+
+          if (totalV > 0 && totalC === 0) {
+            const primeiroVideo = videos[0];
+            setVideoSelecionado(typeof primeiroVideo === "object" ? primeiroVideo : { 
+              id: "video_liberado_auto", 
+              title: "Conteúdo Audiovisual Desbloqueado", 
+              url: String(primeiroVideo), 
+              video_url: String(primeiroVideo) 
+            });
+            setVisualizacaoAtiva("PLAYER_VIDEO");
+          }
+        }
+      } catch (err) {
+        console.error("⚠️ [ARENA] Erro ao sincronizar arrays de liberação:", err);
+      }
+    }
+    
+    const timerSync = setTimeout(sincronizarLiberacoes, 300);
+    return () => clearTimeout(timerSync);
+  }, [userId]);
+
+  const [qtdVideosLiberados, setQtdVideosLiberados] = useState<number>(0);
+  const [qtdConteudosLiberados, setQtdConteudosLiberados] = useState<number>(0);
   const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
   const [urlEmbedAtiva, setUrlEmbedAtiva] = useState<string>("");
@@ -1470,7 +1525,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               <button 
                 type="button"
                 title={tArena.media || "Conteúdo Audiovisual"}
-                onClick={() => setVisualizacaoAtiva(visualizacaoAtiva === "TRILHA_VIDEOS" ? "EXERCICIO" : "TRILHA_VIDEOS")} 
+                onClick={() => setVisualizacaoAtiva(String(visualizacaoAtiva) === "TRILHA_VIDEOS" ? "EXERCICIO" : "TRILHA_VIDEOS")} 
                 className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#a855f7] hover:bg-[#a855f7]/10 hover:border-[#a855f7]/30 transition-all flex items-center justify-center shrink-0"
               >
                 <Video size={14} />
@@ -1503,7 +1558,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
+                      const limiteItem = (String(visualizacaoAtiva) === "TRILHA_VIDEOS" ? (qtdVideosLiberados > 0 ? qtdVideosLiberados : unidadesConcluidas + 1) : (qtdConteudosLiberados > 0 ? qtdConteudosLiberados : unidadesConcluidas + 1));
+                      const desbloqueado = conteudo.id <= limiteItem;
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
@@ -1528,7 +1584,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
+                      const limiteItem = (String(visualizacaoAtiva) === "TRILHA_VIDEOS" ? (qtdVideosLiberados > 0 ? qtdVideosLiberados : unidadesConcluidas + 1) : (qtdConteudosLiberados > 0 ? qtdConteudosLiberados : unidadesConcluidas + 1));
+                      const desbloqueado = conteudo.id <= limiteItem;
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
                       return (
                         <div key={conteudo.id} style={{ transform: `translateY(${deslocamentoVertical}px)` }} className="transition-transform duration-300 shrink-0">
@@ -1630,7 +1687,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                   <div className="flex items-center gap-16 pr-24">
                     {totalConteudosTrilha.map((conteudo) => {
                       const unidadeAtualDoAluno = typeof subUnidadeIndex === "number" ? subUnidadeIndex + 1 : 1;
-                      const desbloqueado = conteudo.id <= (unidadesConcluidas + 1);
+                      const limiteItem = (String(visualizacaoAtiva) === "TRILHA_VIDEOS" ? (qtdVideosLiberados > 0 ? qtdVideosLiberados : unidadesConcluidas + 1) : (qtdConteudosLiberados > 0 ? qtdConteudosLiberados : unidadesConcluidas + 1));
+                      const desbloqueado = conteudo.id <= limiteItem;
                       
                       const deslocamentoVertical = Math.sin(conteudo.id * 1.0) * 35;
 
