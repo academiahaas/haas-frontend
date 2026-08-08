@@ -103,6 +103,7 @@ export default function MioloLeituraRapida({
   }, [initialExerciseData]);
 
 
+  const [jogoIniciado, setJogoIniciado] = useState(false);
   const timerRef = useRef<any>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -208,7 +209,7 @@ export default function MioloLeituraRapida({
   }, [unidadeAtiva]);
 
   useEffect(() => {
-    if (localStatus !== 'IDLE') {
+    if (localStatus !== 'IDLE' || !jogoIniciado) {
       clearInterval(timerRef.current);
       return;
     }
@@ -361,6 +362,23 @@ export default function MioloLeituraRapida({
   }
 
   const modoFeedback = localStatus !== 'IDLE' || analisando;
+
+  if (!jogoIniciado && !carregando) {
+    return (
+      <div 
+        onClick={() => setJogoIniciado(true)}
+        className="w-full h-full flex flex-col items-center justify-center p-6 cursor-pointer select-none bg-[#070d18]/90 backdrop-blur-md border border-purple-500/30 rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300 hover:border-purple-400 group"
+      >
+        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+          <Timer className="w-8 h-8 text-purple-400 animate-pulse" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">LEITURA VELOZ</h3>
+        <p className="text-[11px] font-mono text-purple-300 font-semibold tracking-widest animate-pulse">
+          TOQUE EM QUALQUER LUGAR PARA INICIAR
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col font-sans select-none gap-4 p-2 overflow-hidden flex-1 min-h-0">

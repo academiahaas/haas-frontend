@@ -93,6 +93,7 @@ export default function MioloBlitzChallenge({
   
 
 
+  const [jogoIniciado, setJogoIniciado] = useState(false);
   const timerRef = useRef<any>(null);
   const validadoRef = useRef<boolean>(false);
 
@@ -174,7 +175,7 @@ export default function MioloBlitzChallenge({
   const currentQuestion = questions[currentIndex % questions.length];
 
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || !jogoIniciado) return;
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -240,6 +241,23 @@ export default function MioloBlitzChallenge({
             +{totalXp} XP
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!jogoIniciado) {
+    return (
+      <div 
+        onClick={() => setJogoIniciado(true)}
+        className="w-full h-full flex flex-col items-center justify-center p-6 cursor-pointer select-none bg-[#070d18]/90 backdrop-blur-md border border-cyan-500/30 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all duration-300 hover:border-cyan-400 group"
+      >
+        <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+          <Zap className="w-8 h-8 text-cyan-400 animate-pulse" />
+        </div>
+        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">DESAFIO BLITZ</h3>
+        <p className="text-[11px] font-mono text-cyan-400 font-semibold tracking-widest animate-pulse">
+          TOQUE EM QUALQUER LUGAR PARA INICIAR
+        </p>
       </div>
     );
   }
