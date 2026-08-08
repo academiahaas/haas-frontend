@@ -206,7 +206,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         if (userStats) {
             // Unidade Ativa
             setScoreAtivo(userStats.unit_xp || 0);
-            setXpTotalUnidade(userStats.required_xp || 0);
+            setXpTotalUnidade(userStats.unit_required_xp || 100);
 
             // XP Geral
             setXpAtual(String(userStats.total_xp || 0));
@@ -218,7 +218,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             console.log("%c➡️ NÍVEL DO ALUNO (current_level):", "background: #000000; color: #FFFF00; font-size: 18px; font-weight: bold;", userStats?.current_level);
             console.log("%c➡️ XP DO NÍVEL (required_xp):", "background: #000000; color: #00FFFF; font-size: 18px; font-weight: bold;", userStats?.required_xp);
             
-            setXpTotal(String(userStats?.required_xp || 5000));
+            setXpTotal(String(userStats?.level_required_xp || userStats?.required_xp || 120));
             setTotalXp(Number(userStats.total_xp || 0));
             setUserTotalXp(Number(userStats.total_xp || 0));
 
@@ -996,7 +996,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                       "Embaixador": { PT: "EMBAIXADOR", ES: "EMBAJADOR", EN: "AMBASSADOR" }
                     };
                     return (dic[patenteBruta] ? (dic[patenteBruta][(idioma || "PT").toUpperCase()] || patenteBruta) : patenteBruta).toUpperCase();
-                  })()}</span><span className="text-cyan-400 font-mono font-bold">-{Math.max(0, Number(ptsTotal) - Number(xpAtual))} XP</span></div>
+                  })()}</span><span className="text-cyan-400 font-mono font-bold">{Math.max(0, Number(ptsTotal) - Number(xpAtual))} XP</span></div>
                 <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden p-[1px]"><div className="h-full rounded-full bg-[#8b5cf6]" style={{ width: `${Math.min(Math.round((Number(xpAtual) / Number(ptsTotal || 1)) * 100), 100)}%` }} /></div>
               </div>
             </div>

@@ -145,6 +145,16 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       .from("units")
       .select("*");
 
+    
+    // Extrai o required_xp da tabela units para a unidade ativa
+    const activeUnitObj = (unitsData || []).find((u: any) => 
+      String(u.id) === String(lastUnitId) || 
+      String(u.id) === String(profile?.unit_id) || 
+      String(u.id) === String(profile?.unidade_atual)
+    ) || (unitsData || [])[0];
+
+    const actualUnitRequiredXp = activeUnitObj?.required_xp ? Number(activeUnitObj.required_xp) : (profile?.required_xp || 100);
+
     const userObj = {
       id: profile?.id || targetUid,
       name: profile?.name || null,
@@ -176,6 +186,8 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       course_language: profile?.course_language || null,
       target_level: profile?.target_level || null,
       unit_xp: calculatedUnitXp,
+      unit_required_xp: actualUnitRequiredXp,
+      level_required_xp: calculatedRequiredXp,
       required_xp: calculatedRequiredXp,
     };
 
