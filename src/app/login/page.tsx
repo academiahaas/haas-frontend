@@ -20,19 +20,24 @@ export default function LoginPage() {
     try {
       const cleanEmail = email.trim().toLowerCase();
 
-      // Busca a conta na tabela user_subscriptions pelo e-mail informado
-      const { data, error } = await supabase
+      // Autentica de verdade contra o Supabase Auth (confere e-mail + senha)
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: senha,
+      });
+
+      if (authError || !authData.user) {
+        console.error("Erro ao autenticar:", authError);
+        setErro("Correo o contraseña incorrectos. Verifica tus datos.");
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
         .from("user_subscriptions")
         .select("id, user_id, email, first_name, last_name, course_language")
         .eq("email", cleanEmail)
         .maybeSingle();
-
-      if (error) {
-        console.error("Erro ao autenticar no Supabase:", error);
-        setErro("Error de conexión al servidor. Inténtalo de nuevo.");
-        setLoading(false);
-        return;
-      }
 
       if (!data) {
         setErro("Usuario no encontrado. Por favor verifica tu correo o realiza el diagnóstico.");
@@ -47,8 +52,8 @@ export default function LoginPage() {
       localStorage.removeItem("user_id");
 
       // Grava o ID do usuario (users.id) e dados no localStorage para o Portal
-      localStorage.setItem("haas_user_id", data.user_id || data.id);
-      localStorage.setItem("haas_user_email", data.email);
+      localStorage.setItem("haas_user_id", authData.user.id);
+      localStorage.setItem("haas_user_email", authData.user.email || cleanEmail);
       localStorage.setItem("haas_user_name", `${data.first_name || ""} ${data.last_name || ""}`.trim());
 
       window.location.href = "/portal-aluno";
