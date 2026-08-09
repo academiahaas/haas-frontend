@@ -96,21 +96,7 @@ export async function registrarFeedbackEErro({
 
   if (acertouLocal) {
     try {
-      await fetch(`${BASE_SUPABASE_URL}/user_progress`, {
-        method: "POST",
-        headers: {
-          "apikey": S_KEY,
-          "Authorization": `Bearer ${S_KEY}`,
-          "Content-Type": "application/json",
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          unit_name: enunciado.length > 50 ? enunciado.substring(0, 47) + "..." : enunciado,
-          activity_type: enunciado.toLowerCase().includes("fala") || enunciado.toLowerCase().includes("shadowing") ? 10 : 3,
-          points_earned: 10
-        })
-      });
+            // Requisição obsoleta removida com segurança.
     } catch (progressErr) {
       console.error("❌ Erro ao registrar progresso:", progressErr);
     }

@@ -1189,6 +1189,8 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   
   // State do ModalConclusao
+  const isProcessingValidationRef = useRef(false);
+  const validacaoLockRef = useRef(false);
   const [modalConclusaoState, setModalConclusaoState] = useState<{
     aberto: boolean;
     tipo: TipoConclusao;
@@ -1198,6 +1200,37 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     tipo: "UNIDADE",
     nivel: (levelCentral as NivelCurso) || "A1",
   });
+
+  // Disparo do ModalConclusao na Arena ao atingir ou superar a meta
+  useEffect(() => {
+    if (!xpUnidade || xpUnidade <= 0) return;
+    const checarMetaEExibirModal = async () => {
+      try {
+        const targetUnit = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : "");
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const res = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${targetUnit}&select=required_xp`, {
+          headers: {
+            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"
+          }
+        });
+        const data = await res.json();
+        const meta = data && data[0] && data[0].required_xp ? Number(data[0].required_xp) : 30;
+        
+        if (Number(xpUnidade) >= meta) {
+          setModalConclusaoState({
+            aberto: true,
+            tipo: "UNIDADE",
+            nivel: (levelCentral as any) || "A1"
+          });
+        }
+      } catch (e) {
+        console.error("Erro ao verificar meta na Arena:", e);
+      }
+    };
+    checarMetaEExibirModal();
+  }, [xpUnidade, unitIdCentral, unidadeId]);
+
 
   // Direciona a Arena para o próximo exercício configurado no users.next_exercise_id
   useEffect(() => {
@@ -1274,6 +1307,31 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   const sincronizarXpUnidadeComBanco = async (novoXpTotalDaUnidade: number, activityType?: string, scoreObtido?: number, dynamicExerciseId?: string) => {
     // Incrementa visualmente a sessão atual
     setXpUnidade(novoXpTotalDaUnidade);
+
+    // Checagem automatica de meta de XP para abrir o ModalConclusao
+    try {
+      const targetUnitCheck = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : "");
+      if (targetUnitCheck) {
+        const urlCheck = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const resReq = await fetch(`${urlCheck}/rest/v1/units?id=eq.${targetUnitCheck}&select=required_xp`, {
+          headers: {
+            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"
+          }
+        });
+        const dataReq = await resReq.json();
+        const metaExigida = dataReq && dataReq[0] && dataReq[0].required_xp !== undefined ? Number(dataReq[0].required_xp) : 30;
+        if (Number(novoXpTotalDaUnidade) >= metaExigida) {
+          setModalConclusaoState({
+            aberto: true,
+            tipo: "UNIDADE",
+            nivel: (levelCentral as any) || "A1"
+          });
+        }
+      }
+    } catch (errCheck) {
+      console.error("[ArenaQuiz] Erro ao checar meta de XP:", errCheck);
+    }
     
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -1288,7 +1346,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       const payload = {
         user_id: String(finalUserId),
         unit_id: String(targetUnitId),
-        unit_xp: Number(novoXpTotalDaUnidade || 0),
+        unit_xp: Number(scoreObtido || 0), // Envia estritamente o XP da partida para a tabela receptora
         activity_type: ((act) => act === "paragrafos" ? "8" : String(act || "1"))(activityType || jogoSelecionado),
         exercise_id: finalExerciseId,
         score: Number(scoreObtido ?? 100),
@@ -1305,28 +1363,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         "Prefer": "return=minimal"
       };
 
-      // 1. Verifica se ja existe registro para user_id + unit_id
-      const checkRes = await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?user_id=eq.${finalUserId}&unit_id=eq.${targetUnitId}&select=id`, { headers });
-      const checkData = await checkRes.json();
-
-      if (Array.isArray(checkData) && checkData.length > 0 && checkData[0].id) {
-        // 2. Se existe, faz UPDATE (PATCH)
-        const recordId = checkData[0].id;
-        await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?id=eq.${recordId}`, {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify(payload)
-        });
-        console.log("✅ [SYNCRONIZER] Progresso atualizado via PATCH para id:", recordId);
-      } else {
-        // 3. Se nao existe, faz INSERT (POST)
-        await fetch(`${supabaseUrl}/rest/v1/user_unit_progress`, {
+      // UPSERT real: on_conflict evita linhas duplicadas por user_id+unit_id
+        await fetch(`${supabaseUrl}/rest/v1/user_unit_progress?on_conflict=user_id,unit_id`, {
           method: "POST",
-          headers,
+          headers: { ...headers, "Prefer": "resolution=merge-duplicates,return=minimal" },
           body: JSON.stringify(payload)
         });
-        console.log("✅ [SYNCRONIZER] Novo progresso criado via POST");
-      }
+        console.log("✅ [SYNCRONIZER] Progresso sincronizado via UPSERT (merge-duplicates)");
 
     } catch (err) {
       console.error("❌ Erro ao registrar user_unit_progress no Supabase:", err);
@@ -1383,6 +1426,16 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
   };
 
   const handleValidationResult = (isCorrect: boolean, feedbackTexto?: string, pontosCustom?: number, exerciseId?: string) => {
+    console.trace("🔍 [DEBUG] handleValidationResult CHAMADO");
+    if (validacaoLockRef.current) {
+      console.log("🛡️ [ARENA] Disparo duplicado de exercicio bloqueado com sucesso.");
+      return;
+    }
+    validacaoLockRef.current = true;
+    setTimeout(() => { validacaoLockRef.current = false; }, 2000);
+    if (isProcessingValidationRef.current) return;
+    isProcessingValidationRef.current = true;
+    setTimeout(() => { isProcessingValidationRef.current = false; }, 1200);
     // 1. Controle da fala da Mentora Haas para Shadowing e Roleplay
     if (feedbackTexto && feedbackTexto !== "MANTER_MENTORA_INTACTA") {
       setRespostaIA(feedbackTexto);

@@ -5,6 +5,7 @@ import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
+import { ModalConclusao } from './components/ModalConclusao';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
 import ModalEntregaAtividade from "./components/ModalEntregaAtividade";
@@ -166,7 +167,14 @@ export default function DashboardDesktop({ alunoData }: any) {
   }, [alunoData]);
 
       const [modalPedagogoPage, setModalPedagogoPage] = React.useState({ aberto: false, tipo: null });
-          const [scoreAtivo, setScoreAtivo] = useState(alunoData?.unit_xp || 0);
+          
+
+  const [scoreAtivo, _setScoreAtivo] = useState(alunoData?.unit_xp || 0);
+  const setScoreAtivo = (val: any) => {
+    console.log("%c🎯 [RASTREADOR DE SCORE] setScoreAtivo CHAMADO COM VALOR:", "background: #FF00FF; color: #FFF; font-weight: bold; font-size: 14px;", val);
+    console.trace("Origem da chamada:");
+    _setScoreAtivo(val);
+  };
   const [tempoModulo, setTempoModulo] = useState(15);
   const [nomeModulo, setNomeModulo] = useState(alunoData?.module_title || "Carregando módulo...");
   const [listaUnidades, setListaUnidades] = useState(alunoData?.unidades || []);
@@ -191,6 +199,15 @@ export default function DashboardDesktop({ alunoData }: any) {
     }
   }, [alunoData]);
   const [ptsTotalUnidade, setXpTotalUnidade] = useState(alunoData?.required_xp || 0);
+  const [isConclusaoUnidadeOpen, setIsConclusaoUnidadeOpen] = useState(false);
+
+  useEffect(() => {
+    const atual = Number(scoreAtivo || 0);
+    const meta = Number(ptsTotalUnidade || 0);
+    if (atual > 0 && meta > 0 && atual >= meta) {
+      setIsConclusaoUnidadeOpen(true);
+    }
+  }, [scoreAtivo, ptsTotalUnidade]);
   const [patenteBruta, setPatenteBruta] = useState("Explorador");
 
   useEffect(() => {
@@ -205,7 +222,9 @@ export default function DashboardDesktop({ alunoData }: any) {
         
         if (userStats) {
             // Unidade Ativa
-            setScoreAtivo(userStats.unit_xp || 0);
+            // Garante que o scoreAtivo reflita o valor real retornado do banco
+            const valUnitXp = Number(userStats.unit_xp ?? 0);
+            setScoreAtivo(valUnitXp);
             setXpTotalUnidade(userStats.unit_required_xp || 100);
 
             // XP Geral
@@ -1353,7 +1372,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           </div>
 
         </div>
-        <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
+      <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
        <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
@@ -2056,6 +2075,6 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
           })()
         )}
       </div>
-    </div>
+</div>
   );
 }

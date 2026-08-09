@@ -101,7 +101,15 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       .select("unit_xp, unit_id")
       .eq("user_id", targetUid);
 
-    const calculatedUnitXp = (unitProgressData || []).reduce((acc: number, curr: any) => acc + (Number(curr.unit_xp) || 0), 0);
+    // Pega o XP estritamente da ultima unidade ativa em vez de somar todas as linhas do banco
+    const currentUnitProgress = (unitProgressData && unitProgressData.length > 0) 
+      ? unitProgressData[unitProgressData.length - 1] 
+      : null;
+    // Pega o valor exato da ultima unidade atualizada do banco sem somar linhas passadas
+    const lastProgressRecord = (unitProgressData && unitProgressData.length > 0)
+      ? unitProgressData[unitProgressData.length - 1]
+      : null;
+    const calculatedUnitXp = lastProgressRecord ? Number(lastProgressRecord.unit_xp || 0) : 0;
     const lastUnitId = unitProgressData && unitProgressData.length > 0 ? unitProgressData[unitProgressData.length - 1].unit_id : null;
 
     // --- BUSCA DINÂMICA DE XP DA TABELA LEVELS ---
