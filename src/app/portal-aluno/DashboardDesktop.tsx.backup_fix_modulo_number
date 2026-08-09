@@ -268,7 +268,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
         try {
           const nivelResolvido = userStats?.current_level || "A1";
-          const moduloAlvo = userStats?.modulo_atual || 1;
+          const moduloAlvo = userStats?.current_module_number || 1;
           
           
           let dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo) && String(u.level) === String(nivelResolvido)).slice(0, 5);

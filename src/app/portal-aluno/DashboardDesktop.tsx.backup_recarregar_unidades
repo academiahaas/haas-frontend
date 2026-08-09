@@ -268,7 +268,7 @@ export default function DashboardDesktop({ alunoData }: any) {
         // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
         try {
           const nivelResolvido = userStats?.current_level || "A1";
-          const moduloAlvo = userStats?.modulo_atual || 1;
+          const moduloAlvo = userStats?.current_module_number || 1;
           
           
           let dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo) && String(u.level) === String(nivelResolvido)).slice(0, 5);
@@ -342,28 +342,6 @@ export default function DashboardDesktop({ alunoData }: any) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
-      // ✅ Ao fechar a Arena, recarrega módulo/unidades — garante que a tela reflita
-      // avanço de módulo/nível que pode ter ocorrido durante os estudos.
-      (async () => {
-        try {
-          const uid = alunoData?.id || alunoData?.user_id || (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
-          const dados = await buscarProgressoAlunoCentral(uid);
-          if (dados) {
-            const lvl = String(dados.current_level || 'A1');
-            const modNum = dados.modulo_atual || 1;
-            setModuloUserCentral(String(modNum).padStart(2, '0'));
-            setNivelUserCentral(lvl);
-            const infoModulo = await buscarInfoModuloContent(lvl, modNum);
-            setNomeModulo(infoModulo?.module_title || ("Módulo " + String(modNum).padStart(2, '0')));
-            const unidadesBanco = await buscarUnidadesModuloCentral(lvl, modNum);
-            if (unidadesBanco && unidadesBanco.length > 0) {
-              setListaUnidades(unidadesBanco);
-            }
-          }
-        } catch (errRecarregar) {
-          console.error("Erro ao recarregar módulo/unidades após fechar Arena:", errRecarregar);
-        }
-      })();
     }
     return () => { document.body.style.overflow = ''; };
   }, [isArenaOpen]);
