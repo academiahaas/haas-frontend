@@ -1201,35 +1201,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     nivel: (levelCentral as NivelCurso) || "A1",
   });
 
-  // Disparo do ModalConclusao na Arena ao atingir ou superar a meta
-  useEffect(() => {
-    if (!xpUnidade || xpUnidade <= 0) return;
-    const checarMetaEExibirModal = async () => {
-      try {
-        const targetUnit = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : "");
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const res = await fetch(`${supabaseUrl}/rest/v1/units?id=eq.${targetUnit}&select=required_xp`, {
-          headers: {
-            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"
-          }
-        });
-        const data = await res.json();
-        const meta = data && data[0] && data[0].required_xp ? Number(data[0].required_xp) : 30;
-        
-        if (Number(xpUnidade) >= meta) {
-          setModalConclusaoState({
-            aberto: true,
-            tipo: "UNIDADE",
-            nivel: (levelCentral as any) || "A1"
-          });
-        }
-      } catch (e) {
-        console.error("Erro ao verificar meta na Arena:", e);
-      }
-    };
-    checarMetaEExibirModal();
-  }, [xpUnidade, unitIdCentral, unidadeId]);
 
 
   // Direciona a Arena para o próximo exercício configurado no users.next_exercise_id
@@ -1308,31 +1279,6 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     // Incrementa visualmente a sessão atual
     setXpUnidade(novoXpTotalDaUnidade);
 
-    // Checagem automatica de meta de XP para abrir o ModalConclusao
-    try {
-      const targetUnitCheck = unitIdCentral || unidadeId || (typeof window !== "undefined" ? (window as any).__dadosBanco?.current_unit_id : "");
-      if (targetUnitCheck) {
-        const urlCheck = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-        const resReq = await fetch(`${urlCheck}/rest/v1/units?id=eq.${targetUnitCheck}&select=required_xp`, {
-          headers: {
-            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTkyOTY3OCwiZXhwIjoyMDk1NTA1Njc4fQ.G5o3SANhFRmsvi_RSdoIkXvaVwfxFUHc-OVxBPtnMt4"
-          }
-        });
-        const dataReq = await resReq.json();
-        const metaExigida = dataReq && dataReq[0] && dataReq[0].required_xp !== undefined ? Number(dataReq[0].required_xp) : 30;
-        if (Number(novoXpTotalDaUnidade) >= metaExigida) {
-          setModalConclusaoState({
-            aberto: true,
-            tipo: "UNIDADE",
-            nivel: (levelCentral as any) || "A1"
-          });
-        }
-      }
-    } catch (errCheck) {
-      console.error("[ArenaQuiz] Erro ao checar meta de XP:", errCheck);
-    }
-    
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
       const finalUserId = activeUserId || userId;

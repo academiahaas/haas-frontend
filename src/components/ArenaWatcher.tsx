@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import ModalConclusao, { TipoConclusao, IdiomaPlataforma, NivelCurso } from '@/app/portal-aluno/components/ModalConclusao';
-import { useAuth } from '@/contexts/AuthContext';
+// useAuth removido: este projeto nao usa supabase.auth de fato, o login grava o ID no localStorage
 import { 
   checkPendingFlagsCentral, 
   clearPendingUnitCentral, 
@@ -13,7 +13,12 @@ import {
 
 export function ArenaWatcher() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const [user, setUser] = useState<{ id: string } | null>(null);
+
+  useEffect(() => {
+    const uid = typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : null;
+    setUser(uid ? { id: uid } : null);
+  }, []);
 
   const [modalAberto, setModalAberto] = useState(false);
   const [tipoModal, setTipoModal] = useState<TipoConclusao>("UNIDADE");
