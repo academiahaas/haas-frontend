@@ -90,7 +90,7 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
     const { data: subData } = await supabase
       .from("user_subscriptions")
       .select("expiration_date, plan_category, class_credits_available, replacement_credits")
-      .eq("user_id", targetUid)
+      .or(`user_id.eq.${targetUid},id.eq.${targetUid}`)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();

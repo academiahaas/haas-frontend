@@ -197,7 +197,7 @@ function DiagnosticoContent() {
         localStorage.removeItem("haas_aluno_cache");
         localStorage.removeItem("haas_uid");
         localStorage.removeItem("supabase_uid");
-        localStorage.setItem("haas_user_id", subData[0].id);
+        localStorage.setItem("haas_user_id", subData[0].user_id || subData[0].id);
         localStorage.setItem("haas_user_email", subData[0].email || email.trim().toLowerCase());
 
         if (subData[0].user_id) {
