@@ -1532,18 +1532,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </div>
             
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
-              adaptiveExerciseData?.is_reviewing_exercise ? "bg-violet-500/20 text-violet-400 border-violet-500/40 scale-105" :
               gameStatus === "CORRECT" ? "bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/40 scale-105" :
               gameStatus === "WRONG" ? "bg-red-500/20 text-red-500 border-red-500/40" :
               streak >= 3 ? "bg-cyan-400/20 text-purple-300 border-cyan-500/30 scale-102" :
               "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/20"
             }`}>
               <Bot size={20} />
-              {adaptiveExerciseData?.is_reviewing_exercise ? (
-                <span className="absolute -top-1 -right-1 bg-violet-500 text-[7px] text-white font-mono font-black px-1 rounded-sm">
-                  {currentLang === "EN" ? "REVIEW" : currentLang === "ES" ? "REPASO" : "REVISÃO"}
-                </span>
-              ) : streak >= 3 && (
+              {streak >= 3 && (
                 <span className="absolute -top-1 -right-1 bg-[#00e5ff] text-[7px] text-white font-mono font-black px-1 rounded-sm">
                   STREAK
                 </span>

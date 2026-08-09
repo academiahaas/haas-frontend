@@ -453,7 +453,7 @@ export async function fetchNextExerciseForUser(userId: string) {
 
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('next_exercise_id, is_reviewing_exercise')
+      .select('next_exercise_id')
       .eq('id', userId)
       .maybeSingle();
 
@@ -473,7 +473,7 @@ export async function fetchNextExerciseForUser(userId: string) {
       return null;
     }
 
-    return { ...exercise, is_reviewing_exercise: !!user.is_reviewing_exercise };
+    return exercise;
   } catch (err) {
     console.error('[Adaptive] Exceção em fetchNextExerciseForUser:', err);
     return null;
