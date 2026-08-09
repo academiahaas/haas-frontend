@@ -549,12 +549,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           const catCentral = dbUser.plan_category || dbUser.student_type || "Pack Group";
         setTipoAluno(catCentral.toLowerCase());
           if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
-          if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) {
-            const totalMinutos = Number(dbUser.total_immersion_es) || 0;
-            const horas = Math.floor(totalMinutos / 60);
-            const minutos = totalMinutos % 60;
-            setImersaoTotal(horas > 0 ? `${horas}h ${minutos}m` : `${minutos}m`);
-          }
+          if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) setImersaoTotal(String(dbUser.total_immersion_es) + "h");
           const valActivos = dbUser.active_days ?? dbUser.active_vocabulary ?? 0;
           setVocabularioAtivo(valActivos);
           
@@ -596,14 +591,13 @@ export default function DashboardDesktop({ alunoData }: any) {
           setNicknameAluno(dbUser.nickname || dbUser.name || "");
           if (dbUser.streak_days !== undefined && dbUser.streak_days !== null) setStreakDays(Number(dbUser.streak_days));
           if (dbUser.trained_days && Array.isArray(dbUser.trained_days)) {
-            // índice 0 = Domingo (padrão Postgres EXTRACT(DOW)), por isso o mapeamento abaixo
-            setTrainSun(!!dbUser.trained_days[0]);
-            setTrainMon(!!dbUser.trained_days[1]);
-            setTrainTue(!!dbUser.trained_days[2]);
-            setTrainWed(!!dbUser.trained_days[3]);
-            setTrainThu(!!dbUser.trained_days[4]);
-            setTrainFri(!!dbUser.trained_days[5]);
-            setTrainSat(!!dbUser.trained_days[6]);
+            setTrainMon(!!dbUser.trained_days[0]);
+            setTrainTue(!!dbUser.trained_days[1]);
+            setTrainWed(!!dbUser.trained_days[2]);
+            setTrainThu(!!dbUser.trained_days[3]);
+            setTrainFri(!!dbUser.trained_days[4]);
+            setTrainSat(!!dbUser.trained_days[5]);
+            setTrainSun(!!dbUser.trained_days[6]);
           }
             const langNameMap: Record<string, Record<string, string>> = {
     pt: { PT: "PORTUGUÊS", EN: "PORTUGUESE", ES: "PORTUGUÉS" },

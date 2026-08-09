@@ -3118,12 +3118,7 @@ React.useEffect(() => {
               <div className="bg-slate-900/40 border border-white/[0.02] p-3 rounded-xl flex items-center gap-1.5.5">
                 <div className="text-cyan-400 shrink-0"><Timer size={16} className="text-cyan-400" /></div>
                 <div className="flex flex-col">
-                  <span className="text-lg md:text-2xl font-mono font-black text-white">{(() => {
-                    const totalMinutos = Number(horasAtivas) || 0;
-                    const h = Math.floor(totalMinutos / 60);
-                    const m = totalMinutos % 60;
-                    return h > 0 ? `${h}h ${m}m` : `${m}m`;
-                  })()}</span>
+                  <span className="text-lg md:text-2xl font-mono font-black text-white">{horasAtivas}h</span>
                   <span className="text-[11px] md:text-sm uppercase font-bold tracking-wider text-slate-500">
                     {idiomaSelecionado === "PT" ? "Horas Ativas" : idiomaSelecionado === "ES" ? "Horas Activas" : "Active Hours"}
                   </span>
@@ -3149,7 +3144,7 @@ React.useEffect(() => {
                 </div>
                 {/* Linha das pílulas da consistência semanal */}
                 <div className="flex justify-between items-center gap-0.5 mt-0.5 border-t border-white/[0.03] pt-1">
-                  {(idiomaSelecionado === "PT" ? ["D", "S", "T", "Q", "Q", "S", "S"] : idiomaSelecionado === "ES" ? ["D", "L", "M", "M", "J", "V", "S"] : ["S", "M", "T", "W", "T", "F", "S"]).map((dia, idx) => {
+                  {(idiomaSelecionado === "PT" ? ["S", "T", "Q", "Q", "S", "S", "D"] : idiomaSelecionado === "ES" ? ["L", "M", "M", "J", "V", "S", "D"] : ["M", "T", "W", "T", "F", "S", "S"]).map((dia, idx) => {
                     const rawData = metricsFromHook?.trained_days ?? alunoDataProp?.trained_days;
 let realArr = [true, false, true, true, true, true, false];
 if (rawData) {
