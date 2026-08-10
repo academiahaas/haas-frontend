@@ -61,7 +61,7 @@ export default function ProvaEscritaPage() {
   const [prova, setProva] = useState<any>(null);
   const [respostasGram, setRespostasGram] = useState<Record<string, string>>({});
   const [respostasLeit, setRespostasLeit] = useState<Record<string, string>>({});
-  const [textoRedacao, setTextoRedacao] = useState('');
+  const [textosRedacao, setTextosRedacao] = useState<Record<string, string>>({});
   const [resultado, setResultado] = useState<any>(null);
   const [erroValidacao, setErroValidacao] = useState('');
 
@@ -117,21 +117,27 @@ export default function ProvaEscritaPage() {
   const contarPalavras = (txt: string) => txt.trim().split(/\s+/).filter(Boolean).length;
 
   const enviarProva = async () => {
-    const minWords = prova?.redacao?.min_words || 50;
-    if (contarPalavras(textoRedacao) < minWords) {
-      setErroValidacao(T.minimoPalavras(lang, minWords));
-      return;
+    for (const r of (prova.redacoes || [])) {
+      const texto = textosRedacao[r.id] || '';
+      if (contarPalavras(texto) < r.min_words) {
+        setErroValidacao(T.minimoPalavras(lang, r.min_words));
+        return;
+      }
     }
     setErroValidacao('');
     setFase('ENVIANDO');
 
     try {
       const uid = (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
+      const arrayTextos = (prova.redacoes || []).map((r: any) => ({
+        task_type: r.task_type,
+        texto: textosRedacao[r.id] || '',
+      }));
       const { data, error } = await supabase.rpc('corrigir_prova_escrita', {
         p_user_id: uid,
         p_respostas_gramatica: respostasGram,
         p_respostas_leitura: respostasLeit,
-        p_texto_redacao: textoRedacao,
+        p_textos_redacao: arrayTextos,
       });
       if (error) throw error;
       setResultado(data);
@@ -353,22 +359,24 @@ export default function ProvaEscritaPage() {
           </div>
         )}
 
-        {fase === 'REDACAO' && prova.redacao && (
+        {fase === 'REDACAO' && prova.redacoes && prova.redacoes.length > 0 && (
           <div className="flex flex-col gap-4">
             <h2 className="text-cyan-400 font-mono text-xs font-bold uppercase tracking-widest">{T.secaoRedacao(lang)}</h2>
-            <div className="bg-[#0a1424] border border-white/10 rounded-2xl p-5 flex flex-col gap-4">
-              <p className="text-white text-sm font-medium">{prova.redacao.prompt_text}</p>
-              <textarea
-                value={textoRedacao}
-                onChange={(e) => setTextoRedacao(e.target.value)}
-                rows={10}
-                className="w-full bg-slate-900/60 border border-white/10 rounded-xl p-4 text-slate-100 text-sm resize-none focus:outline-none focus:border-violet-400"
-                placeholder="..."
-              />
-              <div className="flex justify-between text-[11px] font-mono text-slate-500">
-                <span>{contarPalavras(textoRedacao)} / {prova.redacao.min_words}-{prova.redacao.max_words} {T.palavras(lang)}</span>
+            {prova.redacoes.map((r: any, idx: number) => (
+              <div key={r.id} className="bg-[#0a1424] border border-white/10 rounded-2xl p-5 flex flex-col gap-4">
+                <p className="text-white text-sm font-medium">{idx + 1}. {r.prompt_text}</p>
+                <textarea
+                  value={textosRedacao[r.id] || ''}
+                  onChange={(e) => setTextosRedacao(prev => ({ ...prev, [r.id]: e.target.value }))}
+                  rows={r.task_type === 'curta' ? 5 : 10}
+                  className="w-full bg-slate-900/60 border border-white/10 rounded-xl p-4 text-slate-100 text-sm resize-none focus:outline-none focus:border-violet-400"
+                  placeholder="..."
+                />
+                <div className="flex justify-between text-[11px] font-mono text-slate-500">
+                  <span>{contarPalavras(textosRedacao[r.id] || '')} / {r.min_words}-{r.max_words} {T.palavras(lang)}</span>
+                </div>
               </div>
-            </div>
+            ))}
             {erroValidacao && <p className="text-rose-400 text-xs font-mono">{erroValidacao}</p>}
             <button onClick={enviarProva} className="mt-2 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500 text-white text-xs font-mono font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
               {T.enviarProva(lang)} <ArrowRight size={14} />
