@@ -38,6 +38,9 @@ const T = {
   }, l),
   suaNota: (l: LangKey) => pick({ pt: 'Sua nota final', es: 'Tu nota final', en: 'Your final score' }, l),
   voltarPortal: (l: LangKey) => pick({ pt: 'Voltar ao Portal', es: 'Volver al Portal', en: 'Back to Portal' }, l),
+  verdadeiro: (l: LangKey) => pick({ pt: 'Verdadeiro', es: 'Verdadero', en: 'True' }, l),
+  falso: (l: LangKey) => pick({ pt: 'Falso', es: 'Falso', en: 'False' }, l),
+  digiteResposta: (l: LangKey) => pick({ pt: 'Digite sua resposta...', es: 'Escribe tu respuesta...', en: 'Type your answer...' }, l),
 };
 
 function useIdioma(): LangKey {
@@ -233,21 +236,50 @@ export default function ProvaEscritaPage() {
             {prova.gramatica.map((q: any, idx: number) => (
               <div key={q.id} className="bg-[#0a1424] border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
                 <p className="text-white text-sm font-medium">{idx + 1}. {q.question_text}</p>
-                <div className="flex flex-col gap-2">
-                  {q.options.map((opt: string) => (
-                    <button
-                      key={opt}
-                      onClick={() => setRespostasGram(prev => ({ ...prev, [q.id]: opt }))}
-                      className={`text-left px-4 py-2.5 rounded-xl border text-sm transition-all ${
-                        respostasGram[q.id] === opt
-                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                          : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
+                {q.question_type === 'lacuna' ? (
+                  <input
+                    type="text"
+                    value={respostasGram[q.id] || ''}
+                    onChange={(e) => setRespostasGram(prev => ({ ...prev, [q.id]: e.target.value }))}
+                    placeholder={T.digiteResposta(lang)}
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-cyan-400"
+                  />
+                ) : q.question_type === 'verdadeiro_falso' ? (
+                  <div className="flex gap-2">
+                    {[T.verdadeiro(lang), T.falso(lang)].map((opt, i) => {
+                      const valor = i === 0 ? 'verdadeiro' : 'falso';
+                      return (
+                        <button
+                          key={valor}
+                          onClick={() => setRespostasGram(prev => ({ ...prev, [q.id]: valor }))}
+                          className={`flex-1 px-4 py-2.5 rounded-xl border text-sm transition-all ${
+                            respostasGram[q.id] === valor
+                              ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
+                              : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {q.options.map((opt: string) => (
+                      <button
+                        key={opt}
+                        onClick={() => setRespostasGram(prev => ({ ...prev, [q.id]: opt }))}
+                        className={`text-left px-4 py-2.5 rounded-xl border text-sm transition-all ${
+                          respostasGram[q.id] === opt
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
+                            : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {erroValidacao && <p className="text-rose-400 text-xs font-mono">{erroValidacao}</p>}
@@ -268,21 +300,50 @@ export default function ProvaEscritaPage() {
             {prova.leitura.map((q: any, idx: number) => (
               <div key={q.id} className="bg-[#0a1424] border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
                 <p className="text-white text-sm font-medium">{idx + 1}. {q.question_text}</p>
-                <div className="flex flex-col gap-2">
-                  {q.options.map((opt: string) => (
-                    <button
-                      key={opt}
-                      onClick={() => setRespostasLeit(prev => ({ ...prev, [q.id]: opt }))}
-                      className={`text-left px-4 py-2.5 rounded-xl border text-sm transition-all ${
-                        respostasLeit[q.id] === opt
-                          ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
-                          : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
+                {q.question_type === 'lacuna' ? (
+                  <input
+                    type="text"
+                    value={respostasLeit[q.id] || ''}
+                    onChange={(e) => setRespostasLeit(prev => ({ ...prev, [q.id]: e.target.value }))}
+                    placeholder={T.digiteResposta(lang)}
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-cyan-400"
+                  />
+                ) : q.question_type === 'verdadeiro_falso' ? (
+                  <div className="flex gap-2">
+                    {[T.verdadeiro(lang), T.falso(lang)].map((opt, i) => {
+                      const valor = i === 0 ? 'verdadeiro' : 'falso';
+                      return (
+                        <button
+                          key={valor}
+                          onClick={() => setRespostasLeit(prev => ({ ...prev, [q.id]: valor }))}
+                          className={`flex-1 px-4 py-2.5 rounded-xl border text-sm transition-all ${
+                            respostasLeit[q.id] === valor
+                              ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
+                              : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {q.options.map((opt: string) => (
+                      <button
+                        key={opt}
+                        onClick={() => setRespostasLeit(prev => ({ ...prev, [q.id]: opt }))}
+                        className={`text-left px-4 py-2.5 rounded-xl border text-sm transition-all ${
+                          respostasLeit[q.id] === opt
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200'
+                            : 'bg-slate-900/50 border-white/10 text-slate-300 hover:border-white/30'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {erroValidacao && <p className="text-rose-400 text-xs font-mono">{erroValidacao}</p>}
