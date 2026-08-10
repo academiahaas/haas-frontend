@@ -1,6 +1,5 @@
 'use client';
 import { useAuth } from "@/contexts/AuthContext";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import React, { useState, useEffect, useRef } from 'react';
 import { registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import { supabase } from '@/lib/supabase';
@@ -37,24 +36,6 @@ export default function MioloBlitzChallenge({
   const { user: authUser } = useAuth();
   const USER_ID_ALVO = authUser?.id;
   const userIdToQuery = authUser?.id;
-  const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
-  useEffect(() => {
-    async function buscarIdioma() {
-      try {
-        if (!USER_ID_ALVO) return;
-        const { data: userDados } = await supabase
-          .from("users")
-          .select("native_language")
-          .eq("id", USER_ID_ALVO);
-        if (userDados && userDados.length > 0) {
-          setIdiomaNativoAluno(userDados[0].native_language || "Español");
-        }
-      } catch (e) {
-        console.warn("Erro ao buscar idioma nativo:", e);
-      }
-    }
-    buscarIdioma();
-  }, [USER_ID_ALVO]);
   const [exerciseId, setExerciseId] = useState("");
   const [questions, setQuestions] = useState<BlitzQuestion[]>([
     { word: "CARREGANDO...", correct: "Carregando...", options: ["Carregando...", "...", "...", "..."] }
@@ -119,7 +100,7 @@ export default function MioloBlitzChallenge({
   useEffect(() => {
     if (gameOver && onValidateResult && !validadoRef.current) {
       validadoRef.current = true;
-      onValidateResult(totalXp > 0, (idiomaNativoAluno?.toLowerCase().includes("por") ? `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.` : idiomaNativoAluno?.toLowerCase().includes("ing") ? `Challenge Completed! You earned ${totalXp} XP in Blitz.` : `¡Desafío Concluido! Ganaste ${totalXp} XP en Blitz.`), totalXp, exerciseId || unidadeAtiva);
+      onValidateResult(totalXp > 0, `Desafio Concluído! Você conquistou ${totalXp} XP no Blitz.`, totalXp, exerciseId || unidadeAtiva);
     }
   }, [gameOver, onValidateResult, totalXp, exerciseId, unidadeAtiva]);
 
@@ -249,10 +230,10 @@ export default function MioloBlitzChallenge({
           
           <div className='flex flex-col gap-1'>
             <h3 className='text-[clamp(20px,2.2vw,26px)] font-black text-slate-100 tracking-wider uppercase'>
-              {feedbackTraducoes.telas.desafioConcluido(obterLangKeyCompartilhado(idiomaNativoAluno))}
+              Desafio Concluído
             </h3>
             <p className='text-[clamp(13px,1.4vw,15px)] text-slate-400 font-medium'>
-              {feedbackTraducoes.telas.performanceCalculada(obterLangKeyCompartilhado(idiomaNativoAluno))}
+              Performance calculada com sucesso
             </p>
           </div>
 
@@ -273,9 +254,9 @@ export default function MioloBlitzChallenge({
         <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
           <Zap className="w-8 h-8 text-cyan-400 animate-pulse" />
         </div>
-        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">{idiomaNativoAluno?.toLowerCase().includes("por") ? "Desafio Blitz" : idiomaNativoAluno?.toLowerCase().includes("ing") ? "Blitz Challenge" : "Desafío Blitz"}</h3>
+        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">DESAFIO BLITZ</h3>
         <p className="text-[11px] font-mono text-cyan-400 font-semibold tracking-widest animate-pulse">
-          {feedbackTraducoes.telas.toqueParaIniciar(obterLangKeyCompartilhado(idiomaNativoAluno))}
+          TOQUE EM QUALQUER LUGAR PARA INICIAR
         </p>
       </div>
     );
@@ -288,7 +269,7 @@ export default function MioloBlitzChallenge({
       <div className='flex items-center justify-between bg-[#080C16]/80 border border-slate-800/80 px-4 py-3 rounded-xl shadow-sm shrink-0'>
         <div className='flex items-center gap-2'>
           <Zap className='w-4 h-4 text-[#a855f7]' />
-          <span className='text-[11px] md:text-xs font-bold text-slate-400 tracking-widest uppercase'>{idiomaNativoAluno?.toLowerCase().includes("por") ? "Desafio Blitz" : idiomaNativoAluno?.toLowerCase().includes("ing") ? "Blitz Challenge" : "Desafío Blitz"}</span>
+          <span className='text-[11px] md:text-xs font-bold text-slate-400 tracking-widest uppercase'>DESAFIO BLITZ</span>
         </div>
         <div className='text-xs md:text-sm font-black tracking-widest text-[#a855f7] font-mono bg-[#a855f7]/10 px-3 py-1 rounded-lg border border-[#a855f7]/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]'>
           00:{timeLeft < 10 ? '0' + timeLeft : timeLeft}
