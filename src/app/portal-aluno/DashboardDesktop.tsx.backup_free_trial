@@ -570,7 +570,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           console.log("=== CONTEUDO REAL DE TRAINED_DAYS NO BANCO ===>", dbUser.trained_days);
           setAluno1(dbUser.name || "");
           if (dbUser.current_level) setNivelAtual(dbUser.current_level.toUpperCase());
-          const catCentral = dbUser.plan_category || dbUser.student_type || "Free Trial";
+          const catCentral = dbUser.plan_category || dbUser.student_type || "Pack Group";
         setTipoAluno(catCentral.toLowerCase());
           if (dbUser.clinical_precision !== undefined) setPrecisaoClinica(dbUser.clinical_precision);
           if (dbUser.total_immersion_es !== undefined && dbUser.total_immersion_es !== null) {
