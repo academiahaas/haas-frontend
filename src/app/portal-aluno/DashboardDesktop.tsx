@@ -5,6 +5,7 @@ import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
 import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral, checkPendingFlagsCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
+import ModalProva from './components/ModalProva';
 import { ModalConclusao } from './components/ModalConclusao';
 import InjetorSomPremium from './components/InjetorSomPremium';
 import ModalAvaliacaoFidelidade from "./components/ModalAvaliacaoFidelidade";
@@ -370,6 +371,7 @@ export default function DashboardDesktop({ alunoData }: any) {
   const [isPerfilOpen, setIsPerfilOpen] = useState(false);
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
   const [isCertificadosOpen, setIsCertificadosOpen] = useState(false);
+  const [isProvaOpen, setIsProvaOpen] = useState(false);
   const [trainMon, setTrainMon] = useState(false);
   const [trainTue, setTrainTue] = useState(false);
   const [trainWed, setTrainWed] = useState(false);
@@ -1342,18 +1344,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                 <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-white/10 hover:border-purple-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-2 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
               <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
-                <div onClick={async () => {
-                  const uid = alunoData?.id || alunoData?.user_id || (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
-                  if (!uid) return;
-                  const flags = await checkPendingFlagsCentral(uid);
-                  if (flags && flags.pending_exam_code) {
-                    if (typeof window !== "undefined") {
-                      window.location.href = "/portal-aluno?tab=prova-escrita";
-                    }
-                  } else {
-                    alert(idioma === 'PT' ? 'Nenhuma prova disponível no momento.' : idioma === 'ES' ? 'Ninguna prueba disponible en este momento.' : 'No exam available at the moment.');
-                  }
-                }} className="bg-slate-900/80 border border-violet-500/30 hover:border-violet-400/60 hover:bg-violet-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-violet-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><FileText size={11} className="text-violet-400 inline-block mr-1" /> {idioma === 'PT' ? 'Provas' : idioma === 'ES' ? 'Pruebas' : 'Exams'}</div>
+                <div onClick={() => setIsProvaOpen(true)} className="bg-slate-900/80 border border-violet-500/30 hover:border-violet-400/60 hover:bg-violet-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-violet-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><FileText size={11} className="text-violet-400 inline-block mr-1" /> {idioma === 'PT' ? 'Provas' : idioma === 'ES' ? 'Pruebas' : 'Exams'}</div>
               </div>
             </div>
           </div>
@@ -1413,6 +1404,7 @@ export default function DashboardDesktop({ alunoData }: any) {
 
         </div>
       <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
+      <ModalProva isOpen={isProvaOpen} onClose={() => setIsProvaOpen(false)} idioma={idioma} />
        <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
