@@ -118,4 +118,11 @@ export const feedbackTraducoes = {
     acerto: (l: "en" | "pt" | "es") => pick({ pt: "Ordem lógica validada com sucesso!", es: "¡Orden lógico validado con éxito!", en: "Logical order successfully validated!" }, l),
     erro: (l: "en" | "pt" | "es") => pick({ pt: "A sequência lógica possui detalhes de coesão a corrigir.", es: "La secuencia lógica posee detalles de cohesión por corregir.", en: "The logical sequence has cohesion details to fix." }, l),
   },
+  telas: {
+    desafioConcluido: (l: "en" | "pt" | "es") => pick({ pt: "Desafio Concluído", es: "Desafío Concluido", en: "Challenge Completed" }, l),
+    performanceCalculada: (l: "en" | "pt" | "es") => pick({ pt: "Performance calculada com sucesso", es: "Rendimiento calculado con éxito", en: "Performance successfully calculated" }, l),
+    leituraVeloz: (l: "en" | "pt" | "es") => pick({ pt: "Leitura Veloz", es: "Lectura Veloz", en: "Speed Reading" }, l),
+    toqueParaIniciar: (l: "en" | "pt" | "es") => pick({ pt: "Toque em qualquer lugar para iniciar", es: "Toca en cualquier lugar para iniciar", en: "Tap anywhere to start" }, l),
+    nota: (l: "en" | "pt" | "es") => pick({ pt: "NOTA", es: "NOTA", en: "SCORE" }, l),
+  },
 };
