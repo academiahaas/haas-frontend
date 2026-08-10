@@ -2433,7 +2433,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
           setModalConclusaoState(prev => ({ ...prev, aberto: false }));
           if (typeof window !== "undefined") {
-            window.location.href = "/portal-aluno?tab=prova-escrita";
+            window.location.href = "/prova-escrita?uid=" + (userId || activeUserId || (typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : ""));
           }
         }}
         onClose={() => {

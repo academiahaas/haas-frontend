@@ -74,7 +74,7 @@ export const ModalProva: React.FC<ModalProvaProps> = ({
 
   const handleGoToExam = () => {
     if (typeof window !== "undefined") {
-      window.location.href = "/portal-aluno?tab=prova-escrita";
+      window.location.href = "/prova-escrita?uid=" + (userId || (typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : ""));
     }
   };
 
