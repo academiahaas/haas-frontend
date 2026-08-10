@@ -86,17 +86,17 @@ export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoPr
             }
           });
 
-          // ✅ Removido o bloco que sobrescrevia sempre com o 1º módulo do nível.
-          // A lógica do forEach acima já encontra o módulo certo (nível + número exato).
-          // Fallback: só usa o primeiro módulo geral se nada foi encontrado de jeito nenhum.
-          if (!idAtualEncontrado && modulosMapeados.length > 0) {
+          // Prioridade absoluta ao nível atual do aluno (levelAluno)
+          const modDoNivel = modulosMapeados.find(m => m.nivel === levelAluno);
+          if (modDoNivel) {
+            idAtualEncontrado = modDoNivel.id;
+          } else if (!idAtualEncontrado && modulosMapeados.length > 0) {
             idAtualEncontrado = modulosMapeados[0].id;
           }
 
           setRealModuloAtualId(idAtualEncontrado);
           setRealConcluidosIds(concluidos);
-          // ✅ Gaveta não abre mais sozinha — só o destaque "ATUAL" é automático.
-          // O aluno abre manualmente clicando no módulo que quiser ver.
+          setModuloAberto(idAtualEncontrado);
         }
       } catch (erro) {
         console.error('Erro ao sincronizar ProgramaTrilha:', erro);
@@ -108,20 +108,30 @@ export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoPr
   }, []);
 
 
-  // ✅ Removido: essa lógica sobrescrevia o módulo atual (calculado corretamente por ID)
-  // com uma versão simplificada que só olhava o nível, sempre abrindo o 1º módulo do nível.
-  // A lógica correta (busca por ID real do aluno, com fallback por nível+número) já roda
-  // acima e preenche realModuloAtualId/moduloAberto certinho.
+  // O SEGREDO ESTÁ AQUI: Ficar escutando a prop nivelAlunoProp para atualizar a gaveta assim que o Dashboard terminar de carregar os dados reais da Central!
+  useEffect(() => {
+    if (fases.length > 0 && nivelAlunoProp) {
+      const nivelReal = nivelAlunoProp.trim().toUpperCase();
+      const modDoNivel = fases.find(m => m.nivel === nivelReal);
+      if (modDoNivel) {
+        setRealModuloAtualId(modDoNivel.id);
+        if (isTrilhaOpen) {
+          setModuloAberto(modDoNivel.id);
+        }
+      }
+    }
+  }, [nivelAlunoProp, fases, isTrilhaOpen]);
 
   useEffect(() => {
     if (isTrilhaOpen && realModuloAtualId) {
-      // ✅ Não abre a gaveta automaticamente — só rola a tela até o módulo atual (destacado).
+      setModuloAberto(realModuloAtualId);
+      // Auto-scroll suave para o módulo atual
       setTimeout(() => {
         const elemento = document.getElementById(`modulo-${realModuloAtualId}`);
         if (elemento) {
           elemento.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-      }, 300);
+      }, 300); // 300ms de delay para aguardar a animação de expansão da gaveta
     }
   }, [isTrilhaOpen, realModuloAtualId]);
 

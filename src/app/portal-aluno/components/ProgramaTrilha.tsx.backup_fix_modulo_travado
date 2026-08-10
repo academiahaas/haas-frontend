@@ -86,10 +86,11 @@ export default function ProgramaTrilha({ idiomaAtivo, isTrilhaOpen, nivelAlunoPr
             }
           });
 
-          // ✅ Removido o bloco que sobrescrevia sempre com o 1º módulo do nível.
-          // A lógica do forEach acima já encontra o módulo certo (nível + número exato).
-          // Fallback: só usa o primeiro módulo geral se nada foi encontrado de jeito nenhum.
-          if (!idAtualEncontrado && modulosMapeados.length > 0) {
+          // Prioridade absoluta ao nível atual do aluno (levelAluno)
+          const modDoNivel = modulosMapeados.find(m => m.nivel === levelAluno);
+          if (modDoNivel) {
+            idAtualEncontrado = modDoNivel.id;
+          } else if (!idAtualEncontrado && modulosMapeados.length > 0) {
             idAtualEncontrado = modulosMapeados[0].id;
           }
 
