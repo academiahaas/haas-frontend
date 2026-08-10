@@ -491,7 +491,7 @@ export async function checkPendingFlagsCentral(userId: string) {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('pending_unit_code, pending_module_code, pending_exam_code')
+      .select('pending_unit_code, pending_module_code, pending_exam_code, exame_disponivel')
       .eq('id', userId)
       .maybeSingle();
 
