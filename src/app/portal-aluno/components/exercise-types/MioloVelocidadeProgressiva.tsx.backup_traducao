@@ -1,6 +1,5 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -273,7 +272,7 @@ onValidateResult
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
       
-      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || feedbackTraducoes.velocidadeProgressiva.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.velocidadeProgressiva.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || "Excelente! Ótima escuta.") : (incentivoIncorretoBanco || "Atenção aos detalhes do áudio.");
       if (onValidateResult) {
         onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
       }
@@ -282,8 +281,8 @@ onValidateResult
     } catch (e) {
       const acertou = selectedId === correctId;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? (feedbackCorretoBanco || feedbackTraducoes.velocidadeProgressiva.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (feedbackIncorretoBanco || feedbackTraducoes.velocidadeProgressiva.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))));
-      const textoMentora2 = acertou ? (incentivoCorretoBanco || feedbackTraducoes.velocidadeProgressiva.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.velocidadeProgressiva.incentivoIncorretoQuase(obterLangKeyCompartilhado(idiomaNativoAluno)));
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
+      const textoMentora2 = acertou ? (incentivoCorretoBanco || "Excelente! Ótima escuta.") : (incentivoIncorretoBanco || "Quase lá! Ouça com atenção novamente.");
       if (onValidateResult) {
         onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, exerciseId || unidadeAtiva);
       }

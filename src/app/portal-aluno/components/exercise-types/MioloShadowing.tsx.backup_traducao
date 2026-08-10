@@ -1,6 +1,5 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { supabase } from "@/lib/supabase";
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Disc, Loader2, Volume2, HelpCircle, Send, Square, Sparkles, RotateCcw } from 'lucide-react';
@@ -321,14 +320,16 @@ Regras Estritas:
     if (!transcricaoAluno || transcricaoAluno.trim().length < 2) {
       setFeedback({
         status: "INCOERENTE",
-        mensagem: feedbackTraducoes.shadowing.naoOuvi(obterLangKeyCompartilhado(idiomaNativoAluno)),
+        mensagem: idiomaNativoAluno.toLowerCase().includes("ing")
+          ? "I couldn't hear any words clearly. Could you please click the button and repeat the sentence?"
+          : "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?",
         sugestao: "Intenta hablar de forma fluida frente al micrófono."
       });
       setScoreFinal(1.5);
       setFlowState("DONE");
       if (onSelectWrong) onSelectWrong();
       if (onValidateResult) {
-        onValidateResult(false, incentivoIncorretoBanco || feedbackTraducoes.shadowing.naoOuvi(obterLangKeyCompartilhado(idiomaNativoAluno)), 1.5, initialExerciseData?.id);
+        onValidateResult(false, incentivoIncorretoBanco || "No pude escuchar tus palabras con claridad. ¿Podrías presionar el botón y repetir la frase?", 1.5, initialExerciseData?.id);
       }
       return;
     }

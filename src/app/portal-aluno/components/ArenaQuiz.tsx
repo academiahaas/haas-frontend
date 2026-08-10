@@ -1551,7 +1551,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
             </div>
           </div>
 
-          <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0 relative">
+          <div className="flex-1 w-full overflow-y-auto py-4 flex flex-col justify-center min-h-0 relative [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {/* TELA DA TRILHA HORIZONTAL GAMIFICADA DE VÍDEOS (LARANJA) */}
             {visualizacaoAtiva === "TRILHA_VIDEOS" && (
               <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col justify-center rounded-2xl select-none">

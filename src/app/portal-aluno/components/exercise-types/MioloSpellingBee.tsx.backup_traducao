@@ -1,6 +1,5 @@
 "use client";
 import { getExerciseByActivityType } from "@/services/centralService";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from "react";
@@ -331,8 +330,8 @@ USER_ID_ALVO]);
       setStatus(acertou ? "CORRECT" : "WRONG");
 
       const mensagemFeedback = acertou 
-        ? (feedbackCorretoBanco || feedbackTraducoes.spellingBee.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) 
-        : (feedbackIncorretoBanco || feedbackTraducoes.spellingBee.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+        ? (feedbackCorretoBanco || "¡Excelente deletreo! Has organizado todas las letras en el orden ortográfico correcto de manera perfecta.") 
+        : (feedbackIncorretoBanco || "El orden de las letras tiene un error ortográfico. Revisa la estructura y secuencia de la palabra.");
 
       setFeedbackIA(mensagemFeedback);
 

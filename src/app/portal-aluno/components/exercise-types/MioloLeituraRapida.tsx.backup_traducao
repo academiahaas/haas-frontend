@@ -1,6 +1,5 @@
 'use client';
 import { getExerciseByActivityType } from "@/services/centralService";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
@@ -323,7 +322,7 @@ export default function MioloLeituraRapida({
           });
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackCorretoBanco || feedbackTraducoes.leituraRapida.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackIncorretoBanco || feedbackTraducoes.leituraRapida.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+          const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || feedbackIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
           console.log("🔍 [DEBUG] onValidateResult chamado com exerciseId:", exerciseId || "UNDEFINED");
           onValidateResult(aprovado, textoMentora1, nota, exerciseId || undefined);
         }
@@ -333,7 +332,7 @@ export default function MioloLeituraRapida({
       const possuiMinimo = respostaAlunoLimpa.length >= Math.min(20, gabaritoLimpo.length * 0.3);
       
       setLocalStatus(possuiMinimo ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(possuiMinimo ? (feedbackCorretoBanco || feedbackTraducoes.leituraRapida.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (feedbackIncorretoBanco || feedbackTraducoes.leituraRapida.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))));
+      setFeedbackIA(possuiMinimo ? (feedbackCorretoBanco || "Fidelidade e retenção textual validadas!") : (feedbackIncorretoBanco || "Texto incompleto ou distante do conteúdo original."));
       if (onValidateResult) {
           const palavrasGabarito = textoGabarito.trim().split(/\s+/).filter(Boolean);
           const palavrasAluno = inputValue.trim().split(/\s+/).filter(Boolean);
@@ -345,7 +344,7 @@ export default function MioloLeituraRapida({
           });
           const nota = palavrasGabarito.length > 0 ? Number(((acertos / palavrasGabarito.length) * 10).toFixed(1)) : (possuiMinimo ? 10 : 0);
           const aprovado = nota >= 6;
-          const textoMentora2 = aprovado ? (incentivoCorretoBanco || feedbackTraducoes.leituraRapida.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.leituraRapida.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+          const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente velocidade e retenção de leitura!") : (incentivoIncorretoBanco || "Atenção ao ritmo de leitura e compreensão do texto.");
           console.log("🔍 [DEBUG] onValidateResult chamado com exerciseId:", exerciseId || "UNDEFINED");
           onValidateResult(aprovado, textoMentora2, nota, exerciseId || undefined);
         }

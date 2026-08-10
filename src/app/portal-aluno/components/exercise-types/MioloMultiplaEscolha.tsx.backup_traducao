@@ -1,6 +1,5 @@
 'use client';
 import { useAuth } from "@/contexts/AuthContext";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { chamarGeminiInteligente } from './geminiService';
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 
@@ -239,13 +238,13 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
 
       setLocalStatus(resultado.acertou ? 'CORRECT' : 'WRONG');
       setFeedbackIA(resultado.acertou ? (feedbackCorretoBanco || resultado.feedback) : (feedbackIncorretoBanco || resultado.feedback));
-      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || feedbackTraducoes.multiplaEscolha.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.multiplaEscolha.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+      const textoMentora1 = resultado.acertou ? (incentivoCorretoBanco || "Excelente! Opção correta.") : (incentivoIncorretoBanco || "Atenção aos detalhes da pergunta.");
       if (onValidateResult) onValidateResult(resultado.acertou, textoMentora1, resultado.acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } catch (e) {
       const acertou = selecionado === correctOption;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? (feedbackCorretoBanco || feedbackTraducoes.multiplaEscolha.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (feedbackIncorretoBanco || feedbackTraducoes.multiplaEscolha.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))));
-      const textoMentora2 = acertou ? (incentivoCorretoBanco || feedbackTraducoes.multiplaEscolha.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.multiplaEscolha.incentivoIncorretoQuase(obterLangKeyCompartilhado(idiomaNativoAluno)));
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || "Incorreto."));
+      const textoMentora2 = acertou ? (incentivoCorretoBanco || "Excelente! Opção correta.") : (incentivoIncorretoBanco || "Quase lá! Revise as opções com atenção.");
       if (onValidateResult) onValidateResult(acertou, textoMentora2, acertou ? 10 : 0, exerciseId || unidadeAtiva);
     } finally {
       setAnalisando(false);

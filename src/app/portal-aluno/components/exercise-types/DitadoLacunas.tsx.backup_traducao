@@ -1,6 +1,5 @@
 'use client';
 import { getExerciseByActivityType } from "@/services/centralService";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaLacunas, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect, useRef } from 'react';
@@ -263,13 +262,13 @@ export default function DitadoLacunas({
         });
         const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
         const aprovado = nota >= 6;
-        const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackTraducoes.ditadoLacunas.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.ditadoLacunas.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+        const textoMentora1 = aprovado ? (incentivoCorretoBanco || "Excelente preenchimento!") : (incentivoIncorretoBanco || "Atenção à grafia e ao contexto.");
         onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
       }
     } catch (e) {
       const acertou = inputValue.trim().toLowerCase() === targetWord.toLowerCase();
       setLocalStatus(acertou ? "CORRECT" : "WRONG");
-      setFeedbackIA(acertou ? (feedbackCorretoBanco || feedbackTraducoes.ditadoLacunas.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (feedbackIncorretoBanco || feedbackTraducoes.ditadoLacunas.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno), targetWord)));
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente!") : (feedbackIncorretoBanco || `Desvio ortográfico detectado. O esperado era: ${targetWord}`));
       if (onValidateResult) {
         const respostasEsperadas = targetWord.split(/[,\s]+/).filter(Boolean);
         const respostasEnviadas = inputValue.trim().split(/[,\s]+/).filter(Boolean);
@@ -281,7 +280,7 @@ export default function DitadoLacunas({
         });
         const nota = respostasEsperadas.length > 0 ? Number(((acertos / respostasEsperadas.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
         const aprovado = nota >= 6;
-        const textoMentora2 = aprovado ? (incentivoCorretoBanco || feedbackTraducoes.ditadoLacunas.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.ditadoLacunas.incentivoIncorretoQuase(obterLangKeyCompartilhado(idiomaNativoAluno)));
+        const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente preenchimento!") : (incentivoIncorretoBanco || "Quase lá! Confira a palavra novamente.");
         onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
       }
     } finally {

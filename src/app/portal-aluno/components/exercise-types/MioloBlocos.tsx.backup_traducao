@@ -1,6 +1,5 @@
 'use client';
 import { getExerciseByActivityType } from "@/services/centralService";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
@@ -301,14 +300,14 @@ export default function MioloBlocos({
           });
           const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (resultado.acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          const textoMentora1 = aprovado ? (incentivoCorretoBanco || feedbackTraducoes.blocos.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.blocos.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+          const textoMentora1 = aprovado ? (incentivoCorretoBanco || "Excelente montagem de sentença!") : (incentivoIncorretoBanco || "Atenção à ordem sintática dos blocos.");
           onValidateResult(aprovado, textoMentora1, nota, exerciseId || unidadeAtiva);
         }
     } catch (e) {
       const fraseMontadaAlunoLimpa = blocosMontados.map(b => b.texto).join(" ").trim().toLowerCase();
       const acertou = fraseMontadaAlunoLimpa === gabaritoFrase;
       setLocalStatus(acertou ? 'CORRECT' : 'WRONG');
-      setFeedbackIA(acertou ? (feedbackCorretoBanco || feedbackTraducoes.blocos.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (feedbackIncorretoBanco || feedbackTraducoes.blocos.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))));
+      setFeedbackIA(acertou ? (feedbackCorretoBanco || "Excelente ordenação de sintaxe!") : (feedbackIncorretoBanco || "A estrutura dos blocos possui desvios de ordem sintática."));
       if (onValidateResult) {
           const blocosEsperados = (fraseOriginalGabarito || gabaritoFrase).trim().split(/\s+/).filter(Boolean);
           const blocosAluno = blocosMontados.map(b => b.texto.trim()).filter(Boolean);
@@ -320,7 +319,7 @@ export default function MioloBlocos({
           });
           const nota = blocosEsperados.length > 0 ? Number(((acertos / blocosEsperados.length) * 10).toFixed(1)) : (acertou ? 10 : 0);
           const aprovado = nota >= 6;
-          const textoMentora2 = aprovado ? (incentivoCorretoBanco || feedbackTraducoes.blocos.incentivoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))) : (incentivoIncorretoBanco || feedbackTraducoes.blocos.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
+          const textoMentora2 = aprovado ? (incentivoCorretoBanco || "Excelente montagem de sentença!") : (incentivoIncorretoBanco || "Atenção à ordem sintática dos blocos.");
           onValidateResult(aprovado, textoMentora2, nota, exerciseId || unidadeAtiva);
         }
     } finally {

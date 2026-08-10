@@ -2,7 +2,6 @@
 
 const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 import { useAuth } from "@/contexts/AuthContext";
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { supabase } from "@/lib/supabase";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
 import React, { useState, useEffect } from 'react';
@@ -276,13 +275,13 @@ streak = 0,
     try {
       if (acertou) {
         setLocalStatus("CORRECT");
-        setFeedbackIA(feedbackCorretoBanco || feedbackTraducoes.traducaoInversa.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno)));
-        const textoMentora = incentivoCorretoBanco || feedbackTraducoes.traducaoInversa.feedbackCorreto(obterLangKeyCompartilhado(idiomaNativoAluno));
+        setFeedbackIA(feedbackCorretoBanco || "Excelente! Tradução perfeita.");
+        const textoMentora = incentivoCorretoBanco || "Excelente! Tradução perfeita.";
         if (onValidateResult) onValidateResult(true, textoMentora, nota, exerciseId || unidadeAtiva);
       } else {
         setLocalStatus("WRONG");
-        setFeedbackIA(feedbackIncorretoBanco || feedbackTraducoes.traducaoInversa.feedbackIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno), stringAlvoCorreta));
-        const textoMentora = incentivoIncorretoBanco || feedbackTraducoes.traducaoInversa.incentivoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno));
+        setFeedbackIA(feedbackIncorretoBanco || `Quase lá! A tradução esperada é: "${stringAlvoCorreta}"`);
+        const textoMentora = incentivoIncorretoBanco || "Quase lá! Atenção aos detalhes na tradução.";
         if (onValidateResult) onValidateResult(false, textoMentora, nota, exerciseId || unidadeAtiva);
       }
     } catch (e) {
