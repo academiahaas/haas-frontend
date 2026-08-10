@@ -3,7 +3,7 @@ import BotaoEntrarAula from "./components/BotaoEntrarAula";
 import { useRouter } from 'next/navigation';
 import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
-import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral, checkPendingFlagsCentral } from "../../services/centralService";
+import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import { ModalConclusao } from './components/ModalConclusao';
 import InjetorSomPremium from './components/InjetorSomPremium';
@@ -22,7 +22,7 @@ import { getLastNameInitial } from './components/nameUtils';
 import XPButton from './components/XPButton';
 import { supabase } from '@/lib/supabase';
 import { fetchCentralPortalData, getTopRanking } from "@/services/centralService";
-import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket, FileText } from 'lucide-react';
+import { Home, MapPin, Gift, BookOpen, Trophy, ChevronDown, Crown, User, X, Shield, Box, Target, Globe, Flame, Clock, Award, Star, Zap, Terminal, TrendingUp, AlertTriangle, Calendar, ChevronLeft, ArrowRight, Hourglass, Users, Briefcase, Ticket } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 function MascoteRoboAI({ devePiscar = false, idioma = 'PT', olharDireta = false }) {
@@ -1338,22 +1338,10 @@ export default function DashboardDesktop({ alunoData }: any) {
             <div className="flex flex-col gap-1.5 border-t border-white/[0.04] pt-2.5 relative">
               <span className="text-[8.5px] font-mono font-black text-slate-500 uppercase tracking-wider">{idioma === 'PT' ? 'CENTRO DE CERTIFICAÇÕES' : idioma === 'ES' ? 'CENTRO DE CERTIFICACIÓN' : 'CERTIFICATION CENTER'}</span>
               <div className="hidden absolute top-2 right-2 font-bold text-cyan-400/10 hover:font-bold text-cyan-400/20 text-cyan-400 text-[8.5px] font-mono font-black uppercase tracking-wider px-1.5 py-0.5 rounded cursor-pointer transition-all" onClick={() => setIsBadgesOpen(true)}>{idioma === 'PT' ? 'Ver Detalhes' : idioma === 'ES' ? 'Ver Todo' : 'View All'}</div>
-              <div className="grid grid-cols-2 gap-1 text-center items-stretch w-full">
+              <div className="grid grid-cols-3 gap-1 text-center items-stretch w-full">
                 <div onClick={() => setIsTrilhaOpen(true)} className="bg-slate-900/80 border border-white/10 hover:border-purple-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 py-2 px-1 rounded-lg text-[9px] font-mono font-bold text-cyan-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center truncate" title={levelName || "..."}><Target size={11} className="text-cyan-400 inline-block mr-1 flex-shrink-0" /> <span className="truncate">{levelName || (idioma === 'PT' ? 'Módulos' : idioma === 'ES' ? 'Módulos' : 'Modules')}</span></div>
               <XpCardButton totalXp={totalXp} onClick={handleAbrirArenaComTransicao} idioma={idioma} />
                 <div onClick={() => setIsCertificadosOpen(true)} className="bg-slate-900/80 border border-sky-500/30 hover:border-sky-400/60 hover:bg-sky-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-sky-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><Shield size={11} className="text-sky-400 inline-block mr-1" /> {idioma === 'PT' ? 'Certificado' : idioma === 'ES' ? 'Certificado' : 'Certificate'}</div>
-                <div onClick={async () => {
-                  const uid = alunoData?.id || alunoData?.user_id || (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
-                  if (!uid) return;
-                  const flags = await checkPendingFlagsCentral(uid);
-                  if (flags && flags.pending_exam_code) {
-                    if (typeof window !== "undefined") {
-                      window.location.href = "/portal-aluno?tab=prova-escrita";
-                    }
-                  } else {
-                    alert(idioma === 'PT' ? 'Nenhuma prova disponível no momento.' : idioma === 'ES' ? 'Ninguna prueba disponible en este momento.' : 'No exam available at the moment.');
-                  }
-                }} className="bg-slate-900/80 border border-violet-500/30 hover:border-violet-400/60 hover:bg-violet-500/10 py-1.5 px-1 rounded-lg text-[9px] font-mono font-bold text-violet-300 cursor-pointer transition-all active:scale-95 flex items-center justify-center"><FileText size={11} className="text-violet-400 inline-block mr-1" /> {idioma === 'PT' ? 'Provas' : idioma === 'ES' ? 'Pruebas' : 'Exams'}</div>
               </div>
             </div>
           </div>
