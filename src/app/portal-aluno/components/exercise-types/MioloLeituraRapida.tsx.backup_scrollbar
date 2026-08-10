@@ -429,7 +429,7 @@ export default function MioloLeituraRapida({
             <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
           </div>
         ) : fase === 'LEITURA' ? (
-          <div className="w-full h-full p-2 text-[clamp(16px,2vw,20px)] font-medium text-slate-100 leading-relaxed select-none flex-1 flex items-center justify-center overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="w-full h-full p-2 text-[clamp(16px,2vw,20px)] font-medium text-slate-100 leading-relaxed select-none flex-1 flex items-center justify-center overflow-y-auto">
             <p className="font-sans text-justify whitespace-pre-wrap tracking-wide w-full max-w-3xl mx-auto">{textoLongo}</p>
           </div>
         ) : (
