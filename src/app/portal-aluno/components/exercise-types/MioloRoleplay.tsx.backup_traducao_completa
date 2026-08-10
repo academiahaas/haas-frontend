@@ -1,6 +1,5 @@
 'use client';
 import { supabase } from '@/lib/supabase';
-import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Loader2, Volume2, HelpCircle , Sparkles} from 'lucide-react';;
 
@@ -44,7 +43,7 @@ const traducoesInterface: Record<string, Record<string, string>> = {
 };
 
 
-function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBanco: string[], idiomaKey: "en" | "pt" | "es" = "es"): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
+function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBanco: string[]): { score: number; status: "EXCELENTE" | "REGULAR" | "INCOERENTE"; msg: string; sugestao: string } {
   const normalizar = (t: string) => {
     const semAcentos = t.toLowerCase()
       .normalize("NFD")
@@ -72,8 +71,8 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
     return {
       score: 15,
       status: "INCOERENTE",
-      msg: feedbackTraducoes.roleplay.curtaOuRepetida(idiomaKey),
-      sugestao: feedbackTraducoes.roleplay.curtaOuRepetidaSugestao(idiomaKey)
+      msg: "Sua resposta parece muito curta ou contém palavras repetidas sem sentido em português.",
+      sugestao: "Tente responder de forma simples e natural."
     };
   }
 
@@ -91,8 +90,8 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
     return {
       score: 15,
       status: "INCOERENTE",
-      msg: feedbackTraducoes.roleplay.repeticao(idiomaKey),
-      sugestao: feedbackTraducoes.roleplay.repeticaoSugestao(idiomaKey)
+      msg: "Detectei repetição de palavras ou termos sem sentido na sua resposta.",
+      sugestao: "Construa uma frase contínua em português para que eu possa avaliar sua fluidez."
     };
   }
 
@@ -112,8 +111,8 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
       return {
         score: 15,
         status: "INCOERENTE",
-        msg: feedbackTraducoes.roleplay.semPalavraChave(idiomaKey),
-        sugestao: feedbackTraducoes.roleplay.semPalavraChaveSugestao(idiomaKey)
+        msg: "Sua resposta não parece conter as palavras fundamentais necessárias para este contexto.",
+        sugestao: "Preste atenção na pergunta da mentora e certifique-se de responder ao assunto solicitado."
       };
     }
   } else {
@@ -133,8 +132,8 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
       return {
         score: 15,
         status: "INCOERENTE",
-        msg: feedbackTraducoes.roleplay.semLogica(idiomaKey),
-        sugestao: feedbackTraducoes.roleplay.semLogicaSugestao(idiomaKey)
+        msg: "Sua resposta não responde de forma lógica à pergunta da mentora.",
+        sugestao: "Tente estruturar uma frase simples contendo uma ação (verbo) e um contexto ou lugar correspondente."
       };
     }
   }
@@ -156,15 +155,15 @@ function validarConversacaoLocal(pergunta: string, resposta: string, keywordsBan
     return {
       score: scoreFinal,
       status: "EXCELENTE",
-      msg: feedbackTraducoes.roleplay.excelente(idiomaKey),
-      sugestao: feedbackTraducoes.roleplay.excelenteSugestao(idiomaKey)
+      msg: "¡Excelente respuesta! Lograste formular una respuesta completa y muy coherente en português.",
+      sugestao: "¡Gran fluidez! Sigue estruturando tus ideas con este nivel de detalhe."
     };
   } else {
     return {
       score: scoreFinal,
       status: "REGULAR",
-      msg: feedbackTraducoes.roleplay.bomIntento(idiomaKey),
-      sugestao: feedbackTraducoes.roleplay.bomIntentoSugestao(idiomaKey)
+      msg: "¡Buen intento! Tu respuesta es comprensible y responde lógicamente a la pregunta.",
+      sugestao: "Para obtener la puntuación máxima, intenta añadir un poco más de detalle sobre tus actividades."
     };
   }
 }
@@ -312,7 +311,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
       // Força a tela a segurar o estado de analisando por 1.5 segundos antes de processar
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias, obterLangKeyCompartilhado(idiomaNativoAluno));
+      const resultado = validarConversacaoLocal(phraseIA, fraseParaAnálise, keywordsObrigatorias);
       
       setScoreFinal(Number((resultado.score / 10).toFixed(1)));
       

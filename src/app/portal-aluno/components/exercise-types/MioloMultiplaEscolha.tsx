@@ -347,7 +347,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
           {localStatus === 'CORRECT' && feedbackIA && (
             <div className="w-full max-w-2xl bg-[#080C16]/90 border border-emerald-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(16,185,129,0.12)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[13px] font-bold uppercase tracking-widest">
-                <CheckCircle size={16} /> <span>Excelente! Opção Correta</span>
+                <CheckCircle size={16} /> <span>{feedbackTraducoes.titulos.multiplaEscolhaCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
             </div>
@@ -356,7 +356,7 @@ export default function MioloMultiplaEscolha({ initialExerciseData, exerciseData
           {localStatus === 'WRONG' && feedbackIA && (
             <div className="w-full max-w-2xl bg-[#080C16]/90 border border-rose-500/30 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center animate-fade-in shadow-[0_0_30px_rgba(244,63,94,0.12)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[13px] font-bold uppercase tracking-widest">
-                <XCircle size={16} /> <span>Ajuste Necessário</span>
+                <XCircle size={16} /> <span>{feedbackTraducoes.titulos.multiplaEscolhaIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[16px] text-slate-100 font-medium italic break-words leading-relaxed">"{feedbackIA}"</p>
             </div>

@@ -344,45 +344,32 @@ Regras Estritas:
       let msgPersonalizada = "";
       let sugestaoPersonalizada = "";
 
-      const langKeyShadow = obterLangKeyCompartilhado(idiomaNativoAluno);
-      const pick3 = (pt: string, es: string, en: string) => langKeyShadow === "pt" ? pt : langKeyShadow === "en" ? en : es;
+      const isEnglish = idiomaNativoAluno.toLowerCase().includes("ing");
 
       if (notaCalculada >= 80) {
         statusResult = "EXCELENTE";
-        msgPersonalizada = pick3(
-          "Fantástico! Sua pronúncia está incrivelmente clara e muito próxima da frase original.",
-          "¡Fantástico! Tu pronunciación es increíblemente clara y muy cercana a la frase original.",
-          "Fantastic! Your pronunciation is incredibly clear and very close to the target sentence."
-        );
-        sugestaoPersonalizada = pick3(
-          "Excelente ritmo e cadência. Continue assim!",
-          "Excelente ritmo y fluidez. ¡Sigue practicando así!",
-          "Excellent rhythm and cadency. Keep up the great work!"
-        );
+        msgPersonalizada = isEnglish 
+          ? "Fantastic! Your pronunciation is incredibly clear and very close to the target sentence." 
+          : "¡Fantástico! Tu pronunciación es increíblemente clara y muy cercana a la frase original.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Excellent rhythm and cadency. Keep up the great work!" 
+          : "Excelente ritmo y fluidez. ¡Sigue practicando así!";
       } else if (notaCalculada >= 50) {
         statusResult = "REGULAR";
-        msgPersonalizada = pick3(
-          "Bom esforço! Consigo entender o que você disse, mas podemos aprimorar alguns sons.",
-          "¡Buen esfuerzo! Logro entender tu frase, pero podemos pulir algunos sonidos para sonar más natural.",
-          "Good effort! I can understand what you said, but we can polish some sounds."
-        );
-        sugestaoPersonalizada = pick3(
-          "Preste atenção nas ligações entre palavras e nas sílabas silenciosas.",
-          "Presta atención a cómo se unen las palabras y al ritmo natural de la frase.",
-          "Pay close attention to word connections and silent syllables."
-        );
+        msgPersonalizada = isEnglish 
+          ? "Good effort! I can understand what you said, but we can polish some sounds." 
+          : "¡Buen esfuerzo! Logro entender tu frase, pero podemos pulir algunos sonidos para sonar más natural.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Pay close attention to word connections and silent syllables." 
+          : "Presta atención a cómo se unen las palabras y al ritmo natural de la frase.";
       } else {
         statusResult = "INCOERENTE";
-        msgPersonalizada = pick3(
-          "Continue praticando! Parece que algumas palavras não foram capturadas corretamente.",
-          "¡Sigue practicando! Parece que algunas palabras no fueron pronunciadas o capturadas de forma inteligible.",
-          "Keep practicing! It seems some words weren't captured correctly."
-        );
-        sugestaoPersonalizada = pick3(
-          "Tente falar um pouco mais devagar e diretamente no microfone.",
-          "Intenta hablar un poco más despacio, vocalizando bien frente al micrófono.",
-          "Try speaking a bit slower and directly into the microphone."
-        );
+        msgPersonalizada = isEnglish 
+          ? "Keep practicing! It seems some words weren't captured correctly in Portuguese." 
+          : "¡Sigue practicando! Parece que algunas palabras no foram pronunciadas o capturadas de forma inteligible en portugués.";
+        sugestaoPersonalizada = isEnglish 
+          ? "Try speaking a bit slower and directly into the microphone." 
+          : "Intenta hablar un poco más despacio, vocalizando bien frente al micrófono.";
       }
 
       const aprovado = notaCalculada >= 50;

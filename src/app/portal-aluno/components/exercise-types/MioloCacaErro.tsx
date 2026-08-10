@@ -472,7 +472,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
           {localStatus === "CORRECT" && feedbackIA && (
             <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
               <div className="flex items-center gap-1 text-emerald-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <CheckCircle size={12} /> <span>Excelente!</span>
+                <CheckCircle size={12} /> <span>{feedbackTraducoes.titulos.cacaErroCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>
@@ -481,7 +481,7 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
           {localStatus === "WRONG" && feedbackIA && (
             <div className="w-full flex-1 flex flex-col items-center justify-center text-center bg-rose-950/20 border border-rose-500/20 p-4 rounded-xl animate-fade-in min-h-[100px] md:min-h-[120px] gap-1.5">
               <div className="flex items-center gap-1 text-rose-400 text-[clamp(11px,1.3vw,14px)] font-black uppercase tracking-wider">
-                <XCircle size={12} /> <span>Ajuste necessário</span>
+                <XCircle size={12} /> <span>{feedbackTraducoes.titulos.cacaErroIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[clamp(13px,1.6vw,16px)] text-slate-200 font-medium italic break-words w-full">"{feedbackIA}"</p>
             </div>

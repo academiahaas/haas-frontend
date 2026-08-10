@@ -377,7 +377,7 @@ export default function DitadoLacunas({
           {!analisando && localStatus === 'CORRECT' && feedbackIA && (
             <div className="w-full flex flex-col items-center justify-center text-center bg-emerald-950/40 border border-emerald-500/30 p-6 rounded-2xl animate-fade-in shadow-[0_0_35px_rgba(16,185,129,0.15)] gap-3">
               <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-black font-mono tracking-widest uppercase">
-                <CheckCircle size={14} /> <span>Escrita Correta!</span>
+                <CheckCircle size={14} /> <span>{feedbackTraducoes.titulos.ditadoCorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[16px] text-slate-100 font-bold">
                 "{feedbackIA}"
@@ -388,7 +388,7 @@ export default function DitadoLacunas({
           {!analisando && localStatus === 'WRONG' && feedbackIA && (
             <div className="w-full flex flex-col items-center justify-center text-center bg-rose-950/40 border border-rose-500/30 p-6 rounded-2xl animate-fade-in shadow-[0_0_35px_rgba(244,63,94,0.15)] gap-3">
               <div className="flex items-center gap-2 text-rose-400 text-[12px] font-black font-mono tracking-widest uppercase">
-                <XCircle size={14} /> <span>Análise de Escrita</span>
+                <XCircle size={14} /> <span>{feedbackTraducoes.titulos.ditadoIncorreto(obterLangKeyCompartilhado(idiomaNativoAluno))}</span>
               </div>
               <p className="text-[15px] text-slate-200 font-medium italic">
                 "{feedbackIA}"
