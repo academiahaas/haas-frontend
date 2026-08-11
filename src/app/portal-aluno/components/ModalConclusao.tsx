@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { X } from "lucide-react";
 
 export type TipoConclusao = "UNIDADE" | "MODULO" | "NIVEL";
 export type NivelCurso = "A1" | "A2" | "B1" | "B2" | "C1";
@@ -182,6 +183,14 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
       <div
         className={`bg-[#181b22] border ${borderClass} rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden transition-all duration-300`}
       >
+        {isNivel && onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-20 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+          >
+            <X size={16} />
+          </button>
+        )}
         <div
           className={`absolute -top-16 -left-16 w-36 h-36 ${glowClass} rounded-full blur-3xl pointer-events-none`}
         />
@@ -230,7 +239,11 @@ export const ModalConclusao: React.FC<ModalConclusaoProps> = ({
 
           <div className="pt-2">
             <button
-              onClick={acaoBotao || onClose}
+              onClick={() => {
+                if (isNivel && onIniciarProvaEscrita) { onIniciarProvaEscrita(); return; }
+                if (!isNivel && onContinuar) { onContinuar(); return; }
+                if (onClose) onClose();
+              }}
               className={`w-full py-4 px-6 font-black rounded-2xl shadow-xl transform transition active:scale-95 cursor-pointer text-sm tracking-wider uppercase ${btnClass}`}
             >
               {t[tipo].btn}

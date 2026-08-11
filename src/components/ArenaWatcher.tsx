@@ -121,6 +121,14 @@ export function ArenaWatcher() {
 
     setModalAberto(false);
   };
+  const handleIniciarProva = () => {
+    if (!user?.id) return;
+    setModalAberto(false);
+    if (typeof window !== "undefined") {
+      window.location.href = "/prova-escrita?uid=" + user.id;
+    }
+    clearPendingExamCentral(user.id).catch((e) => console.warn("Erro ao limpar pending_exam_code:", e));
+  };
 
   // Se não estiver dentro da área logada do aluno, não renderiza absolutamente nada no DOM
   if (!isAreaLogadaAluno || !user?.id || !modalAberto) {
@@ -136,6 +144,7 @@ export function ArenaWatcher() {
       unidadeNome={unidadeNome || undefined}
       moduloNome={moduloNome || undefined}
       onContinuar={handleContinuar}
+      onIniciarProvaEscrita={handleIniciarProva}
       onClose={handleContinuar}
     />
   );

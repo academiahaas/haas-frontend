@@ -2425,15 +2425,13 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           }
           setModalConclusaoState(prev => ({ ...prev, aberto: false }));
         }}
-        onIniciarProvaEscrita={async () => {
-          const targetUid = userId || activeUserId;
-          if (targetUid) {
-            try { await clearPendingExamCentral(targetUid); }
-            catch (e) { console.warn("Erro ao limpar pending_exam_code:", e); }
-          }
-          setModalConclusaoState(prev => ({ ...prev, aberto: false }));
+        onIniciarProvaEscrita={() => {
+          const targetUid = userId || activeUserId || (typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : "");
           if (typeof window !== "undefined") {
-            window.location.href = "/prova-escrita?uid=" + (userId || activeUserId || (typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : ""));
+            window.location.href = "/prova-escrita?uid=" + targetUid;
+          }
+          if (targetUid) {
+            clearPendingExamCentral(targetUid).catch((e) => console.warn("Erro ao limpar pending_exam_code:", e));
           }
         }}
         onClose={() => {
