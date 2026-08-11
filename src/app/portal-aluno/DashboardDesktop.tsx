@@ -931,7 +931,7 @@ export default function DashboardDesktop({ alunoData }: any) {
                         {idioma === 'ES' ? 'MÓDULO' : idioma === 'EN' ? 'MODULE' : 'MÓDULO'} {moduloUserCentral || moduloUserCentral || String(listaUnidades[0]?.module_number || 1).padStart(2, '0')}
                       </span>
                       <span className="px-2 py-0.5 font-mono font-bold text-[8.5px] tracking-wider rounded border border-slate-700/80 bg-slate-800/60 text-slate-300 uppercase">
-                        {idioma === 'EN' ? 'LEVEL' : 'NÍVEL'} {nivelUserCentral || nivelUserCentral || listaUnidades[0]?.level || 'A1'}
+                        {idioma === 'EN' ? 'LEVEL' : idioma === 'ES' ? 'NIVEL' : 'NÍVEL'} {nivelUserCentral || nivelUserCentral || listaUnidades[0]?.level || 'A1'}
                       </span>
                     </div>
                     <h2 className="font-black text-2xl xl:text-3xl text-slate-100 tracking-tight leading-tight mt-0.5">{nomeModulo}</h2>

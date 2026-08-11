@@ -28,7 +28,7 @@ export const ModalProva: React.FC<ModalProvaProps> = ({
         const uid = userId || (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined;
         if (!uid) { setExamCode(null); return; }
         const flags = await checkPendingFlagsCentral(uid);
-        setExamCode(flags?.exame_disponivel ? "PROVA_DISPONIVEL" : null);
+        setExamCode(flags?.exame_disponivel ? (idioma === 'PT' ? 'Prova Disponível' : idioma === 'EN' ? 'Exam Available' : 'Prueba Disponible') : null);
       } catch (err) {
         console.error('❌ [ModalProva] Erro ao buscar status de prova:', err);
         setExamCode(null);

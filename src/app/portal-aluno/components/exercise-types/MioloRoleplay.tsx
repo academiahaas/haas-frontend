@@ -181,6 +181,24 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [carregando, setCarregando] = useState(true);
   const [feedback, setFeedback] = useState<FeedbackEstruturado | null>(null);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  useEffect(() => {
+    async function buscarIdioma() {
+      try {
+        const uid = typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : null;
+        if (!uid) return;
+        const { data: userDados } = await supabase
+          .from("users")
+          .select("native_language")
+          .eq("id", uid);
+        if (userDados && userDados.length > 0) {
+          setIdiomaNativoAluno(userDados[0].native_language || "Español");
+        }
+      } catch (e) {
+        console.warn("Erro ao buscar idioma nativo:", e);
+      }
+    }
+    buscarIdioma();
+  }, []);
   const [keywordsObrigatorias, setKeywordsObrigatorias] = useState<string[]>([]);
   const [incentivoCorretoBanco, setIncentivoCorretoBanco] = useState("");
   const [incentivoIncorretoBanco, setIncentivoIncorretoBanco] = useState("");

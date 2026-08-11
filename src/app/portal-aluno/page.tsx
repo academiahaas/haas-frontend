@@ -71,7 +71,12 @@ export default function PortalAluno() {
     return (
       <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center">
         <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest animate-pulse">Sincronizando acesso seguro...</p>
+        <p className="text-slate-400 text-[10px] font-mono uppercase tracking-widest animate-pulse">{(() => {
+          const idiomaSalvo = typeof window !== "undefined" ? (localStorage.getItem("haas_idioma") || "").toUpperCase() : "";
+          if (idiomaSalvo === "PT") return "Sincronizando acesso seguro...";
+          if (idiomaSalvo === "EN") return "Synchronizing secure access...";
+          return "Sincronizando acceso seguro...";
+        })()}</p>
       </div>
     );
   }
