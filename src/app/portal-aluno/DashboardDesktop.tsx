@@ -1820,6 +1820,29 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             for (let i = 0; i < userSeed.length; i++) { hashMod += userSeed.charCodeAt(i); }
             const diferencaCentavos = (hashMod % 95) + 1; // Gera um número fixo de centavos/pesos de 1 a 95 para diferenciar alunos
 
+            // Registra o pagamento pendente no banco para o robo conseguir localizar e liberar o acesso automaticamente.
+            if (typeof window !== "undefined") {
+              const valorFinalParaRegistro = Math.round(valorTotal + (valorTotal * 0.05)) - diferencaCentavos;
+              const chaveRegistro = userSeed + "_" + modalidade + "_" + valorFinalParaRegistro;
+              if ((window as any)._ultimaChaveRegistro !== chaveRegistro) {
+                (window as any)._ultimaChaveRegistro = chaveRegistro;
+                fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/gerar_pagamento_pendente`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+                    "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""}`,
+                  },
+                  body: JSON.stringify({
+                    p_user_email: userSeed,
+                    p_plan_category: modalidade,
+                    p_valor_base: valorFinalParaRegistro,
+                  }),
+                }).catch((err) => console.warn("Erro ao registrar pagamento pendente:", err));
+              }
+            }
+
+
             // Aplica a variação milimétrica nos totais para o robô ler
             const valorComTaxa = Math.round(valorTotal + taxaPercentual) - diferencaCentavos;
             const valorDescontoBreve = valorTotal - diferencaCentavos;
