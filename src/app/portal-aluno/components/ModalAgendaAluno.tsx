@@ -358,7 +358,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
   function getNomeModalidade(slug: string) {
     if (slug === "group" || slug === "grupo") return t.optGrupo;
-    if (slug === "vip_std") return t.optVipStd;
+    if (slug === "vip_std" || slug === "vip_standard") return t.optVipStd;
     if (slug === "vip_pro") return t.optVipPro;
     if (slug === "pack_group" || slug === "pack_grupo") return t.optPackGrupo;
     if (slug === "pack_vip_std") return t.optPackVipStd;
@@ -879,7 +879,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         
                         {isTipoDropdownOpen && (
                           <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-hidden z-50 shadow-2xl">
-                            {["group", "vip_std", "vip_pro", "pack_group", "pack_vip_std", "flex", "prova_oral"].map((m) => (
+                            {["group", "vip_standard", "vip_pro", "pack_group", "pack_vip_std", "flex", "prova_oral"].map((m) => (
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
