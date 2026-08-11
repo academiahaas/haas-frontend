@@ -59,11 +59,13 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
         if (error) throw error;
 
         if (data) {
+          const slugReal = (data.plan_category || "free_trial").toLowerCase().replace(/ /g, "_");
           setPlanoAluno({
             nome: data.plan_category || "Free Trial",
-            slug: (data.plan_category || "free_trial").toLowerCase().replace(/ /g, "_"),
+            slug: slugReal,
             validade: data.expiration_date ? data.expiration_date.split("T")[0] : "2026-07-15", creditosAulas: data.class_credits_available || 0, creditosReposicao: data.replacement_credits || 0
           });
+          setTipoAula(slugReal);
         }
       } catch (err) {
         console.error("Erro ao buscar assinatura real:", err);
@@ -518,7 +520,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
       // Validação de correspondência de Categoria do Plano (PILAR 3 vs PILAR 2)
       let planoValido = false;
-      if (planCategory.includes("grupo") || planCategory.includes("group")) {
+      if (selectedMod === "prova_oral") {
+        planoValido = true;
+      } else if (planCategory.includes("grupo") || planCategory.includes("group")) {
         if (selectedMod.includes("grupo") || selectedMod.includes("group")) planoValido = true;
       } else if (planCategory.includes("vip standard") || planCategory.includes("vip_std")) {
         if (selectedMod.includes("vip_std") || selectedMod.includes("standard")) planoValido = true;
