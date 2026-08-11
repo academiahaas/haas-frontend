@@ -16,7 +16,7 @@ interface Aula {
   id: string;
   data: string; 
   horario: string; 
-  tipo: "regular" | "reposicao";
+  tipo: "regular" | "reposicao" | "prova_oral";
   status: "agendada" | "realizada" | "cancelada";
 }
 
@@ -226,7 +226,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                 id: String(a.id),
                 data: dataPart,
                 horario: horarioFormatado,
-                tipo: (a.appointment_type === "reposicao" ? "reposicao" : "regular") as "regular" | "reposicao",
+                tipo: (a.appointment_type === "reposicao" ? "reposicao" : a.appointment_type === "prova_oral" ? "prova_oral" : "regular") as "regular" | "reposicao" | "prova_oral",
                 status: a.canceled_at ? "cancelada" : a.status
               };
             });
@@ -280,7 +280,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       noCreditsError: "Você não possui Créditos de Aula disponíveis.", calTitle: "SELECIONE A DATA", noClasses: "Nenhuma aula agendada.",
       lblClassType: "Tipo de Aula", lblTime: "Horário", btnConfirm: "Confirmar Agendamento",
       optRegular: "Classe Regular", optReposicion: "Aula de Reposição",
-      tagRegular: "CLASSE REGULAR", tagReposicion: "REPOSIÇÃO", successMsg: "Agendado com sucesso!",
+      tagRegular: "CLASSE REGULAR", tagReposicion: "REPOSIÇÃO", tagProvaOral: "PROVA ORAL", successMsg: "Agendado com sucesso!",
       optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Prova Oral",
       avisoDuplicadoTitulo: "HORÁRIO INDISPONÍVEL", avisoDuplicadoTexto: "Você já possui uma aula agendada exatamente para este dia e horário. Por favor, selecione outro horário.",
       avisoMarketingTitulo: "AVISO DE AGENDAMENTO", avisoMarketingTexto: "Esta modalidade não faz parte do seu combo contratado ou seus créditos expiraram nesta data. Quer adquirir este pacote agora?",
@@ -293,7 +293,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       noCreditsError: "No Class Credits available.", calTitle: "SELECT DATE", noClasses: "No scheduled classes.",
       lblClassType: "Class Type", lblTime: "Time Slot", btnConfirm: "Confirm Booking",
       optRegular: "Regular Class", optReposicion: "Makeup Class",
-      tagRegular: "REGULAR CLASS", tagReposicion: "MAKEUP CLASS", successMsg: "Successfully booked!",
+      tagRegular: "REGULAR CLASS", tagReposicion: "MAKEUP CLASS", tagProvaOral: "ORAL EXAM", successMsg: "Successfully booked!",
       optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Prueba Oral",
       avisoDuplicadoTitulo: "SLOT UNAVAILABLE", avisoDuplicadoTexto: "You already have a class booked for this date and time. Please select another time slot.",
       avisoMarketingTitulo: "BOOKING NOTICE", avisoMarketingTexto: "This modality is not part of your contracted combo or your credits have expired. Would you like to purchase this package now?",
@@ -306,7 +306,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       noCreditsError: "No tienes Créditos de Clase.", calTitle: "SELECCIONE FECHA", noClasses: "Ninguna clase programada.",
       lblClassType: "Tipo de Clase", lblTime: "Horario", btnConfirm: "Confirmar Reserva",
       optRegular: "Clase Regular", optReposicion: "Clase de Reposición",
-      tagRegular: "CLASE REGULAR", tagReposicion: "CLASE DE REPOSICIÓN", successMsg: "¡Reservado con éxito!",
+      tagRegular: "CLASE REGULAR", tagReposicion: "CLASE DE REPOSICIÓN", tagProvaOral: "PRUEBA ORAL", successMsg: "¡Reservado con éxito!",
       optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Oral Exam",
       avisoDuplicadoTitulo: "HORARIO NO DISPONIBLE", avisoDuplicadoTexto: "Ya tienes una clase programada exactamente para este día y horario. Por favor, selecciona otro horario.",
       avisoMarketingTitulo: "AVISO DE RESERVA", avisoMarketingTexto: "Esta modalidad no forma parte de tu combo contratado o te quedaste sin créditos en esta fecha. ¿Quieres adquirir este paquete ahora?",
@@ -578,7 +578,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   async function executarAgendamento() {
     setMensagem(null);
     
-    const tipoOriginal = (modoAgendamento === "reposicion" || modoAgendamento === "reposicao" || tipoAula === "reposicao") ? "reposicao" : "regular";
+    const tipoOriginal = (modoAgendamento === "reposicion" || modoAgendamento === "reposicao" || tipoAula === "reposicao")
+      ? "reposicao"
+      : (tipoAula === "prova_oral") ? "prova_oral" : "regular";
     
     const nova: Aula = { 
       id: String(Date.now()), 
@@ -588,7 +590,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       status: "agendada" 
     };
 
-    const tipoBanco = tipoOriginal === "reposicao" ? "reposicao" : "regular";
+    const tipoBanco = tipoOriginal === "reposicao" ? "reposicao" : tipoOriginal === "prova_oral" ? "prova_oral" : "regular";
     const timestampCombinado = `${selectedDate}T${selectedHorario}:00.000Z`;
 
     // Resgata o ID dinâmico direto da propriedade enviada pelo pai
@@ -809,7 +811,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                           <span>{aula.horario}</span>
                         </div>
                         <span className="text-[9px] font-mono font-black uppercase tracking-widest text-slate-400">
-                          {aula.tipo === "reposicao" ? t.tagReposicion : t.tagRegular}
+                          {aula.tipo === "reposicao" ? t.tagReposicion : aula.tipo === "prova_oral" ? t.tagProvaOral : t.tagRegular}
                         </span>
                       </div>
                       {(() => {
