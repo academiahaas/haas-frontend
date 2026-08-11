@@ -94,6 +94,14 @@ export default function DashboardDesktop({ alunoData }: any) {
   }, []);
 
   const handleAbrirArenaComTransicao = () => {
+    if (assinaturaVencida) {
+      alert(
+        idioma === 'PT' ? "Sua assinatura venceu. Renove seu plano para continuar estudando." :
+        idioma === 'EN' ? "Your subscription has expired. Renew your plan to keep studying." :
+        "Tu suscripción venció. Renueva tu plan para seguir estudiando."
+      );
+      return;
+    }
     setTransicaoModo('entrada'); // 1. Ativa a cortina no Portal imediatamente
 
     // 2. Aguarda 2 quadros do navegador para GARANTIR que a tela do robô já está visível
@@ -689,6 +697,14 @@ export default function DashboardDesktop({ alunoData }: any) {
     }
     return "--/--/----";
   });
+  const assinaturaVencida = (() => {
+    const rawDate = alunoData?.next_expiration_es || alunoData?.expiration_date;
+    if (!rawDate) return false;
+    const dataVencimento = new Date(String(rawDate).split("T")[0]);
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return dataVencimento < hoje;
+  })();
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   useEffect(() => {
@@ -1431,7 +1447,17 @@ export default function DashboardDesktop({ alunoData }: any) {
             </button>
           </div>
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <ProgramaTrilha isTrilhaOpen={isTrilhaOpen} nivelAlunoProp={nivelAtual} idiomaAtivo={idioma} aoAbrirArena={(unidId) => { setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false); }} />
+            <ProgramaTrilha isTrilhaOpen={isTrilhaOpen} nivelAlunoProp={nivelAtual} idiomaAtivo={idioma} aoAbrirArena={(unidId) => {
+              if (assinaturaVencida) {
+                alert(
+                  idioma === 'PT' ? "Sua assinatura venceu. Renove seu plano para continuar estudando." :
+                  idioma === 'EN' ? "Your subscription has expired. Renew your plan to keep studying." :
+                  "Tu suscripción venció. Renueva tu plan para seguir estudiando."
+                );
+                return;
+              }
+              setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false);
+            }} />
           </div>
         </div>
       </div>
