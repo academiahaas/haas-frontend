@@ -109,12 +109,9 @@ onValidateResult
           
           
         let userDados = [];
-        if (USER_ID_ALVO && USER_ID_ALVO !== "undefined" && String(USER_ID_ALVO).trim() !== "") {
-          if (!USER_ID_ALVO || USER_ID_ALVO === "undefined" || USER_ID_ALVO === "null") {
-          console.warn("⚠️ USER_ID_ALVO ainda nao inicializado. Abortando busca em users.");
-          return;
-        }
-        const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${USER_ID_ALVO}`, {
+        const uidReforco = USER_ID_ALVO || (typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : null);
+        if (uidReforco && uidReforco !== "undefined" && String(uidReforco).trim() !== "") {
+          const userRes = await fetch(`${SUPABASE_URL}/users?id=eq.${uidReforco}`, {
             headers: { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}` }
           });
           if (userRes.ok) {

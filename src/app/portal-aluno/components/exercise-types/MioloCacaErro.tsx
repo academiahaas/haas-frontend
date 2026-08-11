@@ -84,6 +84,24 @@ export default function MioloCacaErro({ initialExerciseData, onComplete, onSelec
   const [localStatus, setLocalStatus] = useState<"IDLE" | "CORRECT" | "WRONG">("IDLE");
   const [isShortText, setIsShortText] = useState(true);
   const [idiomaNativoAluno, setIdiomaNativoAluno] = useState("Español");
+  useEffect(() => {
+    async function buscarIdioma() {
+      try {
+        const uid = typeof window !== "undefined" ? localStorage.getItem("haas_user_id") : null;
+        if (!uid) return;
+        const { data: userDados } = await supabase
+          .from("users")
+          .select("native_language")
+          .eq("id", uid);
+        if (userDados && userDados.length > 0) {
+          setIdiomaNativoAluno(userDados[0].native_language || "Español");
+        }
+      } catch (e) {
+        console.warn("Erro ao buscar idioma nativo:", e);
+      }
+    }
+    buscarIdioma();
+  }, []);
   const [correctOption, setCorrectOption] = useState<string>("");
   const [feedbackCorretoBanco, setFeedbackCorretoBanco] = useState("");
   const [feedbackIncorretoBanco, setFeedbackIncorretoBanco] = useState("");
