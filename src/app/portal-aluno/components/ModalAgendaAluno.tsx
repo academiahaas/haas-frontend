@@ -41,7 +41,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     }
   }, [isOpen, activeTab]);
   const [modoAgendamento, setModoAgendamento] = useState("clase");
-  const [planoAluno, setPlanoAluno] = useState({ nome: "Free Trial", slug: "free_trial", validade: "2026-07-15", creditosAulas: 0, creditosReposicao: 0 });
+  const [planoAluno, setPlanoAluno] = useState({ nome: "Free Trial", slug: "free_trial", validade: "2026-07-15", creditosAulas: 0, creditosReposicao: 0, isCorporate: false });
 
   useEffect(() => {
     if (!isOpen || !userId) return;
@@ -60,10 +60,24 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
         if (data) {
           const slugReal = (data.plan_category || "free_trial").toLowerCase().replace(/ /g, "_");
+
+          let corporativo = false;
+          try {
+            const { data: planoInfo } = await supabase
+              .from("master_plans")
+              .select("is_corporate")
+              .eq("plan_category", data.plan_category)
+              .maybeSingle();
+            corporativo = !!planoInfo?.is_corporate;
+          } catch (e) {
+            console.warn("Erro ao verificar plano corporativo:", e);
+          }
+
           setPlanoAluno({
             nome: data.plan_category || "Free Trial",
             slug: slugReal,
-            validade: data.expiration_date ? data.expiration_date.split("T")[0] : "2026-07-15", creditosAulas: data.class_credits_available || 0, creditosReposicao: data.replacement_credits || 0
+            validade: data.expiration_date ? data.expiration_date.split("T")[0] : "2026-07-15", creditosAulas: data.class_credits_available || 0, creditosReposicao: data.replacement_credits || 0,
+            isCorporate: corporativo
           });
           setTipoAula(slugReal);
         }
@@ -823,8 +837,13 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         const diferencaEmMilissegundos = dataAulaObj.getTime() - agoraObj.getTime();
                         const diferencaEmHoras = diferencaEmMilissegundos / (1000 * 60 * 60);
 
-                        const naoPodeCancelar = diferencaEmHoras < 12;
+                        const nomePlanoLower = (planoAluno.nome || "").toLowerCase();
+                        const ehCorporativoBasico = planoAluno.isCorporate && !nomePlanoLower.includes("vip pro") && !nomePlanoLower.includes("group");
+                        const naoPodeCancelar = diferencaEmHoras < 12 || ehCorporativoBasico;
 
+                        if (ehCorporativoBasico) {
+                          return null;
+                        }
                         return (
                           <div className="flex flex-col items-end gap-1">
                             <button  
