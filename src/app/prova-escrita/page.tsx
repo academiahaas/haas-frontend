@@ -152,6 +152,32 @@ export default function ProvaEscritaPage() {
         task_type: r.task_type,
         texto: textosRedacao[r.id] || '',
       }));
+
+      let notasRedacao: number[] = [];
+      let feedbacksRedacao: string[] = [];
+      for (const r of (prova.redacoes || [])) {
+        try {
+          const respIA = await fetch("/api/ai/corrigir-redacao", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              texto: textosRedacao[r.id] || "",
+              promptTema: r.prompt_text,
+              minWords: r.min_words,
+              maxWords: r.max_words,
+              idioma: lang,
+            }),
+          });
+          if (respIA.ok) {
+            const resultIA = await respIA.json();
+            notasRedacao.push(resultIA.nota ?? 0);
+            feedbacksRedacao.push(resultIA.feedback ?? "");
+          }
+        } catch (errIA) {
+          console.warn("Falha ao corrigir redacao com IA:", errIA);
+        }
+      }
+      const notaRedacaoMedia = notasRedacao.length > 0 ? notasRedacao.reduce((a, b) => a + b, 0) / notasRedacao.length : null;
       const { data, error } = await supabase.rpc('corrigir_prova_escrita', {
         p_user_id: uid,
         p_respostas_gramatica: respostasGram,
@@ -159,6 +185,22 @@ export default function ProvaEscritaPage() {
         p_textos_redacao: arrayTextos,
       });
       if (error) throw error;
+
+      if (notaRedacaoMedia !== null && data?.exam_id) {
+        const notaGram = data.nota_gramatica ?? 0;
+        const notaLeit = data.nota_leitura ?? 0;
+        const notaFinalCompleta = Math.round(((notaGram + notaLeit + notaRedacaoMedia) / 3) * 10) / 10;
+        const statusFinal = notaFinalCompleta >= 7 ? "aprovado" : "reprovado";
+        await supabase.from("formal_exams").update({
+          writing_score: Math.round(notaRedacaoMedia * 10) / 10,
+          total_score: notaFinalCompleta,
+          status: statusFinal,
+          teacher_feedback: feedbacksRedacao.join(" | "),
+        }).eq("id", data.exam_id);
+        data.nota_final_parcial = notaFinalCompleta;
+        data.status = statusFinal;
+      }
+
       setResultado(data);
       setFase('RESULTADO');
     } catch (e) {
