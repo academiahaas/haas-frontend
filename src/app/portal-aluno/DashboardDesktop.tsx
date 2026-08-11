@@ -1822,23 +1822,26 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
 
             // Registra o pagamento pendente no banco para o robo conseguir localizar e liberar o acesso automaticamente.
             if (typeof window !== "undefined") {
-              const valorFinalParaRegistro = Math.round(valorTotal + (valorTotal * 0.05)) - diferencaCentavos;
-              const chaveRegistro = userSeed + "_" + modalidade + "_" + valorFinalParaRegistro;
+              const valorFinalParaRegistro = valorTotal - diferencaCentavos; // valorDescontoBreve: valor real mostrado na tela de transferência direta
+              const chaveRegistro = modalidade + "_" + valorFinalParaRegistro;
               if ((window as any)._ultimaChaveRegistro !== chaveRegistro) {
                 (window as any)._ultimaChaveRegistro = chaveRegistro;
-                fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/gerar_pagamento_pendente`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-                    "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""}`,
-                  },
-                  body: JSON.stringify({
-                    p_user_email: userSeed,
-                    p_plan_category: modalidade,
-                    p_valor_base: valorFinalParaRegistro,
-                  }),
-                }).catch((err) => console.warn("Erro ao registrar pagamento pendente:", err));
+                supabase.auth.getUser().then(({ data: { user: authUserAtual } }) => {
+                  const emailReal = authUserAtual?.email || userSeed;
+                  fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/gerar_pagamento_pendente`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+                      "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""}`,
+                    },
+                    body: JSON.stringify({
+                      p_user_email: emailReal,
+                      p_plan_category: modalidade,
+                      p_valor_base: valorFinalParaRegistro,
+                    }),
+                  }).catch((err) => console.warn("Erro ao registrar pagamento pendente:", err));
+                }).catch((err) => console.warn("Erro ao buscar usuario autenticado:", err));
               }
             }
 
