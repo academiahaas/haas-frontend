@@ -118,7 +118,7 @@ export const ModalProva: React.FC<ModalProvaProps> = ({
               <p className="text-[11px] text-slate-400 mt-1 font-mono">{examCode}</p>
             </div>
             <button
-              onClick={handleGoToExam}
+              onClick={(e) => { e.stopPropagation(); handleGoToExam(); }}
               className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-400 hover:to-purple-500 text-white text-xs font-mono font-black uppercase tracking-widest transition-all active:scale-95"
             >
               {getButtonText()}

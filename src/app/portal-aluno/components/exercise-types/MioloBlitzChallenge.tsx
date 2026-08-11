@@ -206,7 +206,7 @@ export default function MioloBlitzChallenge({
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, [currentIndex, gameOver]);
+  }, [currentIndex, gameOver, jogoIniciado]);
 
   const handleOptionClick = async (opcao: string) => {
     if (clickedOption || gameOver) return;

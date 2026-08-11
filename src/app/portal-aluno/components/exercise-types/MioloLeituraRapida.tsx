@@ -230,7 +230,7 @@ export default function MioloLeituraRapida({
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, [fase, localStatus]);
+  }, [fase, localStatus, jogoIniciado]);
 
   useEffect(() => {
     if (fase === 'DIGITACAO' && inputRef.current) {

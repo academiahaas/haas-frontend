@@ -38,6 +38,8 @@ const T = {
   }, l),
   suaNota: (l: LangKey) => pick({ pt: 'Sua nota final', es: 'Tu nota final', en: 'Your final score' }, l),
   voltarPortal: (l: LangKey) => pick({ pt: 'Voltar ao Portal', es: 'Volver al Portal', en: 'Back to Portal' }, l),
+  tempoRestante: (l: LangKey) => pick({ pt: 'Tempo restante', es: 'Tiempo restante', en: 'Time remaining' }, l),
+  tempoEsgotado: (l: LangKey) => pick({ pt: 'Tempo esgotado! Enviando sua prova automaticamente...', es: '¡Tiempo agotado! Enviando tu prueba automáticamente...', en: 'Time is up! Automatically submitting your exam...' }, l),
   verdadeiro: (l: LangKey) => pick({ pt: 'Verdadeiro', es: 'Verdadero', en: 'True' }, l),
   falso: (l: LangKey) => pick({ pt: 'Falso', es: 'Falso', en: 'False' }, l),
   digiteResposta: (l: LangKey) => pick({ pt: 'Digite sua resposta...', es: 'Escribe tu respuesta...', en: 'Type your answer...' }, l),
@@ -64,6 +66,7 @@ export default function ProvaEscritaPage() {
   const [textosRedacao, setTextosRedacao] = useState<Record<string, string>>({});
   const [resultado, setResultado] = useState<any>(null);
   const [erroValidacao, setErroValidacao] = useState('');
+  const [tempoRestante, setTempoRestante] = useState(3600);
 
   useEffect(() => {
     async function carregar() {
@@ -99,6 +102,22 @@ export default function ProvaEscritaPage() {
     }
     carregar();
   }, []);
+
+  useEffect(() => {
+    if (fase !== 'GRAMATICA' && fase !== 'LEITURA' && fase !== 'REDACAO') return;
+    if (tempoRestante <= 0) {
+      enviarProva();
+      return;
+    }
+    const timer = setTimeout(() => setTempoRestante((t) => t - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [tempoRestante, fase]);
+
+  const formatarTempo = (segundos: number) => {
+    const min = Math.floor(segundos / 60);
+    const seg = segundos % 60;
+    return `${min}:${seg.toString().padStart(2, '0')}`;
+  };
 
   const avancarGramatica = () => {
     const todasRespondidas = prova.gramatica.every((q: any) => respostasGram[q.id]);
@@ -229,7 +248,9 @@ export default function ProvaEscritaPage() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <h1 className="text-white font-black text-lg">{T.titulo(lang)}</h1>
-            <span className="text-[10px] font-mono text-slate-500">{passoAtual}/3</span>
+            <span className={`text-[11px] font-mono font-bold ${tempoRestante < 300 ? 'text-rose-400 animate-pulse' : 'text-slate-400'}`}>
+              {T.tempoRestante(lang)}: {formatarTempo(tempoRestante)}
+            </span>
           </div>
           <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div className="bg-gradient-to-r from-violet-500 to-cyan-400 h-full transition-all duration-500" style={{ width: `${(passoAtual / 3) * 100}%` }} />
