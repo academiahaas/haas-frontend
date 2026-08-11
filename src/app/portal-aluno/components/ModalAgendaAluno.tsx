@@ -41,7 +41,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     }
   }, [isOpen, activeTab]);
   const [modoAgendamento, setModoAgendamento] = useState("clase");
-  const [planoAluno, setPlanoAluno] = useState({ nome: "Pack VIP Std", slug: "pack_vip_std", validade: "2026-07-15", creditosAulas: 0, creditosReposicao: 0 });
+  const [planoAluno, setPlanoAluno] = useState({ nome: "Free Trial", slug: "free_trial", validade: "2026-07-15", creditosAulas: 0, creditosReposicao: 0 });
 
   useEffect(() => {
     if (!isOpen || !userId) return;
@@ -60,8 +60,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
 
         if (data) {
           setPlanoAluno({
-            nome: data.plan_category || "Pack VIP Std",
-            slug: (data.plan_category || "pack_vip_std").toLowerCase().replace(/ /g, "_"),
+            nome: data.plan_category || "Free Trial",
+            slug: (data.plan_category || "free_trial").toLowerCase().replace(/ /g, "_"),
             validade: data.expiration_date ? data.expiration_date.split("T")[0] : "2026-07-15", creditosAulas: data.class_credits_available || 0, creditosReposicao: data.replacement_credits || 0
           });
         }
@@ -279,7 +279,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       lblClassType: "Tipo de Aula", lblTime: "Horário", btnConfirm: "Confirmar Agendamento",
       optRegular: "Classe Regular", optReposicion: "Aula de Reposição",
       tagRegular: "CLASSE REGULAR", tagReposicion: "REPOSIÇÃO", successMsg: "Agendado com sucesso!",
-      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro",
+      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Prova Oral",
       avisoDuplicadoTitulo: "HORÁRIO INDISPONÍVEL", avisoDuplicadoTexto: "Você já possui uma aula agendada exatamente para este dia e horário. Por favor, selecione outro horário.",
       avisoMarketingTitulo: "AVISO DE AGENDAMENTO", avisoMarketingTexto: "Esta modalidade não faz parte do seu combo contratado ou seus créditos expiraram nesta data. Quer adquirir este pacote agora?",
       btnEntendido: "Entendido", avisoReposicaoTitulo: "CRÉDITOS DE REPOSIÇÃO", avisoReposicaoTexto: "Seus créditos de reposição chegaram ao fim. Não deixe seu planejamento parar! Que tal adquirir novas aulas agora para continuar evoluindo?", btnQueroAulas: "Sim, quero mais aulas", btnSim: "Sim", btnNao: "Não"
@@ -292,7 +292,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       lblClassType: "Class Type", lblTime: "Time Slot", btnConfirm: "Confirm Booking",
       optRegular: "Regular Class", optReposicion: "Makeup Class",
       tagRegular: "REGULAR CLASS", tagReposicion: "MAKEUP CLASS", successMsg: "Successfully booked!",
-      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro",
+      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Prueba Oral",
       avisoDuplicadoTitulo: "SLOT UNAVAILABLE", avisoDuplicadoTexto: "You already have a class booked for this date and time. Please select another time slot.",
       avisoMarketingTitulo: "BOOKING NOTICE", avisoMarketingTexto: "This modality is not part of your contracted combo or your credits have expired. Would you like to purchase this package now?",
       btnEntendido: "Got it", btnSim: "Yes", btnNao: "No", avisoReposicaoTitulo: "MAKEUP CREDITS", avisoReposicaoTexto: "Your makeup credits have run out. Don't let your learning stop! How about getting more classes now to keep growing?", btnQueroAulas: "Yes, I want more classes"
@@ -305,7 +305,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       lblClassType: "Tipo de Clase", lblTime: "Horario", btnConfirm: "Confirmar Reserva",
       optRegular: "Clase Regular", optReposicion: "Clase de Reposición",
       tagRegular: "CLASE REGULAR", tagReposicion: "CLASE DE REPOSICIÓN", successMsg: "¡Reservado con éxito!",
-      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro",
+      optGrupo: "Group", optVipStd: "VIP Standard", optVipPro: "VIP Pro", optPackGrupo: "Pack Group", optPackVipStd: "Pack VIP Std", optFlex: "VIP Pro", optProvaOral: "Oral Exam",
       avisoDuplicadoTitulo: "HORARIO NO DISPONIBLE", avisoDuplicadoTexto: "Ya tienes una clase programada exactamente para este día y horario. Por favor, selecciona otro horario.",
       avisoMarketingTitulo: "AVISO DE RESERVA", avisoMarketingTexto: "Esta modalidad no forma parte de tu combo contratado o te quedaste sin créditos en esta fecha. ¿Quieres adquirir este paquete ahora?",
       btnEntendido: "Entendido", btnSim: "Sí", btnNao: "No", avisoReposicaoTitulo: "CRÉDITOS DE REPOSICIÓN", avisoReposicaoTexto: "Tus créditos de reposición se han agotado. ¡No dejes que tu planificación se detenga! ¿Qué tal adquirir más clases ahora para seguir evolucionando?", btnQueroAulas: "Sí, quiero más clases"
@@ -361,6 +361,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     if (slug === "pack_group" || slug === "pack_grupo") return t.optPackGrupo;
     if (slug === "pack_vip_std") return t.optPackVipStd;
     if (slug === "reposicao") return t.optReposicion;
+    if (slug === "prova_oral") return t.optProvaOral;
     return t.optFlex;
   }
 
@@ -874,7 +875,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         
                         {isTipoDropdownOpen && (
                           <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-hidden z-50 shadow-2xl">
-                            {["group", "vip_std", "vip_pro", "pack_group", "pack_vip_std", "flex"].map((m) => (
+                            {["group", "vip_std", "vip_pro", "pack_group", "pack_vip_std", "flex", "prova_oral"].map((m) => (
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
