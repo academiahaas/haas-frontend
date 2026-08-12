@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Sparkles, Building2, Wallet, Users, GraduationCap, Receipt } from 'lucide-react';
+import { FileText, Sparkles, Building2, Wallet, Users, GraduationCap, Receipt, CalendarClock } from 'lucide-react';
 import { CatalogoTab } from './tabs/CatalogoTab';
 import { CreadorTab } from './tabs/CreadorTab';
 import { EmpresasTab } from './tabs/EmpresasTab';
@@ -10,10 +10,12 @@ import { FinanzasTab } from './tabs/FinanzasTab';
 import { AlunosTab } from './tabs/AlunosTab';
 import { ProfesoresTab } from './tabs/ProfesoresTab';
 import { GastosTab } from './tabs/GastosTab';
+import { AgendaTab } from './tabs/AgendaTab';
 
 const ABAS = [
   { id: 'finanzas', label: 'Finanzas', icon: Wallet, componente: FinanzasTab },
   { id: 'gastos', label: 'Gastos', icon: Receipt, componente: GastosTab },
+  { id: 'agenda', label: 'Agenda', icon: CalendarClock, componente: AgendaTab },
   { id: 'empresas', label: 'Empresas', icon: Building2, componente: EmpresasTab },
   { id: 'catalogo', label: 'Catálogo', icon: FileText, componente: CatalogoTab },
   { id: 'creador', label: 'Creador IA', icon: Sparkles, componente: CreadorTab },
