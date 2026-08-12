@@ -677,7 +677,12 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           const { data: dadosNome } = await supabase.from("users").select("name").eq("email", emailAluno).maybeSingle();
           const nomeAluno = dadosNome?.name || emailAluno.split("@")[0];
           const lang = idioma === "PT" ? "pt" : idioma === "EN" ? "en" : "es";
-          const textos = {
+          const ehProvaOral = tipoAula === "prova_oral";
+          const textos = ehProvaOral ? {
+            pt: { assunto: "Sua prova oral foi agendada!", titulo: "Prova Oral Agendada", corpo: `Olá, ${nomeAluno}! Sua prova oral foi agendada para ${selectedDate} às ${selectedHorario}. Chegue alguns minutos antes e boa sorte!` },
+            es: { assunto: "¡Tu prueba oral fue agendada!", titulo: "Prueba Oral Agendada", corpo: `¡Hola, ${nomeAluno}! Tu prueba oral fue agendada para el ${selectedDate} a las ${selectedHorario}. Llega unos minutos antes, ¡mucha suerte!` },
+            en: { assunto: "Your oral exam has been scheduled!", titulo: "Oral Exam Scheduled", corpo: `Hello, ${nomeAluno}! Your oral exam has been scheduled for ${selectedDate} at ${selectedHorario}. Arrive a few minutes early, good luck!` },
+          } : {
             pt: { assunto: "Sua aula foi agendada!", titulo: "Aula Agendada", corpo: `Olá, ${nomeAluno}! Sua aula foi agendada para ${selectedDate} às ${selectedHorario}. Não se esqueça de entrar no portal alguns minutos antes.` },
             es: { assunto: "¡Tu clase fue agendada!", titulo: "Clase Agendada", corpo: `¡Hola, ${nomeAluno}! Tu clase fue agendada para el ${selectedDate} a las ${selectedHorario}. No olvides ingresar al portal unos minutos antes.` },
             en: { assunto: "Your class has been scheduled!", titulo: "Class Scheduled", corpo: `Hello, ${nomeAluno}! Your class has been scheduled for ${selectedDate} at ${selectedHorario}. Don't forget to log into the portal a few minutes early.` },
