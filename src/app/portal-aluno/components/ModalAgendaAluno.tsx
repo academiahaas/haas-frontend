@@ -127,7 +127,9 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
   const temCreditoAulas = (planoAluno.creditosAulas || 0) > 0;
   const temCreditoReposicao = (planoAluno.creditosReposicao || 0) > 0;
   const podeAgendarData = selectedDate !== "" && ((planoValidoData && temCreditoAulas) || temCreditoReposicao);
-  const podeConfirmar = podeAgendarData && selectedHorario !== "";
+  const nomePlanoLowerGlobal = (planoAluno.nome || "").toLowerCase();
+  const corporateGroupBloqueado = planoAluno.isCorporate && nomePlanoLowerGlobal.includes("group");
+  const podeConfirmar = podeAgendarData && selectedHorario !== "" && !corporateGroupBloqueado;
 
 
 
@@ -896,7 +898,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         const diferencaEmHoras = diferencaEmMilissegundos / (1000 * 60 * 60);
 
                         const nomePlanoLower = (planoAluno.nome || "").toLowerCase();
-                        const ehCorporativoBasico = planoAluno.isCorporate && !nomePlanoLower.includes("vip pro") && !nomePlanoLower.includes("group");
+                        const ehCorporativoBasico = planoAluno.isCorporate && nomePlanoLower.includes("group");
                         const naoPodeCancelar = diferencaEmHoras < 12 || ehCorporativoBasico;
 
                         if (ehCorporativoBasico) {
@@ -957,8 +959,8 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                         </button>
                         
                         {isTipoDropdownOpen && (
-                          <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl overflow-hidden z-50 shadow-2xl">
-                            {["group", "vip_standard", "vip_pro", "pack_group", "pack_vip_std", "flex", "prova_oral", "corporate_basic", "corporate_group", "corporate_vip_pro"].map((m) => (
+                          <div className="absolute left-0 right-0 mt-1 bg-[#030914] border border-cyan-500/40/40 rounded-xl z-50 shadow-2xl max-h-[220px] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                            {["group", "vip_standard", "vip_pro", "pack_group", "pack_vip_std", "flex", "prova_oral", "corporate_basic", "corporate_vip_pro"].map((m) => (
                               <div
                                 key={m}
                                 onClick={() => { setTipoAula(m as any); setIsTipoDropdownOpen(false); }}
