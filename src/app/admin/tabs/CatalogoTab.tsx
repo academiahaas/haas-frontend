@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Trash2, RefreshCw, FileText } from 'lucide-react';
+import { RefreshCw, FileText, ChevronRight, ChevronDown, BookOpen, Layers, ListOrdered, PenTool } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
@@ -11,72 +11,158 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export function CatalogoTab() {
   const [cursos, setCursos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cursoAberto, setCursoAberto] = useState(null);
+  const [niveis, setNiveis] = useState({});
+  const [nivelAberto, setNivelAberto] = useState(null);
+  const [modulos, setModulos] = useState({});
+  const [moduloAberto, setModuloAberto] = useState(null);
+  const [unidades, setUnidades] = useState({});
+  const [unidadeAberta, setUnidadeAberta] = useState(null);
+  const [exercicios, setExercicios] = useState({});
 
-  const puxarCatalogoReal = async () => {
+  const carregarCursos = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('cursos').select('*');
+      const { data, error } = await supabase.from('courses').select('id, title, estimated_hours');
       if (error) throw error;
-      if (data) setCursos(data);
+      setCursos(data || []);
     } catch (err) {
-      console.error("Erro ao carregar catálogo:", err);
+      console.error('Erro ao carregar cursos:', err);
     }
     setLoading(false);
   };
 
-  useEffect(() => {
-    puxarCatalogoReal();
-  }, []);
+  useEffect(() => { carregarCursos(); }, []);
 
-  const handleEliminarCurso = async (id, titulo) => {
-    const seguro = confirm(`¿Estás segura de eliminar permanentemente "${titulo}"?`);
-    if (!seguro) return;
-    try {
-      const { error } = await supabase.from('cursos').delete().eq('id', id);
-      if (error) throw error;
-      puxarCatalogoReal();
-    } catch (err) {
-      alert("Error al eliminar: " + err.message);
+  const toggleCurso = async (cursoId) => {
+    if (cursoAberto === cursoId) { setCursoAberto(null); return; }
+    setCursoAberto(cursoId);
+    if (!niveis[cursoId]) {
+      const { data } = await supabase.from('levels').select('id, level_tag, level_name, required_xp, total_hours').eq('course_id', cursoId).order('level_tag');
+      setNiveis((prev) => ({ ...prev, [cursoId]: data || [] }));
     }
   };
 
-  const COLS = "grid-cols-[1.5fr_1fr_100px_1fr_80px]";
+  const toggleNivel = async (nivelId) => {
+    if (nivelAberto === nivelId) { setNivelAberto(null); return; }
+    setNivelAberto(nivelId);
+    if (!modulos[nivelId]) {
+      const { data } = await supabase.from('modules_content').select('id, module_number, module_title, required_xp').eq('level_id', nivelId).order('module_number');
+      setModulos((prev) => ({ ...prev, [nivelId]: data || [] }));
+    }
+  };
+
+  const toggleModulo = async (moduloId) => {
+    if (moduloAberto === moduloId) { setModuloAberto(null); return; }
+    setModuloAberto(moduloId);
+    if (!unidades[moduloId]) {
+      const { data } = await supabase.from('units').select('id, unit_number, unit_title, required_xp').eq('module_content_id', moduloId).order('unit_number');
+      setUnidades((prev) => ({ ...prev, [moduloId]: data || [] }));
+    }
+  };
+
+  const toggleUnidade = async (unidadeId) => {
+    if (unidadeAberta === unidadeId) { setUnidadeAberta(null); return; }
+    setUnidadeAberta(unidadeId);
+    if (!exercicios[unidadeId]) {
+      const { data, count } = await supabase.from('exercises').select('id, activity_type, difficulty_level', { count: 'exact' }).eq('unit', unidadeId).limit(20);
+      setExercicios((prev) => ({ ...prev, [unidadeId]: { lista: data || [], total: count || 0 } }));
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><FileText size={18} className="text-cyan-400" /> Catálogo</h2>
-        <button onClick={puxarCatalogoReal} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
+        <button onClick={carregarCursos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
       </div>
 
       {loading ? (
         <p className="text-sm text-slate-400">Carregando...</p>
       ) : cursos.length === 0 ? (
-        <p className="text-sm text-slate-400">Nenhum curso cadastrado ainda.</p>
+        <p className="text-sm text-slate-400">Nenhum curso cadastrado.</p>
       ) : (
-        <div className="flex flex-col border border-white/10 rounded-xl overflow-hidden min-h-0 flex-1">
-          <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[10px] font-bold text-slate-500 uppercase shrink-0`}>
-            <span>Programa</span>
-            <span>Estudiante</span>
-            <span>Semanas</span>
-            <span>Calificación</span>
-            <span className="text-center">Acciones</span>
-          </div>
-          <div className="overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {cursos.map((c) => (
-              <div key={c.id} className={`grid ${COLS} gap-2 px-3 py-2 border-b border-white/5 text-xs items-center`}>
-                <span className="font-bold text-white truncate">{c.titulo || 'Sin Título'}</span>
-                <span className="text-cyan-400 truncate">{c.id_estudiante || 'Sin ID'}</span>
-                <span className="text-slate-400">{c.duracion_semanas || 24}w</span>
-                <span className="text-slate-500 italic">Sin calificar</span>
-                <span className="text-center">
-                  <button onClick={() => handleEliminarCurso(c.id, c.titulo)} className="text-rose-400/70 hover:text-rose-400">
-                    <Trash2 size={14} />
-                  </button>
+        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-2">
+          {cursos.map((curso) => (
+            <div key={curso.id} className="border border-white/10 rounded-xl overflow-hidden">
+              <button onClick={() => toggleCurso(curso.id)} className="w-full flex items-center justify-between px-4 py-3 bg-[#0a1424] hover:bg-[#0d1830] transition-all">
+                <span className="flex items-center gap-2 text-sm font-black text-white"><BookOpen size={14} className="text-cyan-400" /> {curso.title}</span>
+                <span className="flex items-center gap-2 text-[10px] text-slate-400">
+                  {curso.estimated_hours}h {cursoAberto === curso.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 </span>
-              </div>
-            ))}
-          </div>
+              </button>
+
+              {cursoAberto === curso.id && (
+                <div className="px-4 py-2 bg-[#030914] flex flex-col gap-1.5">
+                  {(niveis[curso.id] || []).length === 0 ? (
+                    <p className="text-[11px] text-slate-500 py-2">Ningún nivel cadastrado.</p>
+                  ) : (
+                    (niveis[curso.id] || []).map((nivel) => (
+                      <div key={nivel.id} className="border border-white/5 rounded-lg overflow-hidden">
+                        <button onClick={() => toggleNivel(nivel.id)} className="w-full flex items-center justify-between px-3 py-2 bg-[#0a1424]/50 hover:bg-[#0a1424] transition-all">
+                          <span className="flex items-center gap-2 text-[11px] font-bold text-cyan-300"><Layers size={12} /> {nivel.level_tag} — {nivel.level_name}</span>
+                          <span className="flex items-center gap-2 text-[9px] text-slate-500">
+                            {nivel.required_xp} XP {nivelAberto === nivel.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                          </span>
+                        </button>
+
+                        {nivelAberto === nivel.id && (
+                          <div className="px-3 py-2 flex flex-col gap-1.5">
+                            {(modulos[nivel.id] || []).length === 0 ? (
+                              <p className="text-[10px] text-slate-500 py-1">Ningún módulo cadastrado.</p>
+                            ) : (
+                              (modulos[nivel.id] || []).map((mod) => (
+                                <div key={mod.id} className="border border-white/5 rounded-lg overflow-hidden">
+                                  <button onClick={() => toggleModulo(mod.id)} className="w-full flex items-center justify-between px-3 py-1.5 bg-[#0a1424]/30 hover:bg-[#0a1424]/60 transition-all">
+                                    <span className="flex items-center gap-2 text-[10px] font-bold text-violet-300"><ListOrdered size={11} /> Módulo {mod.module_number}: {mod.module_title}</span>
+                                    <span className="flex items-center gap-2 text-[9px] text-slate-500">
+                                      {mod.required_xp} XP {moduloAberto === mod.id ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+                                    </span>
+                                  </button>
+
+                                  {moduloAberto === mod.id && (
+                                    <div className="px-3 py-1.5 flex flex-col gap-1">
+                                      {(unidades[mod.id] || []).length === 0 ? (
+                                        <p className="text-[9px] text-slate-500 py-1">Ninguna unidad cadastrada.</p>
+                                      ) : (
+                                        (unidades[mod.id] || []).map((un) => (
+                                          <div key={un.id} className="border border-white/5 rounded-lg overflow-hidden">
+                                            <button onClick={() => toggleUnidade(un.id)} className="w-full flex items-center justify-between px-3 py-1 bg-transparent hover:bg-[#0a1424]/40 transition-all">
+                                              <span className="flex items-center gap-2 text-[9px] font-bold text-emerald-300"><PenTool size={10} /> Unidad {un.unit_number}: {un.unit_title}</span>
+                                              <span className="flex items-center gap-2 text-[8px] text-slate-500">
+                                                {unidadeAberta === un.id ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+                                              </span>
+                                            </button>
+                                            {unidadeAberta === un.id && (
+                                              <div className="px-4 py-1.5 text-[9px] text-slate-400">
+                                                {exercicios[un.id] ? (
+                                                  exercicios[un.id].total === 0 ? (
+                                                    <p>Ningún ejercicio encontrado.</p>
+                                                  ) : (
+                                                    <p>{exercicios[un.id].total} ejercicio(s) cadastrado(s) para esta unidad.</p>
+                                                  )
+                                                ) : (
+                                                  <p>Cargando...</p>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
