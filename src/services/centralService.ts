@@ -558,9 +558,13 @@ export async function buscarAulaAoVivoCentral(overrideUid?: string) {
     if (error || !data) {
       return { notificationSent: false, meetingLink: null };
     }
+    const agora = new Date();
+    const dataAula = new Date(data.appointment_date);
+    const diferencaMs = dataAula.getTime() - agora.getTime();
+    const dentroDaJanela = diferencaMs <= 10 * 60 * 1000 && diferencaMs >= -60 * 60 * 1000;
 
     return {
-      notificationSent: Boolean(data.notification_sent),
+      notificationSent: Boolean(data.notification_sent) && dentroDaJanela,
       meetingLink: data.meeting_link || null,
     };
   } catch (err) {

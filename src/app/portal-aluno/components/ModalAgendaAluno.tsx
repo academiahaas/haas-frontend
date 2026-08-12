@@ -641,7 +641,11 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
     };
 
     const tipoBanco = tipoOriginal === "reposicao" ? "reposicao" : tipoOriginal === "prova_oral" ? "prova_oral" : "regular";
-    const timestampCombinado = `${selectedDate}T${selectedHorario}:00.000Z`;
+    const [anoSel, mesSel, diaSel] = selectedDate.split("-").map(Number);
+    const [horaSel, minSel] = selectedHorario.split(":").map(Number);
+    // Colômbia é UTC-5 (sem horário de verão). Convertendo horário local para UTC antes de salvar.
+    const dataLocalColombia = new Date(Date.UTC(anoSel, mesSel - 1, diaSel, horaSel + 5, minSel, 0));
+    const timestampCombinado = dataLocalColombia.toISOString();
 
     // Resgata o ID dinâmico direto da propriedade enviada pelo pai
     // Se por um acaso o pai passar vazio, tenta buscar o fallback da sessão local

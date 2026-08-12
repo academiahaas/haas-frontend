@@ -38,7 +38,7 @@ export default function BotaoEntrarAula({ userId, idioma = "PT", variant = "desk
         disabled={!aulaAtiva}
         className={`w-full py-3 rounded-xl font-mono font-black text-[clamp(13px,3.8vw,18px)] md:text-base uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 ${
           aulaAtiva
-            ? "bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-black border border-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.8)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            ? "bg-gradient-to-r from-cyan-500 via-sky-500 to-cyan-600 text-black border border-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.8)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
             : "bg-gradient-to-r from-purple-600/10 via-purple-600/5 to-transparent border border-cyan-500/30 text-gray-500 cursor-not-allowed opacity-50"
         }`}
       >
@@ -54,7 +54,7 @@ export default function BotaoEntrarAula({ userId, idioma = "PT", variant = "desk
       disabled={!aulaAtiva}
       className={`w-full py-3 font-mono font-black text-[11px] uppercase tracking-[0.2em] rounded-xl transition-all flex items-center justify-center gap-2 ${
         aulaAtiva
-          ? "bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-black border border-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.8)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          ? "bg-gradient-to-r from-cyan-500 via-sky-500 to-cyan-600 text-black border border-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.8)] animate-pulse cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
           : "bg-transparent border border-gray-700/50 text-gray-500 cursor-not-allowed opacity-50"
       }`}
     >

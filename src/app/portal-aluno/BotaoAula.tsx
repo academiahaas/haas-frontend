@@ -133,10 +133,10 @@ export default function BotaoAula({ dataAulaIso = '', linkMeet = '', idiomaAtivo
 
       {estado === 'liberado' && (
         <>
-          <a href={linkMeet || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-emerald-500 text-slate-950 font-black text-xs rounded-xl py-3 px-4 shadow-[0_0_20px_rgba(16,185,129,0.4)] text-center block animate-pulse">
+          <a href={linkMeet || '#'} target="_blank" rel="noopener noreferrer" className="w-full bg-cyan-500 text-slate-950 font-black text-xs rounded-xl py-3 px-4 shadow-[0_0_20px_rgba(6,182,212,0.4)] text-center block animate-pulse">
             {t.entrar} ({t.faltam} {formatarCronometro(tempoRestante)})
           </a>
-          <p className="text-[9px] text-emerald-400/80 font-semibold px-2 leading-relaxed text-left">{t.msgLiberado}</p>
+          <p className="text-[9px] text-cyan-400/80 font-semibold px-2 leading-relaxed text-left">{t.msgLiberado}</p>
         </>
       )}
 
