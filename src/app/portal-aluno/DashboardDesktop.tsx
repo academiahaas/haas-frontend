@@ -95,11 +95,7 @@ export default function DashboardDesktop({ alunoData }: any) {
 
   const handleAbrirArenaComTransicao = () => {
     if (assinaturaVencida) {
-      alert(
-        idioma === 'PT' ? "Sua assinatura venceu. Renove seu plano para continuar estudando." :
-        idioma === 'EN' ? "Your subscription has expired. Renew your plan to keep studying." :
-        "Tu suscripción venció. Renueva tu plan para seguir estudiando."
-      );
+      setIsModalVencidoOpen(true);
       return;
     }
     setTransicaoModo('entrada'); // 1. Ativa a cortina no Portal imediatamente
@@ -705,6 +701,7 @@ export default function DashboardDesktop({ alunoData }: any) {
     hoje.setHours(0, 0, 0, 0);
     return dataVencimento < hoje;
   })();
+  const [isModalVencidoOpen, setIsModalVencidoOpen] = useState(false);
   const [isMatriculadoSimulado, setIsMatriculadoSimulado] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   useEffect(() => {
@@ -747,6 +744,40 @@ export default function DashboardDesktop({ alunoData }: any) {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden min-h-screen xl:h-screen text-white/90 select-none flex flex-col overflow-y-auto xl:overflow-hidden bg-[#030914] relative font-sans isolate custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {isModalVencidoOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn" onClick={() => setIsModalVencidoOpen(false)}>
+          <div
+            className="bg-[#181b22] border border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.15)] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsModalVencidoOpen(false)}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="text-lg leading-none">×</span>
+            </button>
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl">
+              ⏰
+            </div>
+            <h2 className="text-lg font-black text-white tracking-wide mb-2">
+              {idioma === 'PT' ? 'Assinatura Vencida' : idioma === 'EN' ? 'Subscription Expired' : 'Suscripción Vencida'}
+            </h2>
+            <p className="text-slate-300 text-sm leading-relaxed mb-6">
+              {idioma === 'PT' ? 'Sua assinatura venceu. Renove seu plano para continuar estudando.' :
+               idioma === 'EN' ? 'Your subscription has expired. Renew your plan to keep studying.' :
+               'Tu suscripción venció. Renueva tu plan para seguir estudiando.'}
+            </p>
+            <button
+              onClick={() => setIsModalVencidoOpen(false)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white text-xs font-mono font-black uppercase tracking-widest transition-all"
+            >
+              {idioma === 'PT' ? 'Renovar Agora' : idioma === 'EN' ? 'Renew Now' : 'Renovar Ahora'}
+            </button>
+          </div>
+        </div>
+      )}
+
+
       
       {/* 🛠️ PAINEL GLOBAL DE SIMULAÇÃO (FLUTUANDO NO TOPO - VISÍVEL EM TODAS AS TELAS) */}
       <div className={`${isAdminMode ? "fixed" : "hidden"} top-2 left-1/2 -translate-x-1/2 z-[300] bg-slate-950/95 border border-white/10 hover:border-purple-500/30 p-2 rounded-xl flex items-center gap-3 text-[10px] text-white shadow-2xl`}>
@@ -1430,6 +1461,39 @@ export default function DashboardDesktop({ alunoData }: any) {
         </div>
       <ModalCertificados isOpen={isCertificadosOpen} onClose={() => setIsCertificadosOpen(false)} idioma={idioma} />
       <ModalProva isOpen={isProvaOpen} onClose={() => setIsProvaOpen(false)} idioma={idioma} />
+
+      {isModalVencidoOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn" onClick={() => setIsModalVencidoOpen(false)}>
+          <div
+            className="bg-[#181b22] border border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.15)] rounded-3xl p-6 sm:p-8 max-w-md w-full text-center relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsModalVencidoOpen(false)}
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            >
+              <span className="text-lg leading-none">×</span>
+            </button>
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl">
+              ⏰
+            </div>
+            <h2 className="text-lg font-black text-white tracking-wide mb-2">
+              {idioma === 'PT' ? 'Assinatura Vencida' : idioma === 'EN' ? 'Subscription Expired' : 'Suscripción Vencida'}
+            </h2>
+            <p className="text-slate-300 text-sm leading-relaxed mb-6">
+              {idioma === 'PT' ? 'Sua assinatura venceu. Renove seu plano para continuar estudando.' :
+               idioma === 'EN' ? 'Your subscription has expired. Renew your plan to keep studying.' :
+               'Tu suscripción venció. Renueva tu plan para seguir estudiando.'}
+            </p>
+            <button
+              onClick={() => setIsModalVencidoOpen(false)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white text-xs font-mono font-black uppercase tracking-widest transition-all"
+            >
+              {idioma === 'PT' ? 'Renovar Agora' : idioma === 'EN' ? 'Renew Now' : 'Renovar Ahora'}
+            </button>
+          </div>
+        </div>
+      )}
        <GavetaBadges isOpen={isBadgesOpen} onClose={() => setIsBadgesOpen(false)} idioma={idioma} />
       </div>
 
@@ -1449,11 +1513,7 @@ export default function DashboardDesktop({ alunoData }: any) {
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <ProgramaTrilha isTrilhaOpen={isTrilhaOpen} nivelAlunoProp={nivelAtual} idiomaAtivo={idioma} aoAbrirArena={(unidId) => {
               if (assinaturaVencida) {
-                alert(
-                  idioma === 'PT' ? "Sua assinatura venceu. Renove seu plano para continuar estudando." :
-                  idioma === 'EN' ? "Your subscription has expired. Renew your plan to keep studying." :
-                  "Tu suscripción venció. Renueva tu plan para seguir estudiando."
-                );
+                setIsModalVencidoOpen(true);
                 return;
               }
               setArenaModo({ tipo: "unidade", idx: unidId }); setIsArenaOpen(true); setIsTrilhaOpen(false);
