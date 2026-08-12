@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, Users, Search } from 'lucide-react';
+import { RefreshCw, Users, Search, AlertTriangle } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
@@ -18,7 +18,7 @@ export function AlunosTab() {
     try {
       const { data: usersData, error } = await supabase
         .from('users')
-        .select('id, name, email, current_level, total_xp')
+        .select('id, name, email, current_level, total_xp, score_fala, score_escuta, score_leitura, score_escrita, score_gramatica, last_study_date')
         .order('name');
       if (error) throw error;
 
@@ -60,14 +60,58 @@ export function AlunosTab() {
     return new Date(iso) < new Date();
   };
 
+  const diasSemEstudar = (dataStr) => {
+    if (!dataStr) return null;
+    const ultimaData = new Date(dataStr);
+    const hoje = new Date();
+    return Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
+  };
+
+  // Painel geral / agregado
+  const totalAlunos = alunos.length;
+  const alunosAtivos = alunos.filter((a) => {
+    const dias = diasSemEstudar(a.last_study_date);
+    return dias !== null && dias <= 7;
+  }).length;
+  const alunosParados = totalAlunos - alunosAtivos;
+
+  const mediaGeral = (campo) => {
+    const validos = alunos.filter((a) => a[campo] !== null && a[campo] !== undefined);
+    if (validos.length === 0) return 0;
+    return Math.round(validos.reduce((soma, a) => soma + Number(a[campo] || 0), 0) / validos.length);
+  };
+
+  const COLS = "grid-cols-[1.3fr_1.5fr_70px_70px_70px_70px_70px_70px_90px_100px]";
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 h-full">
+      <div className="flex items-center justify-between shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><Users size={18} className="text-cyan-400" /> Alumnos</h2>
         <button onClick={carregarAlunos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
       </div>
 
-      <div className="relative">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-cyan-400 uppercase">Total Alumnos</p>
+          <p className="text-lg font-black text-cyan-300">{totalAlunos}</p>
+        </div>
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-emerald-400 uppercase">Activos (7d)</p>
+          <p className="text-lg font-black text-emerald-300">{alunosAtivos}</p>
+        </div>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-amber-400 uppercase flex items-center gap-1"><AlertTriangle size={10} /> Parados</p>
+          <p className="text-lg font-black text-amber-300">{alunosParados}</p>
+        </div>
+        <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-violet-400 uppercase">Media General</p>
+          <p className="text-lg font-black text-violet-300">
+            {Math.round((mediaGeral('score_fala') + mediaGeral('score_escuta') + mediaGeral('score_leitura') + mediaGeral('score_escrita') + mediaGeral('score_gramatica')) / 5)}%
+          </p>
+        </div>
+      </div>
+
+      <div className="relative shrink-0">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nombre o e-mail..." className="w-full bg-[#0a1424] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500" />
       </div>
@@ -77,32 +121,41 @@ export function AlunosTab() {
       ) : alunosFiltrados.length === 0 ? (
         <p className="text-sm text-slate-400">Nenhum aluno encontrado.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-left text-slate-500 uppercase text-[10px] border-b border-white/10">
-                <th className="py-2 pr-4">Nome</th>
-                <th className="py-2 pr-4">E-mail</th>
-                <th className="py-2 pr-4">Nível</th>
-                <th className="py-2 pr-4">XP Total</th>
-                <th className="py-2 pr-4">Plano</th>
-                <th className="py-2 pr-4">Vencimento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alunosFiltrados.slice(0, 100).map((a) => (
-                <tr key={a.id} className="border-b border-white/5">
-                  <td className="py-2 pr-4 text-slate-200 font-bold">{a.name || '-'}</td>
-                  <td className="py-2 pr-4 text-slate-400">{a.email}</td>
-                  <td className="py-2 pr-4"><span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-bold rounded uppercase">{a.current_level || '-'}</span></td>
-                  <td className="py-2 pr-4 text-slate-300">{a.total_xp ?? 0}</td>
-                  <td className="py-2 pr-4 text-slate-300">{a.plan_category}</td>
-                  <td className={`py-2 pr-4 font-bold ${vencido(a.expiration_date) ? 'text-rose-400' : 'text-emerald-400'}`}>{formatarData(a.expiration_date)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {alunosFiltrados.length > 100 && <p className="text-[10px] text-slate-500 mt-2">Mostrando os primeiros 100 de {alunosFiltrados.length} resultados. Refine a busca.</p>}
+        <div className="flex flex-col border border-white/10 rounded-xl overflow-hidden min-h-0 flex-1">
+          <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[9px] font-bold text-slate-500 uppercase shrink-0`}>
+            <span>Nome</span>
+            <span>E-mail</span>
+            <span>Nível</span>
+            <span>Fala</span>
+            <span>Escuta</span>
+            <span>Leitura</span>
+            <span>Escrita</span>
+            <span>Gram.</span>
+            <span>Atividade</span>
+            <span>Vencimento</span>
+          </div>
+          <div className="overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {alunosFiltrados.slice(0, 100).map((a) => {
+              const dias = diasSemEstudar(a.last_study_date);
+              return (
+                <div key={a.id} className={`grid ${COLS} gap-2 px-3 py-2 border-b border-white/5 text-xs items-center`}>
+                  <span className="text-slate-200 font-bold truncate">{a.name || '-'}</span>
+                  <span className="text-slate-400 truncate">{a.email}</span>
+                  <span><span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-bold rounded uppercase">{a.current_level || '-'}</span></span>
+                  <span className="text-slate-300">{a.score_fala ?? '-'}%</span>
+                  <span className="text-slate-300">{a.score_escuta ?? '-'}%</span>
+                  <span className="text-slate-300">{a.score_leitura ?? '-'}%</span>
+                  <span className="text-slate-300">{a.score_escrita ?? '-'}%</span>
+                  <span className="text-slate-300">{a.score_gramatica ?? '-'}%</span>
+                  <span className={`font-bold ${dias === null ? 'text-slate-500' : dias <= 3 ? 'text-emerald-400' : dias <= 7 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {dias === null ? '-' : dias === 0 ? 'Hoy' : `${dias}d`}
+                  </span>
+                  <span className={`font-bold ${vencido(a.expiration_date) ? 'text-rose-400' : 'text-emerald-400'}`}>{formatarData(a.expiration_date)}</span>
+                </div>
+              );
+            })}
+          </div>
+          {alunosFiltrados.length > 100 && <p className="text-[10px] text-slate-500 p-2 shrink-0">Mostrando os primeiros 100 de {alunosFiltrados.length} resultados. Refine a busca.</p>}
         </div>
       )}
     </div>
