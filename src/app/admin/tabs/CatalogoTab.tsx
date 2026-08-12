@@ -1,12 +1,43 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, FileText, ChevronRight, ChevronDown, BookOpen, Layers, ListOrdered, PenTool, Video, Dumbbell } from 'lucide-react';
+import { RefreshCw, FileText, ChevronRight, ChevronDown, BookOpen, Layers, ListOrdered, PenTool, Video, Dumbbell, BookText } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const nomeAtividade = (tipo) => {
+  const mapa = {
+    1: 'Gramática', 2: 'Vocabulário', 3: 'Blitz', 4: 'Escrita', 6: 'Leitura', 7: 'Escuta',
+    8: 'Leitura', 9: 'Fala', 10: 'Fala', 11: 'Escrita', 12: 'Escrita', 13: 'Escuta',
+  };
+  return mapa[tipo] || `Tipo ${tipo}`;
+};
+
+function SubGaveta({ titulo, icone: Icone, cor, itens, loading, renderItem, contagem }) {
+  const [aberta, setAberta] = useState(false);
+  return (
+    <div className="border border-white/5 rounded-lg overflow-hidden">
+      <button onClick={() => setAberta((v) => !v)} className="w-full flex items-center justify-between px-3 py-1.5 bg-[#0a1424]/30 hover:bg-[#0a1424]/60 transition-all">
+        <span className={`flex items-center gap-2 text-[9px] font-bold ${cor}`}><Icone size={11} /> {titulo} ({contagem})</span>
+        {aberta ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+      </button>
+      {aberta && (
+        <div className="px-3 py-1.5">
+          {loading ? (
+            <p className="text-[9px] text-slate-500">Cargando...</p>
+          ) : itens.length === 0 ? (
+            <p className="text-[9px] text-slate-500">Ningún registro.</p>
+          ) : (
+            <div className="flex flex-col gap-1">{itens.map(renderItem)}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function CatalogoTab() {
   const [cursos, setCursos] = useState([]);
@@ -71,38 +102,32 @@ export function CatalogoTab() {
       setExercicios((prev) => ({ ...prev, [unidadeId]: { lista: data || [], total: count || 0 } }));
     }
     if (!videos[unidadeId]) {
-      const { data } = await supabase.from('video_lessons').select('id, topic, video_url, skill_code').eq('unit_id', unidadeId);
+      const { data, error } = await supabase.from('video_lessons').select('id, topic, video_url, skill_code').eq('unit_id', unidadeId);
+      if (error) console.error('Erro ao buscar vídeos:', error);
       setVideos((prev) => ({ ...prev, [unidadeId]: data || [] }));
     }
     if (!leituras[unidadeId]) {
-      const { data } = await supabase.from('reading_lesson').select('id, title').eq('unit_id', unidadeId);
+      const { data, error } = await supabase.from('reading_lesson').select('id, title').eq('unit_id', unidadeId);
+      if (error) console.error('Erro ao buscar leituras:', error);
       setLeituras((prev) => ({ ...prev, [unidadeId]: data || [] }));
     }
   };
 
-  const nomeAtividade = (tipo) => {
-    const mapa = {
-      1: 'Gramática', 2: 'Vocabulário', 3: 'Blitz', 4: 'Escrita', 6: 'Leitura', 7: 'Escuta',
-      8: 'Leitura', 9: 'Fala', 10: 'Fala', 11: 'Escrita', 12: 'Escrita', 13: 'Escuta',
-    };
-    return mapa[tipo] || `Tipo ${tipo}`;
-  };
-
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-4 h-full min-h-0">
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><FileText size={18} className="text-cyan-400" /> Catálogo</h2>
         <button onClick={carregarCursos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-400">Carregando...</p>
+        <p className="text-sm text-slate-400 shrink-0">Carregando...</p>
       ) : cursos.length === 0 ? (
-        <p className="text-sm text-slate-400">Nenhum curso cadastrado.</p>
+        <p className="text-sm text-slate-400 shrink-0">Nenhum curso cadastrado.</p>
       ) : (
-        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-2">
+        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-2 pr-1">
           {cursos.map((curso) => (
-            <div key={curso.id} className="border border-white/10 rounded-xl overflow-hidden">
+            <div key={curso.id} className="border border-white/10 rounded-xl overflow-hidden shrink-0">
               <button onClick={() => toggleCurso(curso.id)} className="w-full flex items-center justify-between px-4 py-3 bg-[#0a1424] hover:bg-[#0d1830] transition-all">
                 <span className="flex items-center gap-2 text-sm font-black text-white"><BookOpen size={14} className="text-cyan-400" /> {curso.title}</span>
                 <span className="flex items-center gap-2 text-[10px] text-slate-400">
@@ -152,53 +177,44 @@ export function CatalogoTab() {
                                               </span>
                                             </button>
                                             {unidadeAberta === un.id && (
-                                              <div className="px-4 py-2 flex flex-col gap-2">
-                                                <div>
-                                                  <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><Dumbbell size={10} /> Ejercicios ({exercicios[un.id]?.total ?? '...'})</p>
-                                                  {!exercicios[un.id] ? (
-                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
-                                                  ) : exercicios[un.id].total === 0 ? (
-                                                    <p className="text-[9px] text-slate-500">Ningún ejercicio encontrado.</p>
-                                                  ) : (
-                                                    <div className="flex flex-wrap gap-1">
-                                                      {exercicios[un.id].lista.map((ex) => (
-                                                        <span key={ex.id} className="px-1.5 py-0.5 bg-cyan-500/10 text-cyan-300 text-[8px] font-bold rounded">
-                                                          {nomeAtividade(ex.activity_type)} · Nv.{ex.difficulty_level ?? '-'}
-                                                        </span>
-                                                      ))}
-                                                    </div>
+                                              <div className="px-3 py-2 flex flex-col gap-1.5 bg-black/20">
+                                                <SubGaveta
+                                                  titulo="Ejercicios"
+                                                  icone={Dumbbell}
+                                                  cor="text-cyan-300"
+                                                  loading={!exercicios[un.id]}
+                                                  itens={exercicios[un.id]?.lista || []}
+                                                  contagem={exercicios[un.id]?.total ?? '...'}
+                                                  renderItem={(ex) => (
+                                                    <span key={ex.id} className="px-1.5 py-0.5 bg-cyan-500/10 text-cyan-300 text-[8px] font-bold rounded inline-block w-fit">
+                                                      {nomeAtividade(ex.activity_type)} · Nv.{ex.difficulty_level ?? '-'}
+                                                    </span>
                                                   )}
-                                                </div>
-                                                <div>
-                                                  <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><Video size={10} /> Videos</p>
-                                                  {!videos[un.id] ? (
-                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
-                                                  ) : videos[un.id].length === 0 ? (
-                                                    <p className="text-[9px] text-slate-500">Ningún video vinculado.</p>
-                                                  ) : (
-                                                    <div className="flex flex-col gap-1">
-                                                      {videos[un.id].map((v) => (
-                                                        <a key={v.id} href={v.video_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-violet-300 hover:text-violet-200 underline truncate">
-                                                          {v.topic || v.skill_code || 'Video'}
-                                                        </a>
-                                                      ))}
-                                                    </div>
+                                                />
+                                                <SubGaveta
+                                                  titulo="Videos"
+                                                  icone={Video}
+                                                  cor="text-violet-300"
+                                                  loading={!videos[un.id]}
+                                                  itens={videos[un.id] || []}
+                                                  contagem={(videos[un.id] || []).length}
+                                                  renderItem={(v) => (
+                                                    <a key={v.id} href={v.video_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-violet-300 hover:text-violet-200 underline truncate">
+                                                      {v.topic || v.skill_code || 'Video'}
+                                                    </a>
                                                   )}
-                                                </div>
-                                                <div>
-                                                  <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">📖 Contenido Escrito</p>
-                                                  {!leituras[un.id] ? (
-                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
-                                                  ) : leituras[un.id].length === 0 ? (
-                                                    <p className="text-[9px] text-slate-500">Ningún contenido escrito.</p>
-                                                  ) : (
-                                                    <div className="flex flex-col gap-1">
-                                                      {leituras[un.id].map((l) => (
-                                                        <span key={l.id} className="text-[9px] text-emerald-300">{l.title || 'Lectura'}</span>
-                                                      ))}
-                                                    </div>
+                                                />
+                                                <SubGaveta
+                                                  titulo="Contenido Escrito"
+                                                  icone={BookText}
+                                                  cor="text-amber-300"
+                                                  loading={!leituras[un.id]}
+                                                  itens={leituras[un.id] || []}
+                                                  contagem={(leituras[un.id] || []).length}
+                                                  renderItem={(l) => (
+                                                    <span key={l.id} className="text-[9px] text-amber-300">{l.title || 'Lectura'}</span>
                                                   )}
-                                                </div>
+                                                />
                                               </div>
                                             )}
                                           </div>
