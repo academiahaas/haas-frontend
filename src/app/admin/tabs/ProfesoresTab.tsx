@@ -89,16 +89,32 @@ export function ProfesoresTab() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {professores.map((p) => (
-            <div key={p.id} className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex items-start justify-between">
-              <div>
-                <h3 className="font-black text-white text-sm">{p.name}</h3>
-                <p className="text-xs text-slate-400">{p.email}</p>
-                {p.monthly_rate && <p className="text-xs text-cyan-400 font-bold mt-1">$ {Number(p.monthly_rate).toLocaleString('es-CO')} / mes</p>}
-                <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-bold rounded uppercase ${p.payment_status === 'ativo' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-500/10 text-slate-400'}`}>{p.payment_status}</span>
+            <div key={p.id} className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-black text-white text-sm">{p.name}</h3>
+                  <p className="text-xs text-slate-400">{p.email}</p>
+                  {p.monthly_rate && <p className="text-xs text-cyan-400 font-bold mt-1">$ {Number(p.monthly_rate).toLocaleString('es-CO')} / mes</p>}
+                  <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-bold rounded uppercase ${p.payment_status === 'ativo' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-500/10 text-slate-400'}`}>{p.payment_status}</span>
+                </div>
+                <button onClick={() => handleExcluir(p.id, p.name)} className="text-rose-400/70 hover:text-rose-400">
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button onClick={() => handleExcluir(p.id, p.name)} className="text-rose-400/70 hover:text-rose-400">
-                <Trash2 size={16} />
-              </button>
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5">
+                <div className="text-center">
+                  <p className="text-[9px] text-slate-500 uppercase font-bold">Aulas Dadas</p>
+                  <p className="text-sm font-black text-slate-500">—</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[9px] text-slate-500 uppercase font-bold">Avaliação IA</p>
+                  <p className="text-sm font-black text-slate-500">—</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[9px] text-slate-500 uppercase font-bold">Reclamações</p>
+                  <p className="text-sm font-black text-slate-500">—</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

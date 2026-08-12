@@ -46,14 +46,16 @@ export function FinanzasTab() {
     return new Date(iso).toLocaleString('es-CO', { timeZone: 'America/Bogota', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
+  const COLS = "grid-cols-[110px_1.5fr_1fr_100px_150px_150px]";
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 h-full">
+      <div className="flex items-center justify-between shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><Wallet size={18} className="text-cyan-400" /> Finanzas</h2>
         <button onClick={carregarPagamentos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
           <p className="text-[10px] font-bold text-emerald-400 uppercase">Confirmado</p>
           <p className="text-lg font-black text-emerald-300">$ {totalConfirmado.toLocaleString('es-CO')}</p>
@@ -66,7 +68,7 @@ export function FinanzasTab() {
         </div>
       </div>
 
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center shrink-0">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por e-mail ou plano..." className="w-full bg-[#0a1424] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500" />
@@ -83,37 +85,35 @@ export function FinanzasTab() {
       ) : pagamentosFiltrados.length === 0 ? (
         <p className="text-sm text-slate-400">Nenhum pagamento encontrado.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-left text-slate-500 uppercase text-[10px] border-b border-white/10">
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2 pr-4">E-mail</th>
-                <th className="py-2 pr-4">Plano</th>
-                <th className="py-2 pr-4">Valor</th>
-                <th className="py-2 pr-4">Criado</th>
-                <th className="py-2 pr-4">Confirmado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pagamentosFiltrados.map((p) => (
-                <tr key={p.id} className="border-b border-white/5">
-                  <td className="py-2 pr-4">
-                    {p.status === 'completed' ? (
-                      <span className="flex items-center gap-1 text-emerald-400 font-bold"><CheckCircle2 size={12} /> Confirmado</span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-amber-400 font-bold"><Clock size={12} /> Estimado</span>
-                    )}
-                  </td>
-                  <td className="py-2 pr-4 text-slate-300">{p.user_email}</td>
-                  <td className="py-2 pr-4 text-slate-300">{p.plan_category}</td>
-                  <td className="py-2 pr-4 font-bold text-white">$ {Number(p.amount).toLocaleString('es-CO')}</td>
-                  <td className="py-2 pr-4 text-slate-500">{formatarData(p.created_at)}</td>
-                  <td className="py-2 pr-4 text-slate-500">{formatarData(p.completed_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex flex-col border border-white/10 rounded-xl overflow-hidden min-h-0 flex-1">
+          {/* Cabeçalho fixo, nunca rola */}
+          <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[10px] font-bold text-slate-500 uppercase shrink-0`}>
+            <span>Status</span>
+            <span>E-mail</span>
+            <span>Plano</span>
+            <span>Valor</span>
+            <span>Criado</span>
+            <span>Confirmado</span>
+          </div>
+          {/* Só essa área interna rola */}
+          <div className="overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {pagamentosFiltrados.map((p) => (
+              <div key={p.id} className={`grid ${COLS} gap-2 px-3 py-2 border-b border-white/5 text-xs items-center`}>
+                <span>
+                  {p.status === 'completed' ? (
+                    <span className="flex items-center gap-1 text-emerald-400 font-bold"><CheckCircle2 size={12} /> Confirmado</span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-amber-400 font-bold"><Clock size={12} /> Estimado</span>
+                  )}
+                </span>
+                <span className="text-slate-300 truncate">{p.user_email}</span>
+                <span className="text-slate-300 truncate">{p.plan_category}</span>
+                <span className="font-bold text-white">$ {Number(p.amount).toLocaleString('es-CO')}</span>
+                <span className="text-slate-500">{formatarData(p.created_at)}</span>
+                <span className="text-slate-500">{formatarData(p.completed_at)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
