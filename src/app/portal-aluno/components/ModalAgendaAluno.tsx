@@ -233,14 +233,15 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           console.log("🔍 INVESTIGAÇÃO AULAS DO BANCO RETORNO:", data, "ERRO:", error);
           if (data && !error) {
             const mapeadas = data.map(a => {
-              const parts = a.appointment_date ? a.appointment_date.replace(' ', 'T').split('T') : [];
-              const dataPart = parts[0] || '';
-              const tempoPart = parts[1] || '00:00';
-              const horarioFormatado = tempoPart.substring(0, 5);
+              const dataObjUtc = a.appointment_date ? new Date(a.appointment_date) : null;
+              const dataPart = dataObjUtc ? dataObjUtc.toLocaleDateString("pt-BR", { timeZone: "America/Bogota" }) : '';
+              const [diaF, mesF, anoF] = dataPart.split("/");
+              const dataFormatadaISO = anoF ? `${anoF}-${mesF}-${diaF}` : '';
+              const horarioFormatado = dataObjUtc ? dataObjUtc.toLocaleTimeString("pt-BR", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: false }).substring(0, 5) : '00:00';
               
               return {
                 id: String(a.id),
-                data: dataPart,
+                data: dataFormatadaISO,
                 horario: horarioFormatado,
                 tipo: (a.appointment_type === "reposicao" ? "reposicao" : a.appointment_type === "prova_oral" ? "prova_oral" : "regular") as "regular" | "reposicao" | "prova_oral",
                 status: a.canceled_at ? "cancelada" : a.status
