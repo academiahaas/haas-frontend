@@ -120,8 +120,11 @@ export default function MioloReordenacaoParagrafos({
 
         if (Array.isArray(frasesOriginais) && frasesOriginais.length > 0) {
           const itemsMapeados: ParagrafoItem[] = frasesOriginais.map((text: string, idx: number) => ({ id: idx + 1, text }));
-          setItems(itemsMapeados);
+          // ✅ Guarda o gabarito ANTES de embaralhar (essa é a ordem certa)
           setGabaritoIds(itemsMapeados.map(item => item.id));
+          // ✅ Embaralha uma cópia para exibir ao aluno, senão o exercício já vem resolvido
+          const itemsEmbaralhados = [...itemsMapeados].sort(() => Math.random() - 0.5);
+          setItems(itemsEmbaralhados);
           if (exe.correct_answer) setTextoGabaritoInteiro(exe.correct_answer);
         }
         

@@ -153,31 +153,11 @@ export default function ProvaEscritaPage() {
         texto: textosRedacao[r.id] || '',
       }));
 
+      // ⏸️ Correção automática por IA DESATIVADA temporariamente (controle de custo).
+      // A redação fica salva como pendente, para avaliação manual do professor.
       let notasRedacao: number[] = [];
       let feedbacksRedacao: string[] = [];
-      for (const r of (prova.redacoes || [])) {
-        try {
-          const respIA = await fetch("/api/ai/corrigir-redacao", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              texto: textosRedacao[r.id] || "",
-              promptTema: r.prompt_text,
-              minWords: r.min_words,
-              maxWords: r.max_words,
-              idioma: lang,
-            }),
-          });
-          if (respIA.ok) {
-            const resultIA = await respIA.json();
-            notasRedacao.push(resultIA.nota ?? 0);
-            feedbacksRedacao.push(resultIA.feedback ?? "");
-          }
-        } catch (errIA) {
-          console.warn("Falha ao corrigir redacao com IA:", errIA);
-        }
-      }
-      const notaRedacaoMedia = notasRedacao.length > 0 ? notasRedacao.reduce((a, b) => a + b, 0) / notasRedacao.length : null;
+      const notaRedacaoMedia = null;
       const { data, error } = await supabase.rpc('corrigir_prova_escrita', {
         p_user_id: uid,
         p_respostas_gramatica: respostasGram,

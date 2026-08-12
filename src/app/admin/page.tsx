@@ -10,6 +10,7 @@ import { FinanzasTab } from './tabs/FinanzasTab';
 import { AlunosTab } from './tabs/AlunosTab';
 import { ProfesoresTab } from './tabs/ProfesoresTab';
 import { GastosTab } from './tabs/GastosTab';
+import { GeradorExerciciosTab } from './tabs/GeradorExerciciosTab';
 import { AgendaTab } from './tabs/AgendaTab';
 
 const ABAS = [
@@ -18,7 +19,7 @@ const ABAS = [
   { id: 'agenda', label: 'Agenda', icon: CalendarClock, componente: AgendaTab },
   { id: 'empresas', label: 'Empresas', icon: Building2, componente: EmpresasTab },
   { id: 'catalogo', label: 'Catálogo', icon: FileText, componente: CatalogoTab },
-  { id: 'creador', label: 'Creador IA', icon: Sparkles, componente: CreadorTab },
+  { id: 'creador', label: 'Gerador IA', icon: Sparkles, componente: GeradorExerciciosTab },
   { id: 'alunos', label: 'Alumnos', icon: Users, componente: AlunosTab },
   { id: 'profesores', label: 'Profesores', icon: GraduationCap, componente: ProfesoresTab },
 ];

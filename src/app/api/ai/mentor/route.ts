@@ -76,7 +76,7 @@ PARÁGRAFO 2:
     }
 
     const apiKeyGemini = process.env.GEMINI_API_KEY || "";
-    const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKeyGemini}`;
+    const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKeyGemini}`;
 
     const resGemini = await fetch(urlGemini, {
       method: "POST",
