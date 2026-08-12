@@ -1,37 +1,47 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, CalendarClock, Plus, XCircle, CheckCircle2, X, Wand2 } from 'lucide-react';
+import { RefreshCw, CalendarClock, Plus, XCircle, CheckCircle2, X, Wand2, Repeat } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const DIAS_SEMANA = [
+  { valor: 1, label: 'Lun' }, { valor: 2, label: 'Mar' }, { valor: 3, label: 'Mié' },
+  { valor: 4, label: 'Jue' }, { valor: 5, label: 'Vie' }, { valor: 6, label: 'Sáb' }, { valor: 0, label: 'Dom' },
+];
+
 export function AgendaTab() {
-  const [dataSelecionada, setDataSelecionada] = useState(() => {
-    const hoje = new Date();
-    return hoje.toISOString().split('T')[0];
-  });
+  const [dataSelecionada, setDataSelecionada] = useState(() => new Date().toISOString().split('T')[0]);
   const [idiomaFiltro, setIdiomaFiltro] = useState('ingles');
-  const [novoIdioma, setNovoIdioma] = useState('ingles');
   const [horarios, setHorarios] = useState([]);
   const [professores, setProfessores] = useState([]);
+  const [salas, setSalas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [modalRepeticaoAberto, setModalRepeticaoAberto] = useState(false);
 
   const [novaHora, setNovaHora] = useState('09:00');
   const [novoTipo, setNovoTipo] = useState('PARTICULAR');
   const [novasVagas, setNovasVagas] = useState('1');
+  const [novoIdioma, setNovoIdioma] = useState('ingles');
   const [novoProfessorId, setNovoProfessorId] = useState('');
+  const [novaSalaId, setNovaSalaId] = useState('');
+
+  // Repetição
+  const [diasRepeticao, setDiasRepeticao] = useState([1, 2, 3, 4, 5]);
+  const [semanasRepeticao, setSemanasRepeticao] = useState('4');
 
   const carregarProfessores = async () => {
-    try {
-      const { data } = await supabase.from('teachers').select('id, name').eq('payment_status', 'ativo');
-      setProfessores(data || []);
-    } catch (err) {
-      console.error('Erro ao carregar professores:', err);
-    }
+    const { data } = await supabase.from('teachers').select('id, name, meeting_link').eq('payment_status', 'ativo');
+    setProfessores(data || []);
+  };
+
+  const carregarSalas = async () => {
+    const { data } = await supabase.from('salas_meet').select('*').order('nome');
+    setSalas(data || []);
   };
 
   const carregarHorarios = async () => {
@@ -39,7 +49,6 @@ export function AgendaTab() {
     try {
       const inicioDiaBogota = new Date(`${dataSelecionada}T00:00:00-05:00`);
       const fimDiaBogota = new Date(`${dataSelecionada}T23:59:59-05:00`);
-
       const { data, error } = await supabase
         .from('aulas_disponiveis')
         .select('*, teachers(name)')
@@ -47,7 +56,6 @@ export function AgendaTab() {
         .gte('data_hora_inicio', inicioDiaBogota.toISOString())
         .lte('data_hora_inicio', fimDiaBogota.toISOString())
         .order('data_hora_inicio');
-
       if (error) throw error;
       setHorarios(data || []);
     } catch (err) {
@@ -56,64 +64,47 @@ export function AgendaTab() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    carregarProfessores();
-  }, []);
+  useEffect(() => { carregarProfessores(); carregarSalas(); }, []);
+  useEffect(() => { carregarHorarios(); }, [dataSelecionada, idiomaFiltro]);
 
-  useEffect(() => {
-    carregarHorarios();
-  }, [dataSelecionada, idiomaFiltro]);
-
-  const formatarHoraBogota = (iso) => {
-    return new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false });
-  };
+  const formatarHoraBogota = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false });
 
   const handleCancelarHorario = async (id) => {
-    try {
-      const { error } = await supabase.from('aulas_disponiveis').update({ status: 'CANCELADO' }).eq('id', id);
-      if (error) throw error;
-      carregarHorarios();
-    } catch (err) {
-      alert('Erro ao cancelar: ' + err.message);
-    }
+    await supabase.from('aulas_disponiveis').update({ status: 'CANCELADO' }).eq('id', id);
+    carregarHorarios();
   };
 
   const handleReabrirHorario = async (id) => {
-    try {
-      const { error } = await supabase.from('aulas_disponiveis').update({ status: 'DISPONIVEL' }).eq('id', id);
-      if (error) throw error;
-      carregarHorarios();
-    } catch (err) {
-      alert('Erro ao reabrir: ' + err.message);
-    }
+    await supabase.from('aulas_disponiveis').update({ status: 'DISPONIVEL' }).eq('id', id);
+    carregarHorarios();
   };
 
   const handleFecharDiaInteiro = async () => {
     const seguro = confirm(`Deseja realmente fechar TODOS os horários do dia ${dataSelecionada}?`);
     if (!seguro) return;
-    try {
-      const ids = horarios.filter((h) => h.status === 'DISPONIVEL').map((h) => h.id);
-      if (ids.length === 0) return;
-      const { error } = await supabase.from('aulas_disponiveis').update({ status: 'CANCELADO' }).in('id', ids);
-      if (error) throw error;
-      carregarHorarios();
-    } catch (err) {
-      alert('Erro ao fechar o dia: ' + err.message);
-    }
+    const ids = horarios.filter((h) => h.status === 'DISPONIVEL').map((h) => h.id);
+    if (ids.length === 0) return;
+    await supabase.from('aulas_disponiveis').update({ status: 'CANCELADO' }).in('id', ids);
+    carregarHorarios();
   };
 
-  // Escolhe automaticamente o professor com menos horários no dia selecionado
   const escolherProfessorAutomatico = () => {
     if (professores.length === 0) return '';
     const contagem = {};
     professores.forEach((p) => { contagem[p.id] = 0; });
     horarios.forEach((h) => { if (h.teacher_id && contagem[h.teacher_id] !== undefined) contagem[h.teacher_id]++; });
-    const ordenado = [...professores].sort((a, b) => contagem[a.id] - contagem[b.id]);
-    return ordenado[0]?.id || '';
+    return [...professores].sort((a, b) => contagem[a.id] - contagem[b.id])[0]?.id || '';
+  };
+
+  const escolherSalaAutomatica = () => {
+    if (salas.length === 0) return '';
+    const salaLivre = salas.find((s) => !s.em_uso);
+    return salaLivre?.id || salas[0]?.id || '';
   };
 
   const handleAbrirModal = () => {
     setNovoProfessorId(escolherProfessorAutomatico());
+    setNovaSalaId(escolherSalaAutomatica());
     setModalAberto(true);
   };
 
@@ -121,6 +112,7 @@ export function AgendaTab() {
     try {
       const inicioBogota = new Date(`${dataSelecionada}T${novaHora}:00-05:00`);
       const fimBogota = new Date(inicioBogota.getTime() + 60 * 60 * 1000);
+      const professorEscolhido = professores.find((p) => p.id === novoProfessorId);
 
       const { error } = await supabase.from('aulas_disponiveis').insert([{
         data_hora_inicio: inicioBogota.toISOString(),
@@ -131,8 +123,8 @@ export function AgendaTab() {
         status: 'DISPONIVEL',
         idioma: novoIdioma,
         teacher_id: novoProfessorId || null,
+        meeting_link: professorEscolhido?.meeting_link || null,
       }]);
-
       if (error) throw error;
       setModalAberto(false);
       carregarHorarios();
@@ -141,14 +133,59 @@ export function AgendaTab() {
     }
   };
 
-  const handleTrocarProfessor = async (horarioId, professorId) => {
+  const handleCriarHorariosRepetidos = async () => {
     try {
-      const { error } = await supabase.from('aulas_disponiveis').update({ teacher_id: professorId || null }).eq('id', horarioId);
+      const professorEscolhido = professores.find((p) => p.id === novoProfessorId);
+      const registros = [];
+      const dataBase = new Date(`${dataSelecionada}T00:00:00-05:00`);
+      const totalDias = Number(semanasRepeticao) * 7;
+
+      for (let i = 0; i < totalDias; i++) {
+        const dataAtual = new Date(dataBase);
+        dataAtual.setDate(dataBase.getDate() + i);
+        const diaSemana = dataAtual.getDay();
+
+        if (diasRepeticao.includes(diaSemana)) {
+          const dataStr = dataAtual.toISOString().split('T')[0];
+          const inicioBogota = new Date(`${dataStr}T${novaHora}:00-05:00`);
+          const fimBogota = new Date(inicioBogota.getTime() + 60 * 60 * 1000);
+
+          registros.push({
+            data_hora_inicio: inicioBogota.toISOString(),
+            data_hora_fim: fimBogota.toISOString(),
+            tipo_aula: novoTipo,
+            vagas_maximas: Number(novasVagas),
+            vagas_ocupadas: 0,
+            status: 'DISPONIVEL',
+            idioma: novoIdioma,
+            teacher_id: novoProfessorId || null,
+            meeting_link: professorEscolhido?.meeting_link || null,
+          });
+        }
+      }
+
+      if (registros.length === 0) {
+        alert('Nenhum horário gerado. Verifique os dias selecionados.');
+        return;
+      }
+
+      const { error } = await supabase.from('aulas_disponiveis').insert(registros);
       if (error) throw error;
+      alert(`${registros.length} horários criados com sucesso!`);
+      setModalRepeticaoAberto(false);
       carregarHorarios();
     } catch (err) {
-      alert('Erro ao trocar professor: ' + err.message);
+      alert('Erro ao criar horários repetidos: ' + err.message);
     }
+  };
+
+  const handleTrocarProfessor = async (horarioId, professorId) => {
+    await supabase.from('aulas_disponiveis').update({ teacher_id: professorId || null }).eq('id', horarioId);
+    carregarHorarios();
+  };
+
+  const toggleDiaRepeticao = (dia) => {
+    setDiasRepeticao((prev) => prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]);
   };
 
   const corStatus = (status) => {
@@ -173,18 +210,21 @@ export function AgendaTab() {
           <button onClick={handleAbrirModal} className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg">
             <Plus size={14} /> Abrir Horario
           </button>
+          <button onClick={() => { setNovoProfessorId(escolherProfessorAutomatico()); setNovaSalaId(escolherSalaAutomatica()); setModalRepeticaoAberto(true); }} className="flex items-center gap-1.5 px-4 py-2 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 text-xs font-black uppercase tracking-wider rounded-lg border border-violet-500/20">
+            <Repeat size={14} /> Repetir Horario
+          </button>
           <button onClick={handleFecharDiaInteiro} className="flex items-center gap-1.5 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-black uppercase tracking-wider rounded-lg border border-rose-500/20">
             <XCircle size={14} /> Cerrar Día
           </button>
         </div>
       </div>
 
-      <p className="text-[10px] text-slate-500 shrink-0">Todos los horarios se muestran en zona horaria de Colombia (Bogotá). {professores.length === 0 && '⚠️ No hay profesores activos — asignación manual únicamente.'}</p>
+      <p className="text-[10px] text-slate-500 shrink-0">Todos los horarios en zona horaria de Colombia (Bogotá).</p>
 
       {loading ? (
         <p className="text-sm text-slate-400">Carregando...</p>
       ) : horarios.length === 0 ? (
-        <p className="text-sm text-slate-400">Ningún horario para este día. Usa "Abrir Horario" para crear uno.</p>
+        <p className="text-sm text-slate-400">Ningún horario para este día.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {horarios.map((h) => (
@@ -196,13 +236,9 @@ export function AgendaTab() {
                   <span className={`inline-block mt-1 px-2 py-0.5 text-[9px] font-bold rounded uppercase ${corStatus(h.status)}`}>{h.status}</span>
                 </div>
                 {h.status === 'CANCELADO' ? (
-                  <button onClick={() => handleReabrirHorario(h.id)} className="text-emerald-400/70 hover:text-emerald-400" title="Reabrir">
-                    <CheckCircle2 size={18} />
-                  </button>
+                  <button onClick={() => handleReabrirHorario(h.id)} className="text-emerald-400/70 hover:text-emerald-400"><CheckCircle2 size={18} /></button>
                 ) : (
-                  <button onClick={() => handleCancelarHorario(h.id)} className="text-rose-400/70 hover:text-rose-400" title="Cerrar">
-                    <XCircle size={18} />
-                  </button>
+                  <button onClick={() => handleCancelarHorario(h.id)} className="text-rose-400/70 hover:text-rose-400"><XCircle size={18} /></button>
                 )}
               </div>
               <select value={h.teacher_id || ''} onChange={(e) => handleTrocarProfessor(h.id, e.target.value)} className="bg-[#030914] border border-white/10 rounded-lg px-2 py-1 text-[11px] text-white">
@@ -236,15 +272,65 @@ export function AgendaTab() {
             <input type="number" value={novasVagas} onChange={(e) => setNovasVagas(e.target.value)} placeholder="Vagas máximas" className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">Profesor</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase">Profesor (trae su sala automáticamente)</span>
                 <button type="button" onClick={() => setNovoProfessorId(escolherProfessorAutomatico())} className="text-[10px] text-cyan-400 font-bold flex items-center gap-1"><Wand2 size={10} /> Auto-asignar</button>
               </div>
               <select value={novoProfessorId} onChange={(e) => setNovoProfessorId(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
                 <option value="">Sin profesor asignado</option>
                 {professores.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
+              {novoProfessorId && <p className="text-[9px] text-cyan-400 mt-1">{professores.find(p => p.id === novoProfessorId)?.meeting_link || 'Sin sala configurada para este profesor'}</p>}
             </div>
             <button onClick={handleCriarHorario} className="mt-2 py-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg">Crear Horario</button>
+          </div>
+        </div>
+      )}
+
+      {modalRepeticaoAberto && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setModalRepeticaoAberto(false)}>
+          <div className="bg-[#0a1424] border border-white/10 rounded-2xl p-6 w-full max-w-md flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-black text-white flex items-center gap-1.5"><Repeat size={16} /> Horario Repetitivo</h3>
+              <button onClick={() => setModalRepeticaoAberto(false)}><X size={18} className="text-slate-400" /></button>
+            </div>
+            <p className="text-[10px] text-slate-500">Desde: {dataSelecionada} (hora de Bogotá)</p>
+
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">Días de la semana</span>
+              <div className="flex gap-1 flex-wrap">
+                {DIAS_SEMANA.map((d) => (
+                  <button key={d.valor} type="button" onClick={() => toggleDiaRepeticao(d.valor)} className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold ${diasRepeticao.includes(d.valor) ? 'bg-cyan-500 text-black' : 'bg-[#030914] border border-white/10 text-slate-400'}`}>
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <input type="time" value={novaHora} onChange={(e) => setNovaHora(e.target.value)} className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase mb-1 block">Repetir por (semanas)</span>
+              <input type="number" value={semanasRepeticao} onChange={(e) => setSemanasRepeticao(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+            </div>
+
+            <select value={novoTipo} onChange={(e) => { setNovoTipo(e.target.value); setNovasVagas(e.target.value === 'GRUPO' ? '8' : '1'); }} className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+              <option value="PARTICULAR">Particular</option>
+              <option value="GRUPO">Grupo</option>
+            </select>
+            <select value={novoIdioma} onChange={(e) => setNovoIdioma(e.target.value)} className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+              <option value="ingles">Inglés</option>
+              <option value="portugues">Portugués</option>
+              <option value="espanol">Español</option>
+              <option value="frances">Francés</option>
+            </select>
+            <input type="number" value={novasVagas} onChange={(e) => setNovasVagas(e.target.value)} placeholder="Vagas máximas" className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+            <select value={novoProfessorId} onChange={(e) => setNovoProfessorId(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+              <option value="">Sin profesor asignado</option>
+              {professores.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            {novoProfessorId && <p className="text-[9px] text-cyan-400">{professores.find(p => p.id === novoProfessorId)?.meeting_link || 'Sin sala configurada'}</p>}
+
+            <button onClick={handleCriarHorariosRepetidos} className="mt-2 py-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg">Crear Horarios Repetitivos</button>
           </div>
         </div>
       )}
