@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, FileText, ChevronRight, ChevronDown, BookOpen, Layers, ListOrdered, PenTool } from 'lucide-react';
+import { RefreshCw, FileText, ChevronRight, ChevronDown, BookOpen, Layers, ListOrdered, PenTool, Video, Dumbbell } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
@@ -19,6 +19,7 @@ export function CatalogoTab() {
   const [unidades, setUnidades] = useState({});
   const [unidadeAberta, setUnidadeAberta] = useState(null);
   const [exercicios, setExercicios] = useState({});
+  const [videos, setVideos] = useState({});
 
   const carregarCursos = async () => {
     setLoading(true);
@@ -65,9 +66,21 @@ export function CatalogoTab() {
     if (unidadeAberta === unidadeId) { setUnidadeAberta(null); return; }
     setUnidadeAberta(unidadeId);
     if (!exercicios[unidadeId]) {
-      const { data, count } = await supabase.from('exercises').select('id, activity_type, difficulty_level', { count: 'exact' }).eq('unit', unidadeId).limit(20);
+      const { data, count } = await supabase.from('exercises').select('id, activity_type, difficulty_level', { count: 'exact' }).eq('unit', unidadeId).limit(50);
       setExercicios((prev) => ({ ...prev, [unidadeId]: { lista: data || [], total: count || 0 } }));
     }
+    if (!videos[unidadeId]) {
+      const { data } = await supabase.from('video_lessons').select('id, topic, video_url, skill_code').eq('unit_id', unidadeId);
+      setVideos((prev) => ({ ...prev, [unidadeId]: data || [] }));
+    }
+  };
+
+  const nomeAtividade = (tipo) => {
+    const mapa = {
+      1: 'Gramática', 2: 'Vocabulário', 3: 'Blitz', 4: 'Escrita', 6: 'Leitura', 7: 'Escuta',
+      8: 'Leitura', 9: 'Fala', 10: 'Fala', 11: 'Escrita', 12: 'Escrita', 13: 'Escuta',
+    };
+    return mapa[tipo] || `Tipo ${tipo}`;
   };
 
   return (
@@ -134,16 +147,39 @@ export function CatalogoTab() {
                                               </span>
                                             </button>
                                             {unidadeAberta === un.id && (
-                                              <div className="px-4 py-1.5 text-[9px] text-slate-400">
-                                                {exercicios[un.id] ? (
-                                                  exercicios[un.id].total === 0 ? (
-                                                    <p>Ningún ejercicio encontrado.</p>
+                                              <div className="px-4 py-2 flex flex-col gap-2">
+                                                <div>
+                                                  <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><Dumbbell size={10} /> Ejercicios ({exercicios[un.id]?.total ?? '...'})</p>
+                                                  {!exercicios[un.id] ? (
+                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
+                                                  ) : exercicios[un.id].total === 0 ? (
+                                                    <p className="text-[9px] text-slate-500">Ningún ejercicio encontrado.</p>
                                                   ) : (
-                                                    <p>{exercicios[un.id].total} ejercicio(s) cadastrado(s) para esta unidad.</p>
-                                                  )
-                                                ) : (
-                                                  <p>Cargando...</p>
-                                                )}
+                                                    <div className="flex flex-wrap gap-1">
+                                                      {exercicios[un.id].lista.map((ex) => (
+                                                        <span key={ex.id} className="px-1.5 py-0.5 bg-cyan-500/10 text-cyan-300 text-[8px] font-bold rounded">
+                                                          {nomeAtividade(ex.activity_type)} · Nv.{ex.difficulty_level ?? '-'}
+                                                        </span>
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <div>
+                                                  <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mb-1"><Video size={10} /> Videos</p>
+                                                  {!videos[un.id] ? (
+                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
+                                                  ) : videos[un.id].length === 0 ? (
+                                                    <p className="text-[9px] text-slate-500">Ningún video vinculado.</p>
+                                                  ) : (
+                                                    <div className="flex flex-col gap-1">
+                                                      {videos[un.id].map((v) => (
+                                                        <a key={v.id} href={v.video_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-violet-300 hover:text-violet-200 underline truncate">
+                                                          {v.topic || v.skill_code || 'Video'}
+                                                        </a>
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                                </div>
                                               </div>
                                             )}
                                           </div>
