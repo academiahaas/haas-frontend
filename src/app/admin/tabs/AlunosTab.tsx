@@ -13,6 +13,7 @@ export function AlunosTab() {
   const [alunos, setAlunos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
+  const [mostrarGraficos, setMostrarGraficos] = useState(true);
 
   const carregarAlunos = async () => {
     setLoading(true);
@@ -68,7 +69,6 @@ export function AlunosTab() {
     return Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
   };
 
-  // Painel geral / agregado
   const totalAlunos = alunos.length;
   const alunosAtivos = alunos.filter((a) => {
     const dias = diasSemEstudar(a.last_study_date);
@@ -100,83 +100,92 @@ export function AlunosTab() {
   const COLS = "grid-cols-[1.3fr_1.5fr_70px_70px_70px_70px_70px_70px_90px_100px]";
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <div className="flex items-center justify-between shrink-0">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex items-center justify-between shrink-0 mb-4">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><Users size={18} className="text-cyan-400" /> Alumnos</h2>
-        <button onClick={carregarAlunos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
-        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-cyan-400 uppercase">Total Alumnos</p>
-          <p className="text-lg font-black text-cyan-300">{totalAlunos}</p>
-        </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-emerald-400 uppercase">Activos (7d)</p>
-          <p className="text-lg font-black text-emerald-300">{alunosAtivos}</p>
-        </div>
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-amber-400 uppercase flex items-center gap-1"><AlertTriangle size={10} /> Parados</p>
-          <p className="text-lg font-black text-amber-300">{alunosParados}</p>
-        </div>
-        <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-violet-400 uppercase">Media General</p>
-          <p className="text-lg font-black text-violet-300">
-            {Math.round((mediaGeral('score_fala') + mediaGeral('score_escuta') + mediaGeral('score_leitura') + mediaGeral('score_escrita') + mediaGeral('score_gramatica')) / 5)}%
-          </p>
+        <div className="flex gap-2">
+          <button onClick={() => setMostrarGraficos((v) => !v)} className="px-3 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400 text-[10px] font-bold uppercase">
+            {mostrarGraficos ? 'Ocultar gráficos' : 'Mostrar gráficos'}
+          </button>
+          <button onClick={carregarAlunos} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 shrink-0">
-        <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Frecuencia de Estudio</p>
-          <ResponsiveContainer width="100%" height={160}>
-            <PieChart>
-              <Pie data={dadosFrequencia} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label={(entry) => entry.value}>
-                {dadosFrequencia.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
-              <Legend wrapperStyle={{ fontSize: 10 }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Desempeño por Habilidad (Media General %)</p>
-          <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={dadosHabilidades}>
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
-              <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
-              <Bar dataKey="valor" fill="#22d3ee" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {/* Área única que rola tudo junto: cards + gráficos + busca + tabela */}
+      <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-4">
 
-      <div className="relative shrink-0">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nombre o e-mail..." className="w-full bg-[#0a1424] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500" />
-      </div>
-
-      {loading ? (
-        <p className="text-sm text-slate-400">Carregando...</p>
-      ) : alunosFiltrados.length === 0 ? (
-        <p className="text-sm text-slate-400">Nenhum aluno encontrado.</p>
-      ) : (
-        <div className="flex flex-col border border-white/10 rounded-xl overflow-hidden min-h-0 flex-1">
-          <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[9px] font-bold text-slate-500 uppercase shrink-0`}>
-            <span>Nome</span>
-            <span>E-mail</span>
-            <span>Nível</span>
-            <span>Fala</span>
-            <span>Escuta</span>
-            <span>Leitura</span>
-            <span>Escrita</span>
-            <span>Gram.</span>
-            <span>Atividade</span>
-            <span>Vencimento</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-cyan-400 uppercase">Total Alumnos</p>
+            <p className="text-lg font-black text-cyan-300">{totalAlunos}</p>
           </div>
-          <div className="overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-emerald-400 uppercase">Activos (7d)</p>
+            <p className="text-lg font-black text-emerald-300">{alunosAtivos}</p>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-amber-400 uppercase flex items-center gap-1"><AlertTriangle size={10} /> Parados</p>
+            <p className="text-lg font-black text-amber-300">{alunosParados}</p>
+          </div>
+          <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-violet-400 uppercase">Media General</p>
+            <p className="text-lg font-black text-violet-300">
+              {Math.round((mediaGeral('score_fala') + mediaGeral('score_escuta') + mediaGeral('score_leitura') + mediaGeral('score_escrita') + mediaGeral('score_gramatica')) / 5)}%
+            </p>
+          </div>
+        </div>
+
+        {mostrarGraficos && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 shrink-0">
+            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
+              <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Frecuencia de Estudio</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie data={dadosFrequencia} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={55} label={(entry) => entry.value}>
+                    {dadosFrequencia.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
+                  <Legend wrapperStyle={{ fontSize: 9 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
+              <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Desempeño por Habilidad (%)</p>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={dadosHabilidades}>
+                  <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
+                  <Bar dataKey="valor" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        <div className="relative shrink-0">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por nombre o e-mail..." className="w-full bg-[#0a1424] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500" />
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-slate-400 shrink-0">Carregando...</p>
+        ) : alunosFiltrados.length === 0 ? (
+          <p className="text-sm text-slate-400 shrink-0">Nenhum aluno encontrado.</p>
+        ) : (
+          <div className="border border-white/10 rounded-xl overflow-hidden shrink-0">
+            <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[9px] font-bold text-slate-500 uppercase`}>
+              <span>Nome</span>
+              <span>E-mail</span>
+              <span>Nível</span>
+              <span>Fala</span>
+              <span>Escuta</span>
+              <span>Leitura</span>
+              <span>Escrita</span>
+              <span>Gram.</span>
+              <span>Atividade</span>
+              <span>Vencimento</span>
+            </div>
             {alunosFiltrados.slice(0, 100).map((a) => {
               const dias = diasSemEstudar(a.last_study_date);
               return (
@@ -197,9 +206,9 @@ export function AlunosTab() {
               );
             })}
           </div>
-          {alunosFiltrados.length > 100 && <p className="text-[10px] text-slate-500 p-2 shrink-0">Mostrando os primeiros 100 de {alunosFiltrados.length} resultados. Refine a busca.</p>}
-        </div>
-      )}
+        )}
+        {alunosFiltrados.length > 100 && <p className="text-[10px] text-slate-500 shrink-0">Mostrando os primeiros 100 de {alunosFiltrados.length} resultados. Refine a busca.</p>}
+      </div>
     </div>
   );
 }
