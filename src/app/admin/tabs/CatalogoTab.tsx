@@ -1,8 +1,7 @@
 // @ts-nocheck
 'use client';
-
 import React, { useEffect, useState } from 'react';
-import { Trash2, Star, RefreshCw } from 'lucide-react';
+import { Trash2, RefreshCw, FileText } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
@@ -16,11 +15,7 @@ export function CatalogoTab() {
   const puxarCatalogoReal = async () => {
     setLoading(true);
     try {
-      // Forzamos una lectura limpia y total sin filtros cruzados
-      const { data, error } = await supabase
-        .from('cursos')
-        .select('*');
-        
+      const { data, error } = await supabase.from('cursos').select('*');
       if (error) throw error;
       if (data) setCursos(data);
     } catch (err) {
@@ -34,67 +29,56 @@ export function CatalogoTab() {
   }, []);
 
   const handleEliminarCurso = async (id, titulo) => {
-    const seguro = confirm(`⚠️ AVISO DE CONTROL CRÍTICO ⚠️\n\n¿Estás segura de eliminar permanentemente:\n"${titulo}"?\n\nEsta acción borrará el registro de Supabase al instante.`);
+    const seguro = confirm(`¿Estás segura de eliminar permanentemente "${titulo}"?`);
     if (!seguro) return;
-
     try {
-      const { error } = await supabase
-        .from('cursos')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('cursos').delete().eq('id', id);
       if (error) throw error;
-      alert("✅ Registro eliminado con éxito.");
       puxarCatalogoReal();
     } catch (err) {
       alert("Error al eliminar: " + err.message);
     }
   };
 
-  if (loading) return <div className="p-6 text-xs font-mono text-slate-400 animate-pulse">Sincronizando registros con Supabase...</div>;
+  const COLS = "grid-cols-[1.5fr_1fr_100px_1fr_80px]";
 
   return (
-    <div className="bg-[#0a1424] border rounded-2xl shadow-sm overflow-hidden text-xs text-slate-300 font-bold">
-      <div className="p-4 bg-[#030914] border-b flex justify-between items-center">
-        <h3 className="text-white font-black uppercase tracking-wider">📋 Catálogo & Métricas Activas</h3>
-        <button type="button" onClick={puxarCatalogoReal} className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" title="Forzar Recarga">
-          <RefreshCw size={14} />
-        </button>
+    <div className="flex flex-col gap-4 h-full">
+      <div className="flex items-center justify-between shrink-0">
+        <h2 className="text-lg font-black text-white flex items-center gap-2"><FileText size={18} className="text-cyan-400" /> Catálogo</h2>
+        <button onClick={puxarCatalogoReal} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
       </div>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-[#030914]/50 text-[10px] text-slate-400 uppercase border-b font-black">
-            <th className="p-4">Programa / Idioma Inyectado</th>
-            <th className="p-4">Estudiante / ID</th>
-            <th className="p-4">Semanas</th>
-            <th className="p-4">Calificación</th>
-            <th className="p-4 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 font-medium">
-          {cursos.length === 0 ? (
-            <tr><td colSpan="5" className="p-4 text-center text-slate-400 font-mono">No se detectaron filas en la tabla 'cursos'.</td></tr>
-          ) : (
-            cursos.map(c => (
-              <tr key={c.id} className="hover:bg-[#030914]/40 transition-colors">
-                <td className="p-4 font-black text-white">{c.titulo || 'Sin Título'}</td>
-                <td className="p-4 text-indigo-600 font-bold">{c.id_estudiante || 'Sin ID'}</td>
-                <td className="p-4 font-mono text-slate-400">{c.duracion_semanas || 24} w</td>
-                <td className="p-4">
-                  <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
-                    <Star size={12} className="text-slate-300" /> <em>Sin calificar</em>
-                  </span>
-                </td>
-                <td className="p-4 text-center">
-                  <button type="button" onClick={() => handleEliminarCurso(c.id, c.titulo)} className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-all cursor-pointer">
+
+      {loading ? (
+        <p className="text-sm text-slate-400">Carregando...</p>
+      ) : cursos.length === 0 ? (
+        <p className="text-sm text-slate-400">Nenhum curso cadastrado ainda.</p>
+      ) : (
+        <div className="flex flex-col border border-white/10 rounded-xl overflow-hidden min-h-0 flex-1">
+          <div className={`grid ${COLS} gap-2 px-3 py-2 bg-[#080C16] border-b border-white/10 text-[10px] font-bold text-slate-500 uppercase shrink-0`}>
+            <span>Programa</span>
+            <span>Estudiante</span>
+            <span>Semanas</span>
+            <span>Calificación</span>
+            <span className="text-center">Acciones</span>
+          </div>
+          <div className="overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {cursos.map((c) => (
+              <div key={c.id} className={`grid ${COLS} gap-2 px-3 py-2 border-b border-white/5 text-xs items-center`}>
+                <span className="font-bold text-white truncate">{c.titulo || 'Sin Título'}</span>
+                <span className="text-cyan-400 truncate">{c.id_estudiante || 'Sin ID'}</span>
+                <span className="text-slate-400">{c.duracion_semanas || 24}w</span>
+                <span className="text-slate-500 italic">Sin calificar</span>
+                <span className="text-center">
+                  <button onClick={() => handleEliminarCurso(c.id, c.titulo)} className="text-rose-400/70 hover:text-rose-400">
                     <Trash2 size={14} />
                   </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
