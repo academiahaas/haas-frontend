@@ -1,12 +1,28 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Wand2, CheckCircle2, XCircle, RefreshCw, Layers, ListOrdered, PenTool } from 'lucide-react';
+import { Sparkles, Wand2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const TIPOS_EXERCICIO = [
+  { value: 'multipla_escolha', label: 'Múltipla Escolha', ativo: true },
+  { value: 'vocabulario', label: 'Vocabulário', ativo: false },
+  { value: 'blitz', label: 'Blitz Challenge', ativo: false },
+  { value: 'escrita', label: 'Escrita', ativo: false },
+  { value: 'leitura', label: 'Leitura', ativo: false },
+  { value: 'escuta', label: 'Escuta', ativo: false },
+  { value: 'fala', label: 'Fala', ativo: false },
+  { value: 'reordenacao', label: 'Reordenação de Parágrafos', ativo: false },
+  { value: 'traducao_inversa', label: 'Tradução Inversa', ativo: false },
+  { value: 'lacuna', label: 'Preencher Lacuna', ativo: false },
+  { value: 'velocidade', label: 'Velocidade Progressiva', ativo: false },
+  { value: 'caca_erro', label: 'Caça-Erro', ativo: false },
+  { value: 'roleplay', label: 'Roleplay', ativo: false },
+];
 
 export function GeradorExerciciosTab() {
   const [cursos, setCursos] = useState([]);
@@ -18,6 +34,7 @@ export function GeradorExerciciosTab() {
   const [unidades, setUnidades] = useState([]);
   const [unidadeId, setUnidadeId] = useState('');
 
+  const [tipoExercicio, setTipoExercicio] = useState('multipla_escolha');
   const [idiomaAlvo, setIdiomaAlvo] = useState('português');
   const [idiomaNativo, setIdiomaNativo] = useState('español');
   const [quantidade, setQuantidade] = useState('3');
@@ -117,112 +134,127 @@ export function GeradorExerciciosTab() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-black text-white flex items-center gap-2"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
+    <div className="flex flex-col gap-4 h-full min-h-0">
+      <h2 className="text-lg font-black text-white flex items-center gap-2 shrink-0"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
 
-      <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 text-[11px] text-cyan-300">
-        ✅ Los ejercicios generados quedan como <strong>rascunho</strong> — solo entran al sistema real después de tu aprobación manual.
-      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-4 pr-1">
 
-      <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 flex flex-col gap-3">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Curso</span>
-            <select value={cursoId} onChange={(e) => setCursoId(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
-              <option value="">Elegir curso...</option>
-              {cursos.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
-            </select>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Nivel</span>
-            <select value={nivelId} onChange={(e) => setNivelId(e.target.value)} disabled={!cursoId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
-              <option value="">Elegir nivel...</option>
-              {niveis.map((n) => <option key={n.id} value={n.id}>{n.level_tag} — {n.level_name}</option>)}
-            </select>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Módulo</span>
-            <select value={moduloId} onChange={(e) => setModuloId(e.target.value)} disabled={!nivelId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
-              <option value="">Elegir módulo...</option>
-              {modulos.map((m) => <option key={m.id} value={m.id}>Mód. {m.module_number}: {m.module_title}</option>)}
-            </select>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Unidad</span>
-            <select value={unidadeId} onChange={(e) => setUnidadeId(e.target.value)} disabled={!moduloId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
-              <option value="">Elegir unidad...</option>
-              {unidades.map((u) => <option key={u.id} value={u.id}>Un. {u.unit_number}: {u.unit_title}</option>)}
-            </select>
-          </div>
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3 text-[11px] text-cyan-300 shrink-0">
+          ✅ Los ejercicios generados quedan como <strong>rascunho</strong> — solo entran al sistema real después de tu aprobación manual.
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 flex flex-col gap-3 shrink-0">
           <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Idioma que aprende</span>
-            <input value={idiomaAlvo} onChange={(e) => setIdiomaAlvo(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Idioma nativo</span>
-            <input value={idiomaNativo} onChange={(e) => setIdiomaNativo(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Cantidad</span>
-            <input type="number" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} min="1" max="10" className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Dificultad</span>
-            <select value={dificuldade} onChange={(e) => setDificuldade(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
-              <option value="easy">Fácil</option>
-              <option value="medium">Medio</option>
-              <option value="hard">Difícil</option>
+            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Tipo de Ejercicio</span>
+            <select value={tipoExercicio} onChange={(e) => setTipoExercicio(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
+              {TIPOS_EXERCICIO.map((t) => (
+                <option key={t.value} value={t.value} disabled={!t.ativo}>
+                  {t.label}{!t.ativo ? ' (Em breve)' : ''}
+                </option>
+              ))}
             </select>
           </div>
-        </div>
 
-        <button onClick={handleGerar} disabled={gerando || !unidadeId} className="mt-2 flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg disabled:opacity-40 disabled:cursor-not-allowed">
-          <Wand2 size={14} /> {gerando ? 'Generando...' : 'Generar Ejercicios (Múltipla Escolha)'}
-        </button>
-      </div>
-
-      <div className="pt-2 border-t border-white/10">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold text-slate-400 uppercase">Rascunhos Pendientes de Revisión ({rascunhos.length})</p>
-          <button onClick={carregarRascunhos} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={12} /></button>
-        </div>
-
-        {loadingRascunhos ? (
-          <p className="text-xs text-slate-400">Cargando...</p>
-        ) : rascunhos.length === 0 ? (
-          <p className="text-xs text-slate-500">Ningún rascunho pendiente.</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {rascunhos.map((r) => (
-              <div key={r.id} className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-[9px] text-slate-500">
-                  <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded font-bold">{r.level_tag}</span>
-                  <span>Unidad {r.unit_number}</span>
-                  <span className="px-2 py-0.5 bg-violet-500/10 text-violet-300 rounded font-bold">Múltipla Escolha</span>
-                </div>
-                <p className="text-sm font-bold text-white">{r.reading_text}</p>
-                <p className="text-xs text-emerald-400">✓ {r.correct_answer}</p>
-                <div className="flex flex-wrap gap-1">
-                  {(r.alternative_options || []).map((op, i) => (
-                    <span key={i} className="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded">{op}</span>
-                  ))}
-                </div>
-                <p className="text-[10px] text-slate-400 italic">{r.correct_feedback}</p>
-                <div className="flex gap-2 pt-2 border-t border-white/5">
-                  <button onClick={() => handleAprovar(r)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
-                    <CheckCircle2 size={12} /> Aprobar
-                  </button>
-                  <button onClick={() => handleRejeitar(r.id)} className="flex items-center gap-1 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase rounded-lg border border-rose-500/20">
-                    <XCircle size={12} /> Rechazar
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Curso</span>
+              <select value={cursoId} onChange={(e) => setCursoId(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="">Elegir curso...</option>
+                {cursos.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+              </select>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Nivel</span>
+              <select value={nivelId} onChange={(e) => setNivelId(e.target.value)} disabled={!cursoId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
+                <option value="">Elegir nivel...</option>
+                {niveis.map((n) => <option key={n.id} value={n.id}>{n.level_tag} — {n.level_name}</option>)}
+              </select>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Módulo</span>
+              <select value={moduloId} onChange={(e) => setModuloId(e.target.value)} disabled={!nivelId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
+                <option value="">Elegir módulo...</option>
+                {modulos.map((m) => <option key={m.id} value={m.id}>Mód. {m.module_number}: {m.module_title}</option>)}
+              </select>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Unidad</span>
+              <select value={unidadeId} onChange={(e) => setUnidadeId(e.target.value)} disabled={!moduloId} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white disabled:opacity-40">
+                <option value="">Elegir unidad...</option>
+                {unidades.map((u) => <option key={u.id} value={u.id}>Un. {u.unit_number}: {u.unit_title}</option>)}
+              </select>
+            </div>
           </div>
-        )}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Idioma que aprende</span>
+              <input value={idiomaAlvo} onChange={(e) => setIdiomaAlvo(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Idioma nativo</span>
+              <input value={idiomaNativo} onChange={(e) => setIdiomaNativo(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Cantidad</span>
+              <input type="number" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} min="1" max="10" className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Dificultad</span>
+              <select value={dificuldade} onChange={(e) => setDificuldade(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="easy">Fácil</option>
+                <option value="medium">Medio</option>
+                <option value="hard">Difícil</option>
+              </select>
+            </div>
+          </div>
+
+          <button onClick={handleGerar} disabled={gerando || !unidadeId} className="mt-2 flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg disabled:opacity-40 disabled:cursor-not-allowed">
+            <Wand2 size={14} /> {gerando ? 'Generando...' : 'Generar Ejercicios'}
+          </button>
+        </div>
+
+        <div className="pt-2 border-t border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold text-slate-400 uppercase">Rascunhos Pendientes de Revisión ({rascunhos.length})</p>
+            <button onClick={carregarRascunhos} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={12} /></button>
+          </div>
+
+          {loadingRascunhos ? (
+            <p className="text-xs text-slate-400">Cargando...</p>
+          ) : rascunhos.length === 0 ? (
+            <p className="text-xs text-slate-500">Ningún rascunho pendiente.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {rascunhos.map((r) => (
+                <div key={r.id} className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-[9px] text-slate-500">
+                    <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded font-bold">{r.level_tag}</span>
+                    <span>Unidad {r.unit_number}</span>
+                    <span className="px-2 py-0.5 bg-violet-500/10 text-violet-300 rounded font-bold">Múltipla Escolha</span>
+                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded font-bold uppercase">{r.difficulty_level}</span>
+                  </div>
+                  <p className="text-sm font-bold text-white">{r.reading_text}</p>
+                  <p className="text-xs text-emerald-400">✓ {r.correct_answer}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(r.alternative_options || []).map((op, i) => (
+                      <span key={i} className="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded">{op}</span>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-400 italic">{r.correct_feedback}</p>
+                  <div className="flex gap-2 pt-2 border-t border-white/5">
+                    <button onClick={() => handleAprovar(r)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
+                      <CheckCircle2 size={12} /> Aprobar
+                    </button>
+                    <button onClick={() => handleRejeitar(r.id)} className="flex items-center gap-1 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase rounded-lg border border-rose-500/20">
+                      <XCircle size={12} /> Rechazar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
