@@ -54,16 +54,16 @@ export function CatalogoTab() {
   if (loading) return <div className="p-6 text-xs font-mono text-slate-400 animate-pulse">Sincronizando registros con Supabase...</div>;
 
   return (
-    <div className="bg-white border rounded-2xl shadow-sm overflow-hidden text-xs text-slate-700 font-bold">
-      <div className="p-4 bg-slate-50 border-b flex justify-between items-center">
-        <h3 className="text-slate-900 font-black uppercase tracking-wider">📋 Catálogo & Métricas Activas</h3>
-        <button type="button" onClick={puxarCatalogoReal} className="p-1.5 text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer" title="Forzar Recarga">
+    <div className="bg-[#0a1424] border rounded-2xl shadow-sm overflow-hidden text-xs text-slate-300 font-bold">
+      <div className="p-4 bg-[#030914] border-b flex justify-between items-center">
+        <h3 className="text-white font-black uppercase tracking-wider">📋 Catálogo & Métricas Activas</h3>
+        <button type="button" onClick={puxarCatalogoReal} className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer" title="Forzar Recarga">
           <RefreshCw size={14} />
         </button>
       </div>
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-slate-50/50 text-[10px] text-slate-400 uppercase border-b font-black">
+          <tr className="bg-[#030914]/50 text-[10px] text-slate-400 uppercase border-b font-black">
             <th className="p-4">Programa / Idioma Inyectado</th>
             <th className="p-4">Estudiante / ID</th>
             <th className="p-4">Semanas</th>
@@ -76,10 +76,10 @@ export function CatalogoTab() {
             <tr><td colSpan="5" className="p-4 text-center text-slate-400 font-mono">No se detectaron filas en la tabla 'cursos'.</td></tr>
           ) : (
             cursos.map(c => (
-              <tr key={c.id} className="hover:bg-slate-50/40 transition-colors">
-                <td className="p-4 font-black text-slate-900">{c.titulo || 'Sin Título'}</td>
+              <tr key={c.id} className="hover:bg-[#030914]/40 transition-colors">
+                <td className="p-4 font-black text-white">{c.titulo || 'Sin Título'}</td>
                 <td className="p-4 text-indigo-600 font-bold">{c.id_estudiante || 'Sin ID'}</td>
-                <td className="p-4 font-mono text-slate-500">{c.duracion_semanas || 24} w</td>
+                <td className="p-4 font-mono text-slate-400">{c.duracion_semanas || 24} w</td>
                 <td className="p-4">
                   <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
                     <Star size={12} className="text-slate-300" /> <em>Sin calificar</em>

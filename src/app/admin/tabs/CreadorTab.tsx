@@ -80,10 +80,10 @@ export function CreadorTab() {
   };
 
   return (
-    <div className="space-y-6 text-slate-700">
-      <div className="bg-white border p-6 rounded-2xl shadow-sm space-y-5">
+    <div className="space-y-6 text-slate-300">
+      <div className="bg-[#0a1424] border p-6 rounded-2xl shadow-sm space-y-5">
         <div>
-          <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
             <Sparkles size={16} className="text-indigo-600"/> Panel de Control de Operaciones IA
           </h3>
         </div>
@@ -92,7 +92,7 @@ export function CreadorTab() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <span className="text-[10px] text-indigo-600 font-black uppercase flex items-center gap-1"><UserCheck size={12}/> Alumno</span>
-              <select value={targetEstudante} onChange={e => setTargetEstudante(e.target.value)} className="w-full px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-xl outline-none font-black text-xs" required>
+              <select value={targetEstudante} onChange={e => setTargetEstudante(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-cyan-500/20 rounded-xl outline-none font-black text-xs" required>
                 <option value="">Elegir alumno...</option>
                 {opcionesDestinatarios.map(opc => <option key={opc.valor} value={opc.valor}>{opc.label}</option>)}
               </select>
@@ -101,28 +101,28 @@ export function CreadorTab() {
             {/* 🌐 NUEVO SELECTOR DE IDIOMA TARGET */}
             <div className="space-y-1">
               <span className="text-[10px] text-emerald-600 font-black uppercase flex items-center gap-1"><Languages size={12}/> Idioma del Curso</span>
-              <select value={idiomaCurso} onChange={e => setIdiomaCurso(e.target.value)} className="w-full px-3 py-2 bg-emerald-50 text-emerald-950 border border-emerald-100 rounded-xl outline-none font-black text-xs">
+              <select value={idiomaCurso} onChange={e => setIdiomaCurso(e.target.value)} className="w-full px-3 py-2 bg-[#030914] text-white border border-emerald-500/20 rounded-xl outline-none font-black text-xs">
                 {opcionesIdiomas.map(lang => <option key={lang} value={lang}>{lang}</option>)}
               </select>
             </div>
 
             <div className="space-y-1">
               <span className="text-[10px] text-slate-400 font-black uppercase">Enfoque de la IA</span>
-              <input type="text" value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder="Ej: Negocios Tecnológicos, Viajes" className="w-full px-3 py-2 bg-slate-50 border rounded-xl outline-none font-medium text-slate-800" required />
+              <input type="text" value={promptInput} onChange={e => setPromptInput(e.target.value)} placeholder="Ej: Negocios Tecnológicos, Viajes" className="w-full px-3 py-2 bg-[#030914] border border-white/10 rounded-xl outline-none font-medium text-white placeholder:text-slate-500" required />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="space-y-1">
               <span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><CalendarDays size={12}/> Duración</span>
-              <select value={meses} onChange={e => setMeses(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border rounded-xl outline-none text-xs">
+              <select value={meses} onChange={e => setMeses(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-white/10 rounded-xl outline-none text-xs text-white">
                 {[1,2,3,4,5,6,8,10,12].map(m => <option key={m} value={m}>{m} {m === 1 ? 'Mes' : 'Meses'}</option>)}
               </select>
             </div>
-            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><Clock size={12}/> Intensidad</span><select value={ritmo} onChange={e => setRitmo(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"><option value="regular">Regular</option><option value="intensivo">Intensivo</option></select></div>
-            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><Users2 size={12}/> Modalidad</span><select value={modalidade} onChange={e => setModalidade(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"><option value="particular">Particular</option><option value="grupo">Grupo</option></select></div>
-            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><ShieldAlert size={12}/> Perfil</span><select value={publico} onChange={e => setPublico(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"><option value="adulto">Adulto</option><option value="corporativo">Corporativo</option><option value="turismo">Turismo</option></select></div>
-            <div className="space-y-1"><span className="text-[10px] text-indigo-600 font-black uppercase flex items-center gap-1">Nivel Objetivo</span><select value={nivel} onChange={e => setNivel(e.target.value)} className="w-full px-3 py-2 bg-indigo-50 border rounded-xl text-xs">{['A1','A2','B1','B2','C1','C2'].map(n => <option key={n} value={n}>{n}</option>)}</select></div>
+            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><Clock size={12}/> Intensidad</span><select value={ritmo} onChange={e => setRitmo(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-white/10 rounded-xl text-xs text-white"><option value="regular">Regular</option><option value="intensivo">Intensivo</option></select></div>
+            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><Users2 size={12}/> Modalidad</span><select value={modalidade} onChange={e => setModalidade(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-white/10 rounded-xl text-xs text-white"><option value="particular">Particular</option><option value="grupo">Grupo</option></select></div>
+            <div className="space-y-1"><span className="text-[10px] text-slate-400 font-black uppercase flex items-center gap-1"><ShieldAlert size={12}/> Perfil</span><select value={publico} onChange={e => setPublico(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-white/10 rounded-xl text-xs text-white"><option value="adulto">Adulto</option><option value="corporativo">Corporativo</option><option value="turismo">Turismo</option></select></div>
+            <div className="space-y-1"><span className="text-[10px] text-indigo-600 font-black uppercase flex items-center gap-1">Nivel Objetivo</span><select value={nivel} onChange={e => setNivel(e.target.value)} className="w-full px-3 py-2 bg-[#030914] border border-cyan-500/20 rounded-xl text-white text-xs">{['A1','A2','B1','B2','C1','C2'].map(n => <option key={n} value={n}>{n}</option>)}</select></div>
           </div>
 
           <div className="flex justify-end pt-3 border-t">
@@ -134,8 +134,8 @@ export function CreadorTab() {
       </div>
 
       {cursoGenerado && (
-        <div className="bg-white border rounded-2xl p-4 flex justify-between items-center animate-[scaleUp_0.1s_ease-out]">
-          <div className="text-xs font-black text-slate-900">
+        <div className="bg-[#0a1424] border rounded-2xl p-4 flex justify-between items-center animate-[scaleUp_0.1s_ease-out]">
+          <div className="text-xs font-black text-white">
             <span className="block text-sm">{cursoGenerado.titulo}</span>
             <span className="text-[11px] text-indigo-600">Para: {cursoGenerado.destinatario}</span>
           </div>

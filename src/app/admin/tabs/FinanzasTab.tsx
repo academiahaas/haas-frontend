@@ -60,7 +60,7 @@ export function FinanzasTab() {
           <p className="text-[10px] text-emerald-500/80">{qtdConfirmados} pagamentos</p>
         </div>
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-amber-400 uppercase">Pendente</p>
+          <p className="text-[10px] font-bold text-amber-400 uppercase">Estimado</p>
           <p className="text-lg font-black text-amber-300">$ {totalPendente.toLocaleString('es-CO')}</p>
           <p className="text-[10px] text-amber-500/80">{qtdPendentes} pagamentos</p>
         </div>
@@ -74,7 +74,7 @@ export function FinanzasTab() {
         <select value={filtro} onChange={(e) => setFiltro(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
           <option value="todos">Todos</option>
           <option value="completed">Confirmados</option>
-          <option value="pending">Pendentes</option>
+          <option value="pending">Estimados</option>
         </select>
       </div>
 
@@ -102,7 +102,7 @@ export function FinanzasTab() {
                     {p.status === 'completed' ? (
                       <span className="flex items-center gap-1 text-emerald-400 font-bold"><CheckCircle2 size={12} /> Confirmado</span>
                     ) : (
-                      <span className="flex items-center gap-1 text-amber-400 font-bold"><Clock size={12} /> Pendente</span>
+                      <span className="flex items-center gap-1 text-amber-400 font-bold"><Clock size={12} /> Estimado</span>
                     )}
                   </td>
                   <td className="py-2 pr-4 text-slate-300">{p.user_email}</td>
