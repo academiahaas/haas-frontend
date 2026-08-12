@@ -398,6 +398,37 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
       if (error) throw error;
       console.log("✅ Cancelamento persistido com sucesso!");
 
+      // Envia e-mail de confirmação de cancelamento
+      try {
+        const { data: { user: authUserCancel } } = await supabase.auth.getUser();
+        const emailAlunoCancel = authUserCancel?.email;
+        if (emailAlunoCancel) {
+          const { data: dadosNomeCancel } = await supabase.from("users").select("name").eq("email", emailAlunoCancel).maybeSingle();
+          const nomeAlunoCancel = dadosNomeCancel?.name || emailAlunoCancel.split("@")[0];
+          const langCancel = idioma === "PT" ? "pt" : idioma === "EN" ? "en" : "es";
+          const aulaCancelada = aulas.find((a) => a.id === aulaSelecionadaId);
+          const dataCancelada = aulaCancelada?.data || "";
+          const horaCancelada = aulaCancelada?.horario || "";
+          const textosCancel = {
+            pt: { assunto: "Aula cancelada", titulo: "Aula Cancelada", corpo: `Olá, ${nomeAlunoCancel}. Confirmamos o cancelamento da sua aula de ${dataCancelada} às ${horaCancelada}. Você pode agendar uma nova aula quando quiser pelo portal.` },
+            es: { assunto: "Clase cancelada", titulo: "Clase Cancelada", corpo: `Hola, ${nomeAlunoCancel}. Confirmamos la cancelación de tu clase del ${dataCancelada} a las ${horaCancelada}. Puedes agendar una nueva clase cuando quieras desde el portal.` },
+            en: { assunto: "Class cancelled", titulo: "Class Cancelled", corpo: `Hello, ${nomeAlunoCancel}. We confirm the cancellation of your class on ${dataCancelada} at ${horaCancelada}. You can schedule a new class anytime through the portal.` },
+          };
+          const tCancel = textosCancel[langCancel as "pt" | "es" | "en"];
+          fetch("/api/email/enviar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              destinatario: emailAlunoCancel,
+              assunto: tCancel.assunto,
+              corpoHtml: `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>${tCancel.titulo}</h2><p>${tCancel.corpo}</p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`,
+            }),
+          }).catch((e) => console.warn("Erro ao enviar e-mail de cancelamento:", e));
+        }
+      } catch (emailErr) {
+        console.warn("Erro ao processar e-mail de cancelamento:", emailErr);
+      }
+
       // REGRA DE NEGÓCIO: Cancelamento vira SEMPRE crédito de reposição
       const novoValorReposicao = planoAluno.creditosReposicao + 1;
 
@@ -633,6 +664,30 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
         if (data && data.id) {
           nova.id = data.id;
         }
+
+        // Envia e-mail de confirmação de aula agendada
+        supabase.auth.getUser().then(async ({ data: { user: authUserEmail } }) => {
+          const emailAluno = authUserEmail?.email;
+          if (!emailAluno) return;
+          const { data: dadosNome } = await supabase.from("users").select("name").eq("email", emailAluno).maybeSingle();
+          const nomeAluno = dadosNome?.name || emailAluno.split("@")[0];
+          const lang = idioma === "PT" ? "pt" : idioma === "EN" ? "en" : "es";
+          const textos = {
+            pt: { assunto: "Sua aula foi agendada!", titulo: "Aula Agendada", corpo: `Olá, ${nomeAluno}! Sua aula foi agendada para ${selectedDate} às ${selectedHorario}. Não se esqueça de entrar no portal alguns minutos antes.` },
+            es: { assunto: "¡Tu clase fue agendada!", titulo: "Clase Agendada", corpo: `¡Hola, ${nomeAluno}! Tu clase fue agendada para el ${selectedDate} a las ${selectedHorario}. No olvides ingresar al portal unos minutos antes.` },
+            en: { assunto: "Your class has been scheduled!", titulo: "Class Scheduled", corpo: `Hello, ${nomeAluno}! Your class has been scheduled for ${selectedDate} at ${selectedHorario}. Don't forget to log into the portal a few minutes early.` },
+          };
+          const t = textos[lang as "pt" | "es" | "en"];
+          fetch("/api/email/enviar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              destinatario: emailAluno,
+              assunto: t.assunto,
+              corpoHtml: `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>${t.titulo}</h2><p>${t.corpo}</p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`,
+            }),
+          }).catch((e) => console.warn("Erro ao enviar e-mail de aula agendada:", e));
+        }).catch((e) => console.warn("Erro ao buscar usuário para e-mail:", e));
 
         const campoCredito = tipoBanco === "reposicao" ? "replacement_credits" : "class_credits_available";
         const valorAtual = tipoBanco === "reposicao" ? planoAluno.creditosReposicao : planoAluno.creditosAulas;

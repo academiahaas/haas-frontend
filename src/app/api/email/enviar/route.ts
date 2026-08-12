@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     await transporter.sendMail({
-      from: '"Academia Haas" <contact@academiahaas.com>',
+      from: '"Haas Language" <contact@academiahaas.com>',
       to: destinatario,
       subject: assunto,
       html: corpoHtml,

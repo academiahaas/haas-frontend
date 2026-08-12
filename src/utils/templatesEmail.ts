@@ -17,7 +17,7 @@ function envelope(titulo: string, corpo: string): string {
       <h2 style="color: #1a1a2e;">${titulo}</h2>
       <div style="color: #333; font-size: 15px; line-height: 1.6;">${corpo}</div>
       <hr style="margin-top: 32px; border: none; border-top: 1px solid #eee;" />
-      <p style="color: #999; font-size: 11px;">Academia Haas</p>
+      <p style="color: #999; font-size: 11px;">Haas Language</p>
     </div>
   `;
 }
