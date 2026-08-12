@@ -7,7 +7,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 export async function POST(req: NextRequest) {
   try {
-    const { unitId, idiomaAlvo, idiomaNativo, quantidade } = await req.json();
+    const { unitId, idiomaAlvo, idiomaNativo, quantidade, dificuldade } = await req.json();
 
     if (!unitId || !idiomaAlvo || !idiomaNativo) {
       return NextResponse.json({ erro: "Parâmetros ausentes." }, { status: 400 });
@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
     const prompt = `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
 
 Crie ${qtd} exercício(s) de MÚLTIPLA ESCOLHA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+Nível de dificuldade destes exercícios especificamente: ${dificuldade || 'medium'} (easy = mais simples e direto, medium = padrão, hard = exige mais domínio da estrutura, pode incluir nuances ou pegadinhas comuns).
 
 Contexto pedagógico da unidade (uso interno, pode estar em qualquer idioma):
 - Título: ${unidade.unit_title}
@@ -112,6 +114,7 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, sem texto antes ou de
       unit_number: unidade.unit_number,
       module: modulo?.module_title || null,
       activity_type: 1,
+      difficulty_level: dificuldade || 'medium',
       reading_text: ex.reading_text,
       correct_answer: ex.correct_answer,
       alternative_options: ex.alternative_options,

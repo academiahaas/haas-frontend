@@ -21,6 +21,7 @@ export function GeradorExerciciosTab() {
   const [idiomaAlvo, setIdiomaAlvo] = useState('português');
   const [idiomaNativo, setIdiomaNativo] = useState('español');
   const [quantidade, setQuantidade] = useState('3');
+  const [dificuldade, setDificuldade] = useState('medium');
 
   const [gerando, setGerando] = useState(false);
   const [rascunhos, setRascunhos] = useState([]);
@@ -68,7 +69,7 @@ export function GeradorExerciciosTab() {
       const resp = await fetch('/api/ai/gerar-exercicio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ unitId: unidadeId, idiomaAlvo, idiomaNativo, quantidade: Number(quantidade) }),
+        body: JSON.stringify({ unitId: unidadeId, idiomaAlvo, idiomaNativo, quantidade: Number(quantidade), dificuldade }),
       });
       const data = await resp.json();
       if (data.erro) {
@@ -167,6 +168,14 @@ export function GeradorExerciciosTab() {
           <div>
             <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Cantidad</span>
             <input type="number" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} min="1" max="10" className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white" />
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 font-black uppercase mb-1 block">Dificultad</span>
+            <select value={dificuldade} onChange={(e) => setDificuldade(e.target.value)} className="w-full bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-xs text-white">
+              <option value="easy">Fácil</option>
+              <option value="medium">Medio</option>
+              <option value="hard">Difícil</option>
+            </select>
           </div>
         </div>
 
