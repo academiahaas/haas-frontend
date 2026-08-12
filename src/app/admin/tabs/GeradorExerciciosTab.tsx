@@ -192,6 +192,7 @@ export function GeradorExerciciosTab() {
                 <div className="flex items-center gap-2 text-[9px] text-slate-500">
                   <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded font-bold">{r.level_tag}</span>
                   <span>Unidad {r.unit_number}</span>
+                  <span className="px-2 py-0.5 bg-violet-500/10 text-violet-300 rounded font-bold">Múltipla Escolha</span>
                 </div>
                 <p className="text-sm font-bold text-white">{r.reading_text}</p>
                 <p className="text-xs text-emerald-400">✓ {r.correct_answer}</p>
