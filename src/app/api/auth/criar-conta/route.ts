@@ -35,6 +35,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: data.msg || data.error_description || data.message || "Erro ao criar conta." }, { status: res.status });
     }
 
+    // Envia e-mail de boas-vindas (não bloqueia a resposta se falhar)
+    try {
+      const nomeAluno = email.split("@")[0];
+      fetch(`${req.nextUrl.origin}/api/email/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinatario: email,
+          assunto: "¡Bienvenido(a) a Haas Language!",
+          corpoHtml: `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>¡Hola, ${nomeAluno}!</h2><p>¡Bienvenido(a) a Haas Language! Estamos muy felices de tenerte con nosotros. Accede al portal y comienza tu viaje de aprendizaje ahora mismo.</p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`,
+        }),
+      }).catch((e) => console.warn("Erro ao enviar e-mail de boas-vindas:", e));
+    } catch (emailErr) {
+      console.warn("Erro ao processar e-mail de boas-vindas:", emailErr);
+    }
+
     return NextResponse.json({ success: true, userId: data.id });
   } catch (err: any) {
     console.error("[criar-conta] Exceção:", err);
