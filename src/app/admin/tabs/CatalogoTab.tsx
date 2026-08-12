@@ -20,6 +20,7 @@ export function CatalogoTab() {
   const [unidadeAberta, setUnidadeAberta] = useState(null);
   const [exercicios, setExercicios] = useState({});
   const [videos, setVideos] = useState({});
+  const [leituras, setLeituras] = useState({});
 
   const carregarCursos = async () => {
     setLoading(true);
@@ -62,16 +63,20 @@ export function CatalogoTab() {
     }
   };
 
-  const toggleUnidade = async (unidadeId) => {
+  const toggleUnidade = async (unidadeId, unitNumber, levelTag) => {
     if (unidadeAberta === unidadeId) { setUnidadeAberta(null); return; }
     setUnidadeAberta(unidadeId);
     if (!exercicios[unidadeId]) {
-      const { data, count } = await supabase.from('exercises').select('id, activity_type, difficulty_level', { count: 'exact' }).eq('unit', unidadeId).limit(50);
+      const { data, count } = await supabase.from('exercises').select('id, activity_type, difficulty_level', { count: 'exact' }).eq('unit', unitNumber).eq('level', levelTag).limit(50);
       setExercicios((prev) => ({ ...prev, [unidadeId]: { lista: data || [], total: count || 0 } }));
     }
     if (!videos[unidadeId]) {
       const { data } = await supabase.from('video_lessons').select('id, topic, video_url, skill_code').eq('unit_id', unidadeId);
       setVideos((prev) => ({ ...prev, [unidadeId]: data || [] }));
+    }
+    if (!leituras[unidadeId]) {
+      const { data } = await supabase.from('reading_lesson').select('id, title').eq('unit_id', unidadeId);
+      setLeituras((prev) => ({ ...prev, [unidadeId]: data || [] }));
     }
   };
 
@@ -140,7 +145,7 @@ export function CatalogoTab() {
                                       ) : (
                                         (unidades[mod.id] || []).map((un) => (
                                           <div key={un.id} className="border border-white/5 rounded-lg overflow-hidden">
-                                            <button onClick={() => toggleUnidade(un.id)} className="w-full flex items-center justify-between px-3 py-1 bg-transparent hover:bg-[#0a1424]/40 transition-all">
+                                            <button onClick={() => toggleUnidade(un.id, un.unit_number, nivel.level_tag)} className="w-full flex items-center justify-between px-3 py-1 bg-transparent hover:bg-[#0a1424]/40 transition-all">
                                               <span className="flex items-center gap-2 text-[9px] font-bold text-emerald-300"><PenTool size={10} /> Unidad {un.unit_number}: {un.unit_title}</span>
                                               <span className="flex items-center gap-2 text-[8px] text-slate-500">
                                                 {unidadeAberta === un.id ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
@@ -176,6 +181,20 @@ export function CatalogoTab() {
                                                         <a key={v.id} href={v.video_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-violet-300 hover:text-violet-200 underline truncate">
                                                           {v.topic || v.skill_code || 'Video'}
                                                         </a>
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <div>
+                                                  <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">📖 Contenido Escrito</p>
+                                                  {!leituras[un.id] ? (
+                                                    <p className="text-[9px] text-slate-500">Cargando...</p>
+                                                  ) : leituras[un.id].length === 0 ? (
+                                                    <p className="text-[9px] text-slate-500">Ningún contenido escrito.</p>
+                                                  ) : (
+                                                    <div className="flex flex-col gap-1">
+                                                      {leituras[un.id].map((l) => (
+                                                        <span key={l.id} className="text-[9px] text-emerald-300">{l.title || 'Lectura'}</span>
                                                       ))}
                                                     </div>
                                                   )}
