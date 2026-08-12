@@ -99,6 +99,17 @@ export function ProfesoresTab() {
         periodo_fim: new Date().toISOString(),
       }]);
       if (error) throw error;
+
+      // Registra também na aba de Gastos, para entrar no balance mensal
+      const hoje = new Date();
+      const mesReferencia = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-01`;
+      await supabase.from('gastos').insert([{
+        descricao: `Pago profesor: ${professor.name} (${quantidade} clases)`,
+        categoria: 'variavel',
+        valor: valor,
+        mes_referencia: mesReferencia,
+      }]);
+
       carregarDados();
     } catch (err) {
       alert('Erro ao registrar pagamento: ' + err.message);
