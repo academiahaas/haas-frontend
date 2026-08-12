@@ -9,6 +9,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export function AgendaTab() {
+  const [idiomaFiltro, setIdiomaFiltro] = useState('ingles');
+  const [novoIdioma, setNovoIdioma] = useState('ingles');
   const [dataSelecionada, setDataSelecionada] = useState(() => {
     const hoje = new Date();
     return hoje.toISOString().split('T')[0];
@@ -31,6 +33,7 @@ export function AgendaTab() {
       const { data, error } = await supabase
         .from('aulas_disponiveis')
         .select('*')
+        .eq('idioma', idiomaFiltro)
         .gte('data_hora_inicio', inicioDiaBogota.toISOString())
         .lte('data_hora_inicio', fimDiaBogota.toISOString())
         .order('data_hora_inicio');
@@ -45,7 +48,7 @@ export function AgendaTab() {
 
   useEffect(() => {
     carregarHorarios();
-  }, [dataSelecionada]);
+  }, [dataSelecionada, idiomaFiltro]);
 
   const formatarHoraBogota = (iso) => {
     return new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -97,6 +100,7 @@ export function AgendaTab() {
         vagas_maximas: Number(novasVagas),
         vagas_ocupadas: 0,
         status: 'DISPONIVEL',
+        idioma: novoIdioma,
       }]);
 
       if (error) throw error;
@@ -118,6 +122,12 @@ export function AgendaTab() {
       <div className="flex items-center justify-between flex-wrap gap-2 shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><CalendarClock size={18} className="text-cyan-400" /> Agenda</h2>
         <div className="flex gap-2 items-center">
+          <select value={idiomaFiltro} onChange={(e) => setIdiomaFiltro(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="ingles">Inglés</option>
+            <option value="portugues">Portugués</option>
+            <option value="espanol">Español</option>
+            <option value="frances">Francés</option>
+          </select>
           <input type="date" value={dataSelecionada} onChange={(e) => setDataSelecionada(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
           <button onClick={carregarHorarios} className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={14} /></button>
           <button onClick={() => setModalAberto(true)} className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg">
@@ -170,6 +180,12 @@ export function AgendaTab() {
             <select value={novoTipo} onChange={(e) => { setNovoTipo(e.target.value); setNovasVagas(e.target.value === 'GRUPO' ? '8' : '1'); }} className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
               <option value="PARTICULAR">Particular</option>
               <option value="GRUPO">Grupo</option>
+            </select>
+            <select value={novoIdioma} onChange={(e) => setNovoIdioma(e.target.value)} className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+              <option value="ingles">Inglés</option>
+              <option value="portugues">Portugués</option>
+              <option value="espanol">Español</option>
+            <option value="frances">Francés</option>
             </select>
             <input type="number" value={novasVagas} onChange={(e) => setNovasVagas(e.target.value)} placeholder="Vagas máximas" className="bg-[#030914] border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
             <button onClick={handleCriarHorario} className="mt-2 py-2.5 bg-gradient-to-r from-cyan-500 to-violet-600 hover:brightness-110 text-white text-xs font-black uppercase tracking-wider rounded-lg">Crear Horario</button>

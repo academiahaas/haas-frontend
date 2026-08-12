@@ -2,6 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { RefreshCw, Users, Search, AlertTriangle } from 'lucide-react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
@@ -81,6 +82,21 @@ export function AlunosTab() {
     return Math.round(validos.reduce((soma, a) => soma + Number(a[campo] || 0), 0) / validos.length);
   };
 
+  const dadosFrequencia = [
+    { name: 'Activos (≤3d)', value: alunos.filter((a) => { const d = diasSemEstudar(a.last_study_date); return d !== null && d <= 3; }).length, color: '#34d399' },
+    { name: 'Moderado (4-7d)', value: alunos.filter((a) => { const d = diasSemEstudar(a.last_study_date); return d !== null && d > 3 && d <= 7; }).length, color: '#fbbf24' },
+    { name: 'Parado (>7d)', value: alunos.filter((a) => { const d = diasSemEstudar(a.last_study_date); return d !== null && d > 7; }).length, color: '#fb7185' },
+    { name: 'Sin datos', value: alunos.filter((a) => diasSemEstudar(a.last_study_date) === null).length, color: '#64748b' },
+  ].filter((d) => d.value > 0);
+
+  const dadosHabilidades = [
+    { name: 'Fala', valor: mediaGeral('score_fala') },
+    { name: 'Escuta', valor: mediaGeral('score_escuta') },
+    { name: 'Leitura', valor: mediaGeral('score_leitura') },
+    { name: 'Escrita', valor: mediaGeral('score_escrita') },
+    { name: 'Gramática', valor: mediaGeral('score_gramatica') },
+  ];
+
   const COLS = "grid-cols-[1.3fr_1.5fr_70px_70px_70px_70px_70px_70px_90px_100px]";
 
   return (
@@ -108,6 +124,32 @@ export function AlunosTab() {
           <p className="text-lg font-black text-violet-300">
             {Math.round((mediaGeral('score_fala') + mediaGeral('score_escuta') + mediaGeral('score_leitura') + mediaGeral('score_escrita') + mediaGeral('score_gramatica')) / 5)}%
           </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 shrink-0">
+        <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Frecuencia de Estudio</p>
+          <ResponsiveContainer width="100%" height={160}>
+            <PieChart>
+              <Pie data={dadosFrequencia} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label={(entry) => entry.value}>
+                {dadosFrequencia.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+              </Pie>
+              <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Desempeño por Habilidad (Media General %)</p>
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={dadosHabilidades}>
+              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+              <Tooltip contentStyle={{ background: '#0a1424', border: '1px solid rgba(255,255,255,0.1)', fontSize: 11 }} />
+              <Bar dataKey="valor" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
