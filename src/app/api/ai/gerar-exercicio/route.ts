@@ -21,8 +21,9 @@ function montarPrompt(activityType: number, quantidade: number, unidade: any, le
 REGRAS OBRIGATÓRIAS:
 - Todo o conteúdo do exercício (pergunta, resposta, opções) deve estar 100% em ${idiomaAlvo}. NUNCA em ${idiomaNativo}.
 - Os textos de feedback e incentivo devem estar 100% em ${idiomaNativo}, motivacionais.
-- correct_feedback: explica por que a resposta está certa (1-2 frases)
-- incorrect_feedback: explica a regra/erro comum (1-2 frases)
+- ATENÇÃO ESPECIAL: correct_feedback e incorrect_feedback são os campos que mais erram o idioma, porque explicam gramática de ${idiomaAlvo}. Mesmo assim, TODO o texto explicativo deve estar em ${idiomaNativo} — você pode citar palavras isoladas de ${idiomaAlvo} entre aspas, mas a explicação inteira (frases, conectivos, tudo) tem que estar 100% em ${idiomaNativo}. NUNCA escreva a explicação inteira em ${idiomaAlvo}.
+- correct_feedback: explica por que a resposta está certa, em ${idiomaNativo} (1-2 frases)
+- incorrect_feedback: explica a regra/erro comum, em ${idiomaNativo} (1-2 frases)
 - correct_incentive: frase curta e empolgante
 - incorrect_incentive: frase curta e gentil
 - Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)`;
