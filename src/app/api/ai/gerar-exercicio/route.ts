@@ -5,37 +5,72 @@ const GEMINI_MODEL = "gemini-2.5-flash";
 const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-async function gerarLoteExercicios(unidade: any, levelTag: string, idiomaAlvo: string, idiomaNativo: string, dificuldade: string, quantidade: number, apiKey: string) {
-  if (quantidade <= 0) return [];
+const DEFINICAO_DIFICULDADE = `Definição pedagógica do nível (siga rigorosamente):
+- easy: reconhecimento imediato de vocabulário, associação direta, fixação elementar. Frases curtas e óbvias.
+- medium: estruturação sintática correta, amarras gramaticais (preposições, concordância), aplicação de regra em contexto simples e direto.
+- hard: análise sob contexto, interpretação de nuances, possíveis duplos sentidos, expressões idiomáticas ou gírias regionais leves, coesão entre frases mais longas. Não é "vocabulário raro", é raciocínio linguístico mais elaborado.`;
 
-  const prompt = `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
-
-Crie ${quantidade} exercício(s) de MÚLTIPLA ESCOLHA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
-
-Contexto pedagógico da unidade (uso interno, pode estar em qualquer idioma):
+function montarPrompt(activityType: number, quantidade: number, unidade: any, levelTag: string, idiomaAlvo: string, idiomaNativo: string, dificuldade: string) {
+  const contexto = `Contexto pedagógico da unidade (uso interno, pode estar em qualquer idioma):
 - Título: ${unidade.unit_title}
 - Objetivo: ${unidade.pedagogical_objective}
 - Conteúdo situacional: ${unidade.situational_content}
-- Estrutura gramatical: ${unidade.hidden_grammatical_structure}
+- Estrutura gramatical: ${unidade.hidden_grammatical_structure}`;
 
-Nível de dificuldade destes exercícios: ${dificuldade}.
-Definição pedagógica do nível (siga rigorosamente):
-- easy: reconhecimento imediato de vocabulário, associação direta, fixação elementar. Frases curtas e óbvias.
-- medium: estruturação sintática correta, amarras gramaticais (preposições, concordância), aplicação de regra em contexto simples e direto.
-- hard: análise sob contexto, interpretação de nuances, possíveis duplos sentidos, expressões idiomáticas ou gírias regionais leves, coesão entre frases mais longas. Não é "vocabulário raro", é raciocínio linguístico mais elaborado.
-
+  const regrasComuns = `
 REGRAS OBRIGATÓRIAS:
-- A pergunta (reading_text), a resposta correta e as opções alternativas devem estar 100% em ${idiomaAlvo}. NUNCA em ${idiomaNativo}.
+- Todo o conteúdo do exercício (pergunta, resposta, opções) deve estar 100% em ${idiomaAlvo}. NUNCA em ${idiomaNativo}.
 - Os textos de feedback e incentivo devem estar 100% em ${idiomaNativo}, motivacionais.
 - correct_feedback: explica por que a resposta está certa (1-2 frases)
 - incorrect_feedback: explica a regra/erro comum (1-2 frases)
 - correct_incentive: frase curta e empolgante
 - incorrect_incentive: frase curta e gentil
-- alternative_options: array com exatamente 3 opções erradas plausíveis
-- Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)
+- Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)`;
+
+  if (activityType === 1) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
+
+Crie ${quantidade} exercício(s) de MÚLTIPLA ESCOLHA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+${contexto}
+
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- alternative_options: array com exatamente 3 opções erradas plausíveis (a resposta certa NÃO deve estar aqui)
 
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
-[{"reading_text": "...", "correct_answer": "...", "alternative_options": ["...","...","..."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+[{"reading_text": "pergunta ou frase com lacuna", "correct_answer": "resposta correta", "alternative_options": ["errada1","errada2","errada3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
+  if (activityType === 2) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+
+Crie ${quantidade} exercício(s) do tipo CAÇA-ERRO para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+Neste tipo, o aluno vê 4 frases e precisa identificar QUAL DELAS tem um erro gramatical. As outras 3 devem estar corretas.
+
+${contexto}
+
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: sempre a instrução "Selecione a opção com o erro." (em ${idiomaNativo}, já que é instrução de interface)
+- correct_answer: a frase ERRADA (a que tem o erro gramatical que o aluno deve identificar)
+- alternative_options: array com exatamente 3 frases CORRETAS (sem erro nenhum), plausíveis e do mesmo nível de complexidade
+- O erro na frase errada deve ser sutil mas real (concordância, tempo verbal, regência, etc — apropriado ao nível ${dificuldade})
+
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Selecione a opção com o erro.", "correct_answer": "frase com erro gramatical", "alternative_options": ["frase correta 1","frase correta 2","frase correta 3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
+  throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
+}
+
+async function gerarLoteExercicios(activityType: number, unidade: any, levelTag: string, idiomaAlvo: string, idiomaNativo: string, dificuldade: string, quantidade: number, apiKey: string) {
+  if (quantidade <= 0) return [];
+
+  const prompt = montarPrompt(activityType, quantidade, unidade, levelTag, idiomaAlvo, idiomaNativo, dificuldade);
 
   const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
@@ -60,11 +95,16 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
   return exercicios.map((ex: any) => ({ ...ex, difficulty_level: dificuldade }));
 }
 
+const NOMES_ATIVIDADE: Record<number, string> = {
+  1: "MÚLTIPLA ESCOLHA",
+  2: "CAÇA ERRO",
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const { unitId, idiomaAlvo, idiomaNativo, metaEasy, metaMedium, metaHard } = await req.json();
+    const { unitId, idiomaAlvo, idiomaNativo, metaEasy, metaMedium, metaHard, activityType } = await req.json();
 
-    if (!unitId || !idiomaAlvo || !idiomaNativo) {
+    if (!unitId || !idiomaAlvo || !idiomaNativo || !activityType) {
       return NextResponse.json({ erro: "Parâmetros ausentes." }, { status: 400 });
     }
 
@@ -99,11 +139,10 @@ export async function POST(req: NextRequest) {
 
     const levelTag = nivel?.level_tag || "A1";
 
-    // Gera os 3 lotes (fácil, médio, difícil) em sequência
     const todosExercicios = [];
     for (const [dif, qtd] of [["easy", metaEasy], ["medium", metaMedium], ["hard", metaHard]]) {
       if (Number(qtd) > 0) {
-        const lote = await gerarLoteExercicios(unidade, levelTag, idiomaAlvo, idiomaNativo, dif as string, Number(qtd), apiKey);
+        const lote = await gerarLoteExercicios(activityType, unidade, levelTag, idiomaAlvo, idiomaNativo, dif as string, Number(qtd), apiKey);
         todosExercicios.push(...lote);
       }
     }
@@ -113,7 +152,8 @@ export async function POST(req: NextRequest) {
       level_tag: levelTag,
       unit_number: unidade.unit_number,
       module: modulo?.module_title || null,
-      activity_type: 1,
+      activity_type: activityType,
+      activity_name: NOMES_ATIVIDADE[activityType] || `TIPO ${activityType}`,
       difficulty_level: ex.difficulty_level,
       reading_text: ex.reading_text,
       correct_answer: ex.correct_answer,
@@ -134,12 +174,6 @@ export async function POST(req: NextRequest) {
       console.error("Erro ao salvar rascunho:", erroSalvar);
       return NextResponse.json({ erro: "Exercícios gerados, mas falha ao salvar rascunho." }, { status: 500 });
     }
-
-    // Marca o progresso como "em_progresso"
-    await supabase.from("unit_exercise_progress").upsert(
-      { unit_id: unitId, tipo_exercicio: "multipla_escolha", status: "em_progresso" },
-      { onConflict: "unit_id,tipo_exercicio" }
-    );
 
     return NextResponse.json({ exercicios: salvos });
   } catch (err: any) {
