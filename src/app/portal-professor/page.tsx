@@ -5,6 +5,13 @@ import React, { useState, useEffect } from "react";
 import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
+interface PendenteAvaliacao {
+  aula_id: string;
+  user_id: string;
+  nome_aluno: string;
+  data_aula: string;
+}
+
 interface Avaliacao {
   rating_stars: number;
   comment: string | null;
@@ -175,10 +182,24 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
   ]
 };
 
+function EstrelasInput({ valor, onChange }: { valor: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button key={n} type="button" onClick={() => onChange(n)} className="text-xl leading-none transition-transform hover:scale-110">
+          <span className={n <= valor ? "text-amber-400" : "text-slate-700"}>{"\u2605"}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function PortalProfessor() {
   const [professor, setProfessor] = useState<DadosProfessor | null>(null);
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+  const [pendentesAvaliacao, setPendentesAvaliacao] = useState<PendenteAvaliacao[]>([]);
+  const [indiceCartaAtual, setIndiceCartaAtual] = useState(0);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
@@ -206,6 +227,51 @@ export default function PortalProfessor() {
   const [imagemReporte, setImagemReporte] = useState<File | null>(null);
   const [enviandoReporte, setEnviandoReporte] = useState(false);
   const [reporteMsg, setReporteMsg] = useState("");
+
+  const [notasCarta, setNotasCarta] = useState({ fala: 0, escuta: 0, leitura: 0, escrita: 0, gramatica: 0, comment: "" });
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
+  const timerAutoSalvarRef = React.useRef<any>(null);
+
+  const enviarAvaliacaoAtual = async () => {
+    const carta = pendentesAvaliacao[indiceCartaAtual];
+    if (!carta || !professor) return;
+    setEnviandoAvaliacao(true);
+
+    await supabase.from("class_evaluations").upsert([{
+      aula_id: carta.aula_id,
+      user_id: carta.user_id,
+      teacher_id: professor.id,
+      score_fala: notasCarta.fala,
+      score_escuta: notasCarta.escuta,
+      score_leitura: notasCarta.leitura,
+      score_escrita: notasCarta.escrita,
+      score_gramatica: notasCarta.gramatica,
+      comment: notasCarta.comment
+    }], { onConflict: "aula_id,user_id" });
+
+    await supabase.from("users").update({
+      score_fala: notasCarta.fala * 20,
+      score_escuta: notasCarta.escuta * 20,
+      score_leitura: notasCarta.leitura * 20,
+      score_escrita: notasCarta.escrita * 20,
+      score_gramatica: notasCarta.gramatica * 20
+    }).eq("id", carta.user_id);
+
+    setEnviandoAvaliacao(false);
+    setNotasCarta({ fala: 0, escuta: 0, leitura: 0, escrita: 0, gramatica: 0, comment: "" });
+    setIndiceCartaAtual((i) => i + 1);
+  };
+
+  useEffect(() => {
+    if (timerAutoSalvarRef.current) clearTimeout(timerAutoSalvarRef.current);
+    const requisitosObrigatoriosOk = notasCarta.fala > 0 && notasCarta.escuta > 0 && notasCarta.gramatica > 0;
+    if (requisitosObrigatoriosOk && pendentesAvaliacao[indiceCartaAtual]) {
+      timerAutoSalvarRef.current = setTimeout(() => {
+        enviarAvaliacaoAtual();
+      }, 5000);
+    }
+    return () => { if (timerAutoSalvarRef.current) clearTimeout(timerAutoSalvarRef.current); };
+  }, [notasCarta, indiceCartaAtual]);
 
   const enviarReporte = async () => {
     if (!professor || !aulaReporte) return;
@@ -349,6 +415,30 @@ export default function PortalProfessor() {
 
         if (avaliacoesReais) {
           setAvaliacoes(avaliacoesReais);
+        }
+
+        const { data: matriculas } = await supabase
+          .from("aula_matriculas")
+          .select("aula_id, user_id, aulas_disponiveis!inner(data_hora_fim, teacher_id), users!inner(name)")
+          .eq("aulas_disponiveis.teacher_id", teacherId)
+          .lt("aulas_disponiveis.data_hora_fim", new Date().toISOString());
+
+        const { data: jaAvaliadas } = await supabase
+          .from("class_evaluations")
+          .select("aula_id, user_id")
+          .eq("teacher_id", teacherId);
+
+        if (matriculas) {
+          const avaliadasSet = new Set((jaAvaliadas || []).map((a: any) => `${a.aula_id}_${a.user_id}`));
+          const pendentes = matriculas
+            .filter((m: any) => !avaliadasSet.has(`${m.aula_id}_${m.user_id}`))
+            .map((m: any) => ({
+              aula_id: m.aula_id,
+              user_id: m.user_id,
+              nome_aluno: m.users?.name || "Alumno",
+              data_aula: m.aulas_disponiveis?.data_hora_fim || ""
+            }));
+          setPendentesAvaliacao(pendentes);
         }
       } catch (err) {
         console.error("Error al cargar datos del profesor:", err);
@@ -663,6 +753,52 @@ export default function PortalProfessor() {
 
           {vistaAtiva === "prep" && (
             <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+              {pendentesAvaliacao.length > 0 && indiceCartaAtual < pendentesAvaliacao.length && (
+                <section className="bg-gradient-to-br from-cyan-950/40 to-purple-950/40 border border-cyan-500/30 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="font-bold text-base text-slate-100">
+                        {idioma === "es" ? "Evaluar alumno" : idioma === "en" ? "Evaluate student" : "Avaliar aluno"}
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-0.5">{pendentesAvaliacao[indiceCartaAtual].nome_aluno}</p>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono">{indiceCartaAtual + 1} / {pendentesAvaliacao.length}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-300 font-medium">{idioma === "es" ? "Habla" : idioma === "en" ? "Speaking" : "Fala"}</span>
+                      <EstrelasInput valor={notasCarta.fala} onChange={(v) => setNotasCarta({ ...notasCarta, fala: v })} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-300 font-medium">{idioma === "es" ? "Escucha" : idioma === "en" ? "Listening" : "Escuta"}</span>
+                      <EstrelasInput valor={notasCarta.escuta} onChange={(v) => setNotasCarta({ ...notasCarta, escuta: v })} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-300 font-medium">{idioma === "es" ? "Gramatica" : idioma === "en" ? "Grammar" : "Gramatica"}</span>
+                      <EstrelasInput valor={notasCarta.gramatica} onChange={(v) => setNotasCarta({ ...notasCarta, gramatica: v })} />
+                    </div>
+                    <div className="border-t border-white/10 pt-3">
+                      <p className="text-[10px] text-slate-500 mb-2">
+                        {idioma === "es" ? "Completa solo si trabajaste esto en la clase" : idioma === "en" ? "Only fill in if you practiced this in class" : "Preencha somente se trabalhou isso na aula"}
+                      </p>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-slate-300 font-medium">{idioma === "es" ? "Lectura" : idioma === "en" ? "Reading" : "Leitura"}</span>
+                        <EstrelasInput valor={notasCarta.leitura} onChange={(v) => setNotasCarta({ ...notasCarta, leitura: v })} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-300 font-medium">{idioma === "es" ? "Escritura" : idioma === "en" ? "Writing" : "Escrita"}</span>
+                        <EstrelasInput valor={notasCarta.escrita} onChange={(v) => setNotasCarta({ ...notasCarta, escrita: v })} />
+                      </div>
+                    </div>
+                    <textarea value={notasCarta.comment} onChange={(e) => setNotasCarta({ ...notasCarta, comment: e.target.value })} placeholder={idioma === "es" ? "Comentario (opcional)" : idioma === "en" ? "Comment (optional)" : "Comentario (opcional)"} rows={2} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 resize-none mt-1" />
+                    <button onClick={enviarAvaliacaoAtual} disabled={enviandoAvaliacao} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2.5 rounded-lg transition-all">
+                      {enviandoAvaliacao ? "..." : (idioma === "es" ? "Enviar y siguiente" : idioma === "en" ? "Send and next" : "Enviar e proximo")}
+                    </button>
+                  </div>
+                </section>
+              )}
+
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <h2 className="font-bold text-base text-slate-200 mb-4">
                   {idioma === "es" ? "Como dar tu clase" : idioma === "en" ? "How to run your class" : "Como dar sua aula"}
