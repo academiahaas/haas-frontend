@@ -93,7 +93,8 @@ export default function MioloOrdenacao({
       // 1. Mapeia a frase correta (Buscando em todas as colunas possíveis de texto)
       const correctString = String(ex.correct_answer || ex.text || ex.question || "").trim();
       setReferencePhrase(correctString);
-      setTextoParaFalar(correctString);
+      setTextoParaFalar(ex.audio_transcript || correctString);
+      audioUrlOrdenacaoRef.current = ex.audio_url || "";
       
       // 2. Extrai e processa as opções (Buscando em alternative_options ou options)
       let parsedOptions = [];
