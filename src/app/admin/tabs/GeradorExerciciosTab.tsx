@@ -124,7 +124,6 @@ export function GeradorExerciciosTab() {
       if (data.erro) {
         alert('Error: ' + data.erro);
       } else {
-        alert(`${data.exercicios?.length || 0} ejercicio(s) generado(s) como rascunho.`);
         carregarRascunhos();
       }
     } catch (err) {
@@ -175,6 +174,9 @@ export function GeradorExerciciosTab() {
       reading_text: rascunho.reading_text,
       correct_answer: rascunho.correct_answer,
       correct_feedback: rascunho.correct_feedback,
+      incorrect_feedback: rascunho.incorrect_feedback,
+      correct_incentive: rascunho.correct_incentive,
+      incorrect_incentive: rascunho.incorrect_incentive,
     }).eq('id', rascunho.id);
   };
 
@@ -301,7 +303,32 @@ export function GeradorExerciciosTab() {
                     onBlur={() => handleSalvarEdicao(r)}
                     className="text-[10px] text-slate-400 italic bg-transparent border border-white/10 rounded-lg px-2 py-1 resize-none"
                     rows={2}
+                    placeholder="Feedback correcto"
                   />
+                  <textarea
+                    value={r.incorrect_feedback}
+                    onChange={(e) => handleEditarCampo(r.id, 'incorrect_feedback', e.target.value)}
+                    onBlur={() => handleSalvarEdicao(r)}
+                    className="text-[10px] text-slate-400 italic bg-transparent border border-white/10 rounded-lg px-2 py-1 resize-none"
+                    rows={2}
+                    placeholder="Feedback incorrecto"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      value={r.correct_incentive}
+                      onChange={(e) => handleEditarCampo(r.id, 'correct_incentive', e.target.value)}
+                      onBlur={() => handleSalvarEdicao(r)}
+                      className="text-[10px] text-emerald-300 bg-transparent border border-white/10 rounded-lg px-2 py-1"
+                      placeholder="Incentivo (acierto)"
+                    />
+                    <input
+                      value={r.incorrect_incentive}
+                      onChange={(e) => handleEditarCampo(r.id, 'incorrect_incentive', e.target.value)}
+                      onBlur={() => handleSalvarEdicao(r)}
+                      className="text-[10px] text-amber-300 bg-transparent border border-white/10 rounded-lg px-2 py-1"
+                      placeholder="Incentivo (error)"
+                    />
+                  </div>
                   <div className="flex gap-2 pt-2 border-t border-white/5">
                     <button onClick={() => handleAprovar(r)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
                       <CheckCircle2 size={12} /> Aprobar
