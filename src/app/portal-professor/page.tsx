@@ -24,6 +24,13 @@ interface DadosProfessor {
   rate_per_class: number | null;
   meeting_link: string | null;
   payment_status: string | null;
+  payment_method: string | null;
+  bank_name: string | null;
+  account_type: string | null;
+  account_number: string | null;
+  account_holder_name: string | null;
+  document_number: string | null;
+  nequi_phone: string | null;
 }
 
 type IdiomaInterface = "es" | "en" | "pt";
@@ -125,6 +132,48 @@ export default function PortalProfessor() {
   useEffect(() => {
     localStorage.setItem("haas_professor_idioma", idioma);
   }, [idioma]);
+
+  const [pagoAberto, setPagoAberto] = useState(false);
+  const [metodoPago, setMetodoPago] = useState<"banco" | "nequi">("banco");
+  const [formPago, setFormPago] = useState({
+    bank_name: "", account_type: "Ahorros", account_number: "", account_holder_name: "", document_number: "", nequi_phone: ""
+  });
+  const [salvandoPago, setSalvandoPago] = useState(false);
+  const [pagoSalvoMsg, setPagoSalvoMsg] = useState("");
+
+  useEffect(() => {
+    if (professor) {
+      setMetodoPago((professor.payment_method as "banco" | "nequi") || "banco");
+      setFormPago({
+        bank_name: professor.bank_name || "",
+        account_type: professor.account_type || "Ahorros",
+        account_number: professor.account_number || "",
+        account_holder_name: professor.account_holder_name || "",
+        document_number: professor.document_number || "",
+        nequi_phone: professor.nequi_phone || ""
+      });
+    }
+  }, [professor]);
+
+  const salvarDadosPago = async () => {
+    if (!professor) return;
+    setSalvandoPago(true);
+    setPagoSalvoMsg("");
+    const { error } = await supabase
+      .from("teachers")
+      .update({
+        payment_method: metodoPago,
+        bank_name: formPago.bank_name,
+        account_type: formPago.account_type,
+        account_number: formPago.account_number,
+        account_holder_name: formPago.account_holder_name,
+        document_number: formPago.document_number,
+        nequi_phone: formPago.nequi_phone
+      })
+      .eq("id", professor.id);
+    setSalvandoPago(false);
+    setPagoSalvoMsg(error ? "error" : "ok");
+  };
   const [perfilAberto, setPerfilAberto] = useState(false);
 
   const handleLogout = () => {
@@ -148,7 +197,7 @@ export default function PortalProfessor() {
 
         const { data: dadosProfessor, error: erroProfessor } = await supabase
           .from("teachers")
-          .select("id, name, email, monthly_rate, rate_per_class, meeting_link, payment_status")
+          .select("id, name, email, monthly_rate, rate_per_class, meeting_link, payment_status, payment_method, bank_name, account_type, account_number, account_holder_name, document_number, nequi_phone")
           .eq("id", teacherId)
           .maybeSingle();
 
@@ -365,6 +414,57 @@ export default function PortalProfessor() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </section>
+
+          <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <div>
+                <h2 className="font-bold text-base text-slate-200">Datos de pago</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Completa tus datos para recibir el pago sin tener que contactarnos</p>
+              </div>
+              <button onClick={() => setPagoAberto(!pagoAberto)} className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all">
+                {pagoAberto ? "Ocultar" : (professor?.payment_method ? "Editar" : "Completar")}
+              </button>
+            </div>
+
+            {pagoAberto && (
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-2">
+                  <button onClick={() => setMetodoPago("banco")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "banco" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
+                    Cuenta bancaria
+                  </button>
+                  <button onClick={() => setMetodoPago("nequi")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "nequi" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
+                    Nequi
+                  </button>
+                </div>
+
+                {metodoPago === "banco" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input value={formPago.bank_name} onChange={(e) => setFormPago({ ...formPago, bank_name: e.target.value })} placeholder="Nombre del banco" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                    <select value={formPago.account_type} onChange={(e) => setFormPago({ ...formPago, account_type: e.target.value })} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
+                      <option value="Ahorros">Cuenta de ahorros</option>
+                      <option value="Corriente">Cuenta corriente</option>
+                    </select>
+                    <input value={formPago.account_number} onChange={(e) => setFormPago({ ...formPago, account_number: e.target.value })} placeholder="Numero de cuenta" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                    <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                    <input value={formPago.document_number} onChange={(e) => setFormPago({ ...formPago, document_number: e.target.value })} placeholder="Numero de cedula" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 sm:col-span-2" />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input value={formPago.nequi_phone} onChange={(e) => setFormPago({ ...formPago, nequi_phone: e.target.value })} placeholder="Numero de celular con Nequi" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                    <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <button onClick={salvarDadosPago} disabled={salvandoPago} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                    {salvandoPago ? "Guardando..." : "Guardar datos"}
+                  </button>
+                  {pagoSalvoMsg === "ok" && <span className="text-xs text-emerald-400 font-semibold">Guardado correctamente</span>}
+                  {pagoSalvoMsg === "error" && <span className="text-xs text-rose-400 font-semibold">Error al guardar, intenta de nuevo</span>}
+                </div>
               </div>
             )}
           </section>
