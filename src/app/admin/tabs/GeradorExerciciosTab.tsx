@@ -8,7 +8,7 @@ const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const TIPOS_ATIVOS = [1, 2, 3, 4];
+const TIPOS_ATIVOS = [1, 2, 3, 4, 9];
 
 export function GeradorExerciciosTab() {
   const [cursos, setCursos] = useState([]);
@@ -179,6 +179,7 @@ export function GeradorExerciciosTab() {
         skill_code: rascunho.skill_code,
         audio_url: audioUrl,
         texto_audio: rascunho.texto_audio,
+        audio_transcript: rascunho.audio_transcript,
       }]);
       if (erroInsert) throw erroInsert;
 
@@ -345,6 +346,16 @@ export function GeradorExerciciosTab() {
                     className="text-sm font-bold text-white bg-transparent border border-white/10 rounded-lg px-2 py-1.5 resize-none"
                     rows={2}
                   />
+                  {r.audio_transcript && (
+                    <textarea
+                      value={r.audio_transcript}
+                      onChange={(e) => handleEditarCampo(r.id, 'audio_transcript', e.target.value)}
+                      onBlur={() => handleSalvarEdicao(r)}
+                      className="text-sm font-bold text-purple-300 bg-purple-950/20 border border-purple-500/30 rounded-lg px-2 py-1.5 resize-none"
+                      rows={2}
+                      placeholder="Áudio (o que será falado)"
+                    />
+                  )}
                   <input
                     value={r.correct_answer}
                     onChange={(e) => handleEditarCampo(r.id, 'correct_answer', e.target.value)}

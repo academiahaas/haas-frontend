@@ -6,7 +6,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 export async function POST(req: NextRequest) {
   try {
-    const { texto, exerciseId } = await req.json();
+    const { texto, exerciseId, voz } = await req.json();
     if (!texto || !exerciseId) {
       return NextResponse.json({ erro: "Parâmetros ausentes." }, { status: 400 });
     }
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "tts-1",
         input: texto,
-        voice: "fable",
+        voice: voz || "fable",
       }),
     });
 

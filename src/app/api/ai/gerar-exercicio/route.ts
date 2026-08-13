@@ -108,6 +108,20 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Frase com [lacuna] no meio.", "correct_answer": "palavra", "alternative_options": [], "texto_audio": "Frase completa e natural com a palavra certa.", "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 9) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo PRÁTICA DE CONVERSAÇÃO para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text e audio_transcript: os dois DEVEM SER EXATAMENTE IGUAIS, palavra por palavra. Uma única frase em ${idiomaAlvo}, natural, direta, sem nenhuma instrução, contexto, cenário, ou pergunta sobre o que fazer. É a frase que o interlocutor fictício diz pro aluno.
+- correct_answer: uma lista de 5 a 8 palavras-chave em ${idiomaAlvo}, separadas por vírgula
+- alternative_options: sempre um array vazio []
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Oi! Tudo bem? O que você fez no fim de semana?", "audio_transcript": "Oi! Tudo bem? O que você fez no fim de semana?", "correct_answer": "palavra1, palavra2, palavra3", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -144,6 +158,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   2: "CAÇA ERRO",
   3: "DESAFIO BLITZ",
   4: "PALAVRA OCULTA",
+  9: "PRÁTICA DE CONVERSAÇÃO",
 };
 
 let ultimaChamada = 0;
@@ -217,6 +232,7 @@ export async function POST(req: NextRequest) {
       module_id: unidade.module_content_id || null,
       skill_code: unidade.skill_label || null,
       texto_audio: ex.texto_audio || null,
+      audio_transcript: ex.audio_transcript || null,
       activity_type: activityType,
       activity_name: NOMES_ATIVIDADE[activityType] || `TIPO ${activityType}`,
       difficulty_level: ex.difficulty_level,
