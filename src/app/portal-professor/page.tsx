@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from "react";
-import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
+import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink, ZoomIn, ZoomOut, RotateCw, Hand, PenLine, Type, Eraser, X, Menu } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 interface Material {
@@ -374,22 +374,20 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
       <div className="flex items-center justify-between p-3 bg-[#0a1424] border-b border-white/10 shrink-0">
         <span className="text-xs text-slate-300 font-semibold">{material.nome_aluno}</span>
         <div className="flex items-center gap-2">
-          <button onClick={() => setZoom((z) => Math.min(z + 0.25, 3))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">+</button>
-          <button onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">-</button>
-          <button onClick={() => setRotacao((r) => r + 90)} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">{"\u21bb"}</button>
-          <button onClick={() => setModo("mover")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "mover" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
-            {"\u270B"}
+          <button onClick={() => setZoom((z) => Math.min(z + 0.25, 3))} className="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 text-slate-300 border border-white/10 p-2 rounded-lg transition-all"><ZoomIn size={16} /></button>
+          <button onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} className="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 text-slate-300 border border-white/10 p-2 rounded-lg transition-all"><ZoomOut size={16} /></button>
+          <button onClick={() => setRotacao((r) => r + 90)} className="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 text-slate-300 border border-white/10 p-2 rounded-lg transition-all"><RotateCw size={16} /></button>
+          <button onClick={() => setModo("mover")} className={`p-2 rounded-lg border transition-all ${modo === "mover" ? "bg-cyan-500 text-slate-950 border-cyan-500" : "bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-500/20 hover:text-cyan-400"}`}>
+            <Hand size={16} />
           </button>
-          <button onClick={() => setModo("dibujo")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "dibujo" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
-            {idioma === "es" ? "Marcar" : idioma === "en" ? "Mark" : "Marcar"}
+          <button onClick={() => setModo("dibujo")} className={`p-2 rounded-lg border transition-all ${modo === "dibujo" ? "bg-cyan-500 text-slate-950 border-cyan-500" : "bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-500/20 hover:text-cyan-400"}`}>
+            <PenLine size={16} />
           </button>
-          <button onClick={() => setModo("texto")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "texto" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
-            {idioma === "es" ? "Texto" : idioma === "en" ? "Text" : "Texto"}
+          <button onClick={() => setModo("texto")} className={`p-2 rounded-lg border transition-all ${modo === "texto" ? "bg-cyan-500 text-slate-950 border-cyan-500" : "bg-white/5 text-slate-300 border-white/10 hover:bg-cyan-500/20 hover:text-cyan-400"}`}>
+            <Type size={16} />
           </button>
-          <button onClick={limparDibujo} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">
-            {idioma === "es" ? "Borrar" : idioma === "en" ? "Clear" : "Apagar"}
-          </button>
-          <button onClick={onCerrar} className="text-sm bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-1.5 rounded-lg font-bold">{"\u2715"}</button>
+          <button onClick={limparDibujo} className="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-400 text-slate-300 border border-white/10 p-2 rounded-lg transition-all"><Eraser size={16} /></button>
+          <button onClick={onCerrar} className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 p-2 rounded-lg transition-all"><X size={16} /></button>
         </div>
       </div>
       <div
@@ -584,6 +582,7 @@ export default function PortalProfessor() {
     }
   };
   const [perfilAberto, setPerfilAberto] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("haas_teacher_id");
@@ -745,39 +744,48 @@ export default function PortalProfessor() {
     <div className="h-screen overflow-hidden bg-[#030914] text-slate-100 flex flex-col md:flex-row">
       <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
 
-      <aside className="w-full md:w-64 bg-[#0a1424] border-r border-white/10 p-6 flex flex-col justify-between gap-8">
+      {menuAbierto && (
+        <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setMenuAbierto(false)} />
+      )}
+
+      <aside className={`fixed left-0 top-0 h-full w-64 bg-[#0a1424] border-r border-white/10 p-6 flex flex-col justify-between gap-8 z-50 transition-transform duration-300 ${menuAbierto ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col gap-8">
-          <div className="flex items-center gap-3 px-2">
-            <div className="h-9 w-9 bg-gradient-to-tr from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center font-black text-slate-950 text-lg">
-              P
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 bg-gradient-to-tr from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center font-black text-slate-950 text-lg">
+                P
+              </div>
+              <div>
+                <h1 className="font-bold text-base tracking-tight text-slate-100">Haas Docente</h1>
+                <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">{t.subtitulo}</span>
+              </div>
             </div>
-            <div>
-              <h1 className="font-bold text-base tracking-tight text-slate-100">Haas Docente</h1>
-              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">{t.subtitulo}</span>
-            </div>
+            <button onClick={() => setMenuAbierto(false)} className="text-slate-500 hover:text-slate-300">
+              <X size={18} />
+            </button>
           </div>
 
           <nav className="flex flex-col gap-1.5">
-            <button onClick={() => { setVistaAtiva("aulas"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "aulas" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("aulas"); setPerfilAberto(false); setMenuAbierto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "aulas" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <Calendar size={18} />
               <span>{t.misClases}</span>
             </button>
-            <button onClick={() => { setVistaAtiva("pago"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "pago" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("pago"); setPerfilAberto(false); setMenuAbierto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "pago" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <DollarSign size={18} />
               <span>{t.datosPago}</span>
             </button>
-            <button onClick={() => { setVistaAtiva("prep"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "prep" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("prep"); setPerfilAberto(false); setMenuAbierto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "prep" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <ExternalLink size={18} />
               <span>{t.prepClase}</span>
             </button>
-            <button onClick={() => { setVistaAtiva("evaluar"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "evaluar" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("evaluar"); setPerfilAberto(false); setMenuAbierto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "evaluar" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <Users size={18} />
               <span>{idioma === "es" ? "Evaluar" : idioma === "en" ? "Evaluate" : "Avaliar"}</span>
               {pendentesAvaliacao.length > 0 && (
                 <span className="ml-auto bg-cyan-500 text-slate-950 text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center">{pendentesAvaliacao.length}</span>
               )}
             </button>
-            <button onClick={() => { setVistaAtiva("materiales"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "materiales" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("materiales"); setPerfilAberto(false); setMenuAbierto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "materiales" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <ShieldCheck size={18} />
               <span>{idioma === "es" ? "Materiales" : idioma === "en" ? "Materials" : "Materiais"}</span>
               {materiales.length > 0 && (
@@ -822,17 +830,22 @@ export default function PortalProfessor() {
       <div className="flex-1 flex flex-col min-w-0">
 
         <header className="h-16 border-b border-white/10 bg-[#030914]/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <ShieldCheck size={16} className="text-cyan-400 shrink-0" />
-            <span className="text-xs text-slate-400 font-medium truncate">{t.conexionActiva}</span>
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => setMenuAbierto(true)} className="text-slate-400 hover:text-cyan-400 transition-colors">
+              <Menu size={20} />
+            </button>
+            <div className="h-7 w-7 bg-gradient-to-tr from-cyan-500 to-purple-500 rounded-md flex items-center justify-center font-black text-slate-950 text-xs shrink-0">
+              P
+            </div>
+            <span className="text-sm font-bold text-slate-100 truncate">Haas Docente</span>
+            <span className="text-xs text-slate-500 truncate hidden sm:inline">{professor?.name}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setIdioma(idioma === "es" ? "en" : idioma === "en" ? "pt" : "es")}
               className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
             >
-              {idioma === "es" ? "Español" : idioma === "en" ? "English" : "Português"}
-            </button>
+              {idioma === "es" ? "Español" : idioma === "en" ? "English" : "Português"}            </button>
             <button
               onClick={() => setFuso(fuso === "colombia" ? "brasilia" : "colombia")}
               className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
