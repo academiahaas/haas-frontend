@@ -74,7 +74,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     subtitulo: "Panel del Profesor",
     misClases: "Mis clases",
     datosPago: "Mi cuenta",
-    prepClase: "Preparacion de clase",
+    prepClase: "Preparación de clase",
     sesionActiva: "Sesión segura activa",
     conexionActiva: "Conexión segura activa",
     tarifaClase: "Tarifa por clase",
@@ -164,15 +164,15 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
 
 const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]> = {
   es: [
-    { titulo: "1. Inicia sesion correctamente", texto: "Usa una ventana de incognito en tu navegador para entrar al Google Meet con el correo de la empresa: docentes.haas@academiahaas.com / contrasena: MeetHaas*2026. Asi evitas conflictos con tu cuenta personal de Gmail." },
+    { titulo: "1. Inicia sesión correctamente", texto: "Usa una ventana de incógnito en tu navegador para entrar al Google Meet con el correo de la empresa: docentes.haas@academiahaas.com / contraseña: MeetHaas*2026. Así evitas conflictos con tu cuenta personal de Gmail." },
     { titulo: "2. Las clases quedan grabadas", texto: "Esto no es para vigilar tu trabajo. Los alumnos piden las grabaciones con frecuencia para repasar la clase, por eso siempre se graba." },
-    { titulo: "3. Ten 4 ventanas abiertas", texto: "Se recomienda trabajar con cuatro ventanas: (1) la ventana de diapositivas que compartes con el alumno, (2) tu propia ventana de diapositivas donde editas en privado, (3) la ventana del Meet, que puede quedar suelta de fondo, y (4) la ventana de Materiales, para cuando necesites corregir un trabajo escrito con el alumno." },
-    { titulo: "4. Comparte solo la ventana correcta", texto: "En Google Meet, al compartir pantalla elige 'Una ventana' y selecciona SOLO la ventana (1), la que el alumno debe ver. Nunca compartas toda tu pantalla ni tu ventana de edicion privada." },
-    { titulo: "5. Cuidado al cambiar de diapositiva", texto: "Si editas o cambias de diapositiva en tu ventana privada (2), el alumno NO ve el cambio automaticamente. Debes hacer el mismo cambio en la ventana compartida (1) para que el alumno lo vea." },
-    { titulo: "6. Como dividir la pantalla (vista dividida)", texto: "Haz clic en la barra superior de una ventana, mantenla presionada y arrastrala hacia el borde izquierdo o derecho de la pantalla hasta que se pegue. Suelta el clic y elige la otra ventana para el lado restante. En Windows tambien puedes mantener presionado el boton de maximizar para ver mas opciones, incluyendo divisiones en tres partes." },
-    { titulo: "7. Corrige el material escrito de tus alumnos", texto: "En la pestana 'Materiales' encontraras las fotos que tus alumnos enviaron de sus trabajos escritos. Haz clic en una foto para abrirla: puedes hacer zoom, mover y rotar la imagen. Con la herramienta de marcar puedes subrayar en rojo, y con la herramienta de texto puedes escribir notas al lado de la imagen. Recomendamos compartir esta ventana con el alumno (usa el boton gris de compartir que aparece arriba) para hacer la correccion juntos y resolver dudas en el momento. Al cerrar la foto, desaparece de tu lista despues de 3 minutos." },
-    { titulo: "8. Si no tienes PowerPoint instalado", texto: "El archivo de diapositivas es un PowerPoint. Si tu computadora no tiene el programa instalado, puedes usar Google Slides: entra a Google Drive de la escuela, sube el archivo descargado, y abrelo con Google Slides (clic derecho, Abrir con, Google Slides). Desde ahi puedes editar y presentar tu clase normalmente." },
-    { titulo: "6. Abre las diapositivas antes de la clase", texto: "El boton para abrir las diapositivas de tu clase estara disponible aqui mismo, antes de que empiece la clase." }
+    { titulo: "3. Ten 4 ventanas abiertas", texto: "Se recomienda trabajar con cuatro ventanas: (1) la ventana de diapositivas que compartes con el alumno, (2) tu propia ventana de diapositivas donde editas en privado, (3) la ventana de Meet, que puede quedar suelta de fondo, y (4) la ventana de Materiales, para cuando necesites corregir un trabajo escrito con el alumno." },
+    { titulo: "4. Comparte solo la ventana correcta", texto: "En Google Meet, al compartir pantalla elige 'Una ventana' y selecciona SOLO la ventana (1), la que el alumno debe ver. Nunca compartas toda tu pantalla ni tu ventana de edición privada." },
+    { titulo: "5. Cuidado al cambiar de diapositiva", texto: "Si editas o cambias de diapositiva en tu ventana privada (2), el alumno NO ve el cambio automáticamente. Debes hacer el mismo cambio en la ventana compartida (1) para que el alumno lo vea." },
+    { titulo: "6. Cómo dividir la pantalla (vista dividida)", texto: "Haz clic en la barra superior de una ventana, mantenla presionada y arrástrala hacia el borde izquierdo o derecho de la pantalla hasta que se pegue. Suelta el clic y elige la otra ventana para el lado restante. En Windows también puedes mantener presionado el botón de maximizar para ver más opciones, incluyendo división en tres partes." },
+    { titulo: "7. Corrige el material escrito de tus alumnos", texto: "En la pestaña 'Materiales' encontrarás las fotos que tus alumnos enviaron de sus trabajos escritos. Haz clic en una foto para abrirla: puedes hacer zoom, mover y rotar la imagen. Con la herramienta de marcar puedes subrayar en rojo, y con la herramienta de texto puedes escribir notas al lado de la imagen. Recomendamos compartir esta ventana con el alumno (usa el botón gris de compartir que aparece arriba) para hacer la corrección juntos y resolver dudas en el momento. Al cerrar la foto, desaparece de tu lista después de 3 minutos." },
+    { titulo: "8. Si no tienes PowerPoint instalado", texto: "El archivo de diapositivas es un PowerPoint. Si tu computadora no tiene el programa instalado, puedes usar Google Slides: entra a Google Drive de la escuela, sube el archivo descargado, y ábrelo con Google Slides (clic derecho, Abrir con, Google Slides). Desde ahí puedes editar y presentar tu clase normalmente." },
+    { titulo: "9. Abre las diapositivas antes de la clase", texto: "El botón para abrir las diapositivas de tu clase estará disponible aquí mismo, antes de que empiece la clase." }
   ],
   en: [
     { titulo: "1. Log in correctly", texto: "Use an incognito window in your browser to join Google Meet with the company email: docentes.haas@academiahaas.com / password: MeetHaas*2026. This avoids conflicts with your personal Gmail account." },
@@ -181,9 +181,9 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
     { titulo: "4. Share only the right window", texto: "In Google Meet, when sharing your screen choose 'A window' and select ONLY window (1), the one the student should see. Never share your whole screen or your private editing window." },
     { titulo: "5. Be careful when changing slides", texto: "If you edit or change slides in your private window (2), the student does NOT see the change automatically. You must make the same change in the shared window (1) so the student sees it." },
     { titulo: "6. How to split your screen", texto: "Click and hold the title bar of a window, then drag it to the left or right edge of the screen until it snaps. Release, then pick the other window for the remaining side. On Windows you can also hold the maximize button to see more options, including 3-way splits." },
-    { titulo: "7. Correct your students' written material", texto: "In the 'Materials' tab you'll find photos your students sent of their written work. Click a photo to open it: you can zoom, pan and rotate the image. Use the mark tool to underline in red, and the text tool to write notes next to the image. We recommend sharing this window with the student (use the gray share button that appears at the top) to do the correction together and answer questions live. Once you close the photo, it disappears from your list after 3 minutes." },
+    { titulo: "7. Correct your students' written material", texto: "In the 'Materials' tab you'll find photos your students sent of their written work. Click a photo to open it: you can zoom, pan, and rotate the image. Use the mark tool to underline in red, and the text tool to write notes next to the image. We recommend sharing this window with the student (use the gray share button that appears at the top) to do the correction together and answer questions live. Once you close the photo, it disappears from your list after 3 minutes." },
     { titulo: "8. If you don't have PowerPoint installed", texto: "The slides file is a PowerPoint file. If your computer doesn't have the program installed, you can use Google Slides: go to the school's Google Drive, upload the downloaded file, and open it with Google Slides (right-click, Open with, Google Slides). From there you can edit and present your class normally." },
-    { titulo: "6. Open the slides before class", texto: "The button to open your class slides will be available right here, before class starts." }
+    { titulo: "9. Open the slides before class", texto: "The button to open your class slides will be available right here, before class starts." }
   ],
   pt: [
     { titulo: "1. Faça login corretamente", texto: "Use uma janela anônima no seu navegador para entrar no Google Meet com o e-mail da empresa: docentes.haas@academiahaas.com / senha: MeetHaas*2026. Assim você evita conflitos com sua conta pessoal do Gmail." },
@@ -1043,7 +1043,7 @@ export default function PortalProfessor() {
             <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <h2 className="font-bold text-base text-slate-200 mb-4">
-                  {idioma === "es" ? "Como dar tu clase" : idioma === "en" ? "How to run your class" : "Como dar sua aula"}
+                  {idioma === "es" ? "Cómo dar tu clase" : idioma === "en" ? "How to run your class" : "Como dar sua aula"}
                 </h2>
                 <div className="flex flex-col gap-3">
                   {INSTRUCCIONES[idioma].map((item, i) => (
@@ -1060,7 +1060,7 @@ export default function PortalProfessor() {
                   {idioma === "es" ? "Evaluar clase" : idioma === "en" ? "Evaluate class" : "Avaliar aula"}
                 </h2>
                 <p className="text-xs text-slate-500 mb-4">
-                  {idioma === "es" ? "Al terminar la clase, califica brevemente como te fue" : idioma === "en" ? "After class, briefly rate how it went" : "Ao terminar a aula, avalie brevemente como foi."}
+                  {idioma === "es" ? "Al terminar la clase, califica brevemente cómo te fue." : idioma === "en" ? "After class, briefly rate how it went." : "Ao terminar a aula, avalie brevemente como foi."}
                 </p>
                 <div className="flex flex-col gap-3">
                   <select value={aulaReporte} onChange={(e) => setAulaReporte(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
