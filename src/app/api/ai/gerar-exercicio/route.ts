@@ -117,7 +117,7 @@ Nível de dificuldade destes exercícios: ${dificuldade}.
 ${DEFINICAO_DIFICULDADE}
 ${regrasComuns}
 - reading_text e audio_transcript: os dois DEVEM SER EXATAMENTE IGUAIS, palavra por palavra. Uma única frase em ${idiomaAlvo}, natural, direta, sem nenhuma instrução, contexto, cenário, ou pergunta sobre o que fazer. É a frase que o interlocutor fictício diz pro aluno.
-- correct_answer: uma lista de 5 a 8 palavras-chave em ${idiomaAlvo}, separadas por vírgula
+- correct_answer: uma lista de NO MÍNIMO 10 palavras-chave em ${idiomaAlvo}, separadas por vírgula (palavras de conteúdo que uma boa resposta deveria conter)
 - alternative_options: sempre um array vazio []
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Oi! Tudo bem? O que você fez no fim de semana?", "audio_transcript": "Oi! Tudo bem? O que você fez no fim de semana?", "correct_answer": "palavra1, palavra2, palavra3", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
@@ -132,7 +132,7 @@ Nível de dificuldade destes exercícios: ${dificuldade}.
 ${DEFINICAO_DIFICULDADE}
 ${regrasComuns}
 - reading_text e audio_transcript: OS DOIS EXATAMENTE IGUAIS, palavra por palavra. Uma única frase natural e completa em ${idiomaAlvo}, sobre o tema da unidade, sem NENHUMA instrução ou texto adicional — é só a frase que o aluno vai ouvir e repetir.
-- correct_answer: as palavras-chave da frase (as palavras de conteúdo, sem artigos/preposições soltas), em ${idiomaAlvo}, separadas por vírgula — usadas pelo sistema pra avaliar se o aluno disse os elementos certos ao repetir
+- correct_answer: EXATAMENTE IGUAL a reading_text e audio_transcript, palavra por palavra (a mesma frase completa, com NO MÍNIMO 10 palavras)
 - alternative_options: sempre um array vazio []
 - correct_feedback e incorrect_feedback: MUITO CURTOS (máximo 1 frase simples, sem jargão técnico de linguística ou fonética). Fale como alguém animando um amigo, não como um professor de fonética.
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
