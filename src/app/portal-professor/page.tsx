@@ -28,6 +28,18 @@ interface DadosProfessor {
 
 type IdiomaInterface = "es" | "en" | "pt";
 
+const TRADUCAO_IDIOMA_AULA: Record<IdiomaInterface, Record<string, string>> = {
+  es: { portugues: "Portugues", ingles: "Ingles", espanol: "Espanol", frances: "Frances" },
+  en: { portugues: "Portuguese", ingles: "English", espanol: "Spanish", frances: "French" },
+  pt: { portugues: "Portugues", ingles: "Ingles", espanol: "Espanhol", frances: "Frances" }
+};
+
+const TRADUCAO_TIPO_AULA: Record<IdiomaInterface, Record<string, string>> = {
+  es: { GRUPO: "Grupo", PARTICULAR: "Particular" },
+  en: { GRUPO: "Group", PARTICULAR: "Private" },
+  pt: { GRUPO: "Grupo", PARTICULAR: "Particular" }
+};
+
 const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   es: {
     subtitulo: "Panel del Profesor",
@@ -324,7 +336,7 @@ export default function PortalProfessor() {
                     <div className="flex items-center gap-3">
                       <Users size={16} className="text-cyan-400" />
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-slate-200">{aula.tipo_aula || "Clase"} - {aula.idioma}</span>
+                        <span className="text-sm font-medium text-slate-200">{TRADUCAO_TIPO_AULA[idioma][aula.tipo_aula] || aula.tipo_aula} - {TRADUCAO_IDIOMA_AULA[idioma][aula.idioma] || aula.idioma}</span>
                         <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
                       </div>
                     </div>
