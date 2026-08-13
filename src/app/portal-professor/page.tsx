@@ -281,6 +281,7 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
   const [modo, setModo] = useState<"mover" | "dibujo" | "texto">("mover");
   const [arrastrando, setArrastrando] = useState(false);
   const [textoInput, setTextoInput] = useState<{ x: number; y: number; valor: string; telaX: number; telaY: number } | null>(null);
+  const [anotacoesTexto, setAnotacoesTexto] = useState<{ telaX: number; telaY: number; valor: string }[]>([]);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const ultimoPontoRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -356,46 +357,7 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
 
   const confirmarTexto = () => {
     if (!textoInput || !textoInput.valor.trim()) { setTextoInput(null); return; }
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.font = "bold 26px sans-serif";
-        const maxWidth = 420;
-        const palabras = textoInput.valor.trim().split(" ");
-        let linea = "";
-        const lineas: string[] = [];
-        for (const palabra of palabras) {
-          const testLine = linea + palabra + " ";
-          if (ctx.measureText(testLine).width > maxWidth && linea !== "") {
-            lineas.push(linea.trim());
-            linea = palabra + " ";
-          } else {
-            linea = testLine;
-          }
-        }
-        lineas.push(linea.trim());
-
-        const lineHeight = 32;
-        const anchoBloco = Math.min(maxWidth, Math.max(...lineas.map((l) => ctx.measureText(l).width)));
-        const alturaBloco = lineas.length * lineHeight;
-
-        let startX = textoInput.x;
-        let startY = textoInput.y;
-        if (startX + anchoBloco + 20 > canvas.width) startX = canvas.width - anchoBloco - 20;
-        if (startX < 10) startX = 10;
-        if (startY + alturaBloco + 10 > canvas.height) startY = canvas.height - alturaBloco - 10;
-        if (startY < lineHeight) startY = lineHeight;
-
-        ctx.fillStyle = "rgba(255, 235, 59, 0.9)";
-        ctx.fillRect(startX - 8, startY - lineHeight, anchoBloco + 16, alturaBloco + 12);
-
-        ctx.fillStyle = "#111827";
-        lineas.forEach((l, i) => {
-          ctx.fillText(l, startX, startY + i * lineHeight);
-        });
-      }
-    }
+    setAnotacoesTexto((prev) => [...prev, { telaX: textoInput.telaX, telaY: textoInput.telaY, valor: textoInput.valor }]);
     setTextoInput(null);
   };
 
@@ -448,6 +410,11 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
           <img src={material.photo_url} alt="material" className="max-w-none select-none pointer-events-none" style={{ maxHeight: "70vh" }} draggable={false} />
           <canvas ref={canvasRef} width={1000} height={1000} className="absolute inset-0 w-full h-full" />
         </div>
+        {anotacoesTexto.map((a, i) => (
+          <div key={i} className="absolute z-10 bg-white text-black text-sm font-semibold px-2.5 py-1.5 rounded shadow-lg max-w-[300px]" style={{ left: a.telaX, top: a.telaY }}>
+            {a.valor}
+          </div>
+        ))}
         {textoInput && (
           <div
             className="absolute z-10 flex gap-1"
