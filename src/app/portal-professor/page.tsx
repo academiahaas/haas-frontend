@@ -360,9 +360,40 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
     if (canvas) {
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        ctx.fillStyle = "#ef4444";
-        ctx.font = "bold 28px sans-serif";
-        ctx.fillText(textoInput.valor, textoInput.x, textoInput.y);
+        ctx.font = "bold 26px sans-serif";
+        const maxWidth = 420;
+        const palabras = textoInput.valor.trim().split(" ");
+        let linea = "";
+        const lineas: string[] = [];
+        for (const palabra of palabras) {
+          const testLine = linea + palabra + " ";
+          if (ctx.measureText(testLine).width > maxWidth && linea !== "") {
+            lineas.push(linea.trim());
+            linea = palabra + " ";
+          } else {
+            linea = testLine;
+          }
+        }
+        lineas.push(linea.trim());
+
+        const lineHeight = 32;
+        const anchoBloco = Math.min(maxWidth, Math.max(...lineas.map((l) => ctx.measureText(l).width)));
+        const alturaBloco = lineas.length * lineHeight;
+
+        let startX = textoInput.x;
+        let startY = textoInput.y;
+        if (startX + anchoBloco + 20 > canvas.width) startX = canvas.width - anchoBloco - 20;
+        if (startX < 10) startX = 10;
+        if (startY + alturaBloco + 10 > canvas.height) startY = canvas.height - alturaBloco - 10;
+        if (startY < lineHeight) startY = lineHeight;
+
+        ctx.fillStyle = "rgba(255, 235, 59, 0.9)";
+        ctx.fillRect(startX - 8, startY - lineHeight, anchoBloco + 16, alturaBloco + 12);
+
+        ctx.fillStyle = "#111827";
+        lineas.forEach((l, i) => {
+          ctx.fillText(l, startX, startY + i * lineHeight);
+        });
       }
     }
     setTextoInput(null);
@@ -424,15 +455,16 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
           >
-            <input
+            <textarea
               autoFocus
+              rows={2}
               value={textoInput.valor}
               onChange={(e) => setTextoInput({ ...textoInput, valor: e.target.value })}
-              onKeyDown={(e) => e.key === "Enter" && confirmarTexto()}
-              className="bg-white text-black text-base px-3 py-2 rounded min-w-[280px] w-auto"
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); confirmarTexto(); } }}
+              className="bg-white text-black text-base px-3 py-2 rounded w-72 sm:w-96 resize-none"
               placeholder={idioma === "es" ? "Escribe aqui..." : idioma === "en" ? "Type here..." : "Escreva aqui..."}
             />
-            <button onClick={confirmarTexto} className="bg-cyan-500 text-slate-950 text-xs font-bold px-2 rounded">OK</button>
+            <button onClick={confirmarTexto} className="bg-cyan-500 text-slate-950 text-xs font-bold px-3 rounded self-start">OK</button>
           </div>
         )}
       </div>
@@ -478,9 +510,17 @@ export default function PortalProfessor() {
 
   const abrirMaterial = (material: Material) => {
     setMaterialAbierto(material);
-    setTimeout(() => {
-      setMateriales((prev) => prev.filter((m) => m.id !== material.id));
-    }, 180000);
+  };
+
+  const cerrarMaterial = () => {
+    const idMaterial = materialAbierto?.id;
+    setMaterialAbierto(null);
+    if (idMaterial) {
+      setTimeout(async () => {
+        setMateriales((prev) => prev.filter((m) => m.id !== idMaterial));
+        await supabase.from("assignments_submissions").delete().eq("id", idMaterial);
+      }, 180000);
+    }
   };
 
   const marcarComoCompletada = (aulaId: string, userId: string) => {
@@ -1099,7 +1139,7 @@ export default function PortalProfessor() {
           )}
 
           {materialAbierto && (
-            <VisorMaterial material={materialAbierto} idioma={idioma} onCerrar={() => setMaterialAbierto(null)} />
+            <VisorMaterial material={materialAbierto} idioma={idioma} onCerrar={cerrarMaterial} />
           )}
 
         </main>      </div>
