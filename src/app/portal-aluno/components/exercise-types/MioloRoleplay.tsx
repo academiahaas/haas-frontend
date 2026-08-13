@@ -254,6 +254,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
         
         if (exeDados && exeDados.length > 0) {
           falaPartida = exeDados[0].audio_transcript || falaPartida;
+          audioUrlMentoraRef.current = exeDados[0].audio_url || "";
           setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(exeDados[0].incorrect_incentive || "");
           setFeedbackCorretoReal(exeDados[0].correct_feedback || "");
@@ -395,7 +396,14 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
     }
   };
 
+  const audioUrlMentoraRef = useRef<string>("");
+
   const escutarFraseMentora = () => {
+    if (audioUrlMentoraRef.current) {
+      const audio = new Audio(audioUrlMentoraRef.current);
+      audio.play();
+      return;
+    }
     if (typeof window !== "undefined" && phraseIA) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(phraseIA);
