@@ -201,6 +201,25 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "O Brasil é muito grande.", "audio_transcript": "O Brasil é muito grande.", "correct_answer": "O Brasil é muito grande.", "alternative_options": ["O Brasil", "é muito", "grande."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 12) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo TRADUÇÃO INVERSA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno vê uma frase em ${idiomaNativo} e precisa escolher a tradução correta em ${idiomaAlvo}.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+IMPORTANTE — EXCEÇÃO À REGRA DE IDIOMA: neste tipo específico, reading_text deve estar em ${idiomaNativo} (não em ${idiomaAlvo}), porque é a frase original que o aluno vai traduzir.
+- reading_text: uma frase natural em ${idiomaNativo}, sobre o tema da unidade
+- correct_answer: a tradução correta e natural dessa frase em ${idiomaAlvo}
+- alternative_options: array com 3 traduções erradas mas plausíveis em ${idiomaAlvo} — erros comuns de quem fala ${idiomaNativo} aprendendo ${idiomaAlvo} (interferência de idioma, palavra errada, ortografia errada)
+- Os textos de feedback e incentivo devem estar 100% em ${idiomaNativo}
+- correct_feedback: explica por que a tradução está certa (1-2 frases)
+- incorrect_feedback: explica o erro comum (1-2 frases)
+- Cada exercício deve ser DIFERENTE dos outros
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "El sol está fuerte.", "correct_answer": "O sol está forte.", "alternative_options": ["errada1","errada2","errada3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -243,6 +262,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   11: "SPELLING BEE",
   5: "BLOCOS DE GRAMÁTICA",
   7: "ORDENAÇÃO DE FRASES",
+  12: "TRADUÇÃO INVERSA",
 };
 
 let ultimaChamada = 0;

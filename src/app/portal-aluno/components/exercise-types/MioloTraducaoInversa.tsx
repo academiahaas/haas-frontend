@@ -175,7 +175,7 @@ streak = 0,
         const extrairPalavrasLimpas = (txt: string) => {
           if (!txt) return [];
           return txt
-            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?¿!¡"]/g, "")
+            .replace(/[\/#$%\^&\*;:{}=\-_`~()"]/g, "")
             .split(/\s+/)
             .map(s => s.trim())
             .filter(Boolean);
@@ -206,8 +206,7 @@ streak = 0,
         }
         
         const todas = [...puras, ...dists]
-          .map(w => w.toLowerCase())
-          .filter((v, i, a) => a.indexOf(v) === i)
+          .filter((v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i)
           .sort(() => Math.random() - 0.5);
 
         setBankPieces(todas.map((txt, i) => ({ id: i, text: txt })));
@@ -260,7 +259,7 @@ streak = 0,
     const fraseMontada = depositPieces.map(p => p.text.trim()).join(" ").toLowerCase().trim();
     const respostaCorretaPadrao = stringAlvoCorreta.toLowerCase().trim();
 
-    const limpar = (txt) => txt.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?¿!¡"]/g, "").replace(/\s+/g, " ").trim();
+    const limpar = (txt) => txt.replace(/[\/#$%\^&\*;:{}=\-_`~()"]/g, "").replace(/\s+/g, " ").trim();
 
     const respostaMontadaLimpa = limpar(fraseMontada);
     const respostaCorretaLimpa = limpar(respostaCorretaPadrao);
