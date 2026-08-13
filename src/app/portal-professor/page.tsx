@@ -145,6 +145,33 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   }
 };
 
+const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]> = {
+  es: [
+    { titulo: "1. Inicia sesion correctamente", texto: "Usa una ventana de incognito en tu navegador para entrar al Google Meet con el correo de la empresa: docentes.haas@academiahaas.com / contrasena: MeetHaas*2026. Asi evitas conflictos con tu cuenta personal de Gmail." },
+    { titulo: "2. Las clases quedan grabadas", texto: "Esto no es para vigilar tu trabajo. Los alumnos piden las grabaciones con frecuencia para repasar la clase, por eso siempre se graba." },
+    { titulo: "3. Comparte solo la ventana de las diapositivas", texto: "En Google Meet, al compartir pantalla elige 'Una ventana' y selecciona solo la ventana donde tienes las diapositivas abiertas, no toda tu pantalla." },
+    { titulo: "4. Cuidado al cambiar de diapositiva", texto: "Si editas o cambias de diapositiva en tu ventana, el alumno NO ve el cambio automaticamente. Debes cambiar en la ventana compartida y luego volver a tu ventana de edicion." },
+    { titulo: "5. Usa la vista dividida", texto: "Google permite dividir la pantalla en dos partes: una con Meet y otra con tus diapositivas. Busca la opcion 'Vista dividida' en tu sistema para tener las dos ventanas visibles a la vez." },
+    { titulo: "6. Abre las diapositivas antes de la clase", texto: "El boton para abrir las diapositivas de tu clase estara disponible aqui mismo, antes de que empiece la clase." }
+  ],
+  en: [
+    { titulo: "1. Log in correctly", texto: "Use an incognito window in your browser to join Google Meet with the company email: docentes.haas@academiahaas.com / password: MeetHaas*2026. This avoids conflicts with your personal Gmail account." },
+    { titulo: "2. Classes are recorded", texto: "This is not to monitor your work. Students frequently request recordings to review the class, so every class is recorded." },
+    { titulo: "3. Share only the slides window", texto: "In Google Meet, when sharing your screen choose 'A window' and select only the window with your slides open, not your entire screen." },
+    { titulo: "4. Be careful when changing slides", texto: "If you edit or change slides in your window, the student does NOT see the change automatically. You must change it in the shared window, then go back to your editing window." },
+    { titulo: "5. Use split view", texto: "You can split your screen into two parts: one with Meet and one with your slides. Look for 'Split view' on your system to keep both windows visible at once." },
+    { titulo: "6. Open the slides before class", texto: "The button to open your class slides will be available right here, before class starts." }
+  ],
+  pt: [
+    { titulo: "1. Faca login corretamente", texto: "Use uma janela anonima no seu navegador para entrar no Google Meet com o e-mail da empresa: docentes.haas@academiahaas.com / senha: MeetHaas*2026. Assim voce evita conflitos com sua conta pessoal do Gmail." },
+    { titulo: "2. As aulas ficam gravadas", texto: "Isso nao e para vigiar seu trabalho. Os alunos pedem as gravacoes com frequencia para revisar a aula, por isso sempre gravamos." },
+    { titulo: "3. Compartilhe so a janela dos slides", texto: "No Google Meet, ao compartilhar tela escolha 'Uma janela' e selecione so a janela onde estao seus slides abertos, nao a tela inteira." },
+    { titulo: "4. Cuidado ao trocar de slide", texto: "Se voce editar ou trocar de slide na sua janela, o aluno NAO ve a mudanca automaticamente. Voce precisa trocar na janela compartilhada e depois voltar pra sua janela de edicao." },
+    { titulo: "5. Use a tela dividida", texto: "O Google permite dividir a tela em duas partes: uma com o Meet e outra com seus slides. Procure a opcao 'Tela dividida' no seu sistema para ter as duas janelas visiveis ao mesmo tempo." },
+    { titulo: "6. Abra os slides antes da aula", texto: "O botao pra abrir os slides da sua aula vai estar disponivel aqui mesmo, antes de a aula comecar." }
+  ]
+};
+
 export default function PortalProfessor() {
   const [professor, setProfessor] = useState<DadosProfessor | null>(null);
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
@@ -590,11 +617,41 @@ export default function PortalProfessor() {
           )}
 
           {vistaAtiva === "prep" && (
-            <section className="bg-[#0a1424] border border-white/10 rounded-xl p-10 flex flex-col items-center justify-center text-center gap-2">
-              <Calendar size={28} className="text-slate-600" />
-              <p className="text-sm text-slate-400 font-medium">Esta seccion estara disponible pronto</p>
-              <p className="text-xs text-slate-600">Aqui encontraras las diapositivas y las instrucciones para tu clase</p>
-            </section>
+            <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+              <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+                <h2 className="font-bold text-base text-slate-200 mb-4">
+                  {idioma === "es" ? "Como dar tu clase" : idioma === "en" ? "How to run your class" : "Como dar sua aula"}
+                </h2>
+                <div className="flex flex-col gap-3">
+                  {INSTRUCCIONES[idioma].map((item, i) => (
+                    <div key={i} className="bg-white/[0.02] border border-white/5 rounded-lg p-4">
+                      <p className="text-sm font-semibold text-cyan-400 mb-1">{item.titulo}</p>
+                      <p className="text-xs text-slate-400 leading-relaxed">{item.texto}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+                <h2 className="font-bold text-base text-slate-200 mb-1">
+                  {idioma === "es" ? "Evaluar clase" : idioma === "en" ? "Evaluate class" : "Avaliar aula"}
+                </h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  {idioma === "es" ? "Al terminar la clase, califica brevemente como te fue" : idioma === "en" ? "After class, briefly rate how it went" : "Ao terminar a aula, avalie brevemente como foi"}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <select className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
+                    <option value="">{idioma === "es" ? "Selecciona la clase" : idioma === "en" ? "Select the class" : "Selecione a aula"}</option>
+                    {aulas.map((aula) => (
+                      <option key={aula.id} value={aula.id}>{formatarHorario(aula.data_hora_inicio)}</option>
+                    ))}
+                  </select>
+                  <button className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                    {idioma === "es" ? "Guardar" : idioma === "en" ? "Save" : "Salvar"}
+                  </button>
+                </div>
+              </section>
+            </div>
           )}
 
         </main>      </div>
