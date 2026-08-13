@@ -26,7 +26,8 @@ REGRAS OBRIGATÓRIAS:
 - incorrect_feedback: explica a regra/erro comum, em ${idiomaNativo} (1-2 frases)
 - correct_incentive: frase curta e empolgante
 - incorrect_incentive: frase curta e gentil
-- Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)`;
+- Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)
+- REGRA ABSOLUTA E DEFINITIVA sobre reading_text: NUNCA, em NENHUMA circunstância, coloque instrução, comando, ou texto explicando o que o aluno deve fazer (como "Complete a frase", "Selecione a opção", "Ordene os blocos", "Escute e escreva", etc.). O reading_text é SEMPRE só o conteúdo real do exercício (a frase, a pergunta, o texto com lacuna) — NUNCA um texto dizendo o que fazer com ele. Se o tipo de exercício não precisar de nenhum texto real (só blocos ou só áudio), reading_text deve ser uma string vazia "".`;
 
   if (activityType === 1) {
     return `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
@@ -170,6 +171,21 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Escucha la palabra y escríbela correctamente.", "correct_answer": "PALAVRA", "audio_transcript": "palavra", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 5) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo BLOCOS DE GRAMÁTICA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno vê blocos de palavras soltos e precisa clicar neles na ordem certa para formar uma frase correta.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: sempre uma string vazia ""
+- correct_answer: a frase completa e correta em ${idiomaAlvo}, com pontuação final
+- alternative_options: array com cada palavra/bloco da frase separado (na ordem correta, o sistema embaralha na tela) — cada item do array é uma palavra ou bloco pontuado da frase
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "", "correct_answer": "O hotel é bom.", "alternative_options": ["O", "hotel", "é", "bom."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -210,6 +226,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   10: "TREINO DE FALA",
   13: "MARCHAS DE ÁUDIO",
   11: "SPELLING BEE",
+  5: "BLOCOS DE GRAMÁTICA",
 };
 
 let ultimaChamada = 0;
