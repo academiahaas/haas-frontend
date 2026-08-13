@@ -220,6 +220,21 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "El sol está fuerte.", "correct_answer": "O sol está forte.", "alternative_options": ["errada1","errada2","errada3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 8) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo REORDENAÇÃO DE PARÁGRAFOS para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno vê 4 frases embaralhadas de um parágrafo e precisa reordená-las na sequência lógica correta.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: sempre uma string vazia ""
+- correct_answer: sempre uma string vazia ""
+- alternative_options: array com EXATAMENTE 4 frases em ${idiomaAlvo}, na ORDEM CORRETA (a primeira frase do array é a primeira do parágrafo, e assim por diante) — formando um parágrafo com coesão e coerência real sobre o tema da unidade, não frases soltas sem relação. Use conectores (então, depois, por isso, mas, etc.) quando fizer sentido para amarrar as frases logicamente.
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "", "correct_answer": "", "alternative_options": ["Primeira frase.", "Segunda frase.", "Terceira frase.", "Quarta frase."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -263,6 +278,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   5: "BLOCOS DE GRAMÁTICA",
   7: "ORDENAÇÃO DE FRASES",
   12: "TRADUÇÃO INVERSA",
+  8: "REORDENAÇÃO DE PARÁGRAFOS",
 };
 
 let ultimaChamada = 0;
