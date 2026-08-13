@@ -37,6 +37,8 @@ interface DadosProfessor {
   account_holder_name: string | null;
   document_number: string | null;
   nequi_phone: string | null;
+  punctuality_score: number | null;
+  pedagogical_score: number | null;
 }
 
 type IdiomaInterface = "es" | "en" | "pt";
@@ -79,7 +81,9 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     sinDatos: "Sin datos",
     resena: "resena",
     resenas: "resenas",
-    comentariosAlumnos: "Comentarios de tus alumnos"
+    comentariosAlumnos: "Comentarios de tus alumnos",
+    puntualidad: "Puntualidad",
+    evalPedagogica: "Evaluacion pedagogica"
   },
   en: {
     subtitulo: "Teacher Panel",
@@ -106,7 +110,9 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     sinDatos: "No data",
     resena: "review",
     resenas: "reviews",
-    comentariosAlumnos: "Comments from your students"
+    comentariosAlumnos: "Comments from your students",
+    puntualidad: "Punctuality",
+    evalPedagogica: "Pedagogical evaluation"
   },
   pt: {
     subtitulo: "Painel do Professor",
@@ -133,7 +139,9 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     sinDatos: "Sem dados",
     resena: "avaliacao",
     resenas: "avaliacoes",
-    comentariosAlumnos: "Comentarios dos seus alunos"
+    comentariosAlumnos: "Comentarios dos seus alunos",
+    puntualidad: "Pontualidade",
+    evalPedagogica: "Avaliacao pedagogica"
   }
 };
 
@@ -239,7 +247,7 @@ export default function PortalProfessor() {
 
         const { data: dadosProfessor, error: erroProfessor } = await supabase
           .from("teachers")
-          .select("id, name, email, monthly_rate, rate_per_class, meeting_link, payment_status, payment_method, bank_name, account_type, account_number, account_holder_name, document_number, nequi_phone")
+          .select("id, name, email, monthly_rate, rate_per_class, meeting_link, payment_status, payment_method, bank_name, account_type, account_number, account_holder_name, document_number, nequi_phone, punctuality_score, pedagogical_score")
           .eq("id", teacherId)
           .maybeSingle();
 
@@ -412,10 +420,10 @@ export default function PortalProfessor() {
 
           {vistaAtiva === "aulas" && (
             <>
-              <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-5 flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
-                    <Clock size={20} />
+                    <Calendar size={20} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.clasesProgramadas}</span>
@@ -431,6 +439,26 @@ export default function PortalProfessor() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.calificacionProm}</span>
                     <span className="text-xl font-extrabold text-slate-100">{notaMedia ? `${notaMedia} / 5` : t.sinDatos}</span>
                     <span className="text-[10px] text-slate-500 mt-0.5">{avaliacoes.length} {avaliacoes.length === 1 ? t.resena : t.resenas}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0a1424] border border-emerald-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <Clock size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.puntualidad}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{professor?.punctuality_score !== null && professor?.punctuality_score !== undefined ? `${professor.punctuality_score}%` : t.sinDatos}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-purple-500/10 text-purple-400">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.evalPedagogica}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{professor?.pedagogical_score !== null && professor?.pedagogical_score !== undefined ? `${professor.pedagogical_score} / 10` : t.sinDatos}</span>
                   </div>
                 </div>
               </section>
