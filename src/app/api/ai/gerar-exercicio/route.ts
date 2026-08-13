@@ -86,6 +86,28 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Completa la frase: frase com lacuna aqui", "correct_answer": "opção correta", "alternative_options": ["armadilha1","armadilha2","armadilha3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 4) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+
+Crie ${quantidade} exercício(s) do tipo PALAVRA OCULTA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+Neste tipo, o aluno vê uma frase com uma palavra faltando, marcada como [lacuna], e precisa DIGITAR a palavra certa (não há opções pra escolher).
+
+${contexto}
+
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: uma frase completa em ${idiomaAlvo}, com a palavra a ser adivinhada substituída EXATAMENTE por "[lacuna]"
+- correct_answer: a palavra exata que deve preencher a lacuna, relacionada ao tema da unidade
+- alternative_options: sempre um array vazio [] (não há opções neste tipo)
+- texto_audio: a MESMA frase de reading_text, só que COMPLETA e NATURAL — sem "[lacuna]", com a palavra certa (correct_answer) já no lugar, e sem nenhuma instrução extra. É o texto que será falado em voz alta pro aluno, então tem que soar como uma frase real, fluida, do jeito que alguém falaria.
+- A palavra oculta deve ser clara pelo contexto da frase, sem ambiguidade
+
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Frase com [lacuna] no meio.", "correct_answer": "palavra", "alternative_options": [], "texto_audio": "Frase completa e natural com a palavra certa.", "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -120,6 +142,8 @@ async function gerarLoteExercicios(activityType: number, unidade: any, levelTag:
 const NOMES_ATIVIDADE: Record<number, string> = {
   1: "MÚLTIPLA ESCOLHA",
   2: "CAÇA ERRO",
+  3: "DESAFIO BLITZ",
+  4: "PALAVRA OCULTA",
 };
 
 let ultimaChamada = 0;
@@ -192,6 +216,7 @@ export async function POST(req: NextRequest) {
       level_id: modulo?.level_id || null,
       module_id: unidade.module_content_id || null,
       skill_code: unidade.skill_label || null,
+      texto_audio: ex.texto_audio || null,
       activity_type: activityType,
       activity_name: NOMES_ATIVIDADE[activityType] || `TIPO ${activityType}`,
       difficulty_level: ex.difficulty_level,
