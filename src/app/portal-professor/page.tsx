@@ -26,19 +26,95 @@ interface DadosProfessor {
   payment_status: string | null;
 }
 
+type IdiomaInterface = "es" | "en" | "pt";
+
+const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
+  es: {
+    subtitulo: "Panel del Profesor",
+    misClases: "Mis clases",
+    sesionActiva: "Sesión segura activa",
+    conexionActiva: "Conexión segura activa",
+    tarifaClase: "Tarifa por clase",
+    acumuladoMes: "Acumulado este mes",
+    clasesProgramadas: "Clases programadas",
+    pagado: "Pagado",
+    pendiente: "Pendiente",
+    tusClases: "Tus clases",
+    horarioReal: "Horario real desde el calendario",
+    sinClases: "No hay clases programadas todavia.",
+    alumnos: "alumnos",
+    entrarClase: "Entrar a la clase",
+    cargando: "Cargando tu panel...",
+    pesos: "pesos colombianos",
+    soporte: "Soporte",
+    cerrarSesion: "Cerrar sesion"
+  },
+  en: {
+    subtitulo: "Teacher Panel",
+    misClases: "My classes",
+    sesionActiva: "Secure session active",
+    conexionActiva: "Secure connection active",
+    tarifaClase: "Rate per class",
+    acumuladoMes: "Accrued this month",
+    clasesProgramadas: "Scheduled classes",
+    pagado: "Paid",
+    pendiente: "Pending",
+    tusClases: "Your classes",
+    horarioReal: "Real schedule from calendar",
+    sinClases: "No classes scheduled yet.",
+    alumnos: "students",
+    entrarClase: "Join class",
+    cargando: "Loading your panel...",
+    pesos: "Colombian pesos",
+    soporte: "Support",
+    cerrarSesion: "Log out"
+  },
+  pt: {
+    subtitulo: "Painel do Professor",
+    misClases: "Minhas aulas",
+    sesionActiva: "Sessão segura ativa",
+    conexionActiva: "Conexão segura ativa",
+    tarifaClase: "Tarifa por aula",
+    acumuladoMes: "Acumulado este mes",
+    clasesProgramadas: "Aulas programadas",
+    pagado: "Pago",
+    pendiente: "Pendente",
+    tusClases: "Suas aulas",
+    horarioReal: "Horario real do calendario",
+    sinClases: "Nenhuma aula programada ainda.",
+    alumnos: "alunos",
+    entrarClase: "Entrar na aula",
+    cargando: "Carregando seu painel...",
+    pesos: "pesos colombianos",
+    soporte: "Suporte",
+    cerrarSesion: "Sair"
+  }
+};
+
 export default function PortalProfessor() {
   const [professor, setProfessor] = useState<DadosProfessor | null>(null);
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
+  const [idioma, setIdioma] = useState<IdiomaInterface>("es");
+  const [perfilAberto, setPerfilAberto] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("haas_teacher_id");
+    localStorage.removeItem("haas_teacher_email");
+    localStorage.removeItem("haas_teacher_name");
+    window.location.href = "/login";
+  };
+
+  const t = TEXTOS[idioma];
 
   useEffect(() => {
     const carregarDados = async () => {
       try {
         const teacherId = localStorage.getItem("haas_teacher_id");
         if (!teacherId) {
-          setErro("Sesión no encontrada. Por favor inicia sesión de nuevo.");
+          setErro("Sesion no encontrada. Por favor inicia sesion de nuevo.");
           setLoading(false);
           return;
         }
@@ -50,7 +126,7 @@ export default function PortalProfessor() {
           .maybeSingle();
 
         if (erroProfessor || !dadosProfessor) {
-          setErro("No se pudo cargar tu información. Contacta a soporte.");
+          setErro("No se pudo cargar tu informacion. Contacta a soporte.");
           setLoading(false);
           return;
         }
@@ -68,7 +144,7 @@ export default function PortalProfessor() {
         }
       } catch (err) {
         console.error("Error al cargar datos del profesor:", err);
-        setErro("Ocurrió un error inesperado.");
+        setErro("Ocurrio un error inesperado.");
       } finally {
         setLoading(false);
       }
@@ -79,12 +155,13 @@ export default function PortalProfessor() {
 
   const formatarMoeda = (valor: number | null) => {
     if (valor === null || valor === undefined) return "N/D";
-    return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(valor);
+    const formatado = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(valor);
+    return `${formatado} ${t.pesos}`;
   };
 
   const formatarHorario = (iso: string) => {
     const zona = fuso === "colombia" ? "America/Bogota" : "America/Sao_Paulo";
-    const etiqueta = fuso === "colombia" ? "Colombia" : "Brasilia";
+    const etiqueta = fuso === "colombia" ? "Bogota" : "Brasilia";
     return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: zona }) + ` (${etiqueta})`;
   };
 
@@ -103,7 +180,7 @@ export default function PortalProfessor() {
     return (
       <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center gap-3 text-slate-400">
         <Loader2 className="animate-spin text-cyan-400" size={32} />
-        <p className="text-sm font-medium">Cargando tu panel...</p>
+        <p className="text-sm font-medium">{t.cargando}</p>
       </div>
     );
   }
@@ -127,42 +204,68 @@ export default function PortalProfessor() {
             </div>
             <div>
               <h1 className="font-bold text-base tracking-tight text-slate-100">Haas Docente</h1>
-              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Panel del Profesor</span>
+              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">{t.subtitulo}</span>
             </div>
           </div>
 
           <nav className="flex flex-col gap-1.5">
             <button className="flex items-center gap-3 px-4 py-3 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold transition-all text-left">
               <Calendar size={18} />
-              <span>Mis clases</span>
+              <span>{t.misClases}</span>
             </button>
           </nav>
         </div>
 
-        <div className="border-t border-white/10 pt-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
-            <User size={20} />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">{professor?.name || "Profesor"}</span>
-            <span className="text-[10px] text-slate-500">Sesión segura activa</span>
-          </div>
+        <div className="border-t border-white/10 pt-4 flex flex-col gap-2 relative">
+          <button onClick={() => setPerfilAberto(!perfilAberto)} className="flex items-center gap-3 text-left w-full">
+            <div className="h-10 w-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+              <User size={20} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">{professor?.name || "Profesor"}</span>
+              <span className="text-[10px] text-slate-500">{t.sesionActiva}</span>
+            </div>
+          </button>
+          {perfilAberto && (
+            <div className="flex flex-col gap-1.5 bg-white/5 border border-white/10 rounded-lg p-2">
+              <a href="https://api.whatsapp.com/send/?phone=5491168809228&text&type=phone_number&app_absent=0" target="_blank"
+                rel="noreferrer"
+                className="text-xs text-slate-300 hover:text-cyan-400 px-2 py-1.5 rounded transition-colors text-left"
+              >
+                {t.soporte}
+              </a>
+              <button
+                onClick={handleLogout}
+                className="text-xs text-rose-400 hover:text-rose-300 px-2 py-1.5 rounded transition-colors text-left"
+              >
+                {t.cerrarSesion}
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
 
-        <header className="h-16 border-b border-white/10 bg-[#030914]/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-cyan-400" />
-            <span className="text-xs text-slate-400 font-medium">Conexion segura activa</span>
+        <header className="h-16 border-b border-white/10 bg-[#030914]/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <ShieldCheck size={16} className="text-cyan-400 shrink-0" />
+            <span className="text-xs text-slate-400 font-medium truncate">{t.conexionActiva}</span>
           </div>
-          <button
-            onClick={() => setFuso(fuso === "colombia" ? "brasilia" : "colombia")}
-            className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
-          >
-            Horario: {fuso === "colombia" ? "Colombia" : "Brasilia"}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setIdioma(idioma === "es" ? "en" : idioma === "en" ? "pt" : "es")}
+              className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
+            >
+              {idioma === "es" ? "Espanol" : idioma === "en" ? "English" : "Portugues"}
+            </button>
+            <button
+              onClick={() => setFuso(fuso === "colombia" ? "brasilia" : "colombia")}
+              className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
+            >
+              {fuso === "colombia" ? "Bogota" : "Brasilia"}
+            </button>
+          </div>
         </header>
 
         <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
@@ -173,7 +276,7 @@ export default function PortalProfessor() {
                 <DollarSign size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tarifa por clase</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.tarifaClase}</span>
                 <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(professor?.rate_per_class ?? null)}</span>
               </div>
             </div>
@@ -183,10 +286,10 @@ export default function PortalProfessor() {
                 <DollarSign size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Acumulado este mes</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.acumuladoMes}</span>
                 <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(acumuladoMes)}</span>
                 <span className={`text-[10px] font-semibold mt-0.5 ${professor?.payment_status === "pagado" ? "text-emerald-400" : "text-amber-400"}`}>
-                  {professor?.payment_status === "pagado" ? "Pagado" : "Pendiente"}
+                  {professor?.payment_status === "pagado" ? t.pagado : t.pendiente}
                 </span>
               </div>
             </div>
@@ -196,7 +299,7 @@ export default function PortalProfessor() {
                 <Clock size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Clases programadas</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.clasesProgramadas}</span>
                 <span className="text-xl font-extrabold text-slate-100">{aulas.length}</span>
               </div>
             </div>
@@ -205,14 +308,14 @@ export default function PortalProfessor() {
           <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
               <div>
-                <h2 className="font-bold text-base text-slate-200">Tus clases</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Horario real desde el calendario</p>
+                <h2 className="font-bold text-base text-slate-200">{t.tusClases}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{t.horarioReal}</p>
               </div>
             </div>
 
             {aulas.length === 0 ? (
               <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
-                No hay clases programadas todavia.
+                {t.sinClases}
               </div>
             ) : (
               <div className="flex flex-col gap-2">
@@ -226,10 +329,10 @@ export default function PortalProfessor() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} alumnos</span>
+                      <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
                       {professor?.meeting_link && (
                         <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
-                          Entrar a la clase <ExternalLink size={11} />
+                          {t.entrarClase} <ExternalLink size={11} />
                         </a>
                       )}
                     </div>
