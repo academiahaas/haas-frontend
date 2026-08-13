@@ -29,9 +29,9 @@ interface DadosProfessor {
 type IdiomaInterface = "es" | "en" | "pt";
 
 const TRADUCAO_IDIOMA_AULA: Record<IdiomaInterface, Record<string, string>> = {
-  es: { portugues: "Portugues", ingles: "Ingles", espanol: "Espanol", frances: "Frances" },
+  es: { portugues: "Portugués", ingles: "Inglés", espanol: "Español", frances: "Francés" },
   en: { portugues: "Portuguese", ingles: "English", espanol: "Spanish", frances: "French" },
-  pt: { portugues: "Portugues", ingles: "Ingles", espanol: "Espanhol", frances: "Frances" }
+  pt: { portugues: "Português", ingles: "Inglês", espanol: "Espanhol", frances: "Francês" }
 };
 
 const TRADUCAO_TIPO_AULA: Record<IdiomaInterface, Record<string, string>> = {
@@ -53,13 +53,13 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     pendiente: "Pendiente",
     tusClases: "Tus clases",
     horarioReal: "Horario real desde el calendario",
-    sinClases: "No hay clases programadas todavia.",
+    sinClases: "No hay clases programadas todavía.",
     alumnos: "alumnos",
     entrarClase: "Entrar a la clase",
     cargando: "Cargando tu panel...",
     pesos: "pesos colombianos",
     soporte: "Soporte",
-    cerrarSesion: "Cerrar sesion"
+    cerrarSesion: "Cerrar sesión"
   },
   en: {
     subtitulo: "Teacher Panel",
@@ -87,12 +87,12 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     sesionActiva: "Sessão segura ativa",
     conexionActiva: "Conexão segura ativa",
     tarifaClase: "Tarifa por aula",
-    acumuladoMes: "Acumulado este mes",
+    acumuladoMes: "Acumulado este mês",
     clasesProgramadas: "Aulas programadas",
     pagado: "Pago",
     pendiente: "Pendente",
     tusClases: "Suas aulas",
-    horarioReal: "Horario real do calendario",
+    horarioReal: "Horário real do calendário",
     sinClases: "Nenhuma aula programada ainda.",
     alumnos: "alunos",
     entrarClase: "Entrar na aula",
@@ -110,6 +110,21 @@ export default function PortalProfessor() {
   const [erro, setErro] = useState("");
   const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
   const [idioma, setIdioma] = useState<IdiomaInterface>("es");
+
+  useEffect(() => {
+    const fusoSalvo = localStorage.getItem("haas_professor_fuso");
+    const idiomaSalvo = localStorage.getItem("haas_professor_idioma");
+    if (fusoSalvo === "colombia" || fusoSalvo === "brasilia") setFuso(fusoSalvo);
+    if (idiomaSalvo === "es" || idiomaSalvo === "en" || idiomaSalvo === "pt") setIdioma(idiomaSalvo);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("haas_professor_fuso", fuso);
+  }, [fuso]);
+
+  useEffect(() => {
+    localStorage.setItem("haas_professor_idioma", idioma);
+  }, [idioma]);
   const [perfilAberto, setPerfilAberto] = useState(false);
 
   const handleLogout = () => {
@@ -126,7 +141,7 @@ export default function PortalProfessor() {
       try {
         const teacherId = localStorage.getItem("haas_teacher_id");
         if (!teacherId) {
-          setErro("Sesion no encontrada. Por favor inicia sesion de nuevo.");
+          setErro("Sesión no encontrada. Por favor inicia sesión de nuevo.");
           setLoading(false);
           return;
         }
@@ -138,7 +153,7 @@ export default function PortalProfessor() {
           .maybeSingle();
 
         if (erroProfessor || !dadosProfessor) {
-          setErro("No se pudo cargar tu informacion. Contacta a soporte.");
+          setErro("No se pudo cargar tu información. Contacta a soporte.");
           setLoading(false);
           return;
         }
@@ -156,7 +171,7 @@ export default function PortalProfessor() {
         }
       } catch (err) {
         console.error("Error al cargar datos del profesor:", err);
-        setErro("Ocurrio un error inesperado.");
+        setErro("Ocurrió un error inesperado.");
       } finally {
         setLoading(false);
       }
@@ -173,7 +188,7 @@ export default function PortalProfessor() {
 
   const formatarHorario = (iso: string) => {
     const zona = fuso === "colombia" ? "America/Bogota" : "America/Sao_Paulo";
-    const etiqueta = fuso === "colombia" ? "Bogota" : "Brasilia";
+    const etiqueta = fuso === "colombia" ? "Bogotá" : "Brasilia";
     return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: zona }) + ` (${etiqueta})`;
   };
 
@@ -269,13 +284,13 @@ export default function PortalProfessor() {
               onClick={() => setIdioma(idioma === "es" ? "en" : idioma === "en" ? "pt" : "es")}
               className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
             >
-              {idioma === "es" ? "Espanol" : idioma === "en" ? "English" : "Portugues"}
+              {idioma === "es" ? "Español" : idioma === "en" ? "English" : "Português"}
             </button>
             <button
               onClick={() => setFuso(fuso === "colombia" ? "brasilia" : "colombia")}
               className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
             >
-              {fuso === "colombia" ? "Bogota" : "Brasilia"}
+              {fuso === "colombia" ? "Bogotá" : "Brasilia"}
             </button>
           </div>
         </header>
