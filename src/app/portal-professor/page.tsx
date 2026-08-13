@@ -74,7 +74,12 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     cargando: "Cargando tu panel...",
     pesos: "pesos colombianos",
     soporte: "Soporte",
-    cerrarSesion: "Cerrar sesión"
+    cerrarSesion: "Cerrar sesión",
+    calificacionProm: "Calificacion promedio",
+    sinDatos: "Sin datos",
+    resena: "resena",
+    resenas: "resenas",
+    comentariosAlumnos: "Comentarios de tus alumnos"
   },
   en: {
     subtitulo: "Teacher Panel",
@@ -197,6 +202,19 @@ export default function PortalProfessor() {
       .eq("id", professor.id);
     setSalvandoPago(false);
     setPagoSalvoMsg(error ? "error" : "ok");
+    if (!error) {
+      setProfessor({
+        ...professor,
+        payment_method: metodoPago,
+        bank_name: formPago.bank_name,
+        account_type: formPago.account_type,
+        account_number: formPago.account_number,
+        account_holder_name: formPago.account_holder_name,
+        document_number: formPago.document_number,
+        nequi_phone: formPago.nequi_phone
+      });
+      setPagoAberto(false);
+    }
   };
   const [perfilAberto, setPerfilAberto] = useState(false);
 
