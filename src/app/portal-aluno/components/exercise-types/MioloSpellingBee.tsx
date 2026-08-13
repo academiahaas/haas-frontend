@@ -194,6 +194,7 @@ status: propStatus = 'IDLE',
             if (typeof setIncentivoCorretoBanco === 'function') setIncentivoCorretoBanco(item.correct_incentive || "");
             if (typeof setIncentivoIncorretoBanco === 'function') setIncentivoIncorretoBanco(item.incorrect_incentive || "");
             if (typeof setExerciseId === 'function' && item.id) setExerciseId(String(item.id));
+            audioUrlSpellingRef.current = item.audio_url || "";
             if (typeof setUserInput === 'function') setUserInput(new Array(palavra.length).fill(""));
             if (typeof setCurrentIndex === 'function') setCurrentIndex(0);
             if (typeof setCarregando === 'function') setCarregando(false);
