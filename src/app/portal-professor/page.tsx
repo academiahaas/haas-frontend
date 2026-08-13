@@ -5,6 +5,13 @@ import React, { useState, useEffect } from "react";
 import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
+interface Material {
+  id: string;
+  photo_url: string;
+  nome_aluno: string;
+  created_at: string;
+}
+
 interface PendenteAvaliacao {
   aula_id: string;
   user_id: string;
@@ -66,7 +73,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   es: {
     subtitulo: "Panel del Profesor",
     misClases: "Mis clases",
-    datosPago: "Datos de pago",
+    datosPago: "Mi cuenta",
     prepClase: "Preparacion de clase",
     sesionActiva: "Sesión segura activa",
     conexionActiva: "Conexión segura activa",
@@ -95,7 +102,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   en: {
     subtitulo: "Teacher Panel",
     misClases: "My classes",
-    datosPago: "Payment data",
+    datosPago: "My account",
     prepClase: "Class preparation",
     sesionActiva: "Secure session active",
     conexionActiva: "Secure connection active",
@@ -124,7 +131,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   pt: {
     subtitulo: "Painel do Professor",
     misClases: "Minhas aulas",
-    datosPago: "Dados de pagamento",
+    datosPago: "Minha conta",
     prepClase: "Preparacao de aula",
     sesionActiva: "Sessão segura ativa",
     conexionActiva: "Conexão segura ativa",
@@ -266,6 +273,114 @@ function TarjetaEvaluacionPequena({ pendente, professorId, idioma, onCompletado 
   );
 }
 
+function VisorMaterial({ material, idioma, onCerrar }: any) {
+  const [zoom, setZoom] = useState(1);
+  const [rotacao, setRotacao] = useState(0);
+  const [posX, setPosX] = useState(0);
+  const [posY, setPosY] = useState(0);
+  const [modoDibujo, setModoDibujo] = useState(false);
+  const [arrastrando, setArrastrando] = useState(false);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const ultimoPontoRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  const iniciarArrastre = (e: any) => {
+    if (modoDibujo) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches[0].clientY) - rect.top;
+      ultimoPontoRef.current = { x, y };
+      setArrastrando(true);
+      return;
+    }
+    setArrastrando(true);
+    ultimoPontoRef.current = { x: e.clientX || e.touches[0].clientX, y: e.clientY || e.touches[0].clientY };
+  };
+
+  const moverArrastre = (e: any) => {
+    if (!arrastrando) return;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    if (modoDibujo) {
+      const canvas = canvasRef.current;
+      if (!canvas || !ultimoPontoRef.current) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.strokeStyle = "#ef4444";
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(ultimoPontoRef.current.x, ultimoPontoRef.current.y);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+      ultimoPontoRef.current = { x, y };
+    } else {
+      if (!ultimoPontoRef.current) return;
+      const dx = clientX - ultimoPontoRef.current.x;
+      const dy = clientY - ultimoPontoRef.current.y;
+      setPosX((p) => p + dx);
+      setPosY((p) => p + dy);
+      ultimoPontoRef.current = { x: clientX, y: clientY };
+    }
+  };
+
+  const pararArrastre = () => {
+    setArrastrando(false);
+    ultimoPontoRef.current = null;
+  };
+
+  const limparDibujo = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+      <div className="flex items-center justify-between p-3 bg-[#0a1424] border-b border-white/10 shrink-0">
+        <span className="text-xs text-slate-300 font-semibold">{material.nome_aluno}</span>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setZoom((z) => Math.min(z + 0.25, 3))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">+</button>
+          <button onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">-</button>
+          <button onClick={() => setRotacao((r) => r + 90)} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">{"\u21bb"}</button>
+          <button onClick={() => setModoDibujo(!modoDibujo)} className={`text-xs px-2.5 py-1.5 rounded-lg ${modoDibujo ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
+            {idioma === "es" ? "Marcar" : idioma === "en" ? "Mark" : "Marcar"}
+          </button>
+          <button onClick={limparDibujo} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">
+            {idioma === "es" ? "Borrar" : idioma === "en" ? "Clear" : "Apagar"}
+          </button>
+          <button onClick={onCerrar} className="text-sm bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-1.5 rounded-lg font-bold">{"\u2715"}</button>
+        </div>
+      </div>
+      <div
+        className="flex-1 overflow-hidden relative flex items-center justify-center touch-none"
+        onMouseDown={iniciarArrastre}
+        onMouseMove={moverArrastre}
+        onMouseUp={pararArrastre}
+        onMouseLeave={pararArrastre}
+        onTouchStart={iniciarArrastre}
+        onTouchMove={moverArrastre}
+        onTouchEnd={pararArrastre}
+      >
+        <div
+          className="relative"
+          style={{ transform: `translate(${posX}px, ${posY}px) scale(${zoom}) rotate(${rotacao}deg)`, cursor: modoDibujo ? "crosshair" : "grab" }}
+        >
+          <img src={material.photo_url} alt="material" className="max-w-none select-none pointer-events-none" style={{ maxHeight: "70vh" }} draggable={false} />
+          <canvas ref={canvasRef} width={1000} height={1000} className="absolute inset-0 w-full h-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PortalProfessor() {
   const [professor, setProfessor] = useState<DadosProfessor | null>(null);
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
@@ -292,13 +407,22 @@ export default function PortalProfessor() {
     localStorage.setItem("haas_professor_idioma", idioma);
   }, [idioma]);
 
-  const [vistaAtiva, setVistaAtiva] = useState<"aulas" | "pago" | "prep" | "evaluar">("aulas");
+  const [vistaAtiva, setVistaAtiva] = useState<"aulas" | "pago" | "prep" | "evaluar" | "materiales">("aulas");
+  const [materiales, setMateriales] = useState<Material[]>([]);
+  const [materialAbierto, setMaterialAbierto] = useState<Material | null>(null);
   const [pagoAberto, setPagoAberto] = useState(false);
   const [aulaReporte, setAulaReporte] = useState("");
   const [comentarioReporte, setComentarioReporte] = useState("");
   const [imagemReporte, setImagemReporte] = useState<File | null>(null);
   const [enviandoReporte, setEnviandoReporte] = useState(false);
   const [reporteMsg, setReporteMsg] = useState("");
+
+  const abrirMaterial = (material: Material) => {
+    setMaterialAbierto(material);
+    setTimeout(() => {
+      setMateriales((prev) => prev.filter((m) => m.id !== material.id));
+    }, 180000);
+  };
 
   const marcarComoCompletada = (aulaId: string, userId: string) => {
     setPendentesAvaliacao((prev) => prev.filter((p) => !(p.aula_id === aulaId && p.user_id === userId)));
@@ -471,6 +595,31 @@ export default function PortalProfessor() {
             }));
           setPendentesAvaliacao(pendentes);
         }
+
+        const { data: alunosDoProfessor } = await supabase
+          .from("aula_matriculas")
+          .select("user_id, aulas_disponiveis!inner(teacher_id)")
+          .eq("aulas_disponiveis.teacher_id", teacherId);
+
+        const idsAlunos = Array.from(new Set((alunosDoProfessor || []).map((a: any) => a.user_id)));
+
+        if (idsAlunos.length > 0) {
+          const { data: materiaisReais } = await supabase
+            .from("assignments_submissions")
+            .select("id, photo_url, created_at, user_id, users!inner(name)")
+            .in("user_id", idsAlunos)
+            .is("teacher_feedback", null)
+            .order("created_at", { ascending: false });
+
+          if (materiaisReais) {
+            setMateriales(materiaisReais.map((m: any) => ({
+              id: m.id,
+              photo_url: m.photo_url,
+              nome_aluno: m.users?.name || "Alumno",
+              created_at: m.created_at
+            })));
+          }
+        }
       } catch (err) {
         console.error("Error al cargar datos del profesor:", err);
         setErro("Ocurrió un error inesperado.");
@@ -543,23 +692,30 @@ export default function PortalProfessor() {
           </div>
 
           <nav className="flex flex-col gap-1.5">
-            <button onClick={() => setVistaAtiva("aulas")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "aulas" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("aulas"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "aulas" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <Calendar size={18} />
               <span>{t.misClases}</span>
             </button>
-            <button onClick={() => setVistaAtiva("pago")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "pago" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("pago"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "pago" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <DollarSign size={18} />
               <span>{t.datosPago}</span>
             </button>
-            <button onClick={() => setVistaAtiva("prep")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "prep" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("prep"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "prep" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <ExternalLink size={18} />
               <span>{t.prepClase}</span>
             </button>
-            <button onClick={() => setVistaAtiva("evaluar")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "evaluar" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+            <button onClick={() => { setVistaAtiva("evaluar"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "evaluar" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <Users size={18} />
               <span>{idioma === "es" ? "Evaluar" : idioma === "en" ? "Evaluate" : "Avaliar"}</span>
               {pendentesAvaliacao.length > 0 && (
                 <span className="ml-auto bg-cyan-500 text-slate-950 text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center">{pendentesAvaliacao.length}</span>
+              )}
+            </button>
+            <button onClick={() => { setVistaAtiva("materiales"); setPerfilAberto(false); }} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "materiales" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+              <ShieldCheck size={18} />
+              <span>{idioma === "es" ? "Materiales" : idioma === "en" ? "Materials" : "Materiais"}</span>
+              {materiales.length > 0 && (
+                <span className="ml-auto bg-cyan-500 text-slate-950 text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center">{materiales.length}</span>
               )}
             </button>
           </nav>
@@ -577,6 +733,9 @@ export default function PortalProfessor() {
           </button>
           {perfilAberto && (
             <div className="flex flex-col gap-1.5 bg-white/5 border border-white/10 rounded-lg p-2">
+              <button onClick={() => setPerfilAberto(false)} className="self-end text-slate-500 hover:text-slate-300 text-xs px-1 pb-1">
+                {"\u2715"}
+              </button>
               <a href="https://api.whatsapp.com/send/?phone=5491168809228&text&type=phone_number&app_absent=0" target="_blank"
                 rel="noreferrer"
                 className="text-xs text-slate-300 hover:text-cyan-400 px-2 py-1.5 rounded transition-colors text-left"
@@ -853,6 +1012,35 @@ export default function PortalProfessor() {
                 </div>
               )}
             </section>
+          )}
+
+          {vistaAtiva === "materiales" && (
+            <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+              <h2 className="font-bold text-base text-slate-200 mb-4">
+                {idioma === "es" ? "Materiales para corregir" : idioma === "en" ? "Materials to review" : "Materiais para corrigir"}
+              </h2>
+              {materiales.length === 0 ? (
+                <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
+                  {idioma === "es" ? "No hay materiales pendientes" : idioma === "en" ? "No pending materials" : "Nenhum material pendente"}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {materiales.map((m) => (
+                    <button key={m.id} onClick={() => abrirMaterial(m)} className="bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 rounded-lg overflow-hidden text-left transition-all">
+                      <img src={m.photo_url} alt={m.nome_aluno} className="w-full h-24 object-cover" />
+                      <div className="p-2">
+                        <p className="text-[10px] font-semibold text-slate-200 truncate">{m.nome_aluno}</p>
+                        <p className="text-[9px] text-slate-500">{new Date(m.created_at).toLocaleDateString(idioma === "en" ? "en-US" : "es-CO")}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {materialAbierto && (
+            <VisorMaterial material={materialAbierto} idioma={idioma} onCerrar={() => setMaterialAbierto(null)} />
           )}
 
         </main>      </div>
