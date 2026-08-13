@@ -235,6 +235,21 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "", "correct_answer": "", "alternative_options": ["Primeira frase.", "Segunda frase.", "Terceira frase.", "Quarta frase."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 6) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo LEITURA VELOZ para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno lê um texto rapidamente contra o tempo, sem responder pergunta nenhuma — é treino de velocidade de leitura.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: um texto em ${idiomaAlvo}, sobre o tema da unidade, com 2 a 5 frases conectadas (não frases soltas — precisa ter coesão real), adequado ao nível de dificuldade ${dificuldade} (easy = mais curto e simples, hard = mais longo e complexo)
+- correct_answer: use EXATAMENTE este texto fixo: "Leitura concluída"
+- alternative_options: sempre um array vazio []
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Texto de leitura com 2 a 5 frases conectadas.", "correct_answer": "Leitura concluída", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -279,6 +294,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   7: "ORDENAÇÃO DE FRASES",
   12: "TRADUÇÃO INVERSA",
   8: "REORDENAÇÃO DE PARÁGRAFOS",
+  6: "LEITURA VELOZ",
 };
 
 let ultimaChamada = 0;
