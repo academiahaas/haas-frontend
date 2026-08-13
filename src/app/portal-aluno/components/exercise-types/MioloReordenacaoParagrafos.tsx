@@ -178,8 +178,9 @@ export default function MioloReordenacaoParagrafos({
               id: idx + 1,
               text
             }));
-            setItems(itemsMapeados);
             setGabaritoIds(itemsMapeados.map(item => item.id));
+            const itemsEmbaralhados = [...itemsMapeados].sort(() => Math.random() - 0.5);
+            setItems(itemsEmbaralhados);
             if (exe.correct_answer) {
               setTextoGabaritoInteiro(exe.correct_answer);
             }
@@ -249,8 +250,8 @@ export default function MioloReordenacaoParagrafos({
               id: idx + 1,
               text
             }));
-            setItems(itemsMapeados);
             setGabaritoIds(itemsMapeados.map(item => item.id));
+            setItems([...itemsMapeados].sort(() => Math.random() - 0.5));
             if (exe.correct_answer) {
               setTextoGabaritoInteiro(exe.correct_answer);
             }
@@ -398,8 +399,8 @@ export default function MioloReordenacaoParagrafos({
               id: idx + 1,
               text
             }));
-            setItems(itemsMapeados);
             setGabaritoIds(itemsMapeados.map(item => item.id));
+            setItems([...itemsMapeados].sort(() => Math.random() - 0.5));
             if (exe.correct_answer) {
               setTextoGabaritoInteiro(exe.correct_answer);
             }
