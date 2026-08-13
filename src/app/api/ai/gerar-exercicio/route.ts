@@ -238,16 +238,15 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
   if (activityType === 6) {
     return `Você é uma especialista em criação de material didático para ensino de idiomas.
 Crie ${quantidade} exercício(s) do tipo LEITURA VELOZ para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
-Neste tipo, o aluno lê um texto rapidamente contra o tempo, sem responder pergunta nenhuma — é treino de velocidade de leitura.
+Neste tipo, o aluno lê um mini-texto e depois precisa reescrevê-lo de memória — a pontuação é por quantas palavras ele acerta comparado ao texto original.
 ${contexto}
 Nível de dificuldade destes exercícios: ${dificuldade}.
 ${DEFINICAO_DIFICULDADE}
 ${regrasComuns}
-- reading_text: um texto em ${idiomaAlvo}, sobre o tema da unidade, com 2 a 5 frases conectadas (não frases soltas — precisa ter coesão real), adequado ao nível de dificuldade ${dificuldade} (easy = mais curto e simples, hard = mais longo e complexo)
-- correct_answer: use EXATAMENTE este texto fixo: "Leitura concluída"
+- reading_text e correct_answer: OS DOIS EXATAMENTE IGUAIS, palavra por palavra. Um MINI-TEXTO informativo real em ${idiomaAlvo}, sobre o tema da unidade — como um parágrafo de notícia, artigo curto, ou texto explicativo, com 2 a 5 frases conectadas por coesão real (conectores como "além disso", "por isso", "assim", etc.). PROIBIDO TERMINANTEMENTE: diálogo entre personagens, troca de falas com nomes próprios, saudações soltas, ou frases desconectadas sem relação lógica entre si. É um texto corrido de leitura, não uma conversa.
 - alternative_options: sempre um array vazio []
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
-[{"reading_text": "Texto de leitura com 2 a 5 frases conectadas.", "correct_answer": "Leitura concluída", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+[{"reading_text": "O consumo consciente de água tem se tornado uma prioridade nas grandes cidades. Além disso, muitas empresas já adotam práticas de reuso para reduzir o desperdício.", "correct_answer": "O consumo consciente de água tem se tornado uma prioridade nas grandes cidades. Além disso, muitas empresas já adotam práticas de reuso para reduzir o desperdício.", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
