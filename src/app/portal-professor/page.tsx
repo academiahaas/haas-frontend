@@ -31,6 +31,7 @@ export default function PortalProfessor() {
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -82,7 +83,9 @@ export default function PortalProfessor() {
   };
 
   const formatarHorario = (iso: string) => {
-    return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota" }) + " (Colombia)";
+    const zona = fuso === "colombia" ? "America/Bogota" : "America/Sao_Paulo";
+    const etiqueta = fuso === "colombia" ? "Colombia" : "Brasilia";
+    return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: zona }) + ` (${etiqueta})`;
   };
 
   const agora = new Date();
@@ -154,6 +157,12 @@ export default function PortalProfessor() {
             <ShieldCheck size={16} className="text-cyan-400" />
             <span className="text-xs text-slate-400 font-medium">Conexion segura activa</span>
           </div>
+          <button
+            onClick={() => setFuso(fuso === "colombia" ? "brasilia" : "colombia")}
+            className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all"
+          >
+            Horario: {fuso === "colombia" ? "Colombia" : "Brasilia"}
+          </button>
         </header>
 
         <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
