@@ -1,14 +1,14 @@
 // @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Wand2, CheckCircle2, XCircle, RefreshCw, Lock } from 'lucide-react';
+import { Sparkles, Wand2, CheckCircle2, XCircle, RefreshCw, Lock, Info } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const TIPO_ATIVO = 1; // Só Múltipla Escolha implementada por enquanto
+const TIPO_ATIVO = 1;
 
 export function GeradorExerciciosTab() {
   const [cursos, setCursos] = useState([]);
@@ -33,6 +33,13 @@ export function GeradorExerciciosTab() {
   const [gerando, setGerando] = useState(false);
   const [rascunhos, setRascunhos] = useState([]);
   const [loadingRascunhos, setLoadingRascunhos] = useState(true);
+  const [mensagem, setMensagem] = useState(null); // { tipo: 'ok'|'erro', texto: '' }
+  const [confirmandoAprovarTodos, setConfirmandoAprovarTodos] = useState(false);
+
+  const avisar = (tipo, texto) => {
+    setMensagem({ tipo, texto });
+    setTimeout(() => setMensagem(null), 4000);
+  };
 
   useEffect(() => {
     supabase.from('courses').select('id, title').then(({ data }) => setCursos(data || []));
@@ -98,14 +105,7 @@ export function GeradorExerciciosTab() {
   const faltam = metaCalculada !== null ? Math.max(0, metaCalculada - contagemAtual) : 0;
 
   const handleGerar = async () => {
-    if (!unidadeId) {
-      alert('Selecciona Curso → Nivel → Módulo → Unidad antes de generar.');
-      return;
-    }
-    if (faltam <= 0) {
-      alert('Ya se alcanzó la meta de ejercicios para este tipo en esta unidad.');
-      return;
-    }
+    if (!unidadeId || faltam <= 0) return;
     setGerando(true);
     try {
       const resp = await fetch('/api/ai/gerar-exercicio', {
@@ -122,12 +122,12 @@ export function GeradorExerciciosTab() {
       });
       const data = await resp.json();
       if (data.erro) {
-        alert('Error: ' + data.erro);
+        avisar('erro', data.erro);
       } else {
         carregarRascunhos();
       }
     } catch (err) {
-      alert('Error de red: ' + err.message);
+      avisar('erro', 'Error de red: ' + err.message);
     }
     setGerando(false);
   };
@@ -136,6 +136,7 @@ export function GeradorExerciciosTab() {
     try {
       const { error: erroInsert } = await supabase.from('exercises').insert([{
         id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
         activity_type: rascunho.activity_type,
         difficulty_level: rascunho.difficulty_level,
         level: rascunho.level_tag,
@@ -154,24 +155,25 @@ export function GeradorExerciciosTab() {
       if (erroInsert) throw erroInsert;
 
       await supabase.from('exercises_rascunho').update({ status: 'aprovado' }).eq('id', rascunho.id);
-      carregarRascunhos();
-      if (unidadeId) setContagemAtual((c) => c + 1);
+      setRascunhos((prev) => prev.filter((r) => r.id !== rascunho.id));
+      setContagemAtual((c) => c + 1);
     } catch (err) {
-      alert('Error al aprobar: ' + err.message);
+      avisar('erro', 'Error al aprobar: ' + err.message);
     }
   };
 
   const handleAprovarTodos = async () => {
-    const seguro = confirm(`¿Aprobar TODOS los ${rascunhos.length} rascunhos pendientes?`);
-    if (!seguro) return;
-    for (const r of rascunhos) {
+    setConfirmandoAprovarTodos(false);
+    const lista = [...rascunhos];
+    for (const r of lista) {
       await handleAprovar(r);
     }
+    avisar('ok', `${lista.length} ejercicio(s) aprobado(s).`);
   };
 
   const handleRejeitar = async (id) => {
     await supabase.from('exercises_rascunho').update({ status: 'rejeitado' }).eq('id', id);
-    carregarRascunhos();
+    setRascunhos((prev) => prev.filter((r) => r.id !== id));
   };
 
   const handleEditarCampo = (id, campo, valor) => {
@@ -190,8 +192,14 @@ export function GeradorExerciciosTab() {
   };
 
   return (
-    <div className="flex flex-col gap-4 h-full min-h-0">
+    <div className="flex flex-col gap-4 h-full min-h-0 relative">
       <h2 className="text-lg font-black text-white flex items-center gap-2 shrink-0"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
+
+      {mensagem && (
+        <div className={`shrink-0 rounded-lg px-3 py-2 text-[11px] border flex items-center gap-2 ${mensagem.tipo === 'ok' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-300'}`}>
+          <Info size={12} /> {mensagem.texto}
+        </div>
+      )}
 
       <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col gap-4 pr-1">
 
@@ -272,11 +280,18 @@ export function GeradorExerciciosTab() {
         <div className="pt-2 border-t border-white/10">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-bold text-slate-400 uppercase">Rascunhos Pendientes de Revisión ({rascunhos.length})</p>
-            <div className="flex gap-2">
-              {rascunhos.length > 0 && (
-                <button onClick={handleAprovarTodos} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
+            <div className="flex gap-2 items-center">
+              {rascunhos.length > 0 && !confirmandoAprovarTodos && (
+                <button onClick={() => setConfirmandoAprovarTodos(true)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
                   <CheckCircle2 size={12} /> Aprobar Todos
                 </button>
+              )}
+              {confirmandoAprovarTodos && (
+                <div className="flex items-center gap-1.5 bg-[#0a1424] border border-white/10 rounded-lg px-2 py-1">
+                  <span className="text-[10px] text-slate-300">¿Aprobar {rascunhos.length}?</span>
+                  <button onClick={handleAprovarTodos} className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-[9px] font-black uppercase rounded">Sí</button>
+                  <button onClick={() => setConfirmandoAprovarTodos(false)} className="px-2 py-1 bg-white/5 text-slate-400 text-[9px] font-black uppercase rounded">No</button>
+                </div>
               )}
               <button onClick={carregarRascunhos} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={12} /></button>
             </div>
