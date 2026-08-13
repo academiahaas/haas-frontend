@@ -169,6 +169,7 @@ onValidateResult
 
         setReadingText(textoLimpo);
         audioTranscriptRef.current = exe.audio_transcript || "";
+        audioUrlRef.current = exe.audio_url || "";
         setCorrectAnswer(respostaLimpa);
         setFeedbackCorretoBanco(exe.correct_feedback || "");
         setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
@@ -217,9 +218,16 @@ onValidateResult
   }, [unidadeAtiva, nivelAtivo]);
 
   const audioTranscriptRef = useRef<string>("");
+  const audioUrlRef = useRef<string>("");
 
   const playAudio = (speed: 'slow' | 'normal' | 'native', rate: number) => {
     setActiveSpeed(speed);
+    if (audioUrlRef.current) {
+      const audio = new Audio(audioUrlRef.current);
+      audio.playbackRate = rate;
+      audio.play();
+      return;
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && readingText) {
       window.speechSynthesis.cancel();
 

@@ -137,23 +137,21 @@ export function GeradorExerciciosTab() {
     try {
       const novoId = crypto.randomUUID();
       let audioUrl = null;
-      try {
-        let textoParaAudio = rascunho.reading_text || '';
-        textoParaAudio = textoParaAudio.replace(/\[lacuna\]/gi, rascunho.correct_answer || '');
-        textoParaAudio = textoParaAudio.replace(/^Completa la frase:\s*/i, '');
-        textoParaAudio = textoParaAudio.replace(/Selecciona la opción con el error\.?/gi, '');
-        textoParaAudio = textoParaAudio.replace(/Elige la palabra correcta\.?/gi, '');
-        textoParaAudio = textoParaAudio.trim();
-
-        const respAudio = await fetch('/api/ai/gerar-audio-exercicio', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ texto: textoParaAudio, exerciseId: novoId }),
-        });
-        const dataAudio = await respAudio.json();
-        if (dataAudio.audio_url) audioUrl = dataAudio.audio_url;
-      } catch (errAudio) {
-        console.error('Falha ao gerar áudio, seguindo sem áudio:', errAudio);
+      const TIPOS_COM_AUDIO = [4, 6, 9, 10, 13];
+      if (TIPOS_COM_AUDIO.includes(rascunho.activity_type)) {
+        try {
+          const textoParaAudio = rascunho.audio_transcript || rascunho.texto_audio || rascunho.reading_text || '';
+          const vozEscolhida = rascunho.activity_type === 9 ? 'nova' : 'fable';
+          const respAudio = await fetch('/api/ai/gerar-audio-exercicio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texto: textoParaAudio, exerciseId: novoId, voz: vozEscolhida }),
+          });
+          const dataAudio = await respAudio.json();
+          if (dataAudio.audio_url) audioUrl = dataAudio.audio_url;
+        } catch (errAudio) {
+          console.error('Falha ao gerar áudio, seguindo sem áudio:', errAudio);
+        }
       }
 
       const { error: erroInsert } = await supabase.from('exercises').insert([{
