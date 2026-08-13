@@ -334,7 +334,8 @@ export default function PortalProfessor() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030914] text-slate-100 flex flex-col md:flex-row">
+    <div className="h-screen overflow-hidden bg-[#030914] text-slate-100 flex flex-col md:flex-row">
+      <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
 
       <aside className="w-full md:w-64 bg-[#0a1424] border-r border-white/10 p-6 flex flex-col justify-between gap-8">
         <div className="flex flex-col gap-8">
@@ -416,7 +417,7 @@ export default function PortalProfessor() {
           </div>
         </header>
 
-        <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
+        <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-hidden max-w-6xl w-full mx-auto">
 
           {vistaAtiva === "aulas" && (
             <>
@@ -463,8 +464,6 @@ export default function PortalProfessor() {
                 </div>
               </section>
 
-
-
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
                   <div>
@@ -478,7 +477,7 @@ export default function PortalProfessor() {
                     {t.sinClases}
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 max-h-[420px] overflow-y-auto pr-1 scrollbar-hide">
                     {aulas.map((aula) => (
                       <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
                         <div className="flex items-center gap-3">
