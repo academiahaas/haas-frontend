@@ -280,8 +280,9 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
   const [posY, setPosY] = useState(0);
   const [modo, setModo] = useState<"mover" | "dibujo" | "texto">("mover");
   const [arrastrando, setArrastrando] = useState(false);
-  const [textoInput, setTextoInput] = useState<{ x: number; y: number; valor: string } | null>(null);
+  const [textoInput, setTextoInput] = useState<{ x: number; y: number; valor: string; telaX: number; telaY: number } | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const ultimoPontoRef = React.useRef<{ x: number; y: number } | null>(null);
 
   const coordenadasCanvas = (e: any) => {
@@ -303,7 +304,16 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
     }
     if (modo === "texto") {
       const pos = coordenadasCanvas(e);
-      setTextoInput({ x: pos.x, y: pos.y, valor: "" });
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      setTextoInput({
+        x: pos.x,
+        y: pos.y,
+        valor: "",
+        telaX: containerRect ? clientX - containerRect.left : 0,
+        telaY: containerRect ? clientY - containerRect.top : 0
+      });
       return;
     }
     setArrastrando(true);
@@ -367,7 +377,7 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col" onClick={(e) => { if (e.target === e.currentTarget) onCerrar(); }}>
       <div className="flex items-center justify-between p-3 bg-[#0a1424] border-b border-white/10 shrink-0">
         <span className="text-xs text-slate-300 font-semibold">{material.nome_aluno}</span>
         <div className="flex items-center gap-2">
@@ -390,6 +400,7 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
         </div>
       </div>
       <div
+        ref={containerRef}
         className="flex-1 overflow-hidden relative flex items-center justify-center touch-none"
         onMouseDown={iniciarArrastre}
         onMouseMove={moverArrastre}
@@ -407,7 +418,7 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
           <canvas ref={canvasRef} width={1000} height={1000} className="absolute inset-0 w-full h-full" />
         </div>
         {textoInput && (
-          <div className="absolute z-10 flex gap-1" style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}>
+          <div className="absolute z-10 flex gap-1" style={{ left: textoInput.telaX, top: textoInput.telaY }}>
             <input
               autoFocus
               value={textoInput.valor}
