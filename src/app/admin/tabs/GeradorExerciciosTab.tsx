@@ -135,6 +135,7 @@ export function GeradorExerciciosTab() {
   const handleAprovar = async (rascunho) => {
     try {
       const { error: erroInsert } = await supabase.from('exercises').insert([{
+        id: crypto.randomUUID(),
         activity_type: rascunho.activity_type,
         difficulty_level: rascunho.difficulty_level,
         level: rascunho.level_tag,
@@ -157,6 +158,14 @@ export function GeradorExerciciosTab() {
       if (unidadeId) setContagemAtual((c) => c + 1);
     } catch (err) {
       alert('Error al aprobar: ' + err.message);
+    }
+  };
+
+  const handleAprovarTodos = async () => {
+    const seguro = confirm(`¿Aprobar TODOS los ${rascunhos.length} rascunhos pendientes?`);
+    if (!seguro) return;
+    for (const r of rascunhos) {
+      await handleAprovar(r);
     }
   };
 
@@ -263,7 +272,14 @@ export function GeradorExerciciosTab() {
         <div className="pt-2 border-t border-white/10">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-bold text-slate-400 uppercase">Rascunhos Pendientes de Revisión ({rascunhos.length})</p>
-            <button onClick={carregarRascunhos} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={12} /></button>
+            <div className="flex gap-2">
+              {rascunhos.length > 0 && (
+                <button onClick={handleAprovarTodos} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
+                  <CheckCircle2 size={12} /> Aprobar Todos
+                </button>
+              )}
+              <button onClick={carregarRascunhos} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-slate-400"><RefreshCw size={12} /></button>
+            </div>
           </div>
 
           {loadingRascunhos ? (
