@@ -82,7 +82,7 @@ export default function PortalProfessor() {
   };
 
   const formatarHorario = (iso: string) => {
-    return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota" }) + " (Colombia)";
   };
 
   const agora = new Date();
@@ -177,7 +177,7 @@ export default function PortalProfessor() {
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Acumulado este mes</span>
                 <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(acumuladoMes)}</span>
                 <span className={`text-[10px] font-semibold mt-0.5 ${professor?.payment_status === "pagado" ? "text-emerald-400" : "text-amber-400"}`}>
-                  {professor?.payment_status === "pagado" ? "Pagado" : "Pendiente - se paga los sabados"}
+                  {professor?.payment_status === "pagado" ? "Pagado" : "Pendiente"}
                 </span>
               </div>
             </div>
