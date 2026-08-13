@@ -33,6 +33,22 @@ export default function LoginPage() {
         return;
       }
 
+      const { data: dadosProfessor } = await supabase
+        .from("teachers")
+        .select("id, name, email")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (dadosProfessor) {
+        localStorage.removeItem("haas_aluno_cache");
+        localStorage.setItem("haas_teacher_id", dadosProfessor.id);
+        localStorage.setItem("haas_teacher_email", dadosProfessor.email);
+        localStorage.setItem("haas_teacher_name", dadosProfessor.name || "");
+        window.location.href = "/portal-professor";
+        return;
+      }
+
+
       const { data } = await supabase
         .from("user_subscriptions")
         .select("id, user_id, email, first_name, last_name, course_language")

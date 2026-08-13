@@ -2,298 +2,235 @@
 
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from "react";
-import { DollarSign, Calendar, Clock, CheckCircle2, TrendingUp, Users, Award, LogOut, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
+import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-// Definição das Regras de Negócio Ocultas do Ecossistema Haas
-const VALOR_HORA_BASE = 50.00; // Euros/Hora conforme a moeda da plataforma
-const BONUS_PONTUALIDADE_PREMIUM = 10.00; // Bônus por liberação da Missão Live sem atrasos
+interface AulaSlot {
+  id: string;
+  data_hora_inicio: string;
+  data_hora_fim: string;
+  tipo_aula: string;
+  vagas_maximas: number;
+  vagas_ocupadas: number;
+  status: string;
+  idioma: string;
+}
 
-interface AulaSchedule {
-  id: string | number;
-  aluno_nome: string;
-  horario_formatado: string;
-  status: string; // Ex: "Concluída", "Agendada", "Em Andamento"
-  google_meet_link: string;
-  // Extensões lógicas integradas para o motor financeiro
-  duracao_horas?: number; 
-  pontual?: boolean;
+interface DadosProfessor {
+  id: string;
+  name: string;
+  email: string;
+  monthly_rate: number | null;
+  rate_per_class: number | null;
+  meeting_link: string | null;
+  payment_status: string | null;
 }
 
 export default function PortalProfessor() {
-  const [agenda, setAgenda] = useState<AulaSchedule[]>([]);
+  const [professor, setProfessor] = useState<DadosProfessor | null>(null);
+  const [aulas, setAulas] = useState<AulaSlot[]>([]);
   const [loading, setLoading] = useState(true);
-  const [metricas, setMetricas] = useState({
-    ganhosTotais: 0,
-    horasMinistradas: 0,
-    taxaPontualidade: 100,
-    proximaLiberacaoStripe: 0
-  });
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
-    const carregarDadosDoProfessor = async () => {
+    const carregarDados = async () => {
       try {
-        // 1. Identifica o professor logado na sessão ativa do Supabase Auth
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
+        const teacherId = localStorage.getItem("haas_teacher_id");
+        if (!teacherId) {
+          setErro("Sesión no encontrada. Por favor inicia sesión de nuevo.");
+          setLoading(false);
+          return;
+        }
 
-        if (user) {
-          // 2. Busca as aulas agendadas associadas ao ID deste professor
-          const { data: aulasReais, error: scheduleError } = await supabase
-            .from("tabela_master_schedule")
-            .select("id, aluno_nome, horario_formatado, status, google_meet_link")
-            .eq("id_professor", user.id)
-            .order("horario_formatado", { ascending: true });
+        const { data: dadosProfessor, error: erroProfessor } = await supabase
+          .from("teachers")
+          .select("id, name, email, monthly_rate, rate_per_class, meeting_link, payment_status")
+          .eq("id", teacherId)
+          .maybeSingle();
 
-          if (!scheduleError && aulasReais) {
-            // Injeta propriedades financeiras padrão caso não existam na tabela_master_schedule
-            const aulasTratadas = aulasReais.map((aula: any) => ({
-              ...aula,
-              duracao_horas: aula.duracao_horas ?? 1, // fallback 1 hora por aula
-              pontual: aula.pontual ?? true // fallback pontualidade premium ativa
-            }));
+        if (erroProfessor || !dadosProfessor) {
+          setErro("No se pudo cargar tu información. Contacta a soporte.");
+          setLoading(false);
+          return;
+        }
 
-            setAgenda(aulasTratadas);
-            calcularMetricasFinanceiras(aulasTratadas);
-          }
+        setProfessor(dadosProfessor);
+
+        const { data: aulasReais, error: erroAulas } = await supabase
+          .from("aulas_disponiveis")
+          .select("id, data_hora_inicio, data_hora_fim, tipo_aula, vagas_maximas, vagas_ocupadas, status, idioma")
+          .eq("teacher_id", teacherId)
+          .order("data_hora_inicio", { ascending: true });
+
+        if (!erroAulas && aulasReais) {
+          setAulas(aulasReais);
         }
       } catch (err) {
-        console.error("Erro ao carregar dados do docente:", err);
+        console.error("Error al cargar datos del profesor:", err);
+        setErro("Ocurrió un error inesperado.");
       } finally {
         setLoading(false);
       }
     };
 
-    carregarDadosDoProfessor();
+    carregarDados();
   }, []);
 
-  // 3. Motor de Cálculo Financeiro em Tempo Real alimentado pelo Supabase
-  const calcularMetricasFinanceiras = (listaAulas: AulaSchedule[]) => {
-    let totalGanhos = 0;
-    let totalHoras = 0;
-    let totalPontuais = 0;
-    let pendenteStripe = 0;
-
-    // Filtra apenas aulas validadas/concluídas no banco de dados para computar ganhos reais
-    const aulasConcluidas = listaAulas.filter(a => a.status === "Concluída");
-
-    aulasConcluidas.forEach(aula => {
-      const horas = aula.duracao_horas ?? 1;
-      const ehPontual = aula.pontual ?? true;
-      
-      // Ganhos da regra de negócio: (Horas * Valor Base) + Bônus se pontual
-      const ganhoAula = (horas * VALOR_HORA_BASE) + (ehPontual ? BONUS_PONTUALIDADE_PREMIUM : 0);
-      
-      totalGanhos += ganhoAula;
-      totalHoras += horas;
-      if (ehPontual) totalPontuais++;
-    });
-
-    // Aulas que não estão concluídas mas constam na grade simulam saldo futuro / retido processando
-    const aulasPendentes = listaAulas.filter(a => a.status !== "Concluída");
-    aulasPendentes.forEach(aula => {
-      const horas = aula.duracao_horas ?? 1;
-      const ehPontual = aula.pontual ?? true;
-      pendenteStripe += (horas * VALOR_HORA_BASE) + (ehPontual ? BONUS_PONTUALIDADE_PREMIUM : 0);
-    });
-
-    const taxa = aulasConcluidas.length ? (totalPontuais / aulasConcluidas.length) * 100 : 100;
-
-    setMetricas({
-      ganhosTotais: totalGanhos,
-      horasMinistradas: totalHoras,
-      taxaPontualidade: Math.round(taxa),
-      proximaLiberacaoStripe: pendenteStripe
-    });
+  const formatarMoeda = (valor: number | null) => {
+    if (valor === null || valor === undefined) return "N/D";
+    return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(valor);
   };
 
+  const formatarHorario = (iso: string) => {
+    return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  };
+
+  const agora = new Date();
+  const acumuladoMes = aulas
+    .filter(a => {
+      const dataFim = new Date(a.data_hora_fim);
+      const jaAconteceu = dataFim < agora;
+      const mesmoMes = dataFim.getMonth() === agora.getMonth() && dataFim.getFullYear() === agora.getFullYear();
+      const naoCancelada = a.status !== "CANCELADO";
+      return jaAconteceu && mesmoMes && naoCancelada;
+    })
+    .reduce((total) => total + (professor?.rate_per_class || 0), 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center gap-3 text-slate-400">
+        <Loader2 className="animate-spin text-cyan-400" size={32} />
+        <p className="text-sm font-medium">Cargando tu panel...</p>
+      </div>
+    );
+  }
+
+  if (erro) {
+    return (
+      <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center gap-3 text-slate-400 p-6 text-center">
+        <p className="text-sm font-medium text-rose-400">{erro}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
-      
-      {/* SIDEBAR INSTITUCIONAL DO PROFESSOR */}
-      <aside className="w-full md:w-64 bg-slate-900/40 backdrop-blur-md border-r border-slate-800/80 p-6 flex flex-col justify-between gap-8">
+    <div className="min-h-screen bg-[#030914] text-slate-100 flex flex-col md:flex-row">
+
+      <aside className="w-full md:w-64 bg-[#0a1424] border-r border-white/10 p-6 flex flex-col justify-between gap-8">
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-3 px-2">
-            <div className="h-9 w-9 bg-gradient-to-tr from-purple-500 to-indigo-400 rounded-xl flex items-center justify-center font-black text-slate-950 text-lg shadow-lg shadow-indigo-500/20">
+            <div className="h-9 w-9 bg-gradient-to-tr from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center font-black text-slate-950 text-lg">
               P
             </div>
             <div>
-              <h1 className="font-bold text-base tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Haas Docente</h1>
-              <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Centro de Comando</span>
+              <h1 className="font-bold text-base tracking-tight text-slate-100">Haas Docente</h1>
+              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Panel del Profesor</span>
             </div>
           </div>
 
           <nav className="flex flex-col gap-1.5">
-            <button className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/10 text-indigo-400 text-sm font-semibold transition-all text-left">
+            <button className="flex items-center gap-3 px-4 py-3 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold transition-all text-left">
               <Calendar size={18} />
-              <span>Agenda & Missões</span>
-            </button>
-            <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-sm font-medium transition-all text-left group">
-              <DollarSign size={18} className="group-hover:text-indigo-400 transition-colors" />
-              <span>Extrato Stripe</span>
+              <span>Mis clases</span>
             </button>
           </nav>
         </div>
 
-        <div className="border-t border-slate-800/80 pt-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
-              <User size={20} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">Professor Haas</span>
-              <span className="text-[10px] text-slate-400">Sessão Segura Ativa</span>
-            </div>
+        <div className="border-t border-white/10 pt-4 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+            <User size={20} />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">{professor?.name || "Profesor"}</span>
+            <span className="text-[10px] text-slate-500">Sesión segura activa</span>
           </div>
         </div>
       </aside>
 
-      {/* PAINEL CENTRAL CONECTADO AO SUPABASE E STRIPE */}
       <div className="flex-1 flex flex-col min-w-0">
-        
-        <header className="h-16 border-b border-slate-800/60 bg-slate-950/40 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
+
+        <header className="h-16 border-b border-white/10 bg-[#030914]/80 backdrop-blur-md px-6 md:px-10 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-indigo-400" />
-            <span className="text-xs text-slate-400 font-medium">Infraestrutura Supabase & Finanças Stripe operacionais</span>
+            <ShieldCheck size={16} className="text-cyan-400" />
+            <span className="text-xs text-slate-400 font-medium">Conexion segura activa</span>
           </div>
-          <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md font-bold">
-            Eficiência: 95%
-          </span>
         </header>
 
-        {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-slate-400">
-            <Loader2 className="animate-spin text-indigo-500" size={32} />
-            <p className="text-sm font-medium">Sincronizando extratos e grade horária real...</p>
-          </div>
-        ) : (
-          <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
-            
-            {/* CARDS INDICADORES FINANCEIROS (CALCULADOS EM TEMPO REAL) */}
-            <section className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400">
-                  <DollarSign size={20} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ganhos Liquidados</span>
-                  <span className="text-xl font-extrabold text-slate-100">€{metricas.ganhosTotais.toFixed(2)}</span>
-                </div>
-              </div>
+        <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
 
-              <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-amber-500/10 text-purple-300">
-                  <TrendingUp size={20} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Projeção Futura</span>
-                  <span className="text-xl font-extrabold text-slate-100">€{metricas.proximaLiberacaoStripe.toFixed(2)}</span>
-                </div>
+          <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#0a1424] border border-emerald-500/20 rounded-xl p-5 flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <DollarSign size={20} />
               </div>
-
-              <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400">
-                  <Clock size={20} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Horas Ministradas</span>
-                  <span className="text-xl font-extrabold text-slate-100">{metricas.horasMinistradas} hrs</span>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tarifa por clase</span>
+                <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(professor?.rate_per_class ?? null)}</span>
               </div>
+            </div>
 
-              <div className="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-5 flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
-                  <Award size={20} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pontualidade MTRX</span>
-                  <span className="text-xl font-extrabold text-slate-100">{metricas.taxaPontualidade}%</span>
-                </div>
+            <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-5 flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-purple-500/10 text-purple-400">
+                <DollarSign size={20} />
               </div>
-            </section>
-
-            {/* LISTA DINÂMICA DE AULAS INTEGRADA AO BANCO */}
-            <section className="bg-slate-900/20 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                <div>
-                  <h2 className="font-bold text-base text-slate-200">Extrato de Aulas da Grade</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Dados extraídos da tabela_master_schedule vinculada ao Stripe Connect.</p>
-                </div>
-                <span className="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md font-mono">Taxa Base: €{VALOR_HORA_BASE.toFixed(2)}/h</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Acumulado este mes</span>
+                <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(acumuladoMes)}</span>
+                <span className={`text-[10px] font-semibold mt-0.5 ${professor?.payment_status === "pagado" ? "text-emerald-400" : "text-amber-400"}`}>
+                  {professor?.payment_status === "pagado" ? "Pagado" : "Pendiente - se paga los sabados"}
+                </span>
               </div>
+            </div>
 
-              <div className="overflow-x-auto">
-                {agenda.length === 0 ? (
-                  <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
-                    Nenhuma missão localizada no banco de dados para este ID docente.
+            <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-5 flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
+                <Clock size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Clases programadas</span>
+                <span className="text-xl font-extrabold text-slate-100">{aulas.length}</span>
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <div>
+                <h2 className="font-bold text-base text-slate-200">Tus clases</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Horario real desde el calendario</p>
+              </div>
+            </div>
+
+            {aulas.length === 0 ? (
+              <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
+                No hay clases programadas todavia.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {aulas.map((aula) => (
+                  <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Users size={16} className="text-cyan-400" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-slate-200">{aula.tipo_aula || "Clase"} - {aula.idioma}</span>
+                        <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} alumnos</span>
+                      {professor?.meeting_link && (
+                        <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
+                          Entrar a la clase <ExternalLink size={11} />
+                        </a>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-800/50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                        <th className="py-3 px-4">Estudante</th>
-                        <th className="py-3 px-4">Cronograma</th>
-                        <th className="py-3 px-4">Duração</th>
-                        <th className="py-3 px-4 text-center">Bônus Live</th>
-                        <th className="py-3 px-4 text-right">Valor Bruto</th>
-                        <th className="py-3 px-4 text-right">Status do Fluxo</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800/30 text-sm">
-                      {agenda.map((aula) => {
-                        const horas = aula.duracao_horas ?? 1;
-                        const ehPontual = aula.pontual ?? true;
-                        const valorLiquido = (horas * VALOR_HORA_BASE) + (ehPontual ? BONUS_PONTUALIDADE_PREMIUM : 0);
-
-                        return (
-                          <tr key={aula.id} className="hover:bg-slate-900/20 transition-colors group">
-                            <td className="py-3.5 px-4 font-medium text-slate-200 flex items-center gap-2">
-                              <Users size={14} className="text-indigo-400" />
-                              {aula.aluno_nome}
-                            </td>
-                            <td className="py-3.5 px-4 text-slate-400 font-mono text-xs">
-                              {aula.horario_formatado}
-                            </td>
-                            <td className="py-3.5 px-4 text-slate-300">{horas}h</td>
-                            <td className="py-3.5 px-4 text-center">
-                              {ehPontual && aula.status === "Concluída" ? (
-                                <span className="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium bg-emerald-500/5 px-2 py-0.5 rounded-full border border-emerald-500/10">
-                                  +€{BONUS_PONTUALIDADE_PREMIUM}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-slate-500">—</span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4 text-right font-bold text-slate-100 font-mono">
-                              €{valorLiquido.toFixed(2)}
-                            </td>
-                            <td className="py-3.5 px-4 text-right">
-                              {aula.status === "Concluída" ? (
-                                <span className="inline-block px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                  PAGO VIA STRIPE
-                                </span>
-                              ) : (
-                                <a
-                                  href={aula.google_meet_link}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2.5 rounded transition-all shadow-md"
-                                >
-                                  Lançar Sala <ExternalLink size={11} />
-                                </a>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
+                ))}
               </div>
-            </section>
+            )}
+          </section>
 
-          </main>
-        )}
+        </main>
       </div>
     </div>
   );
