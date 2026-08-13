@@ -122,6 +122,22 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Oi! Tudo bem? O que você fez no fim de semana?", "audio_transcript": "Oi! Tudo bem? O que você fez no fim de semana?", "correct_answer": "palavra1, palavra2, palavra3", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 10) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo TREINO DE FALA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno ouve uma frase e precisa repeti-la em voz alta, praticando pronúncia.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text e audio_transcript: OS DOIS EXATAMENTE IGUAIS, palavra por palavra. Uma única frase natural e completa em ${idiomaAlvo}, sobre o tema da unidade, sem NENHUMA instrução ou texto adicional — é só a frase que o aluno vai ouvir e repetir.
+- correct_answer: as palavras-chave da frase (as palavras de conteúdo, sem artigos/preposições soltas), em ${idiomaAlvo}, separadas por vírgula — usadas pelo sistema pra avaliar se o aluno disse os elementos certos ao repetir
+- alternative_options: sempre um array vazio []
+- correct_feedback e incorrect_feedback: MUITO CURTOS (máximo 1 frase simples, sem jargão técnico de linguística ou fonética). Fale como alguém animando um amigo, não como um professor de fonética.
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Bom dia, tudo bem com você?", "audio_transcript": "Bom dia, tudo bem com você?", "correct_answer": "bom dia, tudo bem, você", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -159,6 +175,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   3: "DESAFIO BLITZ",
   4: "PALAVRA OCULTA",
   9: "PRÁTICA DE CONVERSAÇÃO",
+  10: "TREINO DE FALA",
 };
 
 let ultimaChamada = 0;
