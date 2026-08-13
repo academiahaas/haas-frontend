@@ -418,13 +418,18 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
           <canvas ref={canvasRef} width={1000} height={1000} className="absolute inset-0 w-full h-full" />
         </div>
         {textoInput && (
-          <div className="absolute z-10 flex gap-1" style={{ left: textoInput.telaX, top: textoInput.telaY }}>
+          <div
+            className="absolute z-10 flex gap-1"
+            style={{ left: textoInput.telaX, top: textoInput.telaY }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
             <input
               autoFocus
               value={textoInput.valor}
               onChange={(e) => setTextoInput({ ...textoInput, valor: e.target.value })}
               onKeyDown={(e) => e.key === "Enter" && confirmarTexto()}
-              className="bg-white text-black text-sm px-2 py-1 rounded"
+              className="bg-white text-black text-base px-3 py-2 rounded min-w-[280px] w-auto"
               placeholder={idioma === "es" ? "Escribe aqui..." : idioma === "en" ? "Type here..." : "Escreva aqui..."}
             />
             <button onClick={confirmarTexto} className="bg-cyan-500 text-slate-950 text-xs font-bold px-2 rounded">OK</button>
