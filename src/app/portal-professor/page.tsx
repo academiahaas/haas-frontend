@@ -96,7 +96,12 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     cargando: "Loading your panel...",
     pesos: "Colombian pesos",
     soporte: "Support",
-    cerrarSesion: "Log out"
+    cerrarSesion: "Log out",
+    calificacionProm: "Average rating",
+    sinDatos: "No data",
+    resena: "review",
+    resenas: "reviews",
+    comentariosAlumnos: "Comments from your students"
   },
   pt: {
     subtitulo: "Painel do Professor",
@@ -118,7 +123,12 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     cargando: "Carregando seu painel...",
     pesos: "pesos colombianos",
     soporte: "Suporte",
-    cerrarSesion: "Sair"
+    cerrarSesion: "Sair",
+    calificacionProm: "Avaliacao media",
+    sinDatos: "Sem dados",
+    resena: "avaliacao",
+    resenas: "avaliacoes",
+    comentariosAlumnos: "Comentarios dos seus alunos"
   }
 };
 
@@ -400,16 +410,16 @@ export default function PortalProfessor() {
                     <Users size={20} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Calificacion promedio</span>
-                    <span className="text-xl font-extrabold text-slate-100">{notaMedia ? `${notaMedia} / 5` : "Sin datos"}</span>
-                    <span className="text-[10px] text-slate-500 mt-0.5">{avaliacoes.length} {avaliacoes.length === 1 ? "resena" : "resenas"}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.calificacionProm}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{notaMedia ? `${notaMedia} / 5` : t.sinDatos}</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">{avaliacoes.length} {avaliacoes.length === 1 ? t.resena : t.resenas}</span>
                   </div>
                 </div>
               </section>
 
               {avaliacoes.length > 0 && (
                 <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
-                  <h2 className="font-bold text-base text-slate-200 mb-4">Comentarios de tus alumnos</h2>
+                  <h2 className="font-bold text-base text-slate-200 mb-4">{t.comentariosAlumnos}</h2>
                   <div className="flex flex-col gap-2">
                     {avaliacoes.slice(0, 5).map((av, i) => (
                       <div key={i} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
