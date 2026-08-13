@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 
     const { data: unidade, error: erroUnidade } = await supabase
       .from("units")
-      .select("id, unit_number, unit_title, pedagogical_objective, situational_content, hidden_grammatical_structure, module_content_id")
+      .select("id, unit_number, unit_title, pedagogical_objective, situational_content, hidden_grammatical_structure, module_content_id, skill_label")
       .eq("id", unitId)
       .maybeSingle();
 
@@ -148,13 +148,13 @@ export async function POST(req: NextRequest) {
 
     const { data: modulo } = await supabase
       .from("modules_content")
-      .select("level_id, module_title")
+      .select("id, level_id, module_title")
       .eq("id", unidade.module_content_id)
       .maybeSingle();
 
     const { data: nivel } = await supabase
       .from("levels")
-      .select("level_tag")
+      .select("id, level_tag, course_id")
       .eq("id", modulo?.level_id)
       .maybeSingle();
 
@@ -173,6 +173,10 @@ export async function POST(req: NextRequest) {
       level_tag: levelTag,
       unit_number: unidade.unit_number,
       module: modulo?.module_title || null,
+      course_id: nivel?.course_id || null,
+      level_id: modulo?.level_id || null,
+      module_id: unidade.module_content_id || null,
+      skill_code: unidade.skill_label || null,
       activity_type: activityType,
       activity_name: NOMES_ATIVIDADE[activityType] || `TIPO ${activityType}`,
       difficulty_level: ex.difficulty_level,

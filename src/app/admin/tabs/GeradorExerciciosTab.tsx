@@ -152,6 +152,10 @@ export function GeradorExerciciosTab() {
         incorrect_incentive: rascunho.incorrect_incentive,
         unit_id: rascunho.unit_id,
         activity_name: rascunho.activity_name,
+        course_id: rascunho.course_id,
+        level_id: rascunho.level_id,
+        module_id: rascunho.module_id,
+        skill_code: rascunho.skill_code,
       }]);
       if (erroInsert) throw erroInsert;
 
