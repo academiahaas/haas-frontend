@@ -278,20 +278,32 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
   const [rotacao, setRotacao] = useState(0);
   const [posX, setPosX] = useState(0);
   const [posY, setPosY] = useState(0);
-  const [modoDibujo, setModoDibujo] = useState(false);
+  const [modo, setModo] = useState<"mover" | "dibujo" | "texto">("mover");
   const [arrastrando, setArrastrando] = useState(false);
+  const [textoInput, setTextoInput] = useState<{ x: number; y: number; valor: string } | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const ultimoPontoRef = React.useRef<{ x: number; y: number } | null>(null);
 
+  const coordenadasCanvas = (e: any) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const escalaX = canvas.width / rect.width;
+    const escalaY = canvas.height / rect.height;
+    return { x: (clientX - rect.left) * escalaX, y: (clientY - rect.top) * escalaY };
+  };
+
   const iniciarArrastre = (e: any) => {
-    if (modoDibujo) {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX || e.touches[0].clientX) - rect.left;
-      const y = (e.clientY || e.touches[0].clientY) - rect.top;
-      ultimoPontoRef.current = { x, y };
+    if (modo === "dibujo") {
+      ultimoPontoRef.current = coordenadasCanvas(e);
       setArrastrando(true);
+      return;
+    }
+    if (modo === "texto") {
+      const pos = coordenadasCanvas(e);
+      setTextoInput({ x: pos.x, y: pos.y, valor: "" });
       return;
     }
     setArrastrando(true);
@@ -300,26 +312,24 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
 
   const moverArrastre = (e: any) => {
     if (!arrastrando) return;
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-    if (modoDibujo) {
+    if (modo === "dibujo") {
       const canvas = canvasRef.current;
       if (!canvas || !ultimoPontoRef.current) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      const pos = coordenadasCanvas(e);
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.strokeStyle = "#ef4444";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.lineCap = "round";
         ctx.beginPath();
         ctx.moveTo(ultimoPontoRef.current.x, ultimoPontoRef.current.y);
-        ctx.lineTo(x, y);
+        ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       }
-      ultimoPontoRef.current = { x, y };
-    } else {
+      ultimoPontoRef.current = pos;
+    } else if (modo === "mover") {
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
       if (!ultimoPontoRef.current) return;
       const dx = clientX - ultimoPontoRef.current.x;
       const dy = clientY - ultimoPontoRef.current.y;
@@ -332,6 +342,20 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
   const pararArrastre = () => {
     setArrastrando(false);
     ultimoPontoRef.current = null;
+  };
+
+  const confirmarTexto = () => {
+    if (!textoInput || !textoInput.valor.trim()) { setTextoInput(null); return; }
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "bold 28px sans-serif";
+        ctx.fillText(textoInput.valor, textoInput.x, textoInput.y);
+      }
+    }
+    setTextoInput(null);
   };
 
   const limparDibujo = () => {
@@ -350,8 +374,14 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
           <button onClick={() => setZoom((z) => Math.min(z + 0.25, 3))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">+</button>
           <button onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">-</button>
           <button onClick={() => setRotacao((r) => r + 90)} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">{"\u21bb"}</button>
-          <button onClick={() => setModoDibujo(!modoDibujo)} className={`text-xs px-2.5 py-1.5 rounded-lg ${modoDibujo ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
+          <button onClick={() => setModo("mover")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "mover" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
+            {"\u270B"}
+          </button>
+          <button onClick={() => setModo("dibujo")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "dibujo" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
             {idioma === "es" ? "Marcar" : idioma === "en" ? "Mark" : "Marcar"}
+          </button>
+          <button onClick={() => setModo("texto")} className={`text-xs px-2.5 py-1.5 rounded-lg ${modo === "texto" ? "bg-cyan-500 text-slate-950" : "bg-white/10 text-slate-200 hover:bg-white/20"}`}>
+            {idioma === "es" ? "Texto" : idioma === "en" ? "Text" : "Texto"}
           </button>
           <button onClick={limparDibujo} className="text-xs bg-white/10 hover:bg-white/20 text-slate-200 px-2.5 py-1.5 rounded-lg">
             {idioma === "es" ? "Borrar" : idioma === "en" ? "Clear" : "Apagar"}
@@ -371,11 +401,24 @@ function VisorMaterial({ material, idioma, onCerrar }: any) {
       >
         <div
           className="relative"
-          style={{ transform: `translate(${posX}px, ${posY}px) scale(${zoom}) rotate(${rotacao}deg)`, cursor: modoDibujo ? "crosshair" : "grab" }}
+          style={{ transform: `translate(${posX}px, ${posY}px) scale(${zoom}) rotate(${rotacao}deg)`, cursor: modo === "dibujo" || modo === "texto" ? "crosshair" : "grab" }}
         >
           <img src={material.photo_url} alt="material" className="max-w-none select-none pointer-events-none" style={{ maxHeight: "70vh" }} draggable={false} />
           <canvas ref={canvasRef} width={1000} height={1000} className="absolute inset-0 w-full h-full" />
         </div>
+        {textoInput && (
+          <div className="absolute z-10 flex gap-1" style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}>
+            <input
+              autoFocus
+              value={textoInput.valor}
+              onChange={(e) => setTextoInput({ ...textoInput, valor: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && confirmarTexto()}
+              className="bg-white text-black text-sm px-2 py-1 rounded"
+              placeholder={idioma === "es" ? "Escribe aqui..." : idioma === "en" ? "Type here..." : "Escreva aqui..."}
+            />
+            <button onClick={confirmarTexto} className="bg-cyan-500 text-slate-950 text-xs font-bold px-2 rounded">OK</button>
+          </div>
+        )}
       </div>
     </div>
   );
