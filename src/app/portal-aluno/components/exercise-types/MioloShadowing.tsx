@@ -232,6 +232,7 @@ Regras Estritas:
         if (exeDados && exeDados.length > 0) {
           const frase = exeDados[0].audio_transcript || exeDados[0].correct_answer || "";
           setReferencePhrase(frase);
+          audioUrlShadowingRef.current = exeDados[0].audio_url || "";
           setFeedbackCorretoBanco(exeDados[0].correct_feedback || "");
           setFeedbackIncorretoBanco(exeDados[0].incorrect_feedback || "");
           setIncentivoCorretoBanco(exeDados[0].correct_incentive || "");
@@ -271,7 +272,14 @@ Regras Estritas:
     }
   }, [unidadeAtiva]);
 
+  const audioUrlShadowingRef = useRef<string>("");
+
   const playNativo = () => {
+    if (audioUrlShadowingRef.current) {
+      const audio = new Audio(audioUrlShadowingRef.current);
+      audio.play();
+      return;
+    }
     if (referencePhrase && typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(referencePhrase);
