@@ -2,7 +2,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { resilienciaTextoCompleto, resilienciaOpcoes, registrarFeedbackEErro } from '@/utils/motorResiliencia';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Turtle, Zap, Rocket, CheckCircle, XCircle, RefreshCw, Sparkles, Send , HelpCircle } from "lucide-react";
 
@@ -168,6 +168,7 @@ onValidateResult
         const respostaLimpa = exe.correct_answer || exe.correta || "";
 
         setReadingText(textoLimpo);
+        audioTranscriptRef.current = exe.audio_transcript || "";
         setCorrectAnswer(respostaLimpa);
         setFeedbackCorretoBanco(exe.correct_feedback || "");
         setFeedbackIncorretoBanco(exe.incorrect_feedback || "");
@@ -215,18 +216,21 @@ onValidateResult
     carregarDados();
   }, [unidadeAtiva, nivelAtivo]);
 
+  const audioTranscriptRef = useRef<string>("");
+
   const playAudio = (speed: 'slow' | 'normal' | 'native', rate: number) => {
     setActiveSpeed(speed);
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && readingText) {
       window.speechSynthesis.cancel();
-      
-      let cleanText = readingText;
-    const textoAudio = (correctAnswer || "").split(/[,/]/);
-    textoAudio.forEach(part => {
-      cleanText = cleanText.replace(/___+/, part.trim());
-    });
-    cleanText = cleanText.replace(/___+/g, "lacuna");
 
+      let cleanText = audioTranscriptRef.current || readingText;
+      if (!audioTranscriptRef.current) {
+        const textoAudio = (correctAnswer || "").split(/[,/]/);
+        textoAudio.forEach(part => {
+          cleanText = cleanText.replace(/___+/, part.trim());
+        });
+        cleanText = cleanText.replace(/___+/g, "lacuna");
+      }
     const utterance = new SpeechSynthesisUtterance(cleanText.toLowerCase());
     utterance.lang = 'pt-BR';
     utterance.rate = rate; 

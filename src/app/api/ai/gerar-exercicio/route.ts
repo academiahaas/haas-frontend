@@ -138,6 +138,22 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Bom dia, tudo bem com você?", "audio_transcript": "Bom dia, tudo bem com você?", "correct_answer": "bom dia, tudo bem, você", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 13) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo MARCHAS DE ÁUDIO para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno ouve uma frase completa e vê a mesma frase escrita com 1 a 3 lacunas (marcadas como "______"). Ele escolhe, entre 4 opções, o conjunto completo de palavras que preenche todas as lacunas corretamente.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: a frase em ${idiomaAlvo}, com 1 a 3 lacunas marcadas como "______", SEM nenhuma instrução antes ou depois — só a frase com as lacunas
+- audio_transcript: a MESMA frase, só que COMPLETA, sem lacunas, com as palavras certas já no lugar — é o texto que vira áudio
+- correct_answer: as palavras certas que preenchem as lacunas, na ordem, separadas por vírgula (ex: se são 2 lacunas: "revisadas, protocolo")
+- alternative_options: array com exatamente 4 conjuntos completos de resposta (strings no mesmo formato de correct_answer, separadas por vírgula), sendo UM deles idêntico ao correct_answer e os outros 3 combinações erradas mas plausíveis
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Frase com ______ lacunas.", "audio_transcript": "Frase completa sem lacunas.", "correct_answer": "palavra1, palavra2", "alternative_options": ["palavra1, palavra2", "errada1, errada2", "errada3, errada4", "errada5, errada6"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -176,6 +192,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   4: "PALAVRA OCULTA",
   9: "PRÁTICA DE CONVERSAÇÃO",
   10: "TREINO DE FALA",
+  13: "MARCHAS DE ÁUDIO",
 };
 
 let ultimaChamada = 0;
