@@ -205,7 +205,7 @@ export default function MioloRoleplay({ onSelectCorrect, onSelectWrong, unidadeA
   const [feedbackCorretoReal, setFeedbackCorretoReal] = useState("");
   const [feedbackIncorretoReal, setFeedbackIncorretoReal] = useState("");
 
-  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const GEMINI_API_KEY = "CHAVE_REVOGADA_NAO_USAR";
   const recognitionRef = useRef<any>(null);
 
   const obterLangKey = () => {

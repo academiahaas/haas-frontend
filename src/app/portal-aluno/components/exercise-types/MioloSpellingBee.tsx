@@ -131,7 +131,7 @@ status: propStatus = 'IDLE',
       
       // Checagem de USER_ID_ALVO ajustada para nao abortar o carregamento dos dados
       const { data: envDados, error: envError } = await supabase.from('exercises').select('id').limit(1);
-      const key_gemini = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+      const key_gemini = "CHAVE_REVOGADA_NAO_USAR";
       
       const res: { ok: boolean; json: () => Promise<any> } = { ok: false, json: async () => ({}) };
       

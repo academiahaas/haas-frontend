@@ -143,7 +143,7 @@ export default function MioloOrdenacao({
   }, [initialExerciseData]);
 
 
-  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const GEMINI_API_KEY = "CHAVE_REVOGADA_NAO_USAR";
   // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {

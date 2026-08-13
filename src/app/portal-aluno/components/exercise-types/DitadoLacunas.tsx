@@ -85,6 +85,7 @@ export default function DitadoLacunas({
       setTargetWord(targetWordVal);
       setFraseEstruturada(text);
       setTextoParaFalar(text || targetWordVal);
+      audioUrlRef.current = ex.audio_url || "";
       setInputValue("");
       setInputValues({});
       setLocalStatus('IDLE');
@@ -95,7 +96,7 @@ export default function DitadoLacunas({
   }, [initialExerciseData]);
 
 
-  const GEMINI_API_KEY = "AQ.Ab8RN6KKu4ManOw3IOPNh9Ls34APH0N-BrWxsNBRlmUI4pFBAw";
+  const GEMINI_API_KEY = "CHAVE_REVOGADA_NAO_USAR";
   // USER_ID_ALVO dinamico via useAuth
 
   const obterLangKey = () => {
@@ -188,6 +189,7 @@ export default function DitadoLacunas({
         setTargetWord(respostaFinal);
         setFraseEstruturada(textoFinal);
         setTextoParaFalar(audioFinal);
+        audioUrlRef.current = exe?.audio_url || "";
       } catch (err) {
         console.error("Erro no Ditado Prático:", err);
       } finally {
@@ -201,7 +203,14 @@ export default function DitadoLacunas({
     if (inputRef.current && fraseEstruturada) inputRef.current.focus();
   }, [fraseEstruturada]);
 
+  const audioUrlRef = useRef<string>("");
+
   const playAudio = () => {
+    if (audioUrlRef.current) {
+      const audio = new Audio(audioUrlRef.current);
+      audio.play();
+      return;
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && textoParaFalar) {
       window.speechSynthesis.cancel();
       

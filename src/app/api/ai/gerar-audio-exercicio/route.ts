@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "tts-1",
         input: texto,
-        voice: "nova",
+        voice: "fable",
       }),
     });
 
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       .upload(fileName, audioBuffer, {
         contentType: "audio/mpeg",
         upsert: true,
+        cacheControl: "0",
       });
 
     if (erroUpload) {
