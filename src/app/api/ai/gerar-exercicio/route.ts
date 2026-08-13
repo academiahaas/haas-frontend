@@ -55,13 +55,13 @@ ${contexto}
 Nível de dificuldade destes exercícios: ${dificuldade}.
 ${DEFINICAO_DIFICULDADE}
 ${regrasComuns}
-- reading_text: sempre a instrução "Selecione a opção com o erro." (em ${idiomaNativo}, já que é instrução de interface)
+- reading_text: use EXATAMENTE este texto fixo em espanhol: "Selecciona la opción con el error."
 - correct_answer: a frase ERRADA (a que tem o erro gramatical que o aluno deve identificar)
 - alternative_options: array com exatamente 3 frases CORRETAS (sem erro nenhum), plausíveis e do mesmo nível de complexidade
 - O erro na frase errada deve ser sutil mas real (concordância, tempo verbal, regência, etc — apropriado ao nível ${dificuldade})
 
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
-[{"reading_text": "Selecione a opção com o erro.", "correct_answer": "frase com erro gramatical", "alternative_options": ["frase correta 1","frase correta 2","frase correta 3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+[{"reading_text": "Selecciona la opción con el error.", "correct_answer": "frase com erro gramatical", "alternative_options": ["frase correta 1","frase correta 2","frase correta 3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
   if (activityType === 3) {
@@ -69,20 +69,20 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 
 Crie ${quantidade} exercício(s) do tipo DESAFIO BLITZ para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
 
-Neste tipo, o aluno vê uma palavra em português falada/escrita incorretamente e precisa reconhecer a grafia CORRETA entre 4 opções.
+Neste tipo, o aluno vê uma frase com uma lacuna, exatamente sobre o tema gramatical da unidade, e precisa escolher a opção correta entre 4. A diferença para a Múltipla Escolha comum é que as 3 opções erradas NÃO são erros óbvios — são armadilhas sutis e plausíveis, do tipo que só quem realmente domina o tema consegue distinguir rapidamente (confusões gramaticais reais e comuns entre falantes de ${idiomaNativo} aprendendo ${idiomaAlvo}, como tempo verbal parecido, conjugação vizinha, ou confusão clássica tipo ser/estar).
 
 ${contexto}
 
 Nível de dificuldade destes exercícios: ${dificuldade}.
 ${DEFINICAO_DIFICULDADE}
 ${regrasComuns}
-- reading_text: use EXATAMENTE este texto fixo: "Escolha a palavra correta."
-- correct_answer: uma palavra real em ${idiomaAlvo}, relacionada ao tema da unidade, escrita CORRETAMENTE
-- alternative_options: array com exatamente 3 variações incorretas da mesma palavra — erros comuns de grafia, terminações trocadas, ou interferência de ${idiomaNativo} (como "Cuerpo" em vez de "Corpo")
-- Vocabulário simples, direto, palavras curtas e do dia a dia
+- reading_text: comece SEMPRE com a instrução fixa em espanhol "Completa la frase:" seguida de dois pontos e da frase com a lacuna
+- correct_answer: a opção certa, coerente com o tema gramatical da unidade
+- alternative_options: array com exatamente 3 opções erradas, mas GRAMATICALMENTE PLAUSÍVEIS e sutis — nunca erros óbvios de grafia ou digitação, sempre confusões reais de quem está aprendendo o tema desta unidade
+- NÃO repita o formato da Múltipla Escolha comum: aqui o foco é testar se o aluno realmente entende a regra, não só reconhece vocabulário
 
 Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
-[{"reading_text": "Escolha a palavra correta.", "correct_answer": "Palavra", "alternative_options": ["Erro1","Erro2","Erro3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+[{"reading_text": "Completa la frase: frase com lacuna aqui", "correct_answer": "opção correta", "alternative_options": ["armadilha1","armadilha2","armadilha3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
@@ -121,12 +121,26 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   2: "CAÇA ERRO",
 };
 
+let ultimaChamada = 0;
+const INTERVALO_MINIMO_MS = 5000;
+
 export async function POST(req: NextRequest) {
   try {
+    const agora = Date.now();
+    if (agora - ultimaChamada < INTERVALO_MINIMO_MS) {
+      return NextResponse.json({ erro: "Aguarde alguns segundos antes de gerar novamente." }, { status: 429 });
+    }
+    ultimaChamada = agora;
+
     const { unitId, idiomaAlvo, idiomaNativo, metaEasy, metaMedium, metaHard, activityType } = await req.json();
 
     if (!unitId || !idiomaAlvo || !idiomaNativo || !activityType) {
       return NextResponse.json({ erro: "Parâmetros ausentes." }, { status: 400 });
+    }
+
+    const totalPedido = Number(metaEasy || 0) + Number(metaMedium || 0) + Number(metaHard || 0);
+    if (totalPedido > 20) {
+      return NextResponse.json({ erro: "Máximo de 20 exercícios por vez." }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
