@@ -201,6 +201,48 @@ export default function PortalProfessor() {
 
   const [vistaAtiva, setVistaAtiva] = useState<"aulas" | "pago" | "prep">("aulas");
   const [pagoAberto, setPagoAberto] = useState(false);
+  const [aulaReporte, setAulaReporte] = useState("");
+  const [comentarioReporte, setComentarioReporte] = useState("");
+  const [imagemReporte, setImagemReporte] = useState<File | null>(null);
+  const [enviandoReporte, setEnviandoReporte] = useState(false);
+  const [reporteMsg, setReporteMsg] = useState("");
+
+  const enviarReporte = async () => {
+    if (!professor || !aulaReporte) return;
+    setEnviandoReporte(true);
+    setReporteMsg("");
+    try {
+      let imageUrl = null;
+      if (imagemReporte) {
+        const nomeArquivo = `reporte_${Date.now()}_${imagemReporte.name}`;
+        const { error: erroUpload } = await supabase.storage
+          .from("reportes_profesor")
+          .upload(nomeArquivo, imagemReporte);
+        if (!erroUpload) {
+          const { data: urlData } = supabase.storage.from("reportes_profesor").getPublicUrl(nomeArquivo);
+          imageUrl = urlData.publicUrl;
+        }
+      }
+
+      const { error } = await supabase.from("teacher_class_reports").insert([{
+        teacher_id: professor.id,
+        aula_id: aulaReporte,
+        comment: comentarioReporte,
+        image_url: imageUrl
+      }]);
+
+      setReporteMsg(error ? "error" : "ok");
+      if (!error) {
+        setAulaReporte("");
+        setComentarioReporte("");
+        setImagemReporte(null);
+      }
+    } catch (err) {
+      setReporteMsg("error");
+    } finally {
+      setEnviandoReporte(false);
+    }
+  };
   const [metodoPago, setMetodoPago] = useState<"banco" | "nequi">("banco");
   const [formPago, setFormPago] = useState({
     bank_name: "", account_type: "Ahorros", account_number: "", account_holder_name: "", document_number: "", nequi_phone: ""
@@ -642,16 +684,22 @@ export default function PortalProfessor() {
                 <p className="text-xs text-slate-500 mb-4">
                   {idioma === "es" ? "Al terminar la clase, califica brevemente como te fue" : idioma === "en" ? "After class, briefly rate how it went" : "Ao terminar a aula, avalie brevemente como foi"}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <select className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
-                    <option value="">{idioma === "es" ? "Selecciona la clase" : idioma === "en" ? "Select the class" : "Selecione a aula"}</option>
+                <div className="flex flex-col gap-3">
+                  <select value={aulaReporte} onChange={(e) => setAulaReporte(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
+                    <option value="" className="bg-[#0a1424] text-slate-200">{idioma === "es" ? "Selecciona la clase" : idioma === "en" ? "Select the class" : "Selecione a aula"}</option>
                     {aulas.map((aula) => (
-                      <option key={aula.id} value={aula.id}>{formatarHorario(aula.data_hora_inicio)}</option>
+                      <option key={aula.id} value={aula.id} className="bg-[#0a1424] text-slate-200">{formatarHorario(aula.data_hora_inicio)}</option>
                     ))}
                   </select>
-                  <button className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
-                    {idioma === "es" ? "Guardar" : idioma === "en" ? "Save" : "Salvar"}
-                  </button>
+                  <textarea value={comentarioReporte} onChange={(e) => setComentarioReporte(e.target.value)} placeholder={idioma === "es" ? "Comentarios sobre la clase (opcional)" : idioma === "en" ? "Comments about the class (optional)" : "Comentarios sobre a aula (opcional)"} rows={3} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 resize-none" />
+                  <input type="file" accept="image/*" onChange={(e) => setImagemReporte(e.target.files ? e.target.files[0] : null)} className="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-white/10 file:text-slate-300 file:text-xs" />
+                  <div className="flex items-center gap-3">
+                    <button onClick={enviarReporte} disabled={enviandoReporte || !aulaReporte} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                      {enviandoReporte ? (idioma === "es" ? "Guardando..." : idioma === "en" ? "Saving..." : "Salvando...") : (idioma === "es" ? "Guardar" : idioma === "en" ? "Save" : "Salvar")}
+                    </button>
+                    {reporteMsg === "ok" && <span className="text-xs text-emerald-400 font-semibold">{idioma === "es" ? "Guardado" : idioma === "en" ? "Saved" : "Salvo"}</span>}
+                    {reporteMsg === "error" && <span className="text-xs text-rose-400 font-semibold">{idioma === "es" ? "Error al guardar" : idioma === "en" ? "Error saving" : "Erro ao salvar"}</span>}
+                  </div>
                 </div>
               </section>
             </div>
