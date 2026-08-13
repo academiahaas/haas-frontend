@@ -5,9 +5,64 @@ const GEMINI_MODEL = "gemini-2.5-flash";
 const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
+async function gerarLoteExercicios(unidade: any, levelTag: string, idiomaAlvo: string, idiomaNativo: string, dificuldade: string, quantidade: number, apiKey: string) {
+  if (quantidade <= 0) return [];
+
+  const prompt = `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
+
+Crie ${quantidade} exercício(s) de MÚLTIPLA ESCOLHA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+Contexto pedagógico da unidade (uso interno, pode estar em qualquer idioma):
+- Título: ${unidade.unit_title}
+- Objetivo: ${unidade.pedagogical_objective}
+- Conteúdo situacional: ${unidade.situational_content}
+- Estrutura gramatical: ${unidade.hidden_grammatical_structure}
+
+Nível de dificuldade destes exercícios: ${dificuldade}.
+Definição pedagógica do nível (siga rigorosamente):
+- easy: reconhecimento imediato de vocabulário, associação direta, fixação elementar. Frases curtas e óbvias.
+- medium: estruturação sintática correta, amarras gramaticais (preposições, concordância), aplicação de regra em contexto simples e direto.
+- hard: análise sob contexto, interpretação de nuances, possíveis duplos sentidos, expressões idiomáticas ou gírias regionais leves, coesão entre frases mais longas. Não é "vocabulário raro", é raciocínio linguístico mais elaborado.
+
+REGRAS OBRIGATÓRIAS:
+- A pergunta (reading_text), a resposta correta e as opções alternativas devem estar 100% em ${idiomaAlvo}. NUNCA em ${idiomaNativo}.
+- Os textos de feedback e incentivo devem estar 100% em ${idiomaNativo}, motivacionais.
+- correct_feedback: explica por que a resposta está certa (1-2 frases)
+- incorrect_feedback: explica a regra/erro comum (1-2 frases)
+- correct_incentive: frase curta e empolgante
+- incorrect_incentive: frase curta e gentil
+- alternative_options: array com exatamente 3 opções erradas plausíveis
+- Cada exercício deve ser DIFERENTE dos outros (variar vocabulário/situação)
+
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "...", "correct_answer": "...", "alternative_options": ["...","...","..."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    }
+  );
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    console.error(`Erro na API Gemini (${dificuldade}):`, errText);
+    throw new Error(`Falha ao gerar exercícios (${dificuldade}).`);
+  }
+
+  const data = await resp.json();
+  const textoResposta: string = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const limpo = textoResposta.replace(/```json/g, "").replace(/```/g, "").trim();
+  const exercicios = JSON.parse(limpo);
+
+  return exercicios.map((ex: any) => ({ ...ex, difficulty_level: dificuldade }));
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { unitId, idiomaAlvo, idiomaNativo, quantidade, dificuldade } = await req.json();
+    const { unitId, idiomaAlvo, idiomaNativo, metaEasy, metaMedium, metaHard } = await req.json();
 
     if (!unitId || !idiomaAlvo || !idiomaNativo) {
       return NextResponse.json({ erro: "Parâmetros ausentes." }, { status: 400 });
@@ -20,7 +75,6 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-    // Busca o contexto real da unidade, direto do banco (sem digitar manualmente)
     const { data: unidade, error: erroUnidade } = await supabase
       .from("units")
       .select("id, unit_number, unit_title, pedagogical_objective, situational_content, hidden_grammatical_structure, module_content_id")
@@ -44,77 +98,23 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     const levelTag = nivel?.level_tag || "A1";
-    const qtd = Math.min(Number(quantidade) || 1, 10);
 
-    const prompt = `Você é uma especialista em criação de material didático para ensino de idiomas, seguindo o padrão de mercado (tipo Duolingo).
-
-Crie ${qtd} exercício(s) de MÚLTIPLA ESCOLHA para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
-
-Nível de dificuldade destes exercícios especificamente: ${dificuldade || 'medium'} (easy = mais simples e direto, medium = padrão, hard = exige mais domínio da estrutura, pode incluir nuances ou pegadinhas comuns).
-
-Contexto pedagógico da unidade (uso interno, pode estar em qualquer idioma):
-- Título: ${unidade.unit_title}
-- Objetivo: ${unidade.pedagogical_objective}
-- Conteúdo situacional: ${unidade.situational_content}
-- Estrutura gramatical: ${unidade.hidden_grammatical_structure}
-
-REGRAS OBRIGATÓRIAS:
-- A pergunta (reading_text), a resposta correta e as opções alternativas devem estar 100% em ${idiomaAlvo} (o idioma que o aluno está aprendendo). NUNCA em ${idiomaNativo}.
-- Os textos de feedback e incentivo devem estar 100% em ${idiomaNativo} (idioma nativo do aluno), sendo motivacionais e adequados ao contexto de aprendizado de idiomas.
-- correct_feedback: explica por que a resposta está certa (1-2 frases)
-- incorrect_feedback: explica a regra/erro comum (1-2 frases)
-- correct_incentive: frase curta e empolgante de parabéns (tipo gíria animada)
-- incorrect_incentive: frase curta e gentil de encorajamento
-- alternative_options: array com exatamente 3 opções erradas plausíveis (não incluir a correta)
-
-Responda ESTRITAMENTE em um array JSON puro, sem markdown, sem texto antes ou depois, no formato:
-[
-  {
-    "reading_text": "pergunta em ${idiomaAlvo}",
-    "correct_answer": "resposta correta em ${idiomaAlvo}",
-    "alternative_options": ["errada1", "errada2", "errada3"],
-    "correct_feedback": "explicação em ${idiomaNativo}",
-    "incorrect_feedback": "explicação em ${idiomaNativo}",
-    "correct_incentive": "frase animada em ${idiomaNativo}",
-    "incorrect_incentive": "frase gentil em ${idiomaNativo}"
-  }
-]`;
-
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    // Gera os 3 lotes (fácil, médio, difícil) em sequência
+    const todosExercicios = [];
+    for (const [dif, qtd] of [["easy", metaEasy], ["medium", metaMedium], ["hard", metaHard]]) {
+      if (Number(qtd) > 0) {
+        const lote = await gerarLoteExercicios(unidade, levelTag, idiomaAlvo, idiomaNativo, dif as string, Number(qtd), apiKey);
+        todosExercicios.push(...lote);
       }
-    );
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      console.error("Erro na API Gemini:", errText);
-      return NextResponse.json({ erro: "Falha ao gerar exercícios." }, { status: 502 });
     }
 
-    const data = await resp.json();
-    const textoResposta: string = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    let exercicios;
-    try {
-      const limpo = textoResposta.replace(/```json/g, "").replace(/```/g, "").trim();
-      exercicios = JSON.parse(limpo);
-    } catch (e) {
-      console.error("Falha ao parsear resposta da IA:", textoResposta);
-      return NextResponse.json({ erro: "Resposta inválida da IA." }, { status: 502 });
-    }
-
-    // Salva como RASCUNHO, nunca direto na tabela real
-    const registrosRascunho = exercicios.map((ex: any) => ({
+    const registrosRascunho = todosExercicios.map((ex: any) => ({
       unit_id: unitId,
       level_tag: levelTag,
       unit_number: unidade.unit_number,
       module: modulo?.module_title || null,
       activity_type: 1,
-      difficulty_level: dificuldade || 'medium',
+      difficulty_level: ex.difficulty_level,
       reading_text: ex.reading_text,
       correct_answer: ex.correct_answer,
       alternative_options: ex.alternative_options,
@@ -135,9 +135,15 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, sem texto antes ou de
       return NextResponse.json({ erro: "Exercícios gerados, mas falha ao salvar rascunho." }, { status: 500 });
     }
 
+    // Marca o progresso como "em_progresso"
+    await supabase.from("unit_exercise_progress").upsert(
+      { unit_id: unitId, tipo_exercicio: "multipla_escolha", status: "em_progresso" },
+      { onConflict: "unit_id,tipo_exercicio" }
+    );
+
     return NextResponse.json({ exercicios: salvos });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Erro na rota de geração de exercício:", err);
-    return NextResponse.json({ erro: "Erro interno ao gerar exercício." }, { status: 500 });
+    return NextResponse.json({ erro: err.message || "Erro interno ao gerar exercício." }, { status: 500 });
   }
 }
