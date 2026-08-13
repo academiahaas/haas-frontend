@@ -134,7 +134,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
     subtitulo: "Painel do Professor",
     misClases: "Minhas aulas",
     datosPago: "Minha conta",
-    prepClase: "Preparacao de aula",
+    prepClase: "Preparação de aula",
     sesionActiva: "Sessão segura ativa",
     conexionActiva: "Conexão segura ativa",
     tarifaClase: "Tarifa por aula",
@@ -186,15 +186,15 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
     { titulo: "6. Open the slides before class", texto: "The button to open your class slides will be available right here, before class starts." }
   ],
   pt: [
-    { titulo: "1. Faca login corretamente", texto: "Use uma janela anonima no seu navegador para entrar no Google Meet com o e-mail da empresa: docentes.haas@academiahaas.com / senha: MeetHaas*2026. Assim voce evita conflitos com sua conta pessoal do Gmail." },
-    { titulo: "2. As aulas ficam gravadas", texto: "Isso nao e para vigiar seu trabalho. Os alunos pedem as gravacoes com frequencia para revisar a aula, por isso sempre gravamos." },
-    { titulo: "3. Mantenha 4 janelas abertas", texto: "O recomendado e trabalhar com quatro janelas: (1) a janela de slides que voce compartilha com o aluno, (2) sua propria janela de slides onde voce edita em privado, (3) a janela do Meet, que pode ficar solta ao fundo, e (4) a janela de Materiais, pra quando voce precisar corrigir um trabalho escrito com o aluno." },
-    { titulo: "4. Compartilhe so a janela certa", texto: "No Google Meet, ao compartilhar tela escolha 'Uma janela' e selecione SO a janela (1), a que o aluno deve ver. Nunca compartilhe a tela inteira nem sua janela de edicao privada." },
-    { titulo: "5. Cuidado ao trocar de slide", texto: "Se voce editar ou trocar de slide na sua janela privada (2), o aluno NAO ve a mudanca automaticamente. Voce precisa fazer a mesma mudanca na janela compartilhada (1) pra que o aluno veja." },
-    { titulo: "6. Como dividir a tela", texto: "Clique e segure na barra superior de uma janela, e arraste ate a borda esquerda ou direita da tela ate ela grudar. Solte o clique e escolha a outra janela pro lado restante. No Windows voce tambem pode segurar o botao de maximizar pra ver mais opcoes, incluindo divisao em tres partes." },
-    { titulo: "7. Corrija o material escrito dos seus alunos", texto: "Na aba 'Materiais' voce encontra as fotos que os alunos enviaram dos trabalhos escritos. Clique numa foto pra abrir: da pra dar zoom, mover e girar a imagem. Use a ferramenta de marcar pra sublinhar em vermelho, e a ferramenta de texto pra escrever notas ao lado da imagem. Recomendamos compartilhar essa janela com o aluno (use o botaozinho cinza de compartilhar que aparece em cima) pra fazer a correcao junto e tirar duvidas na hora. Ao fechar a foto, ela some da sua lista depois de 3 minutos." },
-    { titulo: "8. Se voce nao tiver o PowerPoint instalado", texto: "O arquivo dos slides e um PowerPoint. Se seu computador nao tem o programa instalado, voce pode usar o Google Slides: entra no Google Drive da escola, sobe o arquivo baixado, e abre com o Google Slides (clique com o botao direito, Abrir com, Google Slides). Dali voce ja consegue editar e apresentar sua aula normalmente." },
-    { titulo: "6. Abra os slides antes da aula", texto: "O botao pra abrir os slides da sua aula vai estar disponivel aqui mesmo, antes de a aula comecar." }
+    { titulo: "1. Faça login corretamente", texto: "Use uma janela anônima no seu navegador para entrar no Google Meet com o e-mail da empresa: docentes.haas@academiahaas.com / senha: MeetHaas*2026. Assim você evita conflitos com sua conta pessoal do Gmail." },
+    { titulo: "2. As aulas ficam gravadas", texto: "Isso não é para vigiar seu trabalho. Os alunos pedem as gravações com frequência para revisar a aula, por isso sempre gravamos." },
+    { titulo: "3. Mantenha 4 janelas abertas", texto: "O recomendado é trabalhar com quatro janelas: (1) a janela de slides que você compartilha com o aluno, (2) sua própria janela de slides onde você edita em privado, (3) a janela do Meet, que pode ficar solta ao fundo, e (4) a janela de Materiais, para quando você precisar corrigir um trabalho escrito com o aluno." },
+    { titulo: "4. Compartilhe só a janela certa", texto: "No Google Meet, ao compartilhar tela escolha 'Uma janela' e selecione SÓ a janela (1), a que o aluno deve ver. Nunca compartilhe a tela inteira nem sua janela de edição privada." },
+    { titulo: "5. Cuidado ao trocar de slide", texto: "Se você editar ou trocar de slide na sua janela privada (2), o aluno NÃO vê a mudança automaticamente. Você precisa fazer a mesma mudança na janela compartilhada (1) para que o aluno veja." },
+    { titulo: "6. Como dividir a tela", texto: "Clique e segure na barra superior de uma janela, e arraste até a borda esquerda ou direita da tela ate ela grudar. Solte o clique e escolha a outra janela para o lado restante. No Windows você também pode segurar o botão de maximizar para ver mais opções, incluindo divisão em três partes." },
+    { titulo: "7. Corrija o material escrito dos seus alunos", texto: "Na aba 'Materiais' você encontra as fotos que os alunos enviaram dos trabalhos escritos. Clique numa foto para abrir: dá para dar zoom, mover e girar a imagem. Use a ferramenta de marcar pra sublinhar em vermelho, e a ferramenta de texto pra escrever notas ao lado da imagem. Recomendamos compartilhar essa janela com o aluno (use o botãozinho cinza de compartilhar que aparece em cima) para fazer a correção junto e tirar dúvidas na hora. Ao fechar a foto, ela some da sua lista depois de 3 minutos." },
+    { titulo: "8. Se você não tiver o PowerPoint instalado", texto: "O arquivo dos slides é um PowerPoint. Se seu computador não tem o programa instalado, você pode usar o Google Slides: entra no Google Drive da escola, sobe o arquivo baixado, e abre com o Google Slides (clique com o botao direito, Abrir com, Google Slides). Dali você já consegue editar e apresentar sua aula normalmente." },
+    { titulo: "6. Abra os slides antes da aula", texto: "O botão para abrir os slides da sua aula vai estar disponível aqui mesmo, antes de a aula começar." }
   ]
 };
 
@@ -1060,7 +1060,7 @@ export default function PortalProfessor() {
                   {idioma === "es" ? "Evaluar clase" : idioma === "en" ? "Evaluate class" : "Avaliar aula"}
                 </h2>
                 <p className="text-xs text-slate-500 mb-4">
-                  {idioma === "es" ? "Al terminar la clase, califica brevemente como te fue" : idioma === "en" ? "After class, briefly rate how it went" : "Ao terminar a aula, avalie brevemente como foi"}
+                  {idioma === "es" ? "Al terminar la clase, califica brevemente como te fue" : idioma === "en" ? "After class, briefly rate how it went" : "Ao terminar a aula, avalie brevemente como foi."}
                 </p>
                 <div className="flex flex-col gap-3">
                   <select value={aulaReporte} onChange={(e) => setAulaReporte(e.target.value)} className="bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
