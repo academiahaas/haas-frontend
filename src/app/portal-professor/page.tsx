@@ -463,22 +463,7 @@ export default function PortalProfessor() {
                 </div>
               </section>
 
-              {avaliacoes.length > 0 && (
-                <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
-                  <h2 className="font-bold text-base text-slate-200 mb-4">{t.comentariosAlumnos}</h2>
-                  <div className="flex flex-col gap-2">
-                    {avaliacoes.slice(0, 5).map((av, i) => (
-                      <div key={i} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-semibold text-amber-400">{"*".repeat(av.rating_stars)}{"-".repeat(5 - av.rating_stars)}</span>
-                          <span className="text-[10px] text-slate-600">{new Date(av.class_date).toLocaleDateString("es-CO")}</span>
-                        </div>
-                        {av.comment && <p className="text-xs text-slate-400">{av.comment}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+
 
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
