@@ -51,6 +51,8 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   es: {
     subtitulo: "Panel del Profesor",
     misClases: "Mis clases",
+    datosPago: "Datos de pago",
+    prepClase: "Preparacion de clase",
     sesionActiva: "Sesión segura activa",
     conexionActiva: "Conexión segura activa",
     tarifaClase: "Tarifa por clase",
@@ -71,6 +73,8 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   en: {
     subtitulo: "Teacher Panel",
     misClases: "My classes",
+    datosPago: "Payment data",
+    prepClase: "Class preparation",
     sesionActiva: "Secure session active",
     conexionActiva: "Secure connection active",
     tarifaClase: "Rate per class",
@@ -91,6 +95,8 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
   pt: {
     subtitulo: "Painel do Professor",
     misClases: "Minhas aulas",
+    datosPago: "Dados de pagamento",
+    prepClase: "Preparacao de aula",
     sesionActiva: "Sessão segura ativa",
     conexionActiva: "Conexão segura ativa",
     tarifaClase: "Tarifa por aula",
@@ -133,6 +139,7 @@ export default function PortalProfessor() {
     localStorage.setItem("haas_professor_idioma", idioma);
   }, [idioma]);
 
+  const [vistaAtiva, setVistaAtiva] = useState<"aulas" | "pago" | "prep">("aulas");
   const [pagoAberto, setPagoAberto] = useState(false);
   const [metodoPago, setMetodoPago] = useState<"banco" | "nequi">("banco");
   const [formPago, setFormPago] = useState({
@@ -285,9 +292,17 @@ export default function PortalProfessor() {
           </div>
 
           <nav className="flex flex-col gap-1.5">
-            <button className="flex items-center gap-3 px-4 py-3 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-semibold transition-all text-left">
+            <button onClick={() => setVistaAtiva("aulas")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "aulas" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
               <Calendar size={18} />
               <span>{t.misClases}</span>
+            </button>
+            <button onClick={() => setVistaAtiva("pago")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "pago" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+              <DollarSign size={18} />
+              <span>{t.datosPago}</span>
+            </button>
+            <button onClick={() => setVistaAtiva("prep")} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${vistaAtiva === "prep" ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"}`}>
+              <ExternalLink size={18} />
+              <span>{t.prepClase}</span>
             </button>
           </nav>
         </div>
@@ -346,131 +361,154 @@ export default function PortalProfessor() {
 
         <main className="p-6 md:p-10 flex flex-col gap-8 flex-1 overflow-y-auto max-w-6xl w-full mx-auto">
 
-          <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#0a1424] border border-emerald-500/20 rounded-xl p-5 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
-                <DollarSign size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.tarifaClase}</span>
-                <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(professor?.rate_per_class ?? null)}</span>
-              </div>
-            </div>
-
-            <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-5 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-purple-500/10 text-purple-400">
-                <DollarSign size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.acumuladoMes}</span>
-                <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(acumuladoMes)}</span>
-                <span className={`text-[10px] font-semibold mt-0.5 ${professor?.payment_status === "pagado" ? "text-emerald-400" : "text-amber-400"}`}>
-                  {professor?.payment_status === "pagado" ? t.pagado : t.pendiente}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-5 flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
-                <Clock size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.clasesProgramadas}</span>
-                <span className="text-xl font-extrabold text-slate-100">{aulas.length}</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-              <div>
-                <h2 className="font-bold text-base text-slate-200">{t.tusClases}</h2>
-                <p className="text-xs text-slate-500 mt-0.5">{t.horarioReal}</p>
-              </div>
-            </div>
-
-            {aulas.length === 0 ? (
-              <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
-                {t.sinClases}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {aulas.map((aula) => (
-                  <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Users size={16} className="text-cyan-400" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-slate-200">{TRADUCAO_TIPO_AULA[idioma][aula.tipo_aula] || aula.tipo_aula} - {TRADUCAO_IDIOMA_AULA[idioma][aula.idioma] || aula.idioma}</span>
-                        <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
-                      {professor?.meeting_link && (
-                        <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
-                          {t.entrarClase} <ExternalLink size={11} />
-                        </a>
-                      )}
-                    </div>
+          {vistaAtiva === "aulas" && (
+            <>
+              <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
+                    <Clock size={20} />
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.clasesProgramadas}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{aulas.length}</span>
+                  </div>
+                </div>
+              </section>
 
-          <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-              <div>
-                <h2 className="font-bold text-base text-slate-200">Datos de pago</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Completa tus datos para recibir el pago sin tener que contactarnos</p>
-              </div>
-              <button onClick={() => setPagoAberto(!pagoAberto)} className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all">
-                {pagoAberto ? "Ocultar" : (professor?.payment_method ? "Editar" : "Completar")}
-              </button>
-            </div>
+              <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                  <div>
+                    <h2 className="font-bold text-base text-slate-200">{t.tusClases}</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{t.horarioReal}</p>
+                  </div>
+                </div>
 
-            {pagoAberto && (
-              <div className="flex flex-col gap-4">
-                <div className="flex gap-2">
-                  <button onClick={() => setMetodoPago("banco")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "banco" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
-                    Cuenta bancaria
-                  </button>
-                  <button onClick={() => setMetodoPago("nequi")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "nequi" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
-                    Nequi
+                {aulas.length === 0 ? (
+                  <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
+                    {t.sinClases}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {aulas.map((aula) => (
+                      <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Users size={16} className="text-cyan-400" />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-slate-200">{TRADUCAO_TIPO_AULA[idioma][aula.tipo_aula] || aula.tipo_aula} - {TRADUCAO_IDIOMA_AULA[idioma][aula.idioma] || aula.idioma}</span>
+                            <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
+                          {professor?.meeting_link && (
+                            <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
+                              {t.entrarClase} <ExternalLink size={11} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {vistaAtiva === "pago" && (
+            <>
+              <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-[#0a1424] border border-emerald-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <DollarSign size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.tarifaClase}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(professor?.rate_per_class ?? null)}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-purple-500/10 text-purple-400">
+                    <DollarSign size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t.acumuladoMes}</span>
+                    <span className="text-xl font-extrabold text-slate-100">{formatarMoeda(acumuladoMes)}</span>
+                    <span className={`text-[10px] font-semibold mt-0.5 ${professor?.payment_status === "pagado" ? "text-emerald-400" : "text-amber-400"}`}>
+                      {professor?.payment_status === "pagado" ? t.pagado : t.pendiente}
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                  <div>
+                    <h2 className="font-bold text-base text-slate-200">Datos de pago</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Completa tus datos para recibir el pago sin tener que contactarnos</p>
+                  </div>
+                  <button onClick={() => setPagoAberto(!pagoAberto)} className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all">
+                    {pagoAberto ? "Ocultar" : (professor?.payment_method ? "Editar" : "Completar")}
                   </button>
                 </div>
 
-                {metodoPago === "banco" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input value={formPago.bank_name} onChange={(e) => setFormPago({ ...formPago, bank_name: e.target.value })} placeholder="Nombre del banco" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
-                    <select value={formPago.account_type} onChange={(e) => setFormPago({ ...formPago, account_type: e.target.value })} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
-                      <option value="Ahorros">Cuenta de ahorros</option>
-                      <option value="Corriente">Cuenta corriente</option>
-                    </select>
-                    <input value={formPago.account_number} onChange={(e) => setFormPago({ ...formPago, account_number: e.target.value })} placeholder="Numero de cuenta" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
-                    <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
-                    <input value={formPago.document_number} onChange={(e) => setFormPago({ ...formPago, document_number: e.target.value })} placeholder="Numero de cedula" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 sm:col-span-2" />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input value={formPago.nequi_phone} onChange={(e) => setFormPago({ ...formPago, nequi_phone: e.target.value })} placeholder="Numero de celular con Nequi" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
-                    <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                {professor?.payment_method && !pagoAberto && (
+                  <div className="text-xs text-slate-400 bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                    {professor.payment_method === "banco" ? `Cuenta bancaria: ${professor.bank_name || ""} - ${professor.account_number || ""}` : `Nequi: ${professor.nequi_phone || ""}`}
                   </div>
                 )}
 
-                <div className="flex items-center gap-3">
-                  <button onClick={salvarDadosPago} disabled={salvandoPago} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
-                    {salvandoPago ? "Guardando..." : "Guardar datos"}
-                  </button>
-                  {pagoSalvoMsg === "ok" && <span className="text-xs text-emerald-400 font-semibold">Guardado correctamente</span>}
-                  {pagoSalvoMsg === "error" && <span className="text-xs text-rose-400 font-semibold">Error al guardar, intenta de nuevo</span>}
-                </div>
-              </div>
-            )}
-          </section>
+                {pagoAberto && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex gap-2">
+                      <button onClick={() => setMetodoPago("banco")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "banco" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
+                        Cuenta bancaria
+                      </button>
+                      <button onClick={() => setMetodoPago("nequi")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "nequi" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
+                        Nequi
+                      </button>
+                    </div>
 
-        </main>
-      </div>
+                    {metodoPago === "banco" ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input value={formPago.bank_name} onChange={(e) => setFormPago({ ...formPago, bank_name: e.target.value })} placeholder="Nombre del banco" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                        <select value={formPago.account_type} onChange={(e) => setFormPago({ ...formPago, account_type: e.target.value })} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500/50">
+                          <option value="Ahorros">Cuenta de ahorros</option>
+                          <option value="Corriente">Cuenta corriente</option>
+                        </select>
+                        <input value={formPago.account_number} onChange={(e) => setFormPago({ ...formPago, account_number: e.target.value })} placeholder="Numero de cuenta" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                        <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                        <input value={formPago.document_number} onChange={(e) => setFormPago({ ...formPago, document_number: e.target.value })} placeholder="Numero de cedula" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 sm:col-span-2" />
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input value={formPago.nequi_phone} onChange={(e) => setFormPago({ ...formPago, nequi_phone: e.target.value })} placeholder="Numero de celular con Nequi" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                        <input value={formPago.account_holder_name} onChange={(e) => setFormPago({ ...formPago, account_holder_name: e.target.value })} placeholder="Nombre del titular" className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50" />
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3">
+                      <button onClick={salvarDadosPago} disabled={salvandoPago} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
+                        {salvandoPago ? "Guardando..." : "Guardar datos"}
+                      </button>
+                      {pagoSalvoMsg === "ok" && <span className="text-xs text-emerald-400 font-semibold">Guardado correctamente</span>}
+                      {pagoSalvoMsg === "error" && <span className="text-xs text-rose-400 font-semibold">Error al guardar, intenta de nuevo</span>}
+                    </div>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {vistaAtiva === "prep" && (
+            <section className="bg-[#0a1424] border border-white/10 rounded-xl p-10 flex flex-col items-center justify-center text-center gap-2">
+              <Calendar size={28} className="text-slate-600" />
+              <p className="text-sm text-slate-400 font-medium">Esta seccion estara disponible pronto</p>
+              <p className="text-xs text-slate-600">Aqui encontraras las diapositivas y las instrucciones para tu clase</p>
+            </section>
+          )}
+
+        </main>      </div>
     </div>
   );
 }
