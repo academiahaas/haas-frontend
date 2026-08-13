@@ -5,6 +5,12 @@ import React, { useState, useEffect } from "react";
 import { DollarSign, Calendar, Clock, Users, User, ShieldCheck, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
+interface Avaliacao {
+  rating_stars: number;
+  comment: string | null;
+  class_date: string;
+}
+
 interface AulaSlot {
   id: string;
   data_hora_inicio: string;
@@ -119,6 +125,7 @@ const TEXTOS: Record<IdiomaInterface, Record<string, string>> = {
 export default function PortalProfessor() {
   const [professor, setProfessor] = useState<DadosProfessor | null>(null);
   const [aulas, setAulas] = useState<AulaSlot[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
@@ -225,6 +232,16 @@ export default function PortalProfessor() {
         if (!erroAulas && aulasReais) {
           setAulas(aulasReais);
         }
+
+        const { data: avaliacoesReais } = await supabase
+          .from("teacher_reviews")
+          .select("rating_stars, comment, class_date")
+          .eq("teacher_name", dadosProfessor.name)
+          .order("class_date", { ascending: false });
+
+        if (avaliacoesReais) {
+          setAvaliacoes(avaliacoesReais);
+        }
       } catch (err) {
         console.error("Error al cargar datos del profesor:", err);
         setErro("Ocurrió un error inesperado.");
@@ -247,6 +264,10 @@ export default function PortalProfessor() {
     const etiqueta = fuso === "colombia" ? "Bogotá" : "Brasilia";
     return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: zona }) + ` (${etiqueta})`;
   };
+
+  const notaMedia = avaliacoes.length > 0
+    ? (avaliacoes.reduce((soma, a) => soma + a.rating_stars, 0) / avaliacoes.length).toFixed(1)
+    : null;
 
   const agora = new Date();
   const acumuladoMes = aulas
@@ -373,7 +394,35 @@ export default function PortalProfessor() {
                     <span className="text-xl font-extrabold text-slate-100">{aulas.length}</span>
                   </div>
                 </div>
+
+                <div className="bg-[#0a1424] border border-amber-500/20 rounded-xl p-5 flex items-center gap-4">
+                  <div className="p-3 rounded-lg bg-amber-500/10 text-amber-400">
+                    <Users size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Calificacion promedio</span>
+                    <span className="text-xl font-extrabold text-slate-100">{notaMedia ? `${notaMedia} / 5` : "Sin datos"}</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">{avaliacoes.length} {avaliacoes.length === 1 ? "resena" : "resenas"}</span>
+                  </div>
+                </div>
               </section>
+
+              {avaliacoes.length > 0 && (
+                <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
+                  <h2 className="font-bold text-base text-slate-200 mb-4">Comentarios de tus alumnos</h2>
+                  <div className="flex flex-col gap-2">
+                    {avaliacoes.slice(0, 5).map((av, i) => (
+                      <div key={i} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-amber-400">{"*".repeat(av.rating_stars)}{"-".repeat(5 - av.rating_stars)}</span>
+                          <span className="text-[10px] text-slate-600">{new Date(av.class_date).toLocaleDateString("es-CO")}</span>
+                        </div>
+                        {av.comment && <p className="text-xs text-slate-400">{av.comment}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
