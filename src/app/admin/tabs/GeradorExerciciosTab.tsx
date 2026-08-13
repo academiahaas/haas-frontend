@@ -137,7 +137,7 @@ export function GeradorExerciciosTab() {
     try {
       const novoId = crypto.randomUUID();
       let audioUrl = null;
-      const TIPOS_COM_AUDIO = [4, 6, 9, 10, 13, 11, 7];
+      const TIPOS_COM_AUDIO = [4, 9, 10, 13, 11, 7];
       if (TIPOS_COM_AUDIO.includes(rascunho.activity_type)) {
         try {
           const textoParaAudio = rascunho.audio_transcript || rascunho.texto_audio || rascunho.reading_text || '';

@@ -18,6 +18,8 @@ interface MioloLeituraRapidaProps {
 
 const traducoesAbas: Record<string, Record<string, string>> = {
   es: {
+    tituloTela: "LECTURA VELOZ",
+    subtituloTela: "TOCA EN CUALQUIER LUGAR PARA EMPEZAR",
     instrucao: "Lee el texto con atención antes de que se agote el tiempo:",
     botaoIrParaDigitacao: "¡Ya terminé de leer! Ir a la validación",
     placeholder: "Escribe o resume el párrafo anterior con precisión textual para validar...",
@@ -25,6 +27,8 @@ const traducoesAbas: Record<string, Record<string, string>> = {
     aguardando: "Cargando desafío..."
   },
   en: {
+    tituloTela: "SPEED READING",
+    subtituloTela: "TAP ANYWHERE TO START",
     instrucao: "Read the text carefully before time runs out:",
     botaoIrParaDigitacao: "I've finished reading! Go to validation",
     placeholder: "Type or summarize the paragraph above with textual precision to validate...",
@@ -32,6 +36,8 @@ const traducoesAbas: Record<string, Record<string, string>> = {
     aguardando: "Loading challenge..."
   },
   pt: {
+    tituloTela: "LEITURA VELOZ",
+    subtituloTela: "TOQUE EM QUALQUER LUGAR PARA INICIAR",
     instrucao: "Leia o texto com atenção antes que o tempo acabe:",
     botaoIrParaDigitacao: "Já terminei de ler! Ir para a validação",
     placeholder: "Digite ou resume o parágrafo acima com precisão textual para validar...",
@@ -373,9 +379,9 @@ export default function MioloLeituraRapida({
         <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
           <Timer className="w-8 h-8 text-purple-400 animate-pulse" />
         </div>
-        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">LEITURA VELOZ</h3>
+        <h3 className="text-sm font-bold text-slate-200 tracking-wider uppercase mb-1">{t.tituloTela}</h3>
         <p className="text-[11px] font-mono text-purple-300 font-semibold tracking-widest animate-pulse">
-          TOQUE EM QUALQUER LUGAR PARA INICIAR
+          {t.subtituloTela}
         </p>
       </div>
     );
@@ -436,7 +442,7 @@ export default function MioloLeituraRapida({
         ) : (
           /* FASE DE DIGITAÇÃO */
           <div className="w-full h-full flex flex-col gap-4 flex-1 min-h-0">
-            <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#080C16]/80 text-[14px] text-slate-400 leading-relaxed select-none blur-[1.5px] opacity-40 pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
+            <div className="w-full p-4 rounded-xl border border-slate-800 bg-[#080C16]/80 text-[14px] text-slate-400 leading-relaxed select-none pointer-events-none shrink-0 max-h-[90px] overflow-hidden">
               <p className="font-sans text-justify whitespace-pre-wrap line-clamp-3">
                 {textoLongo}
               </p>
