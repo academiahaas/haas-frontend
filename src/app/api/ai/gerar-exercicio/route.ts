@@ -154,6 +154,22 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Frase com ______ lacunas.", "audio_transcript": "Frase completa sem lacunas.", "correct_answer": "palavra1, palavra2", "alternative_options": ["palavra1, palavra2", "errada1, errada2", "errada3, errada4", "errada5, errada6"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 11) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo SPELLING BEE para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno ouve uma palavra falada e precisa escrevê-la corretamente, letra por letra.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: use EXATAMENTE este texto fixo em espanhol: "Escucha la palabra y escríbela correctamente."
+- correct_answer: UMA ÚNICA PALAVRA em ${idiomaAlvo}, EM MAIÚSCULAS, relacionada ao tema da unidade, sem espaços
+- audio_transcript: a mesma palavra de correct_answer, mas em minúsculas normais (não maiúsculas), é o texto que vira áudio
+- alternative_options: sempre um array vazio []
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Escucha la palabra y escríbela correctamente.", "correct_answer": "PALAVRA", "audio_transcript": "palavra", "alternative_options": [], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -193,6 +209,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   9: "PRÁTICA DE CONVERSAÇÃO",
   10: "TREINO DE FALA",
   13: "MARCHAS DE ÁUDIO",
+  11: "SPELLING BEE",
 };
 
 let ultimaChamada = 0;

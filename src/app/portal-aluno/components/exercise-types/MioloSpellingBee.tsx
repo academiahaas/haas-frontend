@@ -3,7 +3,7 @@ import { getExerciseByActivityType } from "@/services/centralService";
 import { feedbackTraducoes, obterLangKeyCompartilhado } from "./feedbackTraducoes";
 import { useAuth } from "@/contexts/AuthContext";
 import { resilienciaTextoCompleto, registrarFeedbackEErro } from '@/utils/motorResiliencia';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Volume2, CheckCircle, XCircle, RefreshCw, HelpCircle , Sparkles} from 'lucide-react';;
 import { supabase } from '@/lib/supabase';
 
@@ -217,6 +217,7 @@ status: propStatus = 'IDLE',
           setFeedbackIncorretoBanco(dados[0].incorrect_feedback || "");
           setIncentivoCorretoBanco(dados[0].correct_incentive || "");
           setIncentivoIncorretoBanco(dados[0].incorrect_incentive || "");
+          audioUrlSpellingRef.current = dados[0].audio_url || "";
           if (dados[0].id) setExerciseId(String(dados[0].id));
         }
 
@@ -245,7 +246,14 @@ status: propStatus = 'IDLE',
   nivelAtivo,
 USER_ID_ALVO]);
 
+  const audioUrlSpellingRef = useRef<string>("");
+
   const playWordAudio = () => {
+    if (audioUrlSpellingRef.current) {
+      const audio = new Audio(audioUrlSpellingRef.current);
+      audio.play();
+      return;
+    }
     if (targetWord && typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       
