@@ -239,6 +239,7 @@ export default function MioloOrdenacao({
     setIncentivoCorretoBanco(exe.correct_incentive || "");
     setIncentivoIncorretoBanco(exe.incorrect_incentive || "");
     setTextoParaFalar(exe.audio_transcript || exe.correct_answer || "");
+    audioUrlOrdenacaoRef.current = exe.audio_url || "";
     
     let frags: string[] = [];
 
@@ -266,7 +267,14 @@ export default function MioloOrdenacao({
     setDeposit([]);
   };
 
+  const audioUrlOrdenacaoRef = useRef<string>("");
+
   const playAudioOrdenacao = () => {
+    if (audioUrlOrdenacaoRef.current) {
+      const audio = new Audio(audioUrlOrdenacaoRef.current);
+      audio.play();
+      return;
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window && textoParaFalar) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(textoParaFalar);

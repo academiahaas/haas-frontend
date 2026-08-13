@@ -186,6 +186,21 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "", "correct_answer": "O hotel é bom.", "alternative_options": ["O", "hotel", "é", "bom."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 7) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+Crie ${quantidade} exercício(s) do tipo ORDENAÇÃO DE FRASES para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+Neste tipo, o aluno ouve uma frase completa e precisa clicar em blocos de palavras na ordem certa para reconstruí-la.
+${contexto}
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text e audio_transcript: OS DOIS EXATAMENTE IGUAIS. A frase completa e correta em ${idiomaAlvo}, com pontuação final.
+- correct_answer: EXATAMENTE IGUAL a reading_text e audio_transcript (a mesma frase completa)
+- alternative_options: array com a frase dividida em 3 a 5 blocos/pedaços (não palavra por palavra necessariamente, pode ser grupos de 2-3 palavras), na ordem correta — o sistema embaralha na tela
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "O Brasil é muito grande.", "audio_transcript": "O Brasil é muito grande.", "correct_answer": "O Brasil é muito grande.", "alternative_options": ["O Brasil", "é muito", "grande."], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
@@ -227,6 +242,7 @@ const NOMES_ATIVIDADE: Record<number, string> = {
   13: "MARCHAS DE ÁUDIO",
   11: "SPELLING BEE",
   5: "BLOCOS DE GRAMÁTICA",
+  7: "ORDENAÇÃO DE FRASES",
 };
 
 let ultimaChamada = 0;
