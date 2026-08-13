@@ -64,6 +64,27 @@ Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
 [{"reading_text": "Selecione a opção com o erro.", "correct_answer": "frase com erro gramatical", "alternative_options": ["frase correta 1","frase correta 2","frase correta 3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
   }
 
+  if (activityType === 3) {
+    return `Você é uma especialista em criação de material didático para ensino de idiomas.
+
+Crie ${quantidade} exercício(s) do tipo DESAFIO BLITZ para uma unidade de curso de ${idiomaAlvo}, nível CEFR ${levelTag}.
+
+Neste tipo, o aluno vê uma palavra em português falada/escrita incorretamente e precisa reconhecer a grafia CORRETA entre 4 opções.
+
+${contexto}
+
+Nível de dificuldade destes exercícios: ${dificuldade}.
+${DEFINICAO_DIFICULDADE}
+${regrasComuns}
+- reading_text: use EXATAMENTE este texto fixo: "Escolha a palavra correta."
+- correct_answer: uma palavra real em ${idiomaAlvo}, relacionada ao tema da unidade, escrita CORRETAMENTE
+- alternative_options: array com exatamente 3 variações incorretas da mesma palavra — erros comuns de grafia, terminações trocadas, ou interferência de ${idiomaNativo} (como "Cuerpo" em vez de "Corpo")
+- Vocabulário simples, direto, palavras curtas e do dia a dia
+
+Responda ESTRITAMENTE em um array JSON puro, sem markdown, no formato:
+[{"reading_text": "Escolha a palavra correta.", "correct_answer": "Palavra", "alternative_options": ["Erro1","Erro2","Erro3"], "correct_feedback": "...", "incorrect_feedback": "...", "correct_incentive": "...", "incorrect_incentive": "..."}]`;
+  }
+
   throw new Error(`Tipo de exercício ${activityType} ainda não implementado.`);
 }
 
