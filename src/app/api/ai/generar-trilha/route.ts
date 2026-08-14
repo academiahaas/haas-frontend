@@ -6,7 +6,7 @@ const SUPABASE_URL = 'https://jdppxfokfhqjudwfwckd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkcHB4Zm9rZmhxanVkd2Z3Y2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mjk2NzgsImV4cCI6MjA5NTUwNTY3OH0.1zkCP7WUv1QJvWu35jQSRByFp-CSxD-Zfj6yKJysGIU';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ""; 
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || "";
 
 export async function POST(request: Request) {
   try {
@@ -35,19 +35,23 @@ export async function POST(request: Request) {
 
     let temaFinal = temaCurso;
 
-    if (GEMINI_API_KEY) {
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-      const resGemini = await fetch(geminiUrl, {
+    if (DEEPSEEK_API_KEY) {
+      const deepseekUrl = "https://api.deepseek.com/v1/chat/completions";
+      const resDeepseek = await fetch(deepseekUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: promptPedagogico }] }],
-          generationConfig: { responseMimeType: "application/json" }
+          model: "deepseek-v4-flash",
+          messages: [{ role: "user", content: promptPedagogico }],
+          response_format: { type: "json_object" }
         })
       });
-      
-      const dataGemini = await resGemini.json();
-      const textRaw = dataGemini?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      const dataDeepseek = await resDeepseek.json();
+      const textRaw = dataDeepseek?.choices?.[0]?.message?.content;
       if (textRaw) {
         const parsed = JSON.parse(textRaw);
         if (parsed.temaOptimizado) temaFinal = parsed.temaOptimizado;

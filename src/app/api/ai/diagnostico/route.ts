@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6I6ttBs87ZZMIvY2YAtDLXTz8UKzbgLq9UrwVQYzEtPhQ";
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 async function fetchGeminiComRetry(url: string, payload: any, maxTentativas = 3, esperaMs = 1500) {
   for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+      },
       body: JSON.stringify(payload)
     });
     if (res.ok) return res;
@@ -97,14 +100,15 @@ RETORNE ESTRITAMENTE O JSON PURO NO FORMATO:
 }
 `;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${GEMINI_API_KEY}`;
-    const resGemini = await fetchGeminiComRetry(geminiUrl, {
-      contents: [{ parts: [{ text: promptSistema }] }],
-      generationConfig: { responseMimeType: "application/json" }
+    const deepseekUrl = "https://api.deepseek.com/v1/chat/completions";
+    const resDeepseek = await fetchGeminiComRetry(deepseekUrl, {
+      model: "deepseek-v4-flash",
+      messages: [{ role: "user", content: promptSistema }],
+      response_format: { type: "json_object" }
     });
 
-    const dataGemini = await resGemini.json();
-    const textRaw = dataGemini?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const dataDeepseek = await resDeepseek.json();
+    const textRaw = dataDeepseek?.choices?.[0]?.message?.content;
     const parsed = JSON.parse(textRaw);
 
     if (!audioRecorded) {
