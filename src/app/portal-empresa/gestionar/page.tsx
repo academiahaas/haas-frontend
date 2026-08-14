@@ -261,9 +261,9 @@ export default function GestionarPlan() {
         </div>
       </header>
 
-      <main className="p-4 md:p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <main className="p-4 md:p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
 
-        <div className="flex flex-col gap-3 min-h-0 h-full">
+        <div className="flex flex-col gap-3 min-h-0 h-full justify-between">
 
           <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 shrink-0">
             <h1 className="text-base font-black text-slate-100 mb-1">Simulador de plan</h1>
@@ -359,8 +359,6 @@ export default function GestionarPlan() {
             </div>
           )}
 
-          <div className="flex-1"></div>
-
           {mostrarPago && simPlano && (
             <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-3 shrink-0">
               {!mostrarOpcoesPagamento ? (
@@ -391,7 +389,7 @@ export default function GestionarPlan() {
 
         </div>
 
-        <div className="bg-[#0a1424] border border-white/10 border-l-2 border-l-cyan-400 rounded-xl p-4 flex flex-col flex-1 min-h-0">
+        <div className="bg-[#0a1424] border border-white/10 border-l-2 border-l-cyan-400 rounded-xl p-4 flex flex-col h-full min-h-0">
           <h2 className="font-bold text-sm text-slate-200 mb-3 shrink-0">Colaboradores en este plan</h2>
 
           {!simPlano ? (
