@@ -521,11 +521,7 @@ export default function GestionarPlan() {
               )}
 
               <div className="border-t border-white/10 pt-3 shrink-0">
-                {!mostrarFormAgregar ? (
-                  <button onClick={() => setMostrarFormAgregar(true)} className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2 rounded-lg text-xs transition-all">
-                    + Agregar colaborador
-                  </button>
-                ) : (
+                {mostrarFormAgregar && (
                   <div className="space-y-2">
                     <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder="Nombre completo" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     <input value={emailNovo} onChange={(e) => setEmailNovo(e.target.value)} placeholder="nuevo@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
