@@ -685,9 +685,12 @@ export default function PortalMobile({
     const textoLimpo = texto.replace(/[*#_`]/g, '');
     const utterance = new SpeechSynthesisUtterance(textoLimpo);
     const langLower = String(langConfig || idiomaSelecionado || 'PT').toUpperCase();
-    if (langLower === 'ES') utterance.lang = 'es-ES';
-    else if (langLower === 'EN') utterance.lang = 'en-US';
-    else utterance.lang = 'pt-BR';
+    const MAPA_VOZES: Record<string, string> = {
+      PT: 'pt-BR', ES: 'es-ES', EN: 'en-US', FR: 'fr-FR',
+      DE: 'de-DE', IT: 'it-IT', JA: 'ja-JP', ZH: 'zh-CN',
+      RU: 'ru-RU', KO: 'ko-KR', NL: 'nl-NL'
+    };
+    utterance.lang = MAPA_VOZES[langLower] || 'pt-BR';
     window.speechSynthesis.speak(utterance);
   };
 
