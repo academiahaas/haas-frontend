@@ -34,6 +34,9 @@ interface AulaSlot {
   vagas_ocupadas: number;
   status: string;
   idioma: string;
+  slides_status: string | null;
+  slides_pdf_path: string | null;
+  slides_pptx_path: string | null;
 }
 
 interface DadosProfessor {
@@ -475,6 +478,7 @@ export default function PortalProfessor() {
   const [vistaAtiva, setVistaAtiva] = useState<"aulas" | "pago" | "prep" | "evaluar" | "materiales">("aulas");
   const [materiales, setMateriales] = useState<Material[]>([]);
   const [materialAbierto, setMaterialAbierto] = useState<Material | null>(null);
+  const [gavetaSlidesAberta, setGavetaSlidesAberta] = useState<string | null>(null);
   const [pagoAberto, setPagoAberto] = useState(false);
   const [aulaReporte, setAulaReporte] = useState("");
   const [comentarioReporte, setComentarioReporte] = useState("");
@@ -628,7 +632,7 @@ export default function PortalProfessor() {
 
         const { data: aulasReais, error: erroAulas } = await supabase
           .from("aulas_disponiveis")
-          .select("id, data_hora_inicio, data_hora_fim, tipo_aula, vagas_maximas, vagas_ocupadas, status, idioma")
+          .select("id, data_hora_inicio, data_hora_fim, tipo_aula, vagas_maximas, vagas_ocupadas, status, idioma, slides_status, slides_pdf_path, slides_pptx_path")
           .eq("teacher_id", teacherId)
           .order("data_hora_inicio", { ascending: true });
 
@@ -936,9 +940,33 @@ export default function PortalProfessor() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
-                          <a href="/slides/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
-                            {t.accederDiapositivas}
-                          </a>
+                          <div className="relative">
+                            <button onClick={() => setGavetaSlidesAberta(gavetaSlidesAberta === aula.id ? null : aula.id)} className="inline-flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
+                              {t.accederDiapositivas}
+                            </button>
+                            {gavetaSlidesAberta === aula.id && (
+                              <div className="absolute right-0 top-full mt-1 z-20 bg-[#0a1424] border border-white/10 rounded-lg p-2 flex flex-col gap-1.5 min-w-[140px] shadow-xl">
+                                {aula.slides_status !== "pronto" ? (
+                                  <span className="text-[10px] text-slate-500 px-2 py-1">
+                                    {idioma === "es" ? "Generando..." : idioma === "en" ? "Generating..." : "Gerando..."}
+                                  </span>
+                                ) : (
+                                  <>
+                                    {aula.slides_pdf_path && (
+                                      <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pdf_path)}`} className="text-xs text-slate-300 hover:text-rose-400 px-2 py-1.5 rounded transition-colors text-left">
+                                        PDF
+                                      </a>
+                                    )}
+                                    {aula.slides_pptx_path && (
+                                      <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pptx_path)}`} className="text-xs text-slate-300 hover:text-orange-400 px-2 py-1.5 rounded transition-colors text-left">
+                                        PowerPoint
+                                      </a>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                           {professor?.meeting_link && (
                             <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
                               {t.entrarClase} <ExternalLink size={11} />
