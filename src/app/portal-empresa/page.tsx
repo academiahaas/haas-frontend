@@ -27,6 +27,9 @@ export default function PortalEmpresa() {
   const [planos, setPlanos] = useState<any[]>([]);
   const [planoSelecionado, setPlanoSelecionado] = useState<any>(null);
   const [mostrarOpcoesPagamento, setMostrarOpcoesPagamento] = useState(false);
+  const [descontoConfig, setDescontoConfig] = useState({ desconto_por_pessoa: 1.5, desconto_maximo: 25 });
+  const [simPlano, setSimPlano] = useState<any>(null);
+  const [simPessoas, setSimPessoas] = useState(1);
   const [criandoCobranca, setCriandoCobranca] = useState(false);
   const [cobrancaMsg, setCobrancaMsg] = useState("");
   const [mostrarPago, setMostrarPago] = useState(true);
@@ -80,7 +83,18 @@ export default function PortalEmpresa() {
           .select("plan_key, plan_label, price")
           .order("price");
 
-        if (planosReais) setPlanos(planosReais);
+        if (planosReais) {
+          setPlanos(planosReais);
+          if (planosReais.length > 0) setSimPlano(planosReais[0]);
+        }
+
+        const { data: descontoReal } = await supabase
+          .from("corporate_discount_config")
+          .select("desconto_por_pessoa, desconto_maximo")
+          .limit(1)
+          .maybeSingle();
+
+        if (descontoReal) setDescontoConfig(descontoReal);
       } catch (err) {
         console.error("Error al cargar datos de la empresa:", err);
         setErro("Ocurrio un error inesperado.");
@@ -178,109 +192,85 @@ export default function PortalEmpresa() {
 
       <main className="p-4 md:p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide min-h-0">
+        <div className="flex flex-col gap-4 min-h-0">
 
-          <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-4 flex items-center gap-4 shrink-0">
-            <div className="p-3 rounded-lg bg-cyan-500/10 text-cyan-400">
-              <Users size={20} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Colaboradores activos</span>
-              <span className="text-xl font-extrabold text-slate-100">{funcionarios.length}</span>
-            </div>
-          </div>
-
-          <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 shrink-0">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-sm text-slate-200">Pago mensual</h2>
-              <button onClick={() => setMostrarPago(!mostrarPago)} className="text-[10px] bg-white/5 hover:bg-white/10 text-slate-400 px-2 py-1 rounded">
-                {mostrarPago ? "Ocultar" : "Mostrar"}
-              </button>
-            </div>
-            {mostrarPago && (
-              <div className="mt-3">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {planos.map((p) => (
-                    <button
-                      key={p.plan_key}
-                      onClick={() => { setPlanoSelecionado(p); setMostrarOpcoesPagamento(false); }}
-                      className={`text-left p-2.5 rounded-lg border transition-all ${planoSelecionado?.plan_key === p.plan_key ? "bg-cyan-500/10 border-cyan-500/40" : "bg-white/[0.02] border-white/10 hover:border-white/20"}`}
-                    >
-                      <p className="text-[10px] font-bold text-slate-200">{p.plan_label}</p>
-                      <p className="text-xs font-black text-cyan-400 mt-1">$ {Number(p.price).toLocaleString("es-CO")}</p>
-                    </button>
-                  ))}
-                </div>
-
-                {planoSelecionado && !mostrarOpcoesPagamento && (
-                  <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full mt-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2 rounded-lg text-[10px] uppercase tracking-wider transition-all">
-                    Pagar ahora
-                  </button>
-                )}
-
-                {planoSelecionado && mostrarOpcoesPagamento && (() => {
-                  const valorPlano = Number(planoSelecionado.price);
-                  const totalGatewayPlano = Math.round(valorPlano * 1.05) - centavos;
-                  const totalBrebPlano = valorPlano - centavos;
-                  return (
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-                        <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          Tarjeta / Wompi
-                        </div>
-                        <p className="text-[8.5px] text-slate-500 mt-0.5">Pasarela segura Wompi / Nequi</p>
-                        <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/60 font-mono mt-2">
-                          <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {valorPlano.toLocaleString("es-CO")}</span></div>
-                          <div className="flex justify-between text-rose-400"><span>Fee pasarela (5%):</span><span>+ $ {Math.round(valorPlano * 0.05).toLocaleString("es-CO")}</span></div>
-                          <div className="border-t border-slate-800/80 my-0.5"></div>
-                          <div className="flex justify-between font-black text-white text-xs"><span>Total:</span><span>$ {totalGatewayPlano.toLocaleString("es-CO")}</span></div>
-                        </div>
-                        <button onClick={() => handlePagar("gateway", totalGatewayPlano)} disabled={criandoCobranca} className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 disabled:opacity-50 text-slate-950 font-black py-2 rounded-lg text-[10px] uppercase tracking-wider transition-all">
-                          Pagar via Wompi / Nequi
-                        </button>
-                      </div>
-
-                      <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 flex flex-col justify-between relative">
-                        <div className="absolute top-0 right-0 bg-cyan-400 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
-                          Ahorra Comision!
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[10px] font-black text-cyan-400 uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                          Llave Bre-B
-                        </div>
-                        <div className="mx-auto w-16 h-16 bg-white p-1 rounded-lg flex items-center justify-center border border-cyan-500/20 my-1">
-                          <img
-                            src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg"
-                            alt="QR Code Oficial Llave Bre-B"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/60 font-mono">
-                          <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {valorPlano.toLocaleString("es-CO")}</span></div>
-                          <div className="flex justify-between text-emerald-400 font-bold"><span>Comision:</span><span>$0 (Gratis!)</span></div>
-                          <div className="border-t border-slate-800/80 my-0.5"></div>
-                          <div className="flex justify-between font-black text-cyan-400 text-xs"><span>A transferir:</span><span>$ {totalBrebPlano.toLocaleString("es-CO")}</span></div>
-                        </div>
-                        <button onClick={() => handlePagar("breb", totalBrebPlano)} disabled={criandoCobranca} className="w-full mt-2 bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-2 rounded-lg text-[10px] uppercase tracking-wider transition-all">
-                          Ya transferi
-                        </button>
-                      </div>
-
-                      <p className="text-[8.5px] text-slate-500 sm:col-span-2 leading-tight">
-                        <Shield className="inline-block w-3 h-3 mr-1 mb-0.5" />
-                        Ingresa el valor exacto mostrado arriba; esto permite que el sistema valide tu pago automaticamente.
-                      </p>
-                      {cobrancaMsg && <p className="text-xs text-slate-400 sm:col-span-2">{cobrancaMsg}</p>}
-                    </div>
-                  );
-                })()}
+          <div className="grid grid-cols-2 gap-3 shrink-0">
+            <div className="bg-[#0a1424] border border-cyan-500/20 rounded-xl p-4 flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+                <Users size={18} />
               </div>
-            )}
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Colaboradores</span>
+                <span className="text-lg font-extrabold text-slate-100">{funcionarios.length}</span>
+              </div>
+            </div>
+            <div className="bg-[#0a1424] border border-emerald-500/20 rounded-xl p-4 flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <Building2 size={18} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Valor mensual actual</span>
+                <span className="text-lg font-extrabold text-slate-100">{valorMensal ? `$${valorMensal.toLocaleString("es-CO")}` : "-"}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 shrink-0">
-            <div className="flex items-center justify-between">
+          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 shrink-0">
+            <h2 className="font-bold text-sm text-slate-200 mb-3">Simulador de plan</h2>
+
+            <div className="grid grid-cols-3 gap-1.5 mb-3">
+              {planos.map((p) => (
+                <button
+                  key={p.plan_key}
+                  onClick={() => setSimPlano(p)}
+                  className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}
+                >
+                  {p.plan_label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-slate-400">Colaboradores a simular</span>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setSimPessoas((n) => Math.max(1, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black">-</button>
+                <span className="text-sm font-black text-slate-100 w-6 text-center">{simPessoas}</span>
+                <button onClick={() => setSimPessoas((n) => n + 1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black">+</button>
+              </div>
+            </div>
+
+            {simPlano && (() => {
+              const desconto = Math.min(descontoConfig.desconto_maximo, (simPessoas - 1) * descontoConfig.desconto_por_pessoa);
+              const subtotal = Number(simPlano.price) * simPessoas;
+              const total = subtotal * (1 - desconto / 100);
+              const progresso = (desconto / descontoConfig.desconto_maximo) * 100;
+              return (
+                <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">Descuento desbloqueado</span>
+                    <span className="text-xs font-black text-purple-300">{desconto.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-3">
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-fuchsia-500 rounded-full transition-all duration-500"
+                      style={{ width: `${progresso}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <span>Subtotal</span>
+                    <span>$ {subtotal.toLocaleString("es-CO")}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-slate-400">Total estimado</span>
+                    <span className="text-xl font-black text-cyan-400">$ {Math.round(total).toLocaleString("es-CO")}</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col flex-1 min-h-0">
+            <div className="flex items-center justify-between shrink-0">
               <h2 className="font-bold text-sm text-slate-200">Grupos y horarios</h2>
               <button onClick={() => setMostrarGrupos(!mostrarGrupos)} className="text-[10px] bg-white/5 hover:bg-white/10 text-slate-400 px-2 py-1 rounded">
                 {mostrarGrupos ? "Ocultar" : "Mostrar"}
@@ -290,9 +280,9 @@ export default function PortalEmpresa() {
               grupos.length === 0 ? (
                 <p className="text-xs text-slate-500 mt-2">No hay grupos registrados todavia.</p>
               ) : (
-                <div className="flex flex-col gap-2 mt-2">
+                <div className="flex flex-col gap-2 mt-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                   {grupos.map((g) => (
-                    <div key={g.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-2.5">
+                    <div key={g.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-2.5 shrink-0">
                       <p className="text-sm font-bold text-slate-200">
                         {g.dias_semana || g.frequencia || "Horario no definido"} {g.horario ? `- ${g.horario}` : ""}
                       </p>
