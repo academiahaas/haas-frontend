@@ -60,7 +60,7 @@ export default function PortalEmpresa() {
 
         const { data: gruposReais } = await supabase
           .from("corporate_groups")
-          .select("id, nome, frequencia, horario, dias_semana")
+          .select("id, nome, frequencia, horario, dias_semana, plan_key")
           .eq("corporate_account_id", corporateId);
 
         if (gruposReais) {
@@ -83,9 +83,15 @@ export default function PortalEmpresa() {
           .select("plan_key, plan_label, price")
           .order("price");
 
-        if (planosReais) {
+        if (planosReais && planosReais.length > 0) {
           setPlanos(planosReais);
-          if (planosReais.length > 0) setSimPlano(planosReais[0]);
+          setSimPlano(planosReais[0]);
+          const gruposDoPrimeiroPlano = (gruposReais || []).filter((g: any) => g.plan_key === planosReais[0].plan_key);
+          const alunosIniciais = gruposDoPrimeiroPlano.reduce((total: number, g: any) => {
+            const membros = (funcionariosReais || []).filter((f: any) => f.corporate_group_id === g.id);
+            return total + membros.length;
+          }, 0);
+          setSimPessoas(Math.max(1, alunosIniciais));
         }
 
         const { data: descontoReal } = await supabase
@@ -222,7 +228,11 @@ export default function PortalEmpresa() {
               {planos.map((p) => (
                 <button
                   key={p.plan_key}
-                  onClick={() => setSimPlano(p)}
+                  onClick={() => {
+                    setSimPlano(p);
+                    const alunosDoPlano = grupos.filter((g) => g.plan_key === p.plan_key).reduce((total, g) => total + g.membros.length, 0);
+                    setSimPessoas(Math.max(1, alunosDoPlano));
+                  }}
                   className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}
                 >
                   {p.plan_label}
