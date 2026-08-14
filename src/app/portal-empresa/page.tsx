@@ -2,6 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Building2, Users, Loader2, LogOut, Shield } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -34,6 +35,11 @@ export default function PortalEmpresa() {
   const [cobrancaMsg, setCobrancaMsg] = useState("");
   const [mostrarPago, setMostrarPago] = useState(true);
   const [mostrarGrupos, setMostrarGrupos] = useState(true);
+  const [mostrarSimulador, setMostrarSimulador] = useState(false);
+  const [etapaCompra, setEtapaCompra] = useState("simulando");
+  const [emailsColaboradores, setEmailsColaboradores] = useState("");
+  const [enviandoEmails, setEnviandoEmails] = useState(false);
+  const [emailsEnviadosMsg, setEmailsEnviadosMsg] = useState("");
   const [mostrarDesempeno, setMostrarDesempeno] = useState(true);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -147,6 +153,44 @@ export default function PortalEmpresa() {
     }
   };
 
+  const handleEnviarOnboarding = async () => {
+    const lista = emailsColaboradores.split(/[\n,]/).map((e) => e.trim()).filter((e) => e.includes("@"));
+    if (lista.length === 0) return;
+    setEnviandoEmails(true);
+    setEmailsEnviadosMsg("");
+    try {
+      const linkNivelamento = "https://campus.academiahaas.com/diagnostico";
+      const corpoHtml = `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>Bienvenido a Haas Language</h2><p>Tu empresa te ha inscrito en nuestro programa de idiomas. Para comenzar, realiza tu prueba de nivelacion aqui:</p><p><a href="${linkNivelamento}" style="background:#06b6d4;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Hacer prueba de nivelacion</a></p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`;
+
+      for (const email of lista) {
+        await fetch("/api/email/enviar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinatario: email, assunto: "Bienvenido a Haas Language - Prueba de nivelacion", corpoHtml })
+        });
+      }
+      setEmailsEnviadosMsg(`${lista.length} correo(s) enviado(s) con exito.`);
+      setEtapaCompra("pago");
+    } catch (e) {
+      setEmailsEnviadosMsg("Error al enviar los correos.");
+    } finally {
+      setEnviandoEmails(false);
+    }
+  };
+
+  const calcularValorMensalReal = () => {
+    let totalGeral = 0;
+    grupos.forEach((g) => {
+      const plano = planos.find((p) => p.plan_key === g.plan_key);
+      if (!plano) return;
+      const pessoas = g.membros.length;
+      if (pessoas === 0) return;
+      const desconto = Math.min(descontoConfig.desconto_maximo, (pessoas - 1) * descontoConfig.desconto_por_pessoa);
+      totalGeral += Number(plano.price) * pessoas * (1 - desconto / 100);
+    });
+    return Math.round(totalGeral);
+  };
+
   const mediaGeral = (f: Funcionario) => {
     const notas = [f.score_fala, f.score_escuta, f.score_leitura, f.score_escrita, f.score_gramatica].filter(
       (n) => n !== null && n !== undefined
@@ -216,95 +260,20 @@ export default function PortalEmpresa() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Valor mensual actual</span>
-                <span className="text-lg font-extrabold text-slate-100">{valorMensal ? `$${valorMensal.toLocaleString("es-CO")}` : "-"}</span>
+                <span className="text-lg font-extrabold text-slate-100">{calcularValorMensalReal() > 0 ? `$${calcularValorMensalReal().toLocaleString("es-CO")}` : "-"}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 shrink-0 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-[8px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
-              Novedad
-            </div>
-            <h2 className="font-bold text-sm text-slate-200 mb-3">Simulador de plan</h2>
-
-            <div className="grid grid-cols-3 gap-1.5 mb-3">
-              {planos.map((p) => (
-                <button
-                  key={p.plan_key}
-                  onClick={() => {
-                    setSimPlano(p);
-                    const alunosDoPlano = grupos.filter((g) => g.plan_key === p.plan_key).reduce((total, g) => total + g.membros.length, 0);
-                    setSimPessoas(Math.max(1, alunosDoPlano));
-                  }}
-                  className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}
-                >
-                  {p.plan_label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-slate-400">Colaboradores a simular</span>
-              <div className="flex items-center gap-2">
-                <button onClick={() => setSimPessoas((n) => Math.max(1, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black">-</button>
-                <span className="text-sm font-black text-slate-100 w-6 text-center">{simPessoas}</span>
-                <button onClick={() => setSimPessoas((n) => n + 1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black">+</button>
+          <Link href="/portal-empresa/gestionar" className="block bg-gradient-to-r from-purple-500/10 to-fuchsia-500/10 border border-purple-500/30 hover:border-purple-500/50 rounded-xl p-4 shrink-0 transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm text-slate-100">Gestionar plan</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Simula, invita colaboradores y paga</p>
               </div>
+              <span className="text-purple-400 text-lg">&rarr;</span>
             </div>
-
-            {simPlano && (() => {
-              const desconto = Math.min(descontoConfig.desconto_maximo, (simPessoas - 1) * descontoConfig.desconto_por_pessoa);
-              const subtotal = Number(simPlano.price) * simPessoas;
-              const total = subtotal * (1 - desconto / 100);
-              const progresso = (desconto / descontoConfig.desconto_maximo) * 100;
-              return (
-                <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">Descuento desbloqueado</span>
-                    <span className="text-xs font-black text-purple-300">{desconto.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-3">
-                    <div
-                      className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-fuchsia-500 rounded-full transition-all duration-500"
-                      style={{ width: `${progresso}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-slate-500 mb-1">
-                    <span>Subtotal</span>
-                    <span>$ {subtotal.toLocaleString("es-CO")}</span>
-                  </div>
-                  <div className="flex justify-between items-baseline mb-3">
-                    <span className="text-xs text-slate-400">Total estimado</span>
-                    <span className="text-xl font-black text-cyan-400">$ {Math.round(total).toLocaleString("es-CO")}</span>
-                  </div>
-
-                  {!mostrarOpcoesPagamento ? (
-                    <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2 rounded-lg text-[10px] uppercase tracking-wider transition-all">
-                      Pagar ahora
-                    </button>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                      <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
-                        <p className="text-[9px] font-black text-emerald-400 uppercase mb-1">Tarjeta / Wompi</p>
-                        <p className="text-[10px] text-slate-400 font-mono mb-1.5">Total: $ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</p>
-                        <button onClick={() => handlePagar("gateway", Math.round(total * 1.05) - centavos)} disabled={criandoCobranca} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 disabled:opacity-50 text-slate-950 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
-                          Pagar via Wompi
-                        </button>
-                      </div>
-                      <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
-                        <p className="text-[9px] font-black text-cyan-400 uppercase mb-1">Llave Bre-B</p>
-                        <p className="text-[10px] text-slate-400 font-mono mb-1.5">Transferir: $ {(Math.round(total) - centavos).toLocaleString("es-CO")}</p>
-                        <button onClick={() => handlePagar("breb", Math.round(total) - centavos)} disabled={criandoCobranca} className="w-full bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
-                          Ya transferi
-                        </button>
-                      </div>
-                      {cobrancaMsg && <p className="text-[10px] text-slate-400 sm:col-span-2">{cobrancaMsg}</p>}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
+          </Link>
 
           <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col flex-1 min-h-0">
             <div className="flex items-center justify-between shrink-0">
@@ -333,6 +302,40 @@ export default function PortalEmpresa() {
           </div>
 
         </div>
+        {etapaCompra === "emails" ? (
+          <div className="bg-[#0a1424] border border-purple-500/30 rounded-xl p-6 flex flex-col min-h-0 overflow-y-auto scrollbar-hide">
+            <h2 className="font-bold text-xl text-slate-100 mb-2">Invitar colaboradores</h2>
+            <p className="text-sm text-slate-400 mb-6">Ingresa los correos de las personas que van a estudiar. Les enviaremos un correo de bienvenida con el enlace para hacer la prueba de nivelacion.</p>
+
+            <label className="text-sm font-bold text-slate-300 mb-2">Correos electronicos (uno por linea)</label>
+            <textarea
+              rows={6}
+              value={emailsColaboradores}
+              onChange={(e) => setEmailsColaboradores(e.target.value)}
+              placeholder={"juan@empresa.com\nmaria@empresa.com\ncarlos@empresa.com"}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-slate-200 placeholder-slate-500 mb-6"
+            />
+
+            <p className="text-sm font-bold text-slate-300 mb-2">Vista previa del correo que van a recibir:</p>
+            <div className="bg-white rounded-xl p-6 mb-6 text-slate-900">
+              <p className="text-lg font-bold mb-3">Bienvenido a Haas Language</p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong>{empresa?.company_name}</strong> te ha inscrito en nuestro programa de idiomas.
+              </p>
+              <p className="text-sm leading-relaxed mb-4">
+                Para comenzar, es necesario que realices una breve prueba de nivelacion. Esto nos permite ubicarte en el nivel correcto desde el primer dia.
+              </p>
+              <div className="bg-cyan-500 text-slate-950 font-bold text-sm text-center py-3 rounded-lg">
+                Hacer prueba de nivelacion
+              </div>
+            </div>
+
+            <button onClick={handleEnviarOnboarding} disabled={enviandoEmails} className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 disabled:opacity-50 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider transition-all">
+              {enviandoEmails ? "Enviando..." : "Aprobar y enviar correos"}
+            </button>
+            {emailsEnviadosMsg && <p className="text-sm text-emerald-400 mt-3 text-center">{emailsEnviadosMsg}</p>}
+          </div>
+        ) : (
         <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between shrink-0">
             <h2 className="font-bold text-sm text-slate-200">Desempeno de los colaboradores</h2>
@@ -379,6 +382,7 @@ export default function PortalEmpresa() {
             </div>
           ))}
         </div>
+        )}
 
       </main>
     </div>
