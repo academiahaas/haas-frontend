@@ -221,7 +221,10 @@ export default function PortalEmpresa() {
             </div>
           </div>
 
-          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 shrink-0">
+          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-[8px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
+              Novedad
+            </div>
             <h2 className="font-bold text-sm text-slate-200 mb-3">Simulador de plan</h2>
 
             <div className="grid grid-cols-3 gap-1.5 mb-3">
@@ -270,10 +273,34 @@ export default function PortalEmpresa() {
                     <span>Subtotal</span>
                     <span>$ {subtotal.toLocaleString("es-CO")}</span>
                   </div>
-                  <div className="flex justify-between items-baseline">
+                  <div className="flex justify-between items-baseline mb-3">
                     <span className="text-xs text-slate-400">Total estimado</span>
                     <span className="text-xl font-black text-cyan-400">$ {Math.round(total).toLocaleString("es-CO")}</span>
                   </div>
+
+                  {!mostrarOpcoesPagamento ? (
+                    <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2 rounded-lg text-[10px] uppercase tracking-wider transition-all">
+                      Pagar ahora
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                      <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
+                        <p className="text-[9px] font-black text-emerald-400 uppercase mb-1">Tarjeta / Wompi</p>
+                        <p className="text-[10px] text-slate-400 font-mono mb-1.5">Total: $ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</p>
+                        <button onClick={() => handlePagar("gateway", Math.round(total * 1.05) - centavos)} disabled={criandoCobranca} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 disabled:opacity-50 text-slate-950 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
+                          Pagar via Wompi
+                        </button>
+                      </div>
+                      <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
+                        <p className="text-[9px] font-black text-cyan-400 uppercase mb-1">Llave Bre-B</p>
+                        <p className="text-[10px] text-slate-400 font-mono mb-1.5">Transferir: $ {(Math.round(total) - centavos).toLocaleString("es-CO")}</p>
+                        <button onClick={() => handlePagar("breb", Math.round(total) - centavos)} disabled={criandoCobranca} className="w-full bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
+                          Ya transferi
+                        </button>
+                      </div>
+                      {cobrancaMsg && <p className="text-[10px] text-slate-400 sm:col-span-2">{cobrancaMsg}</p>}
+                    </div>
+                  )}
                 </div>
               );
             })()}
