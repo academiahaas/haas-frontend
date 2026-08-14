@@ -28,6 +28,36 @@ export function GeradorExerciciosTab() {
 
   const [horasUnidade, setHorasUnidade] = useState(null);
   const [metaCalculada, setMetaCalculada] = useState(null);
+  const [mostrarCreadorCursos, setMostrarCreadorCursos] = useState(false);
+  const [promptCurso, setPromptCurso] = useState('');
+  const [loadingCurso, setLoadingCurso] = useState(false);
+  const [resultadoCurso, setResultadoCurso] = useState(null);
+  const [erroCurso, setErroCurso] = useState('');
+
+  const handleGenerarCurso = async (e) => {
+    e.preventDefault();
+    if (!promptCurso.trim()) return;
+    setLoadingCurso(true);
+    setErroCurso('');
+    setResultadoCurso(null);
+    try {
+      const res = await fetch('/api/admin/gerar-curso-etapa1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descricao_curso: promptCurso })
+      });
+      const dados = await res.json();
+      if (!res.ok) {
+        setErroCurso(dados.detalhe || dados.error || 'Erro ao gerar');
+      } else {
+        setResultadoCurso(dados.dados);
+      }
+    } catch (err) {
+      setErroCurso('Erro de conexao');
+    } finally {
+      setLoadingCurso(false);
+    }
+  };
   const [contagemAtual, setContagemAtual] = useState(0);
 
   const [gerando, setGerando] = useState(false);
@@ -220,7 +250,48 @@ export function GeradorExerciciosTab() {
 
   return (
     <div className="flex flex-col gap-4 h-full min-h-0 relative">
-      <h2 className="text-lg font-black text-white flex items-center gap-2 shrink-0"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
+      <div className="flex items-center justify-between shrink-0">
+        <h2 className="text-lg font-black text-white flex items-center gap-2"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
+        <button onClick={() => setMostrarCreadorCursos(!mostrarCreadorCursos)} className="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 px-3 py-1.5 rounded-lg font-bold transition-all">
+          {mostrarCreadorCursos ? 'Ocultar' : '+ Crear Curso Nuevo'}
+        </button>
+      </div>
+
+      {mostrarCreadorCursos && (
+        <div className="shrink-0 bg-white/[0.02] border border-purple-500/20 rounded-xl p-4 space-y-3">
+          <p className="text-xs text-slate-400">Etapa 1 de 3: curso y niveles (A1 a C1)</p>
+          <form onSubmit={handleGenerarCurso} className="space-y-2">
+            <textarea
+              rows={3}
+              value={promptCurso}
+              onChange={(e) => setPromptCurso(e.target.value)}
+              placeholder="Ej: Curso de Frances general para adultos, del cero al avanzado"
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200 placeholder-slate-500 focus:border-purple-500/50"
+              disabled={loadingCurso}
+            />
+            <button type="submit" disabled={loadingCurso} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingCurso ? 'Generando...' : 'Generar Estructura con IA'}
+            </button>
+          </form>
+          {erroCurso && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-2 rounded-lg">{erroCurso}</div>
+          )}
+          {resultadoCurso && (
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg">
+                <p className="text-sm font-bold text-purple-300">{resultadoCurso.curso?.title}</p>
+                <p className="text-xs text-slate-400 mt-1">{resultadoCurso.curso?.objective_autonomy}</p>
+              </div>
+              {(resultadoCurso.niveis || []).map((nivel, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 p-2 rounded-lg">
+                  <p className="text-xs font-black text-slate-200">{nivel.level_tag} - {nivel.level_name}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">{nivel.pedagogical_focus}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {mensagem && (
         <div className={`shrink-0 rounded-lg px-3 py-2 text-[11px] border flex items-center gap-2 ${mensagem.tipo === 'ok' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-300'}`}>
