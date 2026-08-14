@@ -48,6 +48,22 @@ export default function LoginPage() {
         return;
       }
 
+      const { data: dadosEmpresa } = await supabase
+        .from("corporate_accounts")
+        .select("id, company_name, boss_email")
+        .eq("boss_email", cleanEmail)
+        .maybeSingle();
+
+      if (dadosEmpresa) {
+        localStorage.removeItem("haas_aluno_cache");
+        localStorage.setItem("haas_corporate_id", dadosEmpresa.id);
+        localStorage.setItem("haas_corporate_email", dadosEmpresa.boss_email);
+        localStorage.setItem("haas_corporate_name", dadosEmpresa.company_name || "");
+        window.location.href = "/portal-empresa";
+        return;
+      }
+
+
 
       const { data } = await supabase
         .from("user_subscriptions")
