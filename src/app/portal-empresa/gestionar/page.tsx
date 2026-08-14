@@ -264,60 +264,58 @@ export default function GestionarPlan() {
       <main className="p-4 md:p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
 
         <div className="flex flex-col gap-3 min-h-0 h-full">
+          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-6 shrink-0">
+            <h1 className="text-2xl font-black text-slate-100 mb-2">Simulador de plan</h1>
+            <p className="text-sm text-slate-500 mb-5">Elige el tipo de horario y cuantas personas quieres inscribir.</p>
 
-          <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-4 flex-1 flex flex-col justify-center">
-            <h1 className="text-base font-black text-slate-100 mb-1">Simulador de plan</h1>
-            <p className="text-[11px] text-slate-500 mb-3">Elige el tipo de horario y cuantas personas quieres inscribir.</p>
-
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <button onClick={() => { setTipoHorario("fijo"); const p = planos.find((pl) => pl.tipo_horario === "fijo"); if (p) handleEscolherPlano(p); }} className={`py-1.5 rounded-lg text-[11px] font-bold border transition-all ${tipoHorario === "fijo" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <button onClick={() => { setTipoHorario("fijo"); const p = planos.find((pl) => pl.tipo_horario === "fijo"); if (p) handleEscolherPlano(p); }} className={`py-3 rounded-lg text-sm font-bold border transition-all ${tipoHorario === "fijo" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
                 Horario fijo
               </button>
-              <button onClick={() => { setTipoHorario("flexible"); const p = planos.find((pl) => pl.tipo_horario === "flexible"); if (p) handleEscolherPlano(p); }} className={`py-1.5 rounded-lg text-[11px] font-bold border transition-all ${tipoHorario === "flexible" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
+              <button onClick={() => { setTipoHorario("flexible"); const p = planos.find((pl) => pl.tipo_horario === "flexible"); if (p) handleEscolherPlano(p); }} className={`py-3 rounded-lg text-sm font-bold border transition-all ${tipoHorario === "flexible" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
                 Horario libre (Agenda)
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 mb-3">
+            <div className="grid grid-cols-3 gap-3 mb-5">
               {planosFiltrados.map((p) => (
-                <button key={p.plan_key} onClick={() => handleEscolherPlano(p)} className={`text-left p-2 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.02] border-white/10 hover:border-white/20"}`}>
-                  <p className="text-[9px] font-bold text-slate-200">{p.plan_label}</p>
-                  <p className="text-[11px] font-black text-purple-400 mt-0.5">$ {Number(p.price).toLocaleString("es-CO")}</p>
+                <button key={p.plan_key} onClick={() => handleEscolherPlano(p)} className={`text-left p-4 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.02] border-white/10 hover:border-white/20"}`}>
+                  <p className="text-sm font-bold text-slate-200">{p.plan_label}</p>
+                  <p className="text-base font-black text-purple-400 mt-1">$ {Number(p.price).toLocaleString("es-CO")}</p>
                 </button>
               ))}
             </div>
 
             {simPlano && (
               <>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-400">Colaboradores</span>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setSimPessoas((n) => Math.max(1, n - 1))} className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-xs">-</button>
-                    <span className="text-sm font-black text-slate-100 w-5 text-center">{simPessoas}</span>
-                    <button onClick={() => setSimPessoas((n) => n + 1)} className="w-6 h-6 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-xs">+</button>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base text-slate-400">Colaboradores</span>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => setSimPessoas((n) => Math.max(1, n - 1))} className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-base">-</button>
+                    <span className="text-xl font-black text-slate-100 w-7 text-center">{simPessoas}</span>
+                    <button onClick={() => setSimPessoas((n) => n + 1)} className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-base">+</button>
                   </div>
                 </div>
 
-                <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-2.5">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">Descuento</span>
-                    <span className="text-xs font-black text-purple-300">{desconto.toFixed(1)}%</span>
+                <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Descuento</span>
+                    <span className="text-base font-black text-purple-300">{desconto.toFixed(1)}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
+                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-3">
                     <div className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full transition-all duration-500" style={{ width: `${progresso}%` }} />
                   </div>
                   <div className="flex justify-between items-baseline">
-                    <span className="text-[11px] text-slate-400">Total mensual</span>
-                    <span className="text-base font-black text-purple-300">$ {Math.round(total).toLocaleString("es-CO")}</span>
+                    <span className="text-sm text-slate-400">Total mensual</span>
+                    <span className="text-2xl font-black text-purple-300">$ {Math.round(total).toLocaleString("es-CO")}</span>
                   </div>
                 </div>
               </>
             )}
           </div>
-
           <div className="grid grid-cols-2 gap-3 shrink-0">
-            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Total actual (todos los planes)</p>
+            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total actual (todos los planes)</p>
               {(() => {
                 const totalGeral = grupos.reduce((soma, g) => {
                   const plano = planos.find((p) => p.plan_key === g.plan_key);
@@ -327,33 +325,33 @@ export default function GestionarPlan() {
                 }, 0);
                 return totalGeral > 0 ? (
                   <>
-                    <p className="text-xs font-bold text-slate-200">{grupos.filter((g) => g.membros.length > 0).length} plan(es) activo(s)</p>
-                    <p className="text-sm font-black text-purple-300 mt-1">$ {Math.round(totalGeral).toLocaleString("es-CO")}</p>
+                    <p className="text-sm font-bold text-slate-200">{grupos.filter((g) => g.membros.length > 0).length} plan(es) activo(s)</p>
+                    <p className="text-xl font-black text-purple-300 mt-1">$ {Math.round(totalGeral).toLocaleString("es-CO")}</p>
                   </>
                 ) : (
-                  <p className="text-[11px] text-slate-500">Sin planes activos.</p>
+                  <p className="text-sm text-slate-500">Sin planes activos.</p>
                 );
               })()}
             </div>
-            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-3">
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ultimo pago</p>
+            <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ultimo pago</p>
               {historicoPagos.length > 0 ? (
                 <>
-                  <p className="text-xs text-slate-400">{new Date(historicoPagos[0].created_at).toLocaleDateString("es-CO")}</p>
-                  <p className="text-sm font-black text-amber-400 mt-1">$ {Number(historicoPagos[0].amount).toLocaleString("es-CO")}</p>
+                  <p className="text-sm text-slate-400">{new Date(historicoPagos[0].created_at).toLocaleDateString("es-CO")}</p>
+                  <p className="text-xl font-black text-amber-400 mt-1">$ {Number(historicoPagos[0].amount).toLocaleString("es-CO")}</p>
                 </>
               ) : (
-                <p className="text-[11px] text-slate-500">Sin pagos.</p>
+                <p className="text-sm text-slate-500">Sin pagos.</p>
               )}
             </div>
           </div>
 
           {simPlano && (
             <div className="flex gap-2 shrink-0">
-              <button onClick={handleGerarPDF} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2 rounded-lg text-[11px] uppercase tracking-wider transition-all">
+              <button onClick={handleGerarPDF} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-3.5 rounded-lg text-sm uppercase tracking-wider transition-all">
                 Generar PDF
               </button>
-              <button onClick={() => setMostrarPago(!mostrarPago)} className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-2 rounded-lg text-[11px] uppercase tracking-wider transition-all">
+              <button onClick={() => setMostrarPago(!mostrarPago)} className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-3.5 rounded-lg text-sm uppercase tracking-wider transition-all">
                 {mostrarPago ? "Ocultar pago" : "Pagar ahora"}
               </button>
             </div>
