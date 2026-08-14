@@ -33,7 +33,8 @@ export function GeradorExerciciosTab() {
   const [idiomaAlvoCurso, setIdiomaAlvoCurso] = useState('portugues');
   const [tipoCursoCurso, setTipoCursoCurso] = useState('standard');
   const [publicoCurso, setPublicoCurso] = useState('adultos');
-  const [etapaWizard, setEtapaWizard] = useState('config');
+  const [etapaWizard, setEtapaWizard] = useState('lista-cursos');
+  const [cursosExistentes, setCursosExistentes] = useState(null);
   const [loadingWizard, setLoadingWizard] = useState(false);
   const [erroWizard, setErroWizard] = useState('');
   const [feedbackAtual, setFeedbackAtual] = useState('');
@@ -57,6 +58,100 @@ export function GeradorExerciciosTab() {
   const [unidadesJaCriadas, setUnidadesJaCriadas] = useState([]);
   const [unidadeIndexAtual, setUnidadeIndexAtual] = useState(0);
   const [unidadeObjetivoGerado, setUnidadeObjetivoGerado] = useState(null);
+
+  const handleListarCursos = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const res = await fetch('/api/admin/curso-wizard/listar-cursos');
+      const dados = await res.json();
+      setCursosExistentes(dados.cursos || []);
+    } catch (e) {
+      setErroWizard('Error al listar cursos');
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const determinarPontoRetomada = (niveis) => {
+    for (let i = 0; i < niveis.length; i++) {
+      if (!niveis[i].pedagogical_focus) {
+        return { etapa: 'niveis-objetivos', nivelIndex: i };
+      }
+    }
+    for (let i = 0; i < niveis.length; i++) {
+      const nivel = niveis[i];
+      if (!nivel.modulos || nivel.modulos.length === 0) {
+        return { etapa: 'modulos-nomes', nivelIndex: i };
+      }
+      for (let j = 0; j < nivel.modulos.length; j++) {
+        if (!nivel.modulos[j].pedagogical_objective) {
+          return { etapa: 'modulos-objetivos', nivelIndex: i, moduloIndex: j };
+        }
+      }
+      for (let j = 0; j < nivel.modulos.length; j++) {
+        const modulo = nivel.modulos[j];
+        if (!modulo.unidades || modulo.unidades.length === 0) {
+          return { etapa: 'unidades-nomes', nivelIndex: i, moduloIndex: j };
+        }
+        for (let k = 0; k < modulo.unidades.length; k++) {
+          if (!modulo.unidades[k].pedagogical_objective) {
+            return { etapa: 'unidades-objetivos', nivelIndex: i, moduloIndex: j, unidadeIndex: k };
+          }
+        }
+      }
+    }
+    return { etapa: 'completo' };
+  };
+
+  const handleContinuarCurso = async (course_id) => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const res = await fetch('/api/admin/curso-wizard/estado-curso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course_id })
+      });
+      const dados = await res.json();
+      if (!res.ok) throw new Error(dados.detalhe || dados.error);
+
+      const { curso, niveis } = dados;
+      setCursoAprovado(curso);
+      setNiveisAprovados(niveis);
+
+      const ponto = determinarPontoRetomada(niveis);
+
+      const todosModulos = niveis.flatMap((n) => n.modulos || []);
+      setModulosJaCriados(todosModulos);
+      const todasUnidades = todosModulos.flatMap((m) => m.unidades || []);
+      setUnidadesJaCriadas(todasUnidades);
+
+      if (ponto.etapa === 'niveis-objetivos') {
+        setNivelIndexAtual(ponto.nivelIndex);
+      } else if (ponto.etapa === 'modulos-nomes' || ponto.etapa === 'modulos-objetivos') {
+        setNivelIndexAtual(ponto.nivelIndex);
+        if (ponto.etapa === 'modulos-objetivos') {
+          setModulosAprovadosDoNivel(niveis[ponto.nivelIndex].modulos);
+          setModuloIndexAtual(ponto.moduloIndex);
+        }
+      } else if (ponto.etapa === 'unidades-nomes' || ponto.etapa === 'unidades-objetivos') {
+        setNivelIndexAtual(ponto.nivelIndex);
+        setModulosAprovadosDoNivel(niveis[ponto.nivelIndex].modulos);
+        setModuloIndexAtual(ponto.moduloIndex);
+        if (ponto.etapa === 'unidades-objetivos') {
+          setUnidadesAprovadasDoModulo(niveis[ponto.nivelIndex].modulos[ponto.moduloIndex].unidades);
+          setUnidadeIndexAtual(ponto.unidadeIndex);
+        }
+      }
+
+      setEtapaWizard(ponto.etapa);
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
 
   const chamarApi = async (url, body) => {
     const res = await fetch(url, {
@@ -605,8 +700,8 @@ export function GeradorExerciciosTab() {
     <div className="flex flex-col gap-4 h-full min-h-0 relative">
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-lg font-black text-white flex items-center gap-2"><Sparkles size={18} className="text-cyan-400" /> Gerador de Ejercicios IA</h2>
-        <button onClick={() => setMostrarCreadorCursos(!mostrarCreadorCursos)} className="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 px-3 py-1.5 rounded-lg font-bold transition-all">
-          {mostrarCreadorCursos ? 'Ocultar' : '+ Crear Curso Nuevo'}
+        <button onClick={() => { const abrir = !mostrarCreadorCursos; setMostrarCreadorCursos(abrir); if (abrir && !cursosExistentes) handleListarCursos(); }} className="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 px-3 py-1.5 rounded-lg font-bold transition-all">
+          {mostrarCreadorCursos ? 'Ocultar' : 'Cursos'}
         </button>
       </div>
 
@@ -615,6 +710,35 @@ export function GeradorExerciciosTab() {
 
           {erroWizard && (
             <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-2 rounded-lg">{erroWizard}</div>
+          )}
+
+          {etapaWizard === 'lista-cursos' && (
+            <div className="space-y-2">
+              {loadingWizard && <p className="text-xs text-slate-500">Cargando cursos...</p>}
+              {cursosExistentes && cursosExistentes.length === 0 && (
+                <p className="text-xs text-slate-500">No hay cursos creados todavia.</p>
+              )}
+              {(cursosExistentes || []).map((c) => (
+                <div key={c.id} className="bg-white/[0.02] border border-white/5 p-3 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-slate-200">{c.title}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">
+                      {c.totalNiveis} niveles ({c.niveisComObjetivo} con objetivo) - {c.modulosComObjetivo}/{c.modulosContagem} modulos - {c.unidadesComObjetivo}/{c.unidadesContagem} unidades
+                    </p>
+                  </div>
+                  {c.completo ? (
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">Completo</span>
+                  ) : (
+                    <button onClick={() => handleContinuarCurso(c.id)} disabled={loadingWizard} className="text-xs bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase px-3 py-1.5 rounded-lg">
+                      Continuar
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button onClick={() => setEtapaWizard('config')} className="w-full py-2 bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs rounded-lg border border-white/10">
+                + Crear Curso Nuevo
+              </button>
+            </div>
           )}
 
           {etapaWizard === 'config' && !cursoGerado && (
