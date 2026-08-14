@@ -221,7 +221,7 @@ export default function GestionarPlan() {
     }
   };
 
-  const handlePagar = async (valorExacto: number) => {
+  const handlePagar = async (valorExacto: number, abrirWompi: boolean = true) => {
     if (!empresa) return;
     setCriandoCobranca(true);
     setCobrancaMsg("");
@@ -234,8 +234,12 @@ export default function GestionarPlan() {
       });
       const dados = await res.json();
       if (!res.ok) throw new Error(dados.error);
-      setCobrancaMsg("Cobranza registrada. Completa el pago en la ventana que se abrio.");
-      window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank");
+      if (abrirWompi) {
+        setCobrancaMsg("Cobranza registrada. Completa el pago en la ventana que se abrio.");
+        window.open("https://checkout.nequi.wompi.co/l/Nhopn2", "_blank");
+      } else {
+        setCobrancaMsg("Transferencia registrada. El sistema validara tu pago automaticamente al recibirla.");
+      }
     } catch (e: any) {
       setCobrancaMsg("Error: " + e.message);
     } finally {
@@ -482,7 +486,7 @@ export default function GestionarPlan() {
                     <p className="text-[8.5px] text-slate-400/90 font-medium text-center leading-tight mt-1 px-1">
                       ATENCION: recuerda ingresar el valor exacto con descuento en tu banco; esto permite que el sistema valide tu pago digitalmente y gestione la activacion de forma automatica.
                     </p>
-                    <button onClick={() => handlePagar(Math.round(total) - centavos)} disabled={criandoCobranca} className="w-full mt-2 bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider transition-all">
+                    <button onClick={() => handlePagar(Math.round(total) - centavos, false)} disabled={criandoCobranca} className="w-full mt-2 bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider transition-all">
                       Ya transferi
                     </button>
                   </div>
