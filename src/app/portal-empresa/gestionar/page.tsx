@@ -43,13 +43,15 @@ export default function GestionarPlan() {
   const [grupos, setGrupos] = useState<any[]>([]);
   const [descontoConfig, setDescontoConfig] = useState({ desconto_por_pessoa: 1.5, desconto_maximo: 25 });
   const [historicoPagos, setHistoricoPagos] = useState<any[]>([]);
+  const [convitesPendentes, setConvitesPendentes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
   const [tipoHorario, setTipoHorario] = useState("fijo");
   const [simPlano, setSimPlano] = useState<any>(null);
-  const [simPessoas, setSimPessoas] = useState(1);
+  const [simPessoas, setSimPessoas] = useState(0);
 
+  const [nomeNovo, setNomeNovo] = useState("");
   const [emailNovo, setEmailNovo] = useState("");
   const [diasClase, setDiasClase] = useState("");
   const [horarioClase, setHorarioClase] = useState("");
@@ -111,6 +113,9 @@ export default function GestionarPlan() {
       const { data: pagos } = await supabase.from("corporate_payments").select("amount, status, created_at").eq("corporate_account_id", corporateId).order("created_at", { ascending: false }).limit(8);
       if (pagos) setHistoricoPagos(pagos);
 
+      const { data: convites } = await supabase.from("corporate_pending_invites").select("id, plan_key, nombre, email").eq("corporate_account_id", corporateId);
+      if (convites) setConvitesPendentes(convites);
+
       if (gruposReais && gruposReais.length > 0 && planosReais) {
         const { data: funcionarios2 } = await supabase.from("users").select("id, corporate_group_id").eq("corporate_account_id", corporateId);
         const gruposComMembros = gruposReais.map((g: any) => ({ ...g, qtd: (funcionarios2 || []).filter((f: any) => f.corporate_group_id === g.id).length }));
@@ -143,33 +148,53 @@ export default function GestionarPlan() {
   const handleEscolherPlano = (p: any) => {
     setSimPlano(p);
     const grupo = grupos.find((g) => g.plan_key === p.plan_key);
-    setSimPessoas(Math.max(1, grupo?.membros.length || 1));
+    setSimPessoas(grupo?.membros.length || 0);
   };
 
   const handleAbrirModal = () => {
-    if (!emailNovo.trim() || !emailNovo.includes("@") || !diasClase.trim() || !horarioClase.trim()) {
-      setMsgAccion("Completa el correo, los dias y el horario antes de continuar.");
-      return;
-    }
     setMsgAccion("");
     setModalAberto(true);
   };
 
   const handleConfirmarEnvio = async () => {
     setEnviando(true);
+    setMsgAccion("");
     try {
+      const resCadastro = await fetch("/api/portal-empresa/agregar-colaborador", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          corporate_account_id: empresa.id,
+          plan_key: simPlano.plan_key,
+          nombre: nomeNovo.trim(),
+          email: emailNovo.trim(),
+          dias: tipoHorario === "fijo" ? diasClase : null,
+          horario: tipoHorario === "fijo" ? horarioClase : null
+        })
+      });
+      const dadosCadastro = await resCadastro.json();
+      if (!resCadastro.ok) throw new Error(dadosCadastro.error);
+
       const template = TEMPLATES_EMAIL[tipoHorario][idiomaEmail];
-      const html = template.html({ empresa: empresa?.company_name, dias: diasClase, horario: horarioClase, link: "https://academiahaas.com/diagnostico" });
+      const html = template.html({ empresa: empresa?.company_name, dias: diasClase || "-", horario: horarioClase || "-", link: "https://academiahaas.com/diagnostico" });
       await fetch("/api/email/enviar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ destinatario: emailNovo.trim(), assunto: template.asunto, corpoHtml: html })
       });
-      setMsgAccion(`Invitacion enviada a ${emailNovo.trim()}.`);
-      setEmailNovo("");
+
+      setMsgAccion(`${nomeNovo.trim()} fue agregado e invitado.`);
       setModalAberto(false);
-    } catch (e) {
-      setMsgAccion("Error al enviar la invitacion.");
+      setNomeNovo("");
+      setEmailNovo("");
+      setDiasClase("");
+      setHorarioClase("");
+      setMostrarFormAgregar(false);
+      setSimPessoas((n) => n + 1);
+      setMostrarPago(true);
+      setMostrarOpcoesPagamento(true);
+    } catch (e: any) {
+      setMsgAccion("Error: " + e.message);
     } finally {
       setEnviando(false);
     }
@@ -312,9 +337,9 @@ export default function GestionarPlan() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-slate-400">Colaboradores</span>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setSimPessoas((n) => Math.max(1, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">-</button>
+                    <button onClick={() => setSimPessoas((n) => Math.max(0, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">-</button>
                     <span className="text-base font-black text-slate-100 w-6 text-center">{simPessoas}</span>
-                    <button onClick={() => setSimPessoas((n) => n + 1)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">+</button>
+                    <button onClick={() => setMostrarFormAgregar(true)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">+</button>
                   </div>
                 </div>
 
@@ -370,41 +395,102 @@ export default function GestionarPlan() {
           <div className="flex-1"></div>
 
           {simPlano && (
-            <div className="flex gap-2 shrink-0" style={{ paddingBottom: "4px" }}>
-              <button onClick={handleGerarPDF} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-4 rounded-lg text-xs uppercase tracking-wider transition-all">
-                Generar PDF
-              </button>
-              <button onClick={() => setMostrarPago(!mostrarPago)} className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all">
-                {mostrarPago ? "Ocultar pago" : "Pagar ahora"}
+            <div className="shrink-0" style={{ paddingBottom: "4px" }}>
+              <button
+                onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { setMostrarPago(true); setMostrarOpcoesPagamento(true); } }}
+                className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
+              >
+                {emailNovo.trim() ? "Continuar" : "Pagar"}
               </button>
             </div>
           )}
 
           {mostrarPago && simPlano && (
-            <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-3 shrink-0">
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setMostrarPago(false)}>
+            <div className="bg-[#0a1424] border border-purple-500/30 rounded-2xl p-6 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+              <h2 className="text-lg font-black text-slate-100 mb-4">Confirmar pago</h2>
               {!mostrarOpcoesPagamento ? (
-                <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-2 rounded-lg text-[11px] uppercase tracking-wider transition-all">
+                <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-3 rounded-lg text-xs uppercase tracking-wider transition-all">
                   Ver opciones de pago
                 </button>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2">
-                    <p className="text-[9px] font-black text-emerald-400 uppercase mb-1">Wompi</p>
-                    <p className="text-[10px] text-slate-400 font-mono mb-1.5">$ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</p>
-                    <button onClick={() => handlePagar(Math.round(total * 1.05) - centavos)} disabled={criandoCobranca} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 disabled:opacity-50 text-slate-950 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
-                      Pagar
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                  <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden max-h-[340px]">
+                    <div className="flex justify-between items-start">
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider text-left">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          Tarjeta de Credito / Debito
+                        </div>
+                        <p className="text-[8.5px] text-slate-500 text-left pl-3">Pasarela segura Wompi / Nequi</p>
+                      </div>
+                    </div>
+
+                    <div className="my-2 relative w-10 h-7 rounded-md bg-gradient-to-br from-slate-200 via-slate-400 to-slate-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6),0_2px_4px_rgba(0,0,0,0.4)] overflow-hidden">
+                      <div className="absolute inset-1 border border-slate-500/30 rounded grid grid-cols-3 grid-rows-2 opacity-60">
+                        <div className="border-r border-b border-slate-600/40"></div>
+                        <div className="border-r border-b border-slate-600/40"></div>
+                        <div className="border-b border-slate-600/40"></div>
+                        <div className="border-r border-slate-600/40"></div>
+                        <div className="border-r border-slate-600/40"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left">
+                      <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between text-rose-400"><span>Fee pasarela:</span><span>+ $ {Math.round(total * 0.05).toLocaleString("es-CO")}</span></div>
+                      <div className="border-t border-slate-800/80 my-0.5"></div>
+                      <div className="flex justify-between font-black text-white text-xs"><span>Total:</span><span>$ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</span></div>
+                    </div>
+
+                    <button
+                      onClick={() => handlePagar(Math.round(total * 1.05) - centavos)}
+                      disabled={criandoCobranca}
+                      className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center disabled:opacity-50"
+                    >
+                      Pagar via Wompi / Nequi
                     </button>
+                    <p className="text-[8.5px] text-slate-500/90 font-medium text-center leading-tight mt-1.5 px-1">
+                      Al procesar el valor exacto indicado, la pasarela gestionara la activacion de tu plan de forma automatica. Nota: la comision de procesamiento es cobrada por la plataforma y no es reembolsable en caso de cancelacion.
+                    </p>
                   </div>
-                  <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-2">
-                    <p className="text-[9px] font-black text-purple-400 uppercase mb-1">Bre-B</p>
-                    <p className="text-[10px] text-slate-400 font-mono mb-1.5">$ {(Math.round(total) - centavos).toLocaleString("es-CO")}</p>
-                    <button onClick={() => handlePagar(Math.round(total) - centavos)} disabled={criandoCobranca} className="w-full bg-white/5 hover:bg-white/10 border border-purple-500/30 disabled:opacity-50 text-purple-300 font-black py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-all">
+
+                  <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden max-h-[340px]">
+                    <div className="absolute top-0 right-0 font-bold text-cyan-400 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
+                      Ahorra Comision!
+                    </div>
+
+                    <div className="text-[10px] font-black text-cyan-400 uppercase tracking-wider text-left flex justify-start items-center">
+                      <div className="flex items-center justify-start gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span>Llave Bre-B</span></div>
+                    </div>
+
+                    <div className="mx-auto w-24 h-24 bg-white p-1 rounded-xl flex items-center justify-center border border-cyan-500/20 my-1 shadow-lg relative overflow-hidden">
+                      <img
+                        src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/Untitled%20folder/WhatsApp%20Image%202026-06-28%20at%2012.18.16.jpeg"
+                        alt="QR Code Oficial Llave Bre-B"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left">
+                      <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between text-emerald-400 font-bold"><span>Comision:</span><span>$0 (Gratis!)</span></div>
+                      <div className="border-t border-slate-800/80 my-0.5"></div>
+                      <div className="flex justify-between font-black text-cyan-400 text-xs"><span>A transferir:</span><span>$ {(Math.round(total) - centavos).toLocaleString("es-CO")}</span></div>
+                    </div>
+
+                    <p className="text-[8.5px] text-slate-400/90 font-medium text-center leading-tight mt-1 px-1">
+                      ATENCION: recuerda ingresar el valor exacto con descuento en tu banco; esto permite que el sistema valide tu pago digitalmente y gestione la activacion de forma automatica.
+                    </p>
+                    <button onClick={() => handlePagar(Math.round(total) - centavos)} disabled={criandoCobranca} className="w-full mt-2 bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider transition-all">
                       Ya transferi
                     </button>
                   </div>
-                  {cobrancaMsg && <p className="text-[10px] text-slate-400 col-span-2">{cobrancaMsg}</p>}
+
+                  {cobrancaMsg && <p className="text-[10px] text-slate-400 md:col-span-2">{cobrancaMsg}</p>}
                 </div>
               )}
+            </div>
             </div>
           )}
 
@@ -437,11 +523,14 @@ export default function GestionarPlan() {
                   </button>
                 ) : (
                   <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input value={diasClase} onChange={(e) => setDiasClase(e.target.value)} placeholder="Dias" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
-                      <input value={horarioClase} onChange={(e) => setHorarioClase(e.target.value)} placeholder="Horario" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
-                    </div>
+                    <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder="Nombre completo" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     <input value={emailNovo} onChange={(e) => setEmailNovo(e.target.value)} placeholder="nuevo@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                    {tipoHorario === "fijo" && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <input value={diasClase} onChange={(e) => setDiasClase(e.target.value)} placeholder="Dias" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                        <input value={horarioClase} onChange={(e) => setHorarioClase(e.target.value)} placeholder="Horario" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                      </div>
+                    )}
                     <button onClick={handleAbrirModal} className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold py-2 rounded-lg text-xs transition-all">
                       Revisar y enviar
                     </button>
