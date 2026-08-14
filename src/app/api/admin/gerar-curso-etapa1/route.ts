@@ -37,11 +37,26 @@ async function chamarDeepseek(prompt: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { descricao_curso, idioma_nativo, idioma_alvo, niveis, distribuicao_customizada } = await req.json();
+    const { idioma_nativo, idioma_alvo, tipo_curso, publico, niveis, distribuicao_customizada } = await req.json();
 
-    if (!descricao_curso || !idioma_nativo || !idioma_alvo) {
-      return NextResponse.json({ error: "descricao_curso, idioma_nativo e idioma_alvo sao obrigatorios" }, { status: 400 });
+    if (!idioma_nativo || !idioma_alvo || !tipo_curso || !publico) {
+      return NextResponse.json({ error: "idioma_nativo, idioma_alvo, tipo_curso e publico sao obrigatorios" }, { status: 400 });
     }
+
+    const TIPOS_CURSO: Record<string, string> = {
+      standard: "curso geral de idioma, cobrindo situacoes cotidianas variadas",
+      estudio: "curso focado em preparacao academica e vida universitaria",
+      viaje: "curso focado em situacoes de viagem e turismo",
+      trabajo: "curso corporativo/de negocios, focado em ambiente profissional e trabalho"
+    };
+
+    const PUBLICOS: Record<string, string> = {
+      adultos: "adultos",
+      jovenes: "jovens e adolescentes",
+      ninos: "criancas"
+    };
+
+    const descricao_curso = `Curso de ${idioma_alvo} para ${PUBLICOS[publico] || publico}. ${TIPOS_CURSO[tipo_curso] || tipo_curso}.`;
 
     const niveisAlvo = niveis && Array.isArray(niveis) && niveis.length > 0
       ? niveis

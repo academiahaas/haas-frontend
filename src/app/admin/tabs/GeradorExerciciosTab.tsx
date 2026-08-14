@@ -29,41 +29,387 @@ export function GeradorExerciciosTab() {
   const [horasUnidade, setHorasUnidade] = useState(null);
   const [metaCalculada, setMetaCalculada] = useState(null);
   const [mostrarCreadorCursos, setMostrarCreadorCursos] = useState(false);
-  const [promptCurso, setPromptCurso] = useState('');
   const [idiomaNativoCurso, setIdiomaNativoCurso] = useState('espanhol');
   const [idiomaAlvoCurso, setIdiomaAlvoCurso] = useState('portugues');
-  const [loadingCurso, setLoadingCurso] = useState(false);
-  const [resultadoCurso, setResultadoCurso] = useState(null);
-  const [erroCurso, setErroCurso] = useState('');
+  const [tipoCursoCurso, setTipoCursoCurso] = useState('standard');
+  const [publicoCurso, setPublicoCurso] = useState('adultos');
+  const [etapaWizard, setEtapaWizard] = useState('config');
+  const [loadingWizard, setLoadingWizard] = useState(false);
+  const [erroWizard, setErroWizard] = useState('');
+  const [feedbackAtual, setFeedbackAtual] = useState('');
 
-  const handleGenerarCurso = async (e) => {
-    e.preventDefault();
-    if (!promptCurso.trim()) return;
-    setLoadingCurso(true);
-    setErroCurso('');
-    setResultadoCurso(null);
+  const [cursoGerado, setCursoGerado] = useState(null);
+  const [cursoAprovado, setCursoAprovado] = useState(null);
+
+  const [niveisGerados, setNiveisGerados] = useState(null);
+  const [niveisAprovados, setNiveisAprovados] = useState(null);
+  const [nivelIndexAtual, setNivelIndexAtual] = useState(0);
+  const [nivelObjetivoGerado, setNivelObjetivoGerado] = useState(null);
+
+  const [modulosGerados, setModulosGerados] = useState(null);
+  const [modulosAprovadosDoNivel, setModulosAprovadosDoNivel] = useState(null);
+  const [modulosJaCriados, setModulosJaCriados] = useState([]);
+  const [moduloIndexAtual, setModuloIndexAtual] = useState(0);
+  const [moduloObjetivoGerado, setModuloObjetivoGerado] = useState(null);
+
+  const [unidadesGeradas, setUnidadesGeradas] = useState(null);
+  const [unidadesAprovadasDoModulo, setUnidadesAprovadasDoModulo] = useState(null);
+  const [unidadesJaCriadas, setUnidadesJaCriadas] = useState([]);
+  const [unidadeIndexAtual, setUnidadeIndexAtual] = useState(0);
+  const [unidadeObjetivoGerado, setUnidadeObjetivoGerado] = useState(null);
+
+  const chamarApi = async (url, body) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const dados = await res.json();
+    if (!res.ok) throw new Error(dados.detalhe || dados.error || 'Erro');
+    return dados;
+  };
+
+  const handleGerarCurso = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
     try {
-      const res = await fetch('/api/admin/gerar-curso-etapa1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          descricao_curso: promptCurso,
-          idioma_nativo: idiomaNativoCurso,
-          idioma_alvo: idiomaAlvoCurso
-        })
+      const dados = await chamarApi('/api/admin/curso-wizard/nome', {
+        idioma_nativo: idiomaNativoCurso,
+        idioma_alvo: idiomaAlvoCurso,
+        tipo_curso: tipoCursoCurso,
+        publico: publicoCurso,
+        feedback: feedbackAtual
       });
-      const dados = await res.json();
-      if (!res.ok) {
-        setErroCurso(dados.detalhe || dados.error || 'Erro ao gerar');
-      } else {
-        setResultadoCurso(dados.dados);
-      }
-    } catch (err) {
-      setErroCurso('Erro de conexao');
+      setCursoGerado(dados.dados);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
     } finally {
-      setLoadingCurso(false);
+      setLoadingWizard(false);
     }
   };
+
+  const handleAprovarCurso = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const dados = await chamarApi('/api/admin/curso-wizard/salvar-curso', {
+        title: cursoGerado.title,
+        objective_autonomy: cursoGerado.objective_autonomy,
+        operational_objective: cursoGerado.operational_objective
+      });
+      setCursoAprovado({ id: dados.course_id, ...cursoGerado });
+      setEtapaWizard('niveis-nomes');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarNiveisNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const dados = await chamarApi('/api/admin/curso-wizard/niveis', {
+        titulo_curso: cursoAprovado.title,
+        idioma_nativo: idiomaNativoCurso,
+        idioma_alvo: idiomaAlvoCurso,
+        feedback: feedbackAtual
+      });
+      setNiveisGerados(dados.dados.niveis);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarNiveisNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const dados = await chamarApi('/api/admin/curso-wizard/salvar-niveis', {
+        course_id: cursoAprovado.id,
+        niveis: niveisGerados
+      });
+      const aprovados = niveisGerados.map((n, i) => ({ ...n, id: dados.niveis[i].id }));
+      setNiveisAprovados(aprovados);
+      setNivelIndexAtual(0);
+      setEtapaWizard('niveis-objetivos');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarObjetivoNivel = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/objetivo-nivel', {
+        titulo_curso: cursoAprovado.title,
+        level_tag: nivel.level_tag,
+        level_name: nivel.level_name,
+        total_hours: nivel.total_hours,
+        feedback: feedbackAtual
+      });
+      setNivelObjetivoGerado(dados.dados.pedagogical_focus);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarObjetivoNivel = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      await chamarApi('/api/admin/curso-wizard/atualizar-objetivo-nivel', {
+        level_id: nivel.id,
+        pedagogical_focus: nivelObjetivoGerado
+      });
+      const atualizados = [...niveisAprovados];
+      atualizados[nivelIndexAtual] = { ...nivel, pedagogical_focus: nivelObjetivoGerado };
+      setNiveisAprovados(atualizados);
+      setNivelObjetivoGerado(null);
+
+      if (nivelIndexAtual < niveisAprovados.length - 1) {
+        setNivelIndexAtual((i) => i + 1);
+      } else {
+        setNivelIndexAtual(0);
+        setEtapaWizard('modulos-nomes');
+      }
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarModulosNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/modulos', {
+        titulo_curso: cursoAprovado.title,
+        level_tag: nivel.level_tag,
+        level_name: nivel.level_name,
+        pedagogical_focus: nivel.pedagogical_focus,
+        total_hours: nivel.total_hours,
+        modulos_ja_criados: modulosJaCriados,
+        feedback: feedbackAtual
+      });
+      setModulosGerados(dados.dados.modulos);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarModulosNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/salvar-modulos', {
+        level_id: nivel.id,
+        level_tag: nivel.level_tag,
+        modulos: modulosGerados
+      });
+      const aprovados = modulosGerados.map((m, i) => ({ ...m, id: dados.modulos[i].id }));
+      setModulosAprovadosDoNivel(aprovados);
+      setModuloIndexAtual(0);
+      setEtapaWizard('modulos-objetivos');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarObjetivoModulo = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const modulo = modulosAprovadosDoNivel[moduloIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/objetivo-modulo', {
+        titulo_curso: cursoAprovado.title,
+        level_tag: nivel.level_tag,
+        level_focus: nivel.pedagogical_focus,
+        module_title: modulo.module_title,
+        estimated_hours: modulo.estimated_hours,
+        feedback: feedbackAtual
+      });
+      setModuloObjetivoGerado(dados.dados);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarObjetivoModulo = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const modulo = modulosAprovadosDoNivel[moduloIndexAtual];
+      await chamarApi('/api/admin/curso-wizard/atualizar-objetivo-modulo', {
+        module_id: modulo.id,
+        pedagogical_objective: moduloObjetivoGerado.pedagogical_objective,
+        thematic_content: moduloObjetivoGerado.thematic_content
+      });
+      const atualizados = [...modulosAprovadosDoNivel];
+      atualizados[moduloIndexAtual] = { ...modulo, ...moduloObjetivoGerado };
+      setModulosAprovadosDoNivel(atualizados);
+      setModulosJaCriados((prev) => [...prev, atualizados[moduloIndexAtual]]);
+      setModuloObjetivoGerado(null);
+
+      if (moduloIndexAtual < modulosAprovadosDoNivel.length - 1) {
+        setModuloIndexAtual((i) => i + 1);
+      } else {
+        setModuloIndexAtual(0);
+        setEtapaWizard('unidades-nomes');
+      }
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarUnidadesNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const modulo = modulosAprovadosDoNivel[moduloIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/unidades', {
+        titulo_curso: cursoAprovado.title,
+        level_tag: nivel.level_tag,
+        module_title: modulo.module_title,
+        thematic_content: modulo.thematic_content,
+        estimated_hours: modulo.estimated_hours,
+        unidades_ja_criadas: unidadesJaCriadas,
+        feedback: feedbackAtual
+      });
+      setUnidadesGeradas(dados.dados.unidades);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarUnidadesNomes = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const modulo = modulosAprovadosDoNivel[moduloIndexAtual];
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/salvar-unidades', {
+        module_content_id: modulo.id,
+        module_number: modulo.module_number,
+        level: nivel.level_tag,
+        unidades: unidadesGeradas
+      });
+      const aprovadas = unidadesGeradas.map((u, i) => ({ ...u, id: dados.unidades[i].id }));
+      setUnidadesAprovadasDoModulo(aprovadas);
+      setUnidadeIndexAtual(0);
+      setEtapaWizard('unidades-objetivos');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleGerarObjetivoUnidade = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const nivel = niveisAprovados[nivelIndexAtual];
+      const modulo = modulosAprovadosDoNivel[moduloIndexAtual];
+      const unidade = unidadesAprovadasDoModulo[unidadeIndexAtual];
+      const dados = await chamarApi('/api/admin/curso-wizard/objetivo-unidade', {
+        titulo_curso: cursoAprovado.title,
+        level_tag: nivel.level_tag,
+        module_title: modulo.module_title,
+        module_focus: modulo.pedagogical_objective,
+        unit_title: unidade.unit_title,
+        estimated_hours: unidade.estimated_hours,
+        feedback: feedbackAtual
+      });
+      setUnidadeObjetivoGerado(dados.dados);
+      setFeedbackAtual('');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
+  const handleAprovarObjetivoUnidade = async () => {
+    setLoadingWizard(true);
+    setErroWizard('');
+    try {
+      const unidade = unidadesAprovadasDoModulo[unidadeIndexAtual];
+      await chamarApi('/api/admin/curso-wizard/atualizar-objetivo-unidade', {
+        unit_id: unidade.id,
+        pedagogical_objective: unidadeObjetivoGerado.pedagogical_objective,
+        situational_content: unidadeObjetivoGerado.situational_content,
+        hidden_grammatical_structure: unidadeObjetivoGerado.hidden_grammatical_structure
+      });
+      const atualizadas = [...unidadesAprovadasDoModulo];
+      atualizadas[unidadeIndexAtual] = { ...unidade, ...unidadeObjetivoGerado };
+      setUnidadesAprovadasDoModulo(atualizadas);
+      setUnidadesJaCriadas((prev) => [...prev, atualizadas[unidadeIndexAtual]]);
+      setUnidadeObjetivoGerado(null);
+
+      if (unidadeIndexAtual < unidadesAprovadasDoModulo.length - 1) {
+        setUnidadeIndexAtual((i) => i + 1);
+        return;
+      }
+
+      setUnidadesGeradas(null);
+      setUnidadesAprovadasDoModulo(null);
+      setUnidadeIndexAtual(0);
+
+      if (moduloIndexAtual < modulosAprovadosDoNivel.length - 1) {
+        setModuloIndexAtual((i) => i + 1);
+        setEtapaWizard('unidades-nomes');
+        return;
+      }
+
+      if (nivelIndexAtual < niveisAprovados.length - 1) {
+        setNivelIndexAtual((i) => i + 1);
+        setModulosGerados(null);
+        setModulosAprovadosDoNivel(null);
+        setModuloIndexAtual(0);
+        setEtapaWizard('modulos-nomes');
+        return;
+      }
+
+      setEtapaWizard('completo');
+    } catch (e) {
+      setErroWizard(e.message);
+    } finally {
+      setLoadingWizard(false);
+    }
+  };
+
   const [contagemAtual, setContagemAtual] = useState(0);
 
   const [gerando, setGerando] = useState(false);
@@ -254,6 +600,7 @@ export function GeradorExerciciosTab() {
     }).eq('id', rascunho.id);
   };
 
+
   return (
     <div className="flex flex-col gap-4 h-full min-h-0 relative">
       <div className="flex items-center justify-between shrink-0">
@@ -264,54 +611,189 @@ export function GeradorExerciciosTab() {
       </div>
 
       {mostrarCreadorCursos && (
-        <div className="shrink-0 bg-white/[0.02] border border-purple-500/20 rounded-xl p-4 space-y-3">
-          <p className="text-xs text-slate-400">Etapa 1 de 3: curso y niveles (A1 a C1)</p>
-          <form onSubmit={handleGenerarCurso} className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <select value={idiomaNativoCurso} onChange={(e) => setIdiomaNativoCurso(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200" disabled={loadingCurso}>
-                <option value="espanhol">Nativo: Espanhol</option>
-                <option value="ingles">Nativo: Ingles</option>
-                <option value="portugues">Nativo: Portugues</option>
-              </select>
-              <select value={idiomaAlvoCurso} onChange={(e) => setIdiomaAlvoCurso(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200" disabled={loadingCurso}>
-                <option value="portugues">Alvo: Portugues</option>
-                <option value="ingles">Alvo: Ingles</option>
-                <option value="espanhol">Alvo: Espanhol</option>
-                <option value="frances">Alvo: Frances</option>
-              </select>
-            </div>
-            <textarea
-              rows={3}
-              value={promptCurso}
-              onChange={(e) => setPromptCurso(e.target.value)}
-              placeholder="Ej: Curso general para adultos, del cero al avanzado"
-              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200 placeholder-slate-500 focus:border-purple-500/50"
-              disabled={loadingCurso}
-            />
-            <button type="submit" disabled={loadingCurso} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
-              {loadingCurso ? 'Generando...' : 'Generar Estructura con IA'}
-            </button>
-          </form>
-          {erroCurso && (
-            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-2 rounded-lg">{erroCurso}</div>
+        <div className="shrink-0 bg-white/[0.02] border border-purple-500/20 rounded-xl p-4 space-y-3 max-h-[60vh] overflow-y-auto">
+
+          {erroWizard && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs p-2 rounded-lg">{erroWizard}</div>
           )}
-          {resultadoCurso && (
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg">
-                <p className="text-sm font-bold text-purple-300">{resultadoCurso.curso?.title}</p>
-                <p className="text-xs text-slate-400 mt-1">{resultadoCurso.curso?.objective_autonomy}</p>
+
+          {etapaWizard === 'config' && !cursoGerado && (
+            <>
+              <p className="text-xs text-slate-400">Paso 1: configuracion inicial</p>
+              <div className="grid grid-cols-2 gap-2">
+                <select value={idiomaNativoCurso} onChange={(e) => setIdiomaNativoCurso(e.target.value)} className="px-3 py-2 bg-[#0a1424] border border-white/10 rounded-lg outline-none text-xs text-slate-200">
+                  <option className="bg-[#0a1424]" value="espanhol">Nativo: Espanhol</option>
+                  <option className="bg-[#0a1424]" value="ingles">Nativo: Ingles</option>
+                  <option className="bg-[#0a1424]" value="portugues">Nativo: Portugues</option>
+                </select>
+                <select value={idiomaAlvoCurso} onChange={(e) => setIdiomaAlvoCurso(e.target.value)} className="px-3 py-2 bg-[#0a1424] border border-white/10 rounded-lg outline-none text-xs text-slate-200">
+                  <option className="bg-[#0a1424]" value="portugues">Alvo: Portugues</option>
+                  <option className="bg-[#0a1424]" value="ingles">Alvo: Ingles</option>
+                  <option className="bg-[#0a1424]" value="espanhol">Alvo: Espanhol</option>
+                  <option className="bg-[#0a1424]" value="frances">Alvo: Frances</option>
+                </select>
+                <select value={tipoCursoCurso} onChange={(e) => setTipoCursoCurso(e.target.value)} className="px-3 py-2 bg-[#0a1424] border border-white/10 rounded-lg outline-none text-xs text-slate-200">
+                  <option className="bg-[#0a1424]" value="standard">Tipo: Standard</option>
+                  <option className="bg-[#0a1424]" value="estudio">Tipo: Estudio</option>
+                  <option className="bg-[#0a1424]" value="viaje">Tipo: Viaje</option>
+                  <option className="bg-[#0a1424]" value="trabajo">Tipo: Trabajo/Negocios</option>
+                </select>
+                <select value={publicoCurso} onChange={(e) => setPublicoCurso(e.target.value)} className="px-3 py-2 bg-[#0a1424] border border-white/10 rounded-lg outline-none text-xs text-slate-200">
+                  <option className="bg-[#0a1424]" value="adultos">Publico: Adultos</option>
+                  <option className="bg-[#0a1424]" value="jovenes">Publico: Jovenes</option>
+                  <option className="bg-[#0a1424]" value="ninos">Publico: Ninos</option>
+                </select>
               </div>
-              {(resultadoCurso.niveis || []).map((nivel, i) => (
-                <div key={i} className="bg-white/[0.02] border border-white/5 p-2 rounded-lg">
-                  <p className="text-xs font-black text-slate-200">{nivel.level_tag} - {nivel.level_name}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">{nivel.pedagogical_focus}</p>
+              <button onClick={handleGerarCurso} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+                {loadingWizard ? 'Generando...' : 'Generar Nombre del Curso'}
+              </button>
+            </>
+          )}
+
+          {cursoGerado && !cursoAprovado && (
+            <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg space-y-2">
+              <input value={cursoGerado.title} onChange={(e) => setCursoGerado({ ...cursoGerado, title: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-sm font-bold text-purple-300" />
+              <textarea rows={2} value={cursoGerado.objective_autonomy} onChange={(e) => setCursoGerado({ ...cursoGerado, objective_autonomy: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <textarea rows={2} value={cursoGerado.operational_objective} onChange={(e) => setCursoGerado({ ...cursoGerado, operational_objective: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarCurso} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarCurso} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'niveis-nomes' && !niveisGerados && (
+            <button onClick={handleGerarNiveisNomes} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Nombres de Niveles de "${cursoAprovado?.title}"`}
+            </button>
+          )}
+
+          {niveisGerados && !niveisAprovados && (
+            <div className="space-y-2">
+              {niveisGerados.map((n, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 p-2 rounded-lg space-y-1">
+                  <div className="flex gap-2">
+                    <input value={n.level_tag} readOnly className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-black text-slate-400" />
+                    <input value={n.level_name} onChange={(e) => { const arr = [...niveisGerados]; arr[i] = { ...n, level_name: e.target.value }; setNiveisGerados(arr); }} className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-slate-200" />
+                    <input value={n.total_hours} readOnly className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-slate-500" />
+                  </div>
                 </div>
               ))}
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarNiveisNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarNiveisNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar Niveles</button>
+              </div>
             </div>
           )}
+
+          {etapaWizard === 'niveis-objetivos' && niveisAprovados && !nivelObjetivoGerado && (
+            <button onClick={handleGerarObjetivoNivel} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Objetivo de ${niveisAprovados[nivelIndexAtual]?.level_tag} (${nivelIndexAtual + 1}/${niveisAprovados.length})`}
+            </button>
+          )}
+
+          {nivelObjetivoGerado && (
+            <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg space-y-2">
+              <p className="text-[10px] text-purple-400 font-bold uppercase">{niveisAprovados[nivelIndexAtual]?.level_tag}</p>
+              <textarea rows={3} value={nivelObjetivoGerado} onChange={(e) => setNivelObjetivoGerado(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarObjetivoNivel} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarObjetivoNivel} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'modulos-nomes' && !modulosGerados && (
+            <button onClick={handleGerarModulosNomes} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Modulos de ${niveisAprovados?.[nivelIndexAtual]?.level_tag}`}
+            </button>
+          )}
+
+          {modulosGerados && !modulosAprovadosDoNivel && (
+            <div className="space-y-2">
+              {modulosGerados.map((m, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 p-2 rounded-lg">
+                  <input value={m.module_title} onChange={(e) => { const arr = [...modulosGerados]; arr[i] = { ...m, module_title: e.target.value }; setModulosGerados(arr); }} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-black text-slate-200" />
+                </div>
+              ))}
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarModulosNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarModulosNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar Modulos</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'modulos-objetivos' && modulosAprovadosDoNivel && !moduloObjetivoGerado && (
+            <button onClick={handleGerarObjetivoModulo} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Objetivo de "${modulosAprovadosDoNivel[moduloIndexAtual]?.module_title}" (${moduloIndexAtual + 1}/${modulosAprovadosDoNivel.length})`}
+            </button>
+          )}
+
+          {moduloObjetivoGerado && (
+            <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg space-y-2">
+              <textarea rows={2} value={moduloObjetivoGerado.pedagogical_objective} onChange={(e) => setModuloObjetivoGerado({ ...moduloObjetivoGerado, pedagogical_objective: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <textarea rows={2} value={moduloObjetivoGerado.thematic_content} onChange={(e) => setModuloObjetivoGerado({ ...moduloObjetivoGerado, thematic_content: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarObjetivoModulo} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarObjetivoModulo} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'unidades-nomes' && !unidadesGeradas && (
+            <button onClick={handleGerarUnidadesNomes} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Unidades de "${modulosAprovadosDoNivel?.[moduloIndexAtual]?.module_title}"`}
+            </button>
+          )}
+
+          {unidadesGeradas && !unidadesAprovadasDoModulo && (
+            <div className="space-y-2">
+              {unidadesGeradas.map((u, i) => (
+                <div key={i} className="bg-white/[0.02] border border-white/5 p-2 rounded-lg">
+                  <input value={u.unit_title} onChange={(e) => { const arr = [...unidadesGeradas]; arr[i] = { ...u, unit_title: e.target.value }; setUnidadesGeradas(arr); }} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-xs font-black text-slate-200" />
+                </div>
+              ))}
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarUnidadesNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarUnidadesNomes} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar Unidades</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'unidades-objetivos' && unidadesAprovadasDoModulo && !unidadeObjetivoGerado && (
+            <button onClick={handleGerarObjetivoUnidade} disabled={loadingWizard} className="w-full py-2 bg-purple-500 hover:bg-purple-400 disabled:opacity-50 text-slate-950 font-black uppercase text-xs rounded-lg transition-all">
+              {loadingWizard ? 'Generando...' : `Generar Objetivo de "${unidadesAprovadasDoModulo[unidadeIndexAtual]?.unit_title}" (${unidadeIndexAtual + 1}/${unidadesAprovadasDoModulo.length})`}
+            </button>
+          )}
+
+          {unidadeObjetivoGerado && (
+            <div className="bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg space-y-2">
+              <textarea rows={2} value={unidadeObjetivoGerado.pedagogical_objective} onChange={(e) => setUnidadeObjetivoGerado({ ...unidadeObjetivoGerado, pedagogical_objective: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <textarea rows={2} value={unidadeObjetivoGerado.situational_content} onChange={(e) => setUnidadeObjetivoGerado({ ...unidadeObjetivoGerado, situational_content: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <input value={unidadeObjetivoGerado.hidden_grammatical_structure} onChange={(e) => setUnidadeObjetivoGerado({ ...unidadeObjetivoGerado, hidden_grammatical_structure: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300" />
+              <input value={feedbackAtual} onChange={(e) => setFeedbackAtual(e.target.value)} placeholder="Pedir ajuste a la IA (opcional)..." className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-300 placeholder-slate-600" />
+              <div className="flex gap-2">
+                <button onClick={handleGerarObjetivoUnidade} disabled={loadingWizard} className="flex-1 py-1.5 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-lg">Regenerar</button>
+                <button onClick={handleAprovarObjetivoUnidade} disabled={loadingWizard} className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black uppercase text-xs rounded-lg">Aprobar</button>
+              </div>
+            </div>
+          )}
+
+          {etapaWizard === 'completo' && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-lg text-center">
+              <p className="text-sm font-black text-emerald-300">Curso completo creado con exito!</p>
+              <p className="text-xs text-slate-400 mt-1">Ya puedes usarlo en el generador de ejercicios de arriba.</p>
+            </div>
+          )}
+
         </div>
       )}
-
       {mensagem && (
         <div className={`shrink-0 rounded-lg px-3 py-2 text-[11px] border flex items-center gap-2 ${mensagem.tipo === 'ok' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-300'}`}>
           <Info size={12} /> {mensagem.texto}
