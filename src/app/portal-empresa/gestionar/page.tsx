@@ -190,7 +190,6 @@ export default function GestionarPlan() {
       setDiasClase("");
       setHorarioClase("");
       setMostrarFormAgregar(false);
-      setSimPessoas((n) => n + 1);
       setMostrarPago(true);
       setMostrarOpcoesPagamento(true);
     } catch (e: any) {
@@ -343,7 +342,7 @@ export default function GestionarPlan() {
                   <div className="flex items-center gap-3">
                     <button onClick={() => setSimPessoas((n) => Math.max(0, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">-</button>
                     <span className="text-base font-black text-slate-100 w-6 text-center">{simPessoas}</span>
-                    <button onClick={() => setMostrarFormAgregar(true)} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">+</button>
+                    <button onClick={() => { setSimPessoas((n) => n + 1); setMostrarFormAgregar(true); }} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">+</button>
                   </div>
                 </div>
 
