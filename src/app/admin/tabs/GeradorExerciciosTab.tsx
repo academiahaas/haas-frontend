@@ -30,6 +30,8 @@ export function GeradorExerciciosTab() {
   const [metaCalculada, setMetaCalculada] = useState(null);
   const [mostrarCreadorCursos, setMostrarCreadorCursos] = useState(false);
   const [promptCurso, setPromptCurso] = useState('');
+  const [idiomaNativoCurso, setIdiomaNativoCurso] = useState('espanhol');
+  const [idiomaAlvoCurso, setIdiomaAlvoCurso] = useState('portugues');
   const [loadingCurso, setLoadingCurso] = useState(false);
   const [resultadoCurso, setResultadoCurso] = useState(null);
   const [erroCurso, setErroCurso] = useState('');
@@ -44,7 +46,11 @@ export function GeradorExerciciosTab() {
       const res = await fetch('/api/admin/gerar-curso-etapa1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ descricao_curso: promptCurso })
+        body: JSON.stringify({
+          descricao_curso: promptCurso,
+          idioma_nativo: idiomaNativoCurso,
+          idioma_alvo: idiomaAlvoCurso
+        })
       });
       const dados = await res.json();
       if (!res.ok) {
@@ -261,11 +267,24 @@ export function GeradorExerciciosTab() {
         <div className="shrink-0 bg-white/[0.02] border border-purple-500/20 rounded-xl p-4 space-y-3">
           <p className="text-xs text-slate-400">Etapa 1 de 3: curso y niveles (A1 a C1)</p>
           <form onSubmit={handleGenerarCurso} className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <select value={idiomaNativoCurso} onChange={(e) => setIdiomaNativoCurso(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200" disabled={loadingCurso}>
+                <option value="espanhol">Nativo: Espanhol</option>
+                <option value="ingles">Nativo: Ingles</option>
+                <option value="portugues">Nativo: Portugues</option>
+              </select>
+              <select value={idiomaAlvoCurso} onChange={(e) => setIdiomaAlvoCurso(e.target.value)} className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200" disabled={loadingCurso}>
+                <option value="portugues">Alvo: Portugues</option>
+                <option value="ingles">Alvo: Ingles</option>
+                <option value="espanhol">Alvo: Espanhol</option>
+                <option value="frances">Alvo: Frances</option>
+              </select>
+            </div>
             <textarea
               rows={3}
               value={promptCurso}
               onChange={(e) => setPromptCurso(e.target.value)}
-              placeholder="Ej: Curso de Frances general para adultos, del cero al avanzado"
+              placeholder="Ej: Curso general para adultos, del cero al avanzado"
               className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg outline-none text-xs text-slate-200 placeholder-slate-500 focus:border-purple-500/50"
               disabled={loadingCurso}
             />
