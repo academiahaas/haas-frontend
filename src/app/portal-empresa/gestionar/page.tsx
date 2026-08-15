@@ -89,7 +89,21 @@ export default function GestionarPlan() {
       dias_label: "dias",
       horario_label: "Horário",
       revisarEnviar: "Revisar e enviar",
-      diasSemana: ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+      diasSemana: ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"],
+      gatewaySeguro: "Gateway seguro Wompi / Nequi",
+      base: "Base",
+      feePasarela: "Taxa do gateway",
+      total_pg: "Total",
+      pagarViaWompi: "Pagar via Wompi / Nequi",
+      notaWompi: "Ao processar o valor exato indicado, o gateway gerenciará a ativação do seu plano de forma automática. Nota: a taxa de processamento é cobrada pela plataforma e não é reembolsável em caso de cancelamento.",
+      ahorraComision: "¡Economize a Taxa!",
+      llaveBreB: "Chave Bre-B",
+      comissao: "Comissão",
+      gratis: "Grátis!",
+      aTransferir: "A transferir",
+      atencao: "ATENÇÃO",
+      notaBreB: "Lembre-se de inserir o valor exato com desconto no seu banco; isso permite que o sistema valide seu pagamento digitalmente e gerencie a ativação de forma automática.",
+      jaTransferi: "Já transferi"
     },
     ES: {
       voltarPainel: "Volver al panel",
@@ -119,7 +133,21 @@ export default function GestionarPlan() {
       dias_label: "días",
       horario_label: "Horario",
       revisarEnviar: "Revisar y enviar",
-      diasSemana: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+      diasSemana: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+      gatewaySeguro: "Pasarela segura Wompi / Nequi",
+      base: "Base",
+      feePasarela: "Fee pasarela",
+      total_pg: "Total",
+      pagarViaWompi: "Pagar vía Wompi / Nequi",
+      notaWompi: "Al procesar el valor exacto indicado, la pasarela gestionará la activación de tu plan de forma automática. Nota: la comisión de procesamiento es cobrada por la plataforma y no es reembolsable en caso de cancelación.",
+      ahorraComision: "¡Ahorra Comisión!",
+      llaveBreB: "Llave Bre-B",
+      comissao: "Comisión",
+      gratis: "¡Gratis!",
+      aTransferir: "A transferir",
+      atencao: "ATENCIÓN",
+      notaBreB: "Recuerda ingresar el valor exacto con descuento en tu banco; esto permite que el sistema valide tu pago digitalmente y gestione la activación de forma automática.",
+      jaTransferi: "Ya transferí"
     },
     EN: {
       voltarPainel: "Back to dashboard",
@@ -149,7 +177,21 @@ export default function GestionarPlan() {
       dias_label: "days",
       horario_label: "Schedule",
       revisarEnviar: "Review and submit",
-      diasSemana: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      diasSemana: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      gatewaySeguro: "Secure gateway Wompi / Nequi",
+      base: "Base",
+      feePasarela: "Gateway fee",
+      total_pg: "Total",
+      pagarViaWompi: "Pay via Wompi / Nequi",
+      notaWompi: "By processing the exact amount indicated, the gateway will automatically manage the activation of your plan. Note: the processing fee is charged by the platform and is non-refundable in case of cancellation.",
+      ahorraComision: "Save on Fees!",
+      llaveBreB: "Bre-B Key",
+      comissao: "Commission",
+      gratis: "Free!",
+      aTransferir: "Amount to transfer",
+      atencao: "ATTENTION",
+      notaBreB: "Remember to enter the exact discounted amount in your bank; this allows the system to digitally validate your payment and manage activation automatically.",
+      jaTransferi: "I already transferred"
     }
   };
   const tG = dictG[idioma];
@@ -560,7 +602,7 @@ export default function GestionarPlan() {
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                           {tG.cartaoCredito}
                         </div>
-                        <p className="text-[8.5px] text-slate-500 text-left pl-3">Pasarela segura Wompi / Nequi</p>
+                        <p className="text-[8.5px] text-slate-500 text-left pl-3">{tG.gatewaySeguro}</p>
                       </div>
                     </div>
 
@@ -575,10 +617,10 @@ export default function GestionarPlan() {
                     </div>
 
                     <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left">
-                      <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
-                      <div className="flex justify-between text-rose-400"><span>Fee pasarela:</span><span>+ $ {Math.round(total * 0.05).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between text-slate-400"><span>{tG.base}:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between text-rose-400"><span>{tG.feePasarela}:</span><span>+ $ {Math.round(total * 0.05).toLocaleString("es-CO")}</span></div>
                       <div className="border-t border-slate-800/80 my-0.5"></div>
-                      <div className="flex justify-between font-black text-white text-xs"><span>Total:</span><span>$ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between font-black text-white text-xs"><span>{tG.total_pg}:</span><span>$ {(Math.round(total * 1.05) - centavos).toLocaleString("es-CO")}</span></div>
                     </div>
 
                     <button
@@ -586,20 +628,20 @@ export default function GestionarPlan() {
                       disabled={criandoCobranca}
                       className="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider hover:brightness-110 transition-all cursor-pointer shadow-md text-center disabled:opacity-50"
                     >
-                      Pagar via Wompi / Nequi
+                      {tG.pagarViaWompi}
                     </button>
                     <p className="text-[8.5px] text-slate-500/90 font-medium text-center leading-tight mt-1.5 px-1">
-                      Al procesar el valor exacto indicado, la pasarela gestionara la activacion de tu plan de forma automatica. Nota: la comision de procesamiento es cobrada por la plataforma y no es reembolsable en caso de cancelacion.
+                      {tG.notaWompi}
                     </p>
                   </div>
 
                   <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden max-h-[340px]">
                     <div className="absolute top-0 right-0 font-bold text-cyan-400 text-slate-950 text-[7px] font-black px-2 py-0.5 rounded-bl uppercase tracking-widest">
-                      Ahorra Comision!
+                      {tG.ahorraComision}
                     </div>
 
                     <div className="text-[10px] font-black text-cyan-400 uppercase tracking-wider text-left flex justify-start items-center">
-                      <div className="flex items-center justify-start gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span>Llave Bre-B</span></div>
+                      <div className="flex items-center justify-start gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span><span>{tG.llaveBreB}</span></div>
                     </div>
 
                     <div className="mx-auto w-24 h-24 bg-white p-1 rounded-xl flex items-center justify-center border border-cyan-500/20 my-1 shadow-lg relative overflow-hidden">
@@ -611,17 +653,17 @@ export default function GestionarPlan() {
                     </div>
 
                     <div className="flex flex-col gap-1 text-[10px] bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/60 font-mono text-left">
-                      <div className="flex justify-between text-slate-400"><span>Base:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
-                      <div className="flex justify-between text-emerald-400 font-bold"><span>Comision:</span><span>$0 (Gratis!)</span></div>
+                      <div className="flex justify-between text-slate-400"><span>{tG.base}:</span><span>$ {Math.round(total).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between text-emerald-400 font-bold"><span>{tG.comissao}:</span><span>$0 ({tG.gratis})</span></div>
                       <div className="border-t border-slate-800/80 my-0.5"></div>
-                      <div className="flex justify-between font-black text-cyan-400 text-xs"><span>A transferir:</span><span>$ {(Math.round(total) - centavos).toLocaleString("es-CO")}</span></div>
+                      <div className="flex justify-between font-black text-cyan-400 text-xs"><span>{tG.aTransferir}:</span><span>$ {(Math.round(total) - centavos).toLocaleString("es-CO")}</span></div>
                     </div>
 
                     <p className="text-[8.5px] text-slate-400/90 font-medium text-center leading-tight mt-1 px-1">
-                      ATENCION: recuerda ingresar el valor exacto con descuento en tu banco; esto permite que el sistema valide tu pago digitalmente y gestione la activacion de forma automatica.
+                      {tG.atencao}: {tG.notaBreB}
                     </p>
                     <button onClick={() => handlePagar(Math.round(total) - centavos, false)} disabled={criandoCobranca} className="w-full mt-2 bg-white/5 hover:bg-white/10 border border-cyan-500/30 disabled:opacity-50 text-cyan-300 font-black py-2 rounded-xl text-[10px] uppercase tracking-wider transition-all">
-                      Ya transferi
+                      {tG.jaTransferi}
                     </button>
                   </div>
 
