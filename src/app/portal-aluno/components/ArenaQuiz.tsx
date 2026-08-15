@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { getExerciseByActivityType } from "@/services/centralService";
 import React, { useState, useEffect, useRef } from 'react';
 import { translations } from '../idiomas';
-import { Mic, ArrowUp, Flame, Target, Award, Zap, Bot, Video, BookOpen, X, AlertCircle, Star, Trophy, CheckCircle2, TrendingUp, Gift, Sparkles } from 'lucide-react';
+import { Mic, ArrowUp, Flame, Target, Award, Zap, Bot, Video, BookOpen, X, AlertCircle, Star, Trophy, CheckCircle2, TrendingUp, Gift, Sparkles, Clapperboard } from 'lucide-react';
 
 import MioloMultiplaEscolha from './exercise-types/MioloMultiplaEscolha';
 import MioloCacaErro from './exercise-types/MioloCacaErro';
@@ -1540,16 +1540,14 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               >
                 <Video size={14} />
               </button>
-              {aulasGravadas.length > 0 && (
-                <button 
-                  type="button"
-                  title={currentLang === "PT" ? "Aulas Gravadas" : currentLang === "EN" ? "Recorded Classes" : "Clases Grabadas"}
-                  onClick={() => setVisualizacaoAtiva(String(visualizacaoAtiva) === "TRILHA_AULAS_GRAVADAS" ? "EXERCICIO" : "TRILHA_AULAS_GRAVADAS")} 
-                  className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#22d3ee] hover:bg-[#22d3ee]/10 hover:border-[#22d3ee]/30 transition-all flex items-center justify-center shrink-0"
-                >
-                  <Video size={14} className="opacity-70" />
-                </button>
-              )}
+              <button 
+                type="button"
+                title={currentLang === "PT" ? "Aulas Gravadas" : currentLang === "EN" ? "Recorded Classes" : "Clases Grabadas"}
+                onClick={() => setVisualizacaoAtiva(String(visualizacaoAtiva) === "TRILHA_AULAS_GRAVADAS" ? "EXERCICIO" : "TRILHA_AULAS_GRAVADAS")} 
+                className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#22d3ee] hover:bg-[#22d3ee]/10 hover:border-[#22d3ee]/30 transition-all flex items-center justify-center shrink-0"
+              >
+                <Clapperboard size={14} />
+              </button>
             </div>
             
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
