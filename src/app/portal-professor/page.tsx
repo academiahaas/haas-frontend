@@ -269,7 +269,7 @@ function TarjetaEvaluacionPequena({ pendente, professorId, idioma, onCompletado 
         <EstrelasInput valor={notas.escuta} onChange={(v) => setNotas({ ...notas, escuta: v })} />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-slate-400">{idioma === "es" ? "Gramatica" : idioma === "en" ? "Grammar" : "Gramatica"}</span>
+        <span className="text-[10px] text-slate-400">{idioma === "es" ? "Gramática" : idioma === "en" ? "Grammar" : "Gramática"}</span>
         <EstrelasInput valor={notas.gramatica} onChange={(v) => setNotas({ ...notas, gramatica: v })} />
       </div>
       <div className="flex items-center justify-between opacity-70">
@@ -1011,11 +1011,11 @@ export default function PortalProfessor() {
               <section className="bg-[#0a1424] border border-white/10 rounded-xl p-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
                   <div>
-                    <h2 className="font-bold text-base text-slate-200">Datos de pago</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Completa tus datos para recibir el pago sin tener que contactarnos</p>
+                    <h2 className="font-bold text-base text-slate-200">{idioma === "es" ? "Datos de pago" : idioma === "en" ? "Payment details" : "Dados de pagamento"}</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{idioma === "es" ? "Completa tus datos para recibir el pago sin tener que contactarnos." : idioma === "en" ? "Complete your information to receive payment without having to contact us." : "Preencha seus dados para receber o pagamento sem precisar entrar em contato conosco."}</p>
                   </div>
                   <button onClick={() => setPagoAberto(!pagoAberto)} className="text-xs bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 px-3 py-1.5 rounded-lg font-semibold transition-all">
-                    {pagoAberto ? "Ocultar" : (professor?.payment_method ? "Editar" : "Completar")}
+                    {pagoAberto ? (idioma === "es" ? "Ocultar" : idioma === "en" ? "Hide" : "Ocultar") : (professor?.payment_method ? (idioma === "es" ? "Editar" : idioma === "en" ? "Edit" : "Editar") : (idioma === "es" ? "Completar" : idioma === "en" ? "Complete" : "Completar"))}
                   </button>
                 </div>
 
@@ -1117,7 +1117,7 @@ export default function PortalProfessor() {
                 {idioma === "es" ? "Evaluar alumnos" : idioma === "en" ? "Evaluate students" : "Avaliar alunos"}
               </h2>
               <p className="text-xs text-slate-500 mb-4">
-                {idioma === "es" ? "Se guarda solo con habla, escucha y gramatica completos" : idioma === "en" ? "Saves once speaking, listening and grammar are filled" : "Salva assim que fala, escuta e gramatica forem preenchidos"}
+                {idioma === "es" ? "Se guarda solo con habla, escucha y gramática completos" : idioma === "en" ? "Saves once speaking, listening and grammar are filled" : "Salva assim que fala, escuta e gramática forem preenchidos"}
               </p>
               {pendentesAvaliacao.length === 0 ? (
                 <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
