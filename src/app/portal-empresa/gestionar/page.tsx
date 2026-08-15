@@ -53,6 +53,7 @@ export default function GestionarPlan() {
 
   const [nomeNovo, setNomeNovo] = useState("");
   const [idiomaCursoNovo, setIdiomaCursoNovo] = useState("");
+  const [diasSelecionados, setDiasSelecionados] = useState<string[]>([]);
   const [emailNovo, setEmailNovo] = useState("");
   const [diasClase, setDiasClase] = useState("");
   const [horarioClase, setHorarioClase] = useState("");
@@ -142,7 +143,7 @@ export default function GestionarPlan() {
     return (hash % 95) + 1;
   };
 
-  const planosFiltrados = planos.filter((p) => p.tipo_horario === tipoHorario);
+  const planosFiltrados = planos.filter((p) => p.tipo_horario === tipoHorario && p.plan_key !== "particular" && p.plan_key !== "particular_flex");
   const grupoAtual = simPlano ? grupos.find((g) => g.plan_key === simPlano.plan_key) : null;
   const membrosAtuais = grupoAtual?.membros || [];
 
@@ -160,6 +161,17 @@ export default function GestionarPlan() {
     if (!idiomaCursoNovo) {
       setMsgAccion("Selecciona el idioma del curso antes de continuar.");
       return;
+    }
+    if (tipoHorario === "fijo") {
+      const diasRequeridos = simPlano?.plan_key === "3x_semana" ? 3 : simPlano?.plan_key === "5x_semana" ? 5 : 0;
+      if (diasRequeridos > 0 && diasSelecionados.length !== diasRequeridos) {
+        setMsgAccion(`Selecciona exactamente ${diasRequeridos} dias para este plan.`);
+        return;
+      }
+      if (!horarioClase) {
+        setMsgAccion("Selecciona el horario antes de continuar.");
+        return;
+      }
     }
     setMsgAccion("");
     setModalAberto(true);
@@ -337,7 +349,7 @@ export default function GestionarPlan() {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-2 gap-2 mb-4">
               {planosFiltrados.map((p) => (
                 <button key={p.plan_key} onClick={() => handleEscolherPlano(p)} className={`text-left p-3 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.02] border-white/10 hover:border-white/20"}`}>
                   <p className="text-xs font-bold text-slate-200">{p.plan_label}</p>
@@ -544,8 +556,43 @@ export default function GestionarPlan() {
                     <input value={emailNovo} onChange={(e) => setEmailNovo(e.target.value)} placeholder="nuevo@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     {tipoHorario === "fijo" && (
                       <div className="grid grid-cols-2 gap-2">
-                        <input value={diasClase} onChange={(e) => setDiasClase(e.target.value)} placeholder="Dias" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
-                        <input value={horarioClase} onChange={(e) => setHorarioClase(e.target.value)} placeholder="Horario" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                        <div className="col-span-2 space-y-1.5">
+                          <p className="text-[10px] text-slate-500">
+                            Selecciona {simPlano?.plan_key === "3x_semana" ? "3" : simPlano?.plan_key === "5x_semana" ? "5" : ""} dias ({diasSelecionados.length} seleccionados)
+                          </p>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia) => {
+                              const ativo = diasSelecionados.includes(dia);
+                              const diasRequeridos = simPlano?.plan_key === "3x_semana" ? 3 : simPlano?.plan_key === "5x_semana" ? 5 : 99;
+                              const limiteAtingido = diasSelecionados.length >= diasRequeridos;
+                              return (
+                                <button
+                                  key={dia}
+                                  type="button"
+                                  disabled={!ativo && limiteAtingido}
+                                  onClick={() => {
+                                    const novaLista = ativo ? diasSelecionados.filter((d) => d !== dia) : [...diasSelecionados, dia];
+                                    setDiasSelecionados(novaLista);
+                                    setDiasClase(novaLista.join(", "));
+                                  }}
+                                  className={`py-1.5 rounded-lg text-[10px] font-bold border transition-all ${ativo ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : !ativo && limiteAtingido ? "bg-white/[0.02] border-white/5 text-slate-600 cursor-not-allowed" : "bg-white/5 border-white/10 text-slate-400"}`}
+                                >
+                                  {dia}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <select value={horarioClase} onChange={(e) => setHorarioClase(e.target.value)} className="col-span-2 w-full bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200">
+                          <option value="" className="bg-[#0a1424]">Horario</option>
+                          <option value="7:00 AM - 8:00 AM" className="bg-[#0a1424]">7:00 AM - 8:00 AM</option>
+                          <option value="8:00 AM - 9:00 AM" className="bg-[#0a1424]">8:00 AM - 9:00 AM</option>
+                          <option value="9:00 AM - 10:00 AM" className="bg-[#0a1424]">9:00 AM - 10:00 AM</option>
+                          <option value="5:00 PM - 6:00 PM" className="bg-[#0a1424]">5:00 PM - 6:00 PM</option>
+                          <option value="6:00 PM - 7:00 PM" className="bg-[#0a1424]">6:00 PM - 7:00 PM</option>
+                          <option value="7:00 PM - 8:00 PM" className="bg-[#0a1424]">7:00 PM - 8:00 PM</option>
+                          <option value="8:00 PM - 9:00 PM" className="bg-[#0a1424]">8:00 PM - 9:00 PM</option>
+                        </select>
                       </div>
                     )}
                     <button onClick={handleAbrirModal} className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold py-2 rounded-lg text-xs transition-all">
