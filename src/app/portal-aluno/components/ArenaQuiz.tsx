@@ -361,6 +361,20 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           if (dados[0].course_language) {
             (window as any).__supabaseCourseLanguage = dados[0].course_language;
           }
+          try {
+            const resSub = await fetch(`${supabaseUrl}/rest/v1/user_subscriptions?user_id=eq.${userId}&select=course_language&order=created_at.desc&limit=1`, {
+              headers: {
+                "apikey": supabaseAnonKey,
+                "Authorization": `Bearer ${supabaseAnonKey}`
+              }
+            });
+            const dadosSub = await resSub.json();
+            if (dadosSub && dadosSub[0] && dadosSub[0].course_language) {
+              (window as any).__supabaseCourseLanguage = dadosSub[0].course_language;
+            }
+          } catch (errSub) {
+            console.error("Erro ao buscar course_language em user_subscriptions:", errSub);
+          }
         }
       } catch (err) {
         console.error("Erro ao sincronizar precisão da Arena:", err);
@@ -1014,7 +1028,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     if (!audioBase64 && !textoParaEnviar) return;
 
     if ((textoParaEnviar && textoParaEnviar !== "feedback pedagógico atual") || audioBase64) {
-      setChatHistory(prev => [...prev, { tipo: "user", texto: textoParaEnviar || "", audioUrl: audioBase64 ? (audioBase64.startsWith("data:") ? audioBase64 : `data:audio/mp3;base64,${audioBase64}`) : ((globalThis as any).lastAudioUrl || undefined) }]);
+      setChatHistory(prev => [...prev, { tipo: "user", texto: textoParaEnviar || "", audioUrl: audioBase64 ? (audioBase64.startsWith("data:") ? audioBase64 : `data:audio/mp3;base64,${audioBase64}`) : ((globalThis as any).lastAudioUrl || undefined), isVoice: !!audioBase64 }]);
     }
     setChatInput('');
     if (typeof window !== 'undefined') { 
@@ -1072,7 +1086,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const resInterna = await fetch("/api/ai/mentor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: (textoParaEnviar && (textoParaEnviar.toLowerCase().includes("bom dia") || textoParaEnviar.toLowerCase().includes("tudo bem") || textoParaEnviar.toLowerCase().includes("obrigado") || textoParaEnviar.length > 3)) ? "PT" : currentLang, chatHistory })
+          body: JSON.stringify({ prompt: promptFinal, userId: userId, idiomaTela: (textoParaEnviar && (textoParaEnviar.toLowerCase().includes("bom dia") || textoParaEnviar.toLowerCase().includes("tudo bem") || textoParaEnviar.toLowerCase().includes("obrigado") || textoParaEnviar.length > 3)) ? "PT" : currentLang, chatHistory, isVoice: !!audioBase64 })
         });
 
         if (!resInterna.ok) {
