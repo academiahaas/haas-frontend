@@ -622,7 +622,9 @@ export default function GestionarPlan() {
               ))}
             </div>
 
-            <div className="bg-white rounded-xl p-1 mb-4" dangerouslySetInnerHTML={{ __html: preview }} />
+            <div className="bg-gradient-to-br from-slate-300/10 to-purple-500/10 rounded-2xl p-3 mb-4 shadow-inner">
+              <div className="bg-white rounded-xl p-3 shadow-lg" dangerouslySetInnerHTML={{ __html: preview }} />
+            </div>
 
             <div className="flex gap-2">
               <button onClick={() => setModalAberto(false)} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all">
