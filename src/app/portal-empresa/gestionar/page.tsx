@@ -58,6 +58,101 @@ export default function GestionarPlan() {
   const [diasClase, setDiasClase] = useState("");
   const [horarioClase, setHorarioClase] = useState("");
   const [idiomaEmail, setIdiomaEmail] = useState("es");
+  const [idioma, setIdioma] = useState<"PT" | "ES" | "EN">("ES");
+
+  const dictG = {
+    PT: {
+      voltarPainel: "Voltar ao painel",
+      simuladorPlano: "Simulador de plano",
+      escolhaTipo: "Escolha o tipo de horário e quantas pessoas deseja inscrever.",
+      horarioFixo: "Horário fixo",
+      horarioLivre: "Horário livre (Agenda)",
+      colaboradores: "Colaboradores",
+      desconto: "Desconto",
+      totalMensal: "Total mensal",
+      totalAtual: "Total atual (todos os planos)",
+      planosAtivos: "plano(s) ativo(s)",
+      semPlanos: "Nenhum plano ativo.",
+      ultimoPago: "Último pagamento",
+      semPagos: "Nenhum pagamento.",
+      continuar: "Continuar",
+      pagar: "Pagar",
+      confirmarPago: "Confirmar pagamento",
+      verOpcoes: "Ver opções de pagamento",
+      cartaoCredito: "Cartão de Crédito / Débito",
+      colaboradoresPlano: "Colaboradores neste plano",
+      nenhumColaborador: "Nenhum ainda.",
+      nomeCompleto: "Nome completo",
+      selecioneIdioma: "Selecione o idioma do curso",
+      selecioneDias: "Selecione",
+      diasSelecionados: "selecionados",
+      dias_label: "dias",
+      horario_label: "Horário",
+      revisarEnviar: "Revisar e enviar",
+      diasSemana: ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"]
+    },
+    ES: {
+      voltarPainel: "Volver al panel",
+      simuladorPlano: "Simulador de plan",
+      escolhaTipo: "Elige el tipo de horario y cuántas personas quieres inscribir.",
+      horarioFixo: "Horario fijo",
+      horarioLivre: "Horario libre (Agenda)",
+      colaboradores: "Colaboradores",
+      desconto: "Descuento",
+      totalMensal: "Total mensual",
+      totalAtual: "Total actual (todos los planes)",
+      planosAtivos: "plan(es) activo(s)",
+      semPlanos: "Sin planes activos.",
+      ultimoPago: "Último pago",
+      semPagos: "Sin pagos.",
+      continuar: "Continuar",
+      pagar: "Pagar",
+      confirmarPago: "Confirmar pago",
+      verOpcoes: "Ver opciones de pago",
+      cartaoCredito: "Tarjeta de Crédito / Débito",
+      colaboradoresPlano: "Colaboradores en este plan",
+      nenhumColaborador: "Ninguno todavía.",
+      nomeCompleto: "Nombre completo",
+      selecioneIdioma: "Selecciona el idioma del curso",
+      selecioneDias: "Selecciona",
+      diasSelecionados: "seleccionados",
+      dias_label: "días",
+      horario_label: "Horario",
+      revisarEnviar: "Revisar y enviar",
+      diasSemana: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
+    },
+    EN: {
+      voltarPainel: "Back to dashboard",
+      simuladorPlano: "Plan simulator",
+      escolhaTipo: "Choose the schedule type and how many people you want to enroll.",
+      horarioFixo: "Fixed schedule",
+      horarioLivre: "Flexible schedule (Agenda)",
+      colaboradores: "Employees",
+      desconto: "Discount",
+      totalMensal: "Monthly total",
+      totalAtual: "Current total (all plans)",
+      planosAtivos: "active plan(s)",
+      semPlanos: "No active plans.",
+      ultimoPago: "Last payment",
+      semPagos: "No payments.",
+      continuar: "Continue",
+      pagar: "Pay",
+      confirmarPago: "Confirm payment",
+      verOpcoes: "View payment options",
+      cartaoCredito: "Credit / Debit Card",
+      colaboradoresPlano: "Employees in this plan",
+      nenhumColaborador: "None yet.",
+      nomeCompleto: "Full name",
+      selecioneIdioma: "Select the course language",
+      selecioneDias: "Select",
+      diasSelecionados: "selected",
+      dias_label: "days",
+      horario_label: "Schedule",
+      revisarEnviar: "Review and submit",
+      diasSemana: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    }
+  };
+  const tG = dictG[idioma];
   const [modalAberto, setModalAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [msgAccion, setMsgAccion] = useState("");
@@ -325,9 +420,14 @@ export default function GestionarPlan() {
 
       <header className="h-16 border-b border-white/10 bg-[#0a1424] px-6 md:px-10 flex items-center justify-between shrink-0">
         <Link href="/portal-empresa" className="flex items-center gap-2 text-xs text-slate-400 hover:text-purple-400 transition-colors">
-          <ArrowLeft size={14} /> Volver al panel
+          <ArrowLeft size={14} /> {tG.voltarPainel}
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+            {(["PT", "ES", "EN"] as const).map((l) => (
+              <button key={l} onClick={() => setIdioma(l)} className={`text-[10px] font-bold px-2 py-1 rounded ${idioma === l ? "bg-purple-500/20 text-purple-400" : "text-slate-500"}`}>{l}</button>
+            ))}
+          </div>
           <Building2 size={16} className="text-purple-400" />
           <span className="text-sm font-bold text-slate-200">{empresa?.company_name}</span>
         </div>
@@ -337,15 +437,15 @@ export default function GestionarPlan() {
 
         <div className="flex flex-col gap-3 min-h-0 overflow-y-auto scrollbar-hide" style={{ height: alturaColDireita ? `${alturaColDireita}px` : undefined }}>
           <div className="bg-[#0a1424] border border-purple-500/20 rounded-xl p-5 shrink-0">
-            <h1 className="text-lg font-black text-slate-100 mb-1.5" style={{ lineHeight: 1.5 }}>Simulador de plan</h1>
-            <p className="text-sm text-slate-500 mb-4">Elige el tipo de horario y cuantas personas quieres inscribir.</p>
+            <h1 className="text-lg font-black text-slate-100 mb-1.5" style={{ lineHeight: 1.5 }}>{tG.simuladorPlano}</h1>
+            <p className="text-sm text-slate-500 mb-4">{tG.escolhaTipo}</p>
 
             <div className="grid grid-cols-2 gap-2.5 mb-3">
               <button onClick={() => { setTipoHorario("fijo"); const p = planos.find((pl) => pl.tipo_horario === "fijo"); if (p) handleEscolherPlano(p); }} className={`py-2 rounded-lg text-xs font-bold border transition-all ${tipoHorario === "fijo" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
-                Horario fijo
+                {tG.horarioFixo}
               </button>
               <button onClick={() => { setTipoHorario("flexible"); const p = planos.find((pl) => pl.tipo_horario === "flexible"); if (p) handleEscolherPlano(p); }} className={`py-3 rounded-lg text-sm font-bold border transition-all ${tipoHorario === "flexible" ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
-                Horario libre (Agenda)
+                {tG.horarioLivre}
               </button>
             </div>
 
@@ -361,7 +461,7 @@ export default function GestionarPlan() {
             {simPlano && (
               <>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-slate-400">Colaboradores</span>
+                  <span className="text-sm text-slate-400">{tG.colaboradores}</span>
                   <div className="flex items-center gap-3">
                     <button onClick={() => setSimPessoas((n) => Math.max(0, n - 1))} className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-black text-sm">-</button>
                     <span className="text-base font-black text-slate-100 w-6 text-center">{simPessoas}</span>
@@ -371,14 +471,14 @@ export default function GestionarPlan() {
 
                 <div className="bg-slate-950/60 border border-slate-800 rounded-lg p-3.5">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider">Descuento</span>
+                    <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider">{tG.desconto}</span>
                     <span className="text-base font-black text-purple-300">{desconto.toFixed(1)}%</span>
                   </div>
                   <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-2.5">
                     <div className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-full transition-all duration-500" style={{ width: `${progresso}%` }} />
                   </div>
                   <div className="flex justify-between items-baseline">
-                    <span className="text-xs text-slate-400">Total mensual</span>
+                    <span className="text-xs text-slate-400">{tG.totalMensal}</span>
                     <span className="text-lg font-black text-purple-300">$ {Math.round(total).toLocaleString("es-CO")}</span>
                   </div>
                 </div>
@@ -387,7 +487,7 @@ export default function GestionarPlan() {
           </div>
           <div className="grid grid-cols-2 gap-3 shrink-0">
             <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Total actual (todos los planes)</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{tG.totalAtual}</p>
               {(() => {
                 const totalGeral = grupos.reduce((soma, g) => {
                   const plano = planos.find((p) => p.plan_key === g.plan_key);
@@ -397,23 +497,23 @@ export default function GestionarPlan() {
                 }, 0);
                 return totalGeral > 0 ? (
                   <>
-                    <p className="text-xs font-bold text-slate-200">{grupos.filter((g) => g.membros.length > 0).length} plan(es) activo(s)</p>
+                    <p className="text-xs font-bold text-slate-200">{grupos.filter((g) => g.membros.length > 0).length} {tG.planosAtivos}</p>
                     <p className="text-base font-black text-purple-300 mt-0.5">$ {Math.round(totalGeral).toLocaleString("es-CO")}</p>
                   </>
                 ) : (
-                  <p className="text-sm text-slate-500">Sin planes activos.</p>
+                  <p className="text-sm text-slate-500">{tG.semPlanos}</p>
                 );
               })()}
             </div>
             <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ultimo pago</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{tG.ultimoPago}</p>
               {historicoPagos.length > 0 ? (
                 <>
                   <p className="text-xs text-slate-400">{new Date(historicoPagos[0].created_at).toLocaleDateString("es-CO")}</p>
                   <p className="text-base font-black text-amber-400 mt-0.5">$ {Number(historicoPagos[0].amount).toLocaleString("es-CO")}</p>
                 </>
               ) : (
-                <p className="text-sm text-slate-500">Sin pagos.</p>
+                <p className="text-sm text-slate-500">{tG.semPagos}</p>
               )}
             </div>
           </div>
@@ -426,7 +526,7 @@ export default function GestionarPlan() {
                 onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { setMostrarPago(true); setMostrarOpcoesPagamento(true); } }}
                 className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
               >
-                {emailNovo.trim() ? "Continuar" : "Pagar"}
+                {emailNovo.trim() ? tG.continuar : tG.pagar}
               </button>
             </div>
           )}
@@ -434,10 +534,10 @@ export default function GestionarPlan() {
           {mostrarPago && simPlano && (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setMostrarPago(false)}>
             <div className="bg-[#0a1424] border border-purple-500/30 rounded-2xl p-6 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-lg font-black text-slate-100 mb-4">Confirmar pago</h2>
+              <h2 className="text-lg font-black text-slate-100 mb-4">{tG.confirmarPago}</h2>
               {!mostrarOpcoesPagamento ? (
                 <button onClick={() => setMostrarOpcoesPagamento(true)} className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-3 rounded-lg text-xs uppercase tracking-wider transition-all">
-                  Ver opciones de pago
+                  {tG.verOpcoes}
                 </button>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
@@ -446,7 +546,7 @@ export default function GestionarPlan() {
                       <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider text-left">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          Tarjeta de Credito / Debito
+                          {tG.cartaoCredito}
                         </div>
                         <p className="text-[8.5px] text-slate-500 text-left pl-3">Pasarela segura Wompi / Nequi</p>
                       </div>
@@ -523,14 +623,14 @@ export default function GestionarPlan() {
         </div>
 
         <div ref={colDireitaRef} className="bg-[#0a1424] border border-white/10 border-l-2 border-l-cyan-400 rounded-xl p-4 flex flex-col h-full min-h-0">
-          <h2 className="font-bold text-sm text-slate-200 mb-3 shrink-0">Colaboradores en este plan</h2>
+          <h2 className="font-bold text-sm text-slate-200 mb-3 shrink-0">{tG.colaboradoresPlano}</h2>
 
           {!simPlano ? (
             <p className="text-xs text-slate-500">Elige un plan a la izquierda para ver sus colaboradores.</p>
           ) : (
             <>
               {membrosAtuais.length === 0 ? (
-                <p className="text-xs text-slate-500 mb-3">Ninguno todavia.</p>
+                <p className="text-xs text-slate-500 mb-3">{tG.nenhumColaborador}</p>
               ) : (
                 <div className="flex flex-col gap-1.5 mb-3 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                   {membrosAtuais.map((m: any, i: number) => (
@@ -545,9 +645,9 @@ export default function GestionarPlan() {
               <div className="border-t border-white/10 pt-3 shrink-0">
                 {mostrarFormAgregar && (
                   <div className="space-y-2">
-                    <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder="Nombre completo" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                    <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder={tG.nomeCompleto} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     <select value={idiomaCursoNovo} onChange={(e) => setIdiomaCursoNovo(e.target.value)} className="w-full bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200">
-                      <option value="" className="bg-[#0a1424] text-slate-400">Selecciona el idioma del curso</option>
+                      <option value="" className="bg-[#0a1424] text-slate-400">{tG.selecioneIdioma}</option>
                       <option value="portugues" className="bg-[#0a1424] text-slate-200">Portugués</option>
                       <option value="ingles" className="bg-[#0a1424] text-slate-200">Inglés</option>
                       <option value="espanol" className="bg-[#0a1424] text-slate-200">Español</option>
@@ -558,10 +658,10 @@ export default function GestionarPlan() {
                       <div className="grid grid-cols-2 gap-2">
                         <div className="col-span-2 space-y-1.5">
                           <p className="text-[10px] text-slate-500">
-                            Selecciona {simPlano?.plan_key === "3x_semana" ? "3" : simPlano?.plan_key === "5x_semana" ? "5" : ""} dias ({diasSelecionados.length} seleccionados)
+                            {tG.selecioneDias} {simPlano?.plan_key === "3x_semana" ? "3" : simPlano?.plan_key === "5x_semana" ? "5" : ""} {tG.dias_label} ({diasSelecionados.length} {tG.diasSelecionados})
                           </p>
                           <div className="grid grid-cols-3 gap-1.5">
-                            {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia) => {
+                            {["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia, idxDia) => {
                               const ativo = diasSelecionados.includes(dia);
                               const diasRequeridos = simPlano?.plan_key === "3x_semana" ? 3 : simPlano?.plan_key === "5x_semana" ? 5 : 99;
                               const limiteAtingido = diasSelecionados.length >= diasRequeridos;
@@ -577,14 +677,14 @@ export default function GestionarPlan() {
                                   }}
                                   className={`py-1.5 rounded-lg text-[10px] font-bold border transition-all ${ativo ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : !ativo && limiteAtingido ? "bg-white/[0.02] border-white/5 text-slate-600 cursor-not-allowed" : "bg-white/5 border-white/10 text-slate-400"}`}
                                 >
-                                  {dia}
+                                  {tG.diasSemana[idxDia]}
                                 </button>
                               );
                             })}
                           </div>
                         </div>
                         <select value={horarioClase} onChange={(e) => setHorarioClase(e.target.value)} className="col-span-2 w-full bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200">
-                          <option value="" className="bg-[#0a1424]">Horario</option>
+                          <option value="" className="bg-[#0a1424]">{tG.horario_label}</option>
                           <option value="7:00 AM - 8:00 AM" className="bg-[#0a1424]">7:00 AM - 8:00 AM</option>
                           <option value="8:00 AM - 9:00 AM" className="bg-[#0a1424]">8:00 AM - 9:00 AM</option>
                           <option value="9:00 AM - 10:00 AM" className="bg-[#0a1424]">9:00 AM - 10:00 AM</option>
@@ -596,7 +696,7 @@ export default function GestionarPlan() {
                       </div>
                     )}
                     <button onClick={handleAbrirModal} className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold py-2 rounded-lg text-xs transition-all">
-                      Revisar y enviar
+                      {tG.revisarEnviar}
                     </button>
                   </div>
                 )}
