@@ -174,7 +174,7 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
     { titulo: "5. Cuidado al cambiar de diapositiva", texto: "Si editas o cambias de diapositiva en tu ventana privada (2), el alumno NO ve el cambio automáticamente. Debes hacer el mismo cambio en la ventana compartida (1) para que el alumno lo vea." },
     { titulo: "6. Cómo dividir la pantalla (vista dividida)", texto: "Haz clic en la barra superior de una ventana, mantenla presionada y arrástrala hacia el borde izquierdo o derecho de la pantalla hasta que se pegue. Suelta el clic y elige la otra ventana para el lado restante. En Windows también puedes mantener presionado el botón de maximizar para ver más opciones, incluyendo división en tres partes." },
     { titulo: "7. Corrige el material escrito de tus alumnos", texto: "En la pestaña 'Materiales' encontrarás las fotos que tus alumnos enviaron de sus trabajos escritos. Haz clic en una foto para abrirla: puedes hacer zoom, mover y rotar la imagen. Con la herramienta de marcar puedes subrayar en rojo, y con la herramienta de texto puedes escribir notas al lado de la imagen. Recomendamos compartir esta ventana con el alumno (usa el botón gris de compartir que aparece arriba) para hacer la corrección juntos y resolver dudas en el momento. Al cerrar la foto, desaparece de tu lista después de 3 minutos." },
-    { titulo: "8. Si no tienes PowerPoint instalado", texto: "El archivo de diapositivas es un PowerPoint. Si tu computadora no tiene el programa instalado, puedes usar Google Slides: entra a Google Drive de la escuela, sube el archivo descargado, y ábrelo con Google Slides (clic derecho, Abrir con, Google Slides). Desde ahí puedes editar y presentar tu clase normalmente." },
+    { titulo: "8. Si no tienes PowerPoint instalado", texto: "El archivo de las diapositivas es un PowerPoint. Si tu computadora no tiene el programa instalado, puedes usar Google Slides: entra al Google Drive de la escuela, sube el archivo descargado y ábrelo con Google Slides (haz clic derecho > Abrir con > Presentaciones de Google). Desde allí ya podrás editar y presentar tu clase normalmente. Además, también puedes descargar el archivo en formato PDF y compartir la pantalla completa. En este caso, no necesitarás tener 4 ventanas abiertas. Sin embargo, al no poder editarlo, no es el formato mas recomendado, ya que dificulta el enganche de los estudiantes para que sigan estudiando." },
     { titulo: "9. Abre las diapositivas antes de la clase", texto: "El botón para abrir las diapositivas de tu clase estará disponible aquí mismo, antes de que empiece la clase." }
   ],
   en: [
@@ -185,7 +185,7 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
     { titulo: "5. Be careful when changing slides", texto: "If you edit or change slides in your private window (2), the student does NOT see the change automatically. You must make the same change in the shared window (1) so the student sees it." },
     { titulo: "6. How to split your screen", texto: "Click and hold the title bar of a window, then drag it to the left or right edge of the screen until it snaps. Release, then pick the other window for the remaining side. On Windows you can also hold the maximize button to see more options, including 3-way splits." },
     { titulo: "7. Correct your students' written material", texto: "In the 'Materials' tab you'll find photos your students sent of their written work. Click a photo to open it: you can zoom, pan, and rotate the image. Use the mark tool to underline in red, and the text tool to write notes next to the image. We recommend sharing this window with the student (use the gray share button that appears at the top) to do the correction together and answer questions live. Once you close the photo, it disappears from your list after 3 minutes." },
-    { titulo: "8. If you don't have PowerPoint installed", texto: "The slides file is a PowerPoint file. If your computer doesn't have the program installed, you can use Google Slides: go to the school's Google Drive, upload the downloaded file, and open it with Google Slides (right-click, Open with, Google Slides). From there you can edit and present your class normally." },
+    { titulo: "8. If you don't have PowerPoint installed", texto: "The slide file is a PowerPoint presentation. If your computer doesn't have the program installed, you can use Google Slides: access the school's Google Drive, upload the downloaded file, and open it with Google Slides (right-click > Open with > Google Slides). From there, you will be able to edit and present your class as usual. Additionally, you can also download the file in PDF format and share it in full screen. In this case, you won't need to have 4 windows open at the same time. However, since you cannot edit a PDF, this is not the most recommended format, as it limits interactivity and makes it harder to keep students engaged in their studies." },
     { titulo: "9. Open the slides before class", texto: "The button to open your class slides will be available right here, before class starts." }
   ],
   pt: [
@@ -196,7 +196,7 @@ const INSTRUCCIONES: Record<IdiomaInterface, { titulo: string; texto: string }[]
     { titulo: "5. Cuidado ao trocar de slide", texto: "Se você editar ou trocar de slide na sua janela privada (2), o aluno NÃO vê a mudança automaticamente. Você precisa fazer a mesma mudança na janela compartilhada (1) para que o aluno veja." },
     { titulo: "6. Como dividir a tela", texto: "Clique e segure na barra superior de uma janela, e arraste até a borda esquerda ou direita da tela até ela grudar. Solte o clique e escolha a outra janela para o lado restante. No Windows você também pode segurar o botão de maximizar para ver mais opções, incluindo divisão em três partes." },
     { titulo: "7. Corrija o material escrito dos seus alunos", texto: "Na aba 'Materiais' você encontra as fotos que os alunos enviaram dos trabalhos escritos. Clique numa foto para abrir: dá para dar zoom, mover e girar a imagem. Use a ferramenta de marcar para sublinhar em vermelho, e a ferramenta de texto para escrever notas ao lado da imagem. Recomendamos compartilhar essa janela com o aluno (use o botãozinho cinza de compartilhar que aparece em cima) para fazer a correção junto e tirar dúvidas na hora. Ao fechar a foto, ela some da sua lista depois de 3 minutos." },
-    { titulo: "8. Se você não tiver o PowerPoint instalado", texto: "O arquivo dos slides é um PowerPoint. Se seu computador não tem o programa instalado, você pode usar o Google Slides: entra no Google Drive da escola, sobe o arquivo baixado, e abre com o Google Slides (clique com o botão direito, Abrir com, Google Slides). Dali você já consegue editar e apresentar sua aula normalmente." },
+    { titulo: "8. Se você não tiver o PowerPoint instalado", texto: "O arquivo dos slides é um PowerPoint. Se o seu computador não tem o programa instalado, você pode usar o Google Slides: entre no Google Drive da escola, faça o upload do arquivo baixado e abra-o com o Google Slides (clique com o botão direito > Abrir com > Apresentações Google). A partir daí, você já consegue editar e apresentar sua aula normalmente. Além disso, você também pode baixar o arquivo no formato PDF e apresentá-lo em tela cheia. Neste caso, você não precisará ter 4 janelas abertas simultaneamente. No entanto, como o PDF não permite edições, este não é o formato mais recomendado, pois limita as dinâmicas interativas que ajudam a engajar os alunos a continuarem estudando." },
     { titulo: "9. Abra os slides antes da aula", texto: "O botão para abrir os slides da sua aula vai estar disponível aqui mesmo, antes de a aula começar." }
   ]
 };
@@ -1021,7 +1021,7 @@ export default function PortalProfessor() {
 
                 {professor?.payment_method && !pagoAberto && (
                   <div className="text-xs text-slate-400 bg-white/[0.02] border border-white/5 rounded-lg p-3">
-                    {professor.payment_method === "banco" ? `Cuenta bancaria: ${professor.bank_name || ""} - ${professor.account_number || ""}` : `Nequi: ${professor.nequi_phone || ""}`}
+                    {professor.payment_method === "banco" ? `${idioma === "es" ? "Cuenta bancaria" : idioma === "en" ? "Bank account" : "Conta bancaria"}: ${professor.bank_name || ""} - ${professor.account_number || ""}` : `Nequi: ${professor.nequi_phone || ""}`}
                   </div>
                 )}
 
@@ -1029,7 +1029,7 @@ export default function PortalProfessor() {
                   <div className="flex flex-col gap-4">
                     <div className="flex gap-2">
                       <button onClick={() => setMetodoPago("banco")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "banco" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
-                        Cuenta bancaria
+                        {idioma === "es" ? "Cuenta bancaria" : idioma === "en" ? "Bank account" : "Conta bancaria"}
                       </button>
                       <button onClick={() => setMetodoPago("nequi")} className={`flex-1 text-xs py-2 rounded-lg font-semibold border transition-all ${metodoPago === "nequi" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-white/5 text-slate-400 border-white/10"}`}>
                         Nequi
@@ -1056,7 +1056,7 @@ export default function PortalProfessor() {
 
                     <div className="flex items-center gap-3">
                       <button onClick={salvarDadosPago} disabled={salvandoPago} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
-                        {salvandoPago ? "Guardando..." : "Guardar datos"}
+                        {salvandoPago ? (idioma === "es" ? "Guardando..." : idioma === "en" ? "Saving..." : "Salvando...") : (idioma === "es" ? "Guardar datos" : idioma === "en" ? "Save details" : "Salvar dados")}
                       </button>
                       {pagoSalvoMsg === "ok" && <span className="text-xs text-emerald-400 font-semibold">Guardado correctamente</span>}
                       {pagoSalvoMsg === "error" && <span className="text-xs text-rose-400 font-semibold">Error al guardar, intenta de nuevo</span>}
@@ -1098,7 +1098,15 @@ export default function PortalProfessor() {
                     ))}
                   </select>
                   <textarea value={comentarioReporte} onChange={(e) => setComentarioReporte(e.target.value)} placeholder={idioma === "es" ? "Comentarios sobre la clase (opcional)" : idioma === "en" ? "Comments about the class (optional)" : "Comentarios sobre a aula (opcional)"} rows={3} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-500/50 resize-none" />
-                  <input type="file" accept="image/*" onChange={(e) => setImagemReporte(e.target.files ? e.target.files[0] : null)} className="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-white/10 file:text-slate-300 file:text-xs" />
+                  <label className="inline-flex items-center gap-3 cursor-pointer">
+                    <span className="py-1.5 px-3 rounded-lg bg-white/10 text-slate-300 text-xs font-medium">
+                      {idioma === "es" ? "Elegir archivo" : idioma === "en" ? "Choose file" : "Escolher arquivo"}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                      {imagemReporte ? imagemReporte.name : (idioma === "es" ? "Ningun archivo seleccionado" : idioma === "en" ? "No file selected" : "Nenhum arquivo selecionado")}
+                    </span>
+                    <input type="file" accept="image/*" onChange={(e) => setImagemReporte(e.target.files ? e.target.files[0] : null)} className="hidden" />
+                  </label>
                   <div className="flex items-center gap-3">
                     <button onClick={enviarReporte} disabled={enviandoReporte || !aulaReporte} className="bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 text-xs font-bold py-2 px-4 rounded-lg transition-all">
                       {enviandoReporte ? (idioma === "es" ? "Guardando..." : idioma === "en" ? "Saving..." : "Salvando...") : (idioma === "es" ? "Guardar" : idioma === "en" ? "Save" : "Salvar")}
