@@ -1916,9 +1916,13 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             }
 
 
+            // Aplica o desconto do cupom validado (se houver) antes de qualquer outro calculo
+            const cupomPercentAtivo = (window as any)._cupomAplicado ? Number((window as any)._cupomDesconto || 0) : 0;
+            const valorTotalComCupom = cupomPercentAtivo > 0 ? valorTotal * (1 - cupomPercentAtivo / 100) : valorTotal;
+
             // Aplica a variação milimétrica nos totais para o robô ler
-            const valorComTaxa = Math.round(valorTotal + taxaPercentual) - diferencaCentavos;
-            const valorDescontoBreve = valorTotal - diferencaCentavos;
+            const valorComTaxa = Math.round(valorTotalComCupom + taxaPercentual) - diferencaCentavos;
+            const valorDescontoBreve = valorTotalComCupom - diferencaCentavos;
             const exibindoInternacional = (window as any)._verInternacional || false;
 
             // Gancho dinâmico para pegar a cotação no cliente sem travar o servidor
@@ -1937,7 +1941,7 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             const taxaAtual = (window as any)._taxaCop || 4100;
             
             // Regra de Ouro em COP: Adiciona 5% da taxa do gateway e subtrai o rastro fino de pesos do robô
-            const valorCopComTaxa = Math.round(valorTotal * 1.05);
+            const valorCopComTaxa = Math.round(valorTotalComCupom * 1.05);
             const valorCopFinalComDescontoRobo = valorCopComTaxa - diferencaCentavos;
             
             // O Dólar acompanha a taxa real da internet dinamicamente para referência do gringo
@@ -1946,21 +1950,58 @@ function QuadrinhoPagamentoInteligente({ idioma }) {
             return (
               <div className="flex flex-col gap-4 text-white animate-fadeIn w-full">
                 
-                {/* BLOCO DE CUPOM REAL SIMULADO 3001 - TOPO DO MODAL */}
+                {/* BLOCO DE CUPOM - CONECTADO A discount_codes */}
                 <div className="w-full bg-[#0a1324] border border-white/[0.05] p-3.5 rounded-xl flex flex-col gap-2 shadow-inner text-left">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">
                     {idioma === "PT" ? "Possui um cupom de desconto?" : idioma === "EN" ? "Have a discount coupon?" : "¿Tienes un cupón de descuento?"}
                   </span>
                   <div className="flex gap-2 w-full">
-                    <input 
-                      type="text" 
-                      placeholder="HAAS10" 
-                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500/50 transition-all" 
+                    <input
+                      type="text"
+                      placeholder="HAAS10"
+                      defaultValue={(window as any)._cupomTexto || ""}
+                      onChange={(e) => { (window as any)._cupomTexto = e.target.value; }}
+                      className="flex-1 bg-[#060c16] border border-white/10 rounded-lg px-3 py-2 text-xs text-white uppercase font-mono tracking-wider focus:outline-none focus:border-purple-500/50 transition-all"
                     />
-                    <button className="bg-gradient-to-r from-purple-500/10 to-transparent border border-white/10 hover:border-purple-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all">
+                    <button
+                      onClick={async () => {
+                        const codigo = (window as any)._cupomTexto || "";
+                        if (!codigo.trim()) return;
+                        (window as any)._cupomErro = "";
+                        try {
+                          const res = await fetch("/api/portal-aluno/validar-cupom", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ code: codigo, user_id: (typeof window !== "undefined" && (localStorage.getItem("haas_user_id") || (window as any).activeUserId)) || undefined })
+                          });
+                          const dados = await res.json();
+                          if (dados.valido) {
+                            (window as any)._cupomAplicado = true;
+                            (window as any)._cupomDesconto = dados.discount_percent;
+                            (window as any)._cupomCodigoId = dados.codigo_id;
+                            (window as any)._cupomErro = "";
+                          } else {
+                            (window as any)._cupomAplicado = false;
+                            (window as any)._cupomErro = dados.erro || "Codigo invalido";
+                          }
+                        } catch (e) {
+                          (window as any)._cupomErro = "Erro ao validar codigo";
+                        }
+                        (window as any).dispatchEvent(new Event("resize"));
+                      }}
+                      className="bg-gradient-to-r from-purple-500/10 to-transparent border border-white/10 hover:border-purple-500/30 text-cyan-400 hover:text-white px-5 py-2 rounded-lg text-[10px] font-mono uppercase font-bold tracking-wider cursor-pointer active:scale-95 transition-all"
+                    >
                       {idioma === "PT" ? "Aplicar" : idioma === "EN" ? "Apply" : "Aplicar"}
                     </button>
                   </div>
+                  {(window as any)._cupomAplicado && (
+                    <p className="text-[10px] text-emerald-400 font-bold">
+                      {idioma === "PT" ? `Cupom aplicado: ${(window as any)._cupomDesconto}% de desconto` : idioma === "EN" ? `Coupon applied: ${(window as any)._cupomDesconto}% off` : `Cupón aplicado: ${(window as any)._cupomDesconto}% de descuento`}
+                    </p>
+                  )}
+                  {(window as any)._cupomErro && (
+                    <p className="text-[10px] text-rose-400 font-bold">{(window as any)._cupomErro}</p>
+                  )}
                 </div>
                 
                 {/* Seletor de Localização Simples */}
