@@ -235,7 +235,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const arenaDict = {
     PT: {
-      mentorName: "CENTRAL DE APOIO",
+      mentorName: "CENTRAL DE APOIO E CONVERSAÇÃO REAL",
       precisionLabel: "PRECISÃO",
       mentorFire: "Olá! Bem-vindo à Central de Apoio e Conversação Real.\n\nAqui você tem duas formas de praticar comigo: quando você escreve, pode tirar qualquer dúvida - gramática, vocabulário, o que for. Quando você fala, é uma simulação de conversa real, como se estivesse falando com uma pessoa de verdade no dia a dia.\n\nA correção de gramática fica por conta da Arena, nos jogos e exercícios. Aqui, é só conversar!",
       chatPlaceholder: "Tire suas dúvidas aqui...",
@@ -251,7 +251,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       media: "Conteúdo Audiovisual"
     },
     EN: {
-      mentorName: "SUPPORT CENTER",
+      mentorName: "REAL CONVERSATION HELP CENTER",
       precisionLabel: "PRECISION",
       mentorFire: "Hello! Welcome to the Real Conversation Help Center.\n\nHere you have two ways to practice with me: when you write, you can ask any question - grammar, vocabulary, anything. When you speak, it is a real conversation simulation, as if you were talking to a real person in everyday life.\n\nGrammar correction is handled by the Arena, in games and exercises. Here, it is just about talking!",
       chatPlaceholder: "Ask your questions here...",
@@ -266,7 +266,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
       guide: "Textual Rules Guide"
     },
     ES: {
-      mentorName: "CENTRO DE APOYO",
+      mentorName: "CENTRO DE AYUDA Y CONVERSACIÓN REAL",
       precisionLabel: "PRECISIÓN",
       mentorFire: "¡Hola! Bienvenido al Centro de Ayuda y Conversación Real.\n\nAquí tienes dos formas de practicar conmigo: cuando escribes, puedes resolver cualquier duda - gramática, vocabulario, lo que sea. Cuando hablas, es una simulación de conversación real, como si estuvieras hablando con una persona de verdad en el día a día.\n\nLa corrección de gramática queda a cargo de la Arena, en los juegos y ejercicios. ¡Aquí, solo conversamos!",
       chatPlaceholder: "Resuelva sus dudas aquí...",
