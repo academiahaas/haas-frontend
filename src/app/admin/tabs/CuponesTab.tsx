@@ -63,7 +63,8 @@ export function CuponesTab() {
         <p className="text-sm text-slate-400 mt-1">Crea códigos manuales para promociones (no vinculados a un alumno específico).</p>
       </div>
 
-      <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 flex flex-col gap-3 max-w-lg">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
+      <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 flex flex-col gap-3 h-fit">
         <div>
           <label className="text-xs font-bold text-slate-400 uppercase">Código</label>
           <input
@@ -104,7 +105,7 @@ export function CuponesTab() {
         {msg && <p className="text-xs text-slate-300">{msg}</p>}
       </div>
 
-      <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 flex-1 min-h-0 flex flex-col">
+      <div className="bg-[#0a1424] border border-white/10 rounded-xl p-5 min-h-0 flex flex-col">
         <h2 className="text-sm font-bold text-slate-200 mb-3">Códigos recientes</h2>
         {carregando ? (
           <div className="flex items-center justify-center py-10 text-slate-500">
@@ -144,6 +145,7 @@ export function CuponesTab() {
             </table>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
