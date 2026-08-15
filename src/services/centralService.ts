@@ -451,6 +451,27 @@ export async function buscarInfoModuloPorId(moduleId: string) {
 }
 
 
+// Busca direta e sem ambiguidade, usando o ID exato do modulo do aluno.
+export async function buscarUnidadesPorModuloId(moduleContentId: string) {
+  try {
+    if (!moduleContentId) return [];
+    const { data, error } = await supabase
+      .from("units")
+      .select("id, unit_number, unit_title, estimated_hours, level, module_number, pedagogical_objective")
+      .eq("module_content_id", moduleContentId)
+      .order("unit_number", { ascending: true });
+
+    if (error) {
+      console.error("Erro na busca de units por module_content_id:", error);
+      return [];
+    }
+    return data || [];
+  } catch (e) {
+    console.error("Exceção ao buscar units por module_content_id:", e);
+    return [];
+  }
+}
+
 export async function buscarUnidadesModuloCentral(levelTag: string, moduleNumber: number | string) {
   try {
     const num = intVal(moduleNumber) || 1;

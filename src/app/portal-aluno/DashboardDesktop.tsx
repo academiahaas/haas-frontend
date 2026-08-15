@@ -3,7 +3,7 @@ import BotaoEntrarAula from "./components/BotaoEntrarAula";
 import { useRouter } from 'next/navigation';
 import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
-import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarInfoModuloPorId, buscarUnidadesModuloCentral, checkPendingFlagsCentral } from "../../services/centralService";
+import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarInfoModuloPorId, buscarUnidadesModuloCentral, buscarUnidadesPorModuloId, checkPendingFlagsCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import ModalProva from './components/ModalProva';
 import { ModalConclusao } from './components/ModalConclusao';
@@ -156,7 +156,7 @@ export default function DashboardDesktop({ alunoData }: any) {
 
           // Carrega as unidades oficiais da tabela units
           try {
-            const unidadesBanco = await buscarUnidadesModuloCentral(lvl, modNum);
+            const unidadesBanco = await buscarUnidadesPorModuloId(dados.current_module_id);
             if (unidadesBanco && unidadesBanco.length > 0 && typeof setListaUnidades !== 'undefined') {
               setListaUnidades(unidadesBanco);
             }
@@ -270,24 +270,8 @@ export default function DashboardDesktop({ alunoData }: any) {
         if (!uid || uid === "undefined" || String(uid).trim() === "") return;
         const dProg = userStats?.unit_progress || [];
         
-        // Fetch Conectado à Central: Busca as unidades usando o nível dinâmico resolvido com escopo seguro
-        try {
-          const nivelResolvido = userStats?.current_level || "A1";
-          const moduloAlvo = userStats?.modulo_atual || 1;
-          
-          
-          let dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo) && String(u.level) === String(nivelResolvido)).slice(0, 5);
-          
-          // Se não encontrar com nível estrito, busca somente pelo número do módulo
-          if (!dUnit || dUnit.length === 0) {
-            
-            dUnit = (userStats?.units || []).filter((u: any) => String(u.module_number) === String(moduloAlvo)).slice(0, 5);
-          }
-
-          if (dUnit && dUnit.length > 0) {
-            setListaUnidades(dUnit);
-          }
-        } catch (errUnit) { console.error("Erro ao ler unidades dinâmicas da central:", errUnit); }
+        // DESATIVADO: filtro antigo (por nivel+numero) causava mistura de unidades entre cursos diferentes.
+        // A lista correta agora vem sempre de buscarUnidadesPorModuloId (filtra pelo module_content_id exato).
 
         const rMod = await fetch((process.env.NEXT_PUBLIC_SUPABASE_URL || "https://jdppxfokfhqjudwfwckd.supabase.co") + "/rest/v1/modules_content?select=estimated_hours&limit=1");
         const dMod = await rMod.json();
@@ -360,7 +344,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             setNivelUserCentral(lvl);
             const infoModulo = await buscarInfoModuloPorId(dados.current_module_id);
             setNomeModulo(infoModulo?.module_title || ("Módulo " + String(modNum).padStart(2, '0')));
-            const unidadesBanco = await buscarUnidadesModuloCentral(lvl, modNum);
+            const unidadesBanco = await buscarUnidadesPorModuloId(dados.current_module_id);
             if (unidadesBanco && unidadesBanco.length > 0) {
               setListaUnidades(unidadesBanco);
             }
