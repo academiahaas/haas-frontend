@@ -237,7 +237,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     PT: {
       mentorName: "CENTRAL DE APOIO",
       precisionLabel: "PRECISÃO",
-      mentorFire: "Como posso te ajudar com este desafio hoje? Tire suas dúvidas comigo!",
+      mentorFire: "Olá! Bem-vindo à Central de Apoio e Conversação Real.\n\nAqui você tem duas formas de praticar comigo: quando você escreve, pode tirar qualquer dúvida - gramática, vocabulário, o que for. Quando você fala, é uma simulação de conversa real, como se estivesse falando com uma pessoa de verdade no dia a dia.\n\nA correção de gramática fica por conta da Arena, nos jogos e exercícios. Aqui, é só conversar!",
       chatPlaceholder: "Tire suas dúvidas aqui...",
       unit: "UNIDADE",
       stage: "ETAPA",
@@ -253,7 +253,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     EN: {
       mentorName: "SUPPORT CENTER",
       precisionLabel: "PRECISION",
-      mentorFire: "How can I help you with this challenge today? Ask me any questions!",
+      mentorFire: "Hello! Welcome to the Real Conversation Help Center.\n\nHere you have two ways to practice with me: when you write, you can ask any question - grammar, vocabulary, anything. When you speak, it is a real conversation simulation, as if you were talking to a real person in everyday life.\n\nGrammar correction is handled by the Arena, in games and exercises. Here, it is just about talking!",
       chatPlaceholder: "Ask your questions here...",
       unit: "UNIT",
       stage: "STAGE",
@@ -268,7 +268,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     ES: {
       mentorName: "CENTRO DE APOYO",
       precisionLabel: "PRECISIÓN",
-      mentorFire: "¿Cómo puedo ayudarte con este desafío hoy? ¡Resuelve tus dudas conmigo!",
+      mentorFire: "¡Hola! Bienvenido al Centro de Ayuda y Conversación Real.\n\nAquí tienes dos formas de practicar conmigo: cuando escribes, puedes resolver cualquier duda - gramática, vocabulario, lo que sea. Cuando hablas, es una simulación de conversación real, como si estuvieras hablando con una persona de verdad en el día a día.\n\nLa corrección de gramática queda a cargo de la Arena, en los juegos y ejercicios. ¡Aquí, solo conversamos!",
       chatPlaceholder: "Resuelva sus dudas aquí...",
       unit: "UNIDAD",
       stage: "ETAPA",
@@ -771,33 +771,11 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
     // Se já respondeu algo ou ativou a IA, ignora
     if (respostaIA) return;
 
-    const rawLang = (idiomaNativoReal || "Portuguese").toLowerCase();
-    const nivelTxt = alunoNivel || "A1";
-    const unidadeTxt = dadosLicaoEscrita?.title || dadosLicaoEscrita?.unit || subUnidadeIndex || "";
-    const idiomaTarget = rawLang.includes("spanish") ? "Espanhol" : rawLang.includes("english") ? "Inglês" : "Português";
-
-    const promptBoasVindas = `Gerar uma mensagem curta e motivadora de boas-vindas e feedback pedagógico para o aluno ${nomeUsuarioReal || "Estudante"} (Nível ${nivelTxt}, Unidade: ${unidadeTxt}). Dê um incentivo sobre o progresso recente dele e incentive-o a continuar praticando hoje. Responda estritamente em ${idiomaTarget}.`;
-
-    setIsThinking(true);
-    setRespostaIA("");
-
-    fetch("/api/ai/mentor", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: promptBoasVindas, userId: userId, idiomaTela: currentLang })
-    })
-      .then(async (res) => {
-        if (!res.ok || !res.body) throw new Error("Erro na resposta da API");
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let acumulado = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          acumulado += decoder.decode(value, { stream: true });
-          setRespostaIA(acumulado);
-        }
-      })
+    // Usa direto o texto fixo de boas-vindas (ja traduzido por idioma), sem gerar via IA
+    setIsThinking(false);
+    setRespostaIA(tArena.mentorFire);
+    (async () => {})()
+      .then(async () => {})
       .catch((err) => console.error("Erro ao gerar feedback da Mentora:", err))
       .finally(() => setIsThinking(false));
   }, [userId]);
