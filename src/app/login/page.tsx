@@ -11,6 +11,30 @@ export default function LoginPage() {
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const [modalRecuperar, setModalRecuperar] = useState(false);
+  const [emailRecuperar, setEmailRecuperar] = useState("");
+  const [enviandoRecuperar, setEnviandoRecuperar] = useState(false);
+  const [msgRecuperar, setMsgRecuperar] = useState("");
+
+  const handleRecuperarSenha = async () => {
+    if (!emailRecuperar.trim()) {
+      setMsgRecuperar("Por favor ingresa tu correo.");
+      return;
+    }
+    setEnviandoRecuperar(true);
+    setMsgRecuperar("");
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailRecuperar.trim().toLowerCase(), {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+      if (error) throw error;
+      setMsgRecuperar("Listo. Revisa tu correo para el enlace de recuperación.");
+    } catch (e: any) {
+      setMsgRecuperar("Error al enviar. Verifica el correo e intenta de nuevo.");
+    } finally {
+      setEnviandoRecuperar(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +173,7 @@ export default function LoginPage() {
             </div>
 
             <div className="text-right">
-              <a href="#" className="text-xs text-indigo-400 hover:underline">¿Olvidaste tu contraseña?</a>
+              <button type="button" onClick={() => { setModalRecuperar(true); setEmailRecuperar(email); setMsgRecuperar(""); }} className="text-xs text-indigo-400 hover:underline cursor-pointer">¿Olvidaste tu contraseña?</button>
             </div>
 
             <button 
@@ -181,6 +205,31 @@ export default function LoginPage() {
         </div>
 
       </div>
+
+      {modalRecuperar && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setModalRecuperar(false)}>
+          <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-white">Recuperar contraseña</h2>
+            <p className="text-xs text-slate-400">Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.</p>
+            <input
+              type="email"
+              placeholder="tu@email.com"
+              value={emailRecuperar}
+              onChange={(e) => setEmailRecuperar(e.target.value)}
+              className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:border-indigo-500 outline-none"
+            />
+            {msgRecuperar && <p className="text-xs text-indigo-300">{msgRecuperar}</p>}
+            <div className="flex gap-2">
+              <button onClick={() => setModalRecuperar(false)} className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-slate-800 text-slate-300 text-xs font-bold">
+                Cancelar
+              </button>
+              <button onClick={handleRecuperarSenha} disabled={enviandoRecuperar} className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold">
+                {enviandoRecuperar ? "Enviando..." : "Enviar enlace"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
