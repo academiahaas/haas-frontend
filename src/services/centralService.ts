@@ -143,15 +143,35 @@ export async function fetchCentralPortalData(overrideUid?: string): Promise<Reco
       console.error("[CentralService] Erro ao consultar tabela levels:", err);
     }
     // ----------------------------------------------
+    // 4. Busca Modulos e Unidades para a Trilha
+    // Filtra sempre pelo curso real do aluno, para nao misturar modulos/unidades de outros cursos
+    // que compartilhem o mesmo level_tag (ex: A1 existe em varios cursos diferentes).
+    let modulesContentData: any[] = [];
+    let unitsData: any[] = [];
+    if (profile?.course_id) {
+      const { data: levelsDoCurso } = await supabase
+        .from("levels")
+        .select("id")
+        .eq("course_id", profile.course_id);
+      const levelIds = (levelsDoCurso || []).map((l: any) => l.id);
 
-    // 4. Busca Módulos e Unidades para a Trilha
-    const { data: modulesContentData } = await supabase
-      .from("modules_content")
-      .select("*");
+      if (levelIds.length > 0) {
+        const { data: mods } = await supabase
+          .from("modules_content")
+          .select("*")
+          .in("level_id", levelIds);
+        modulesContentData = mods || [];
 
-    const { data: unitsData } = await supabase
-      .from("units")
-      .select("*");
+        const moduleIds = modulesContentData.map((m: any) => m.id);
+        if (moduleIds.length > 0) {
+          const { data: units } = await supabase
+            .from("units")
+            .select("*")
+            .in("module_content_id", moduleIds);
+          unitsData = units || [];
+        }
+      }
+    }
 
     
     // Extrai o required_xp da tabela units para a unidade ativa
