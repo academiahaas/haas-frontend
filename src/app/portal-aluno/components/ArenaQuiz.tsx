@@ -130,7 +130,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   const [qtdVideosLiberados, setQtdVideosLiberados] = useState<number>(0);
   const [qtdConteudosLiberados, setQtdConteudosLiberados] = useState<number>(0);
-  const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO">("EXERCICIO");
+  const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<"EXERCICIO" | "TRILHA_VIDEOS" | "PLAYER_VIDEO" | "TRILHA_TEXTOS" | "TEXTO_PEDAGOGO" | "TRILHA_AULAS_GRAVADAS">("EXERCICIO");
+  const [aulasGravadas, setAulasGravadas] = useState<any[]>([]);
+
+  useEffect(() => {
+    const carregarAulasGravadas = async () => {
+      try {
+        const uid = (typeof window !== "undefined") ? (localStorage.getItem("haas_user_id") || (window as any).activeUserId) : undefined;
+        if (!uid) return;
+        const { data: perfil } = await supabase.from("users").select("corporate_group_id").eq("id", uid).maybeSingle();
+        const grupoId = perfil?.corporate_group_id;
+        if (!grupoId) return;
+        const { data: aulas } = await supabase.from("aulas_gravadas").select("id, nome_sala, link_gravacao, data_aula").eq("corporate_group_id", grupoId).order("data_aula", { ascending: false });
+        if (aulas) setAulasGravadas(aulas);
+      } catch (e) {
+        console.error("Erro ao carregar aulas gravadas:", e);
+      }
+    };
+    carregarAulasGravadas();
+  }, []);
   const [videoSelecionado, setVideoSelecionado] = useState<any>(null);
   const [urlEmbedAtiva, setUrlEmbedAtiva] = useState<string>("");
   const [carregandoVideo, setCarregandoVideo] = useState(false);
@@ -1522,6 +1540,16 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
               >
                 <Video size={14} />
               </button>
+              {aulasGravadas.length > 0 && (
+                <button 
+                  type="button"
+                  title={currentLang === "PT" ? "Aulas Gravadas" : currentLang === "EN" ? "Recorded Classes" : "Clases Grabadas"}
+                  onClick={() => setVisualizacaoAtiva(String(visualizacaoAtiva) === "TRILHA_AULAS_GRAVADAS" ? "EXERCICIO" : "TRILHA_AULAS_GRAVADAS")} 
+                  className="w-8 h-8 bg-[#1E2E48]/30 border border-white/[0.05] rounded-xl text-slate-300 hover:text-[#22d3ee] hover:bg-[#22d3ee]/10 hover:border-[#22d3ee]/30 transition-all flex items-center justify-center shrink-0"
+                >
+                  <Video size={14} className="opacity-70" />
+                </button>
+              )}
             </div>
             
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 relative shrink-0 shadow-md border z-10 ${
@@ -1718,6 +1746,48 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                       );
                     })}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {visualizacaoAtiva === "TRILHA_AULAS_GRAVADAS" && (
+              <div className="absolute inset-0 bg-[#070D19] z-[99] p-5 flex flex-col rounded-2xl select-none">
+                <button
+                  type="button"
+                  onClick={() => setVisualizacaoAtiva("EXERCICIO")}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer z-[101]"
+                >
+                  <X size={18} />
+                </button>
+                <h2 className="text-sm font-bold text-slate-200 mb-4 mt-1">
+                  {currentLang === "PT" ? "Aulas Gravadas" : currentLang === "EN" ? "Recorded Classes" : "Clases Grabadas"}
+                </h2>
+                <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-1" style={{ scrollbarWidth: "none" }}>
+                  {aulasGravadas.length === 0 ? (
+                    <p className="text-xs text-slate-500">
+                      {currentLang === "PT" ? "Nenhuma aula gravada ainda." : currentLang === "EN" ? "No recorded classes yet." : "Ninguna clase grabada todavia."}
+                    </p>
+                  ) : (
+                    aulasGravadas.map((aula) => (
+                      <a
+                        key={aula.id}
+                        href={aula.link_gravacao}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 rounded-xl px-4 py-3 transition-all"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8b5cf6] to-[#22d3ee] flex items-center justify-center shrink-0">
+                          <Video size={14} className="text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-slate-200">
+                            {new Date(aula.data_aula).toLocaleDateString(currentLang === "PT" ? "pt-BR" : currentLang === "EN" ? "en-US" : "es-CO")}
+                          </span>
+                          <span className="text-[10px] text-slate-500">{aula.nome_sala}</span>
+                        </div>
+                      </a>
+                    ))
+                  )}
                 </div>
               </div>
             )}
