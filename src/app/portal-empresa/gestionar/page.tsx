@@ -660,10 +660,10 @@ export default function GestionarPlan() {
                     <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder={tG.nomeCompleto} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     <select value={idiomaCursoNovo} onChange={(e) => setIdiomaCursoNovo(e.target.value)} className="w-full bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200">
                       <option value="" className="bg-[#0a1424] text-slate-400">{tG.selecioneIdioma}</option>
-                      <option value="portugues" className="bg-[#0a1424] text-slate-200">Portugués</option>
-                      <option value="ingles" className="bg-[#0a1424] text-slate-200">Inglés</option>
-                      <option value="espanol" className="bg-[#0a1424] text-slate-200">Español</option>
-                      <option value="frances" className="bg-[#0a1424] text-slate-200">Francés</option>
+                      <option value="portugues" className="bg-[#0a1424] text-slate-200">{idioma === "PT" ? "Português" : idioma === "EN" ? "Portuguese" : "Portugués"}</option>
+                      <option value="ingles" className="bg-[#0a1424] text-slate-200">{idioma === "PT" ? "Inglês" : idioma === "EN" ? "English" : "Inglés"}</option>
+                      <option value="espanol" className="bg-[#0a1424] text-slate-200">{idioma === "PT" ? "Espanhol" : idioma === "EN" ? "Spanish" : "Español"}</option>
+                      <option value="frances" className="bg-[#0a1424] text-slate-200">{idioma === "PT" ? "Francês" : idioma === "EN" ? "French" : "Francés"}</option>
                     </select>
                     <input value={emailNovo} onChange={(e) => setEmailNovo(e.target.value)} placeholder="nuevo@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     {tipoHorario === "fijo" && (
