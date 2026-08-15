@@ -52,6 +52,7 @@ export default function GestionarPlan() {
   const [simPessoas, setSimPessoas] = useState(0);
 
   const [nomeNovo, setNomeNovo] = useState("");
+  const [idiomaCursoNovo, setIdiomaCursoNovo] = useState("");
   const [emailNovo, setEmailNovo] = useState("");
   const [diasClase, setDiasClase] = useState("");
   const [horarioClase, setHorarioClase] = useState("");
@@ -152,6 +153,14 @@ export default function GestionarPlan() {
   };
 
   const handleAbrirModal = () => {
+    if (!nomeNovo.trim() || !emailNovo.trim() || !emailNovo.includes("@")) {
+      setMsgAccion("Completa el nombre y el correo antes de continuar.");
+      return;
+    }
+    if (!idiomaCursoNovo) {
+      setMsgAccion("Selecciona el idioma del curso antes de continuar.");
+      return;
+    }
     setMsgAccion("");
     setModalAberto(true);
   };
@@ -167,6 +176,7 @@ export default function GestionarPlan() {
           corporate_account_id: empresa.id,
           plan_key: simPlano.plan_key,
           nombre: nomeNovo.trim(),
+          idioma_curso: idiomaCursoNovo,
           email: emailNovo.trim(),
           dias: tipoHorario === "fijo" ? diasClase : null,
           horario: tipoHorario === "fijo" ? horarioClase : null
@@ -183,6 +193,7 @@ export default function GestionarPlan() {
         body: JSON.stringify({ destinatario: emailNovo.trim(), assunto: template.asunto, corpoHtml: html })
       });
 
+      setIdiomaCursoNovo("");
       setMsgAccion(`${nomeNovo.trim()} fue agregado e invitado.`);
       setModalAberto(false);
       setNomeNovo("");
@@ -523,6 +534,13 @@ export default function GestionarPlan() {
                 {mostrarFormAgregar && (
                   <div className="space-y-2">
                     <input value={nomeNovo} onChange={(e) => setNomeNovo(e.target.value)} placeholder="Nombre completo" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
+                    <select value={idiomaCursoNovo} onChange={(e) => setIdiomaCursoNovo(e.target.value)} className="w-full bg-[#0a1424] border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200">
+                      <option value="" className="bg-[#0a1424] text-slate-400">Selecciona el idioma del curso</option>
+                      <option value="portugues" className="bg-[#0a1424] text-slate-200">Portugués</option>
+                      <option value="ingles" className="bg-[#0a1424] text-slate-200">Inglés</option>
+                      <option value="espanol" className="bg-[#0a1424] text-slate-200">Español</option>
+                      <option value="frances" className="bg-[#0a1424] text-slate-200">Francés</option>
+                    </select>
                     <input value={emailNovo} onChange={(e) => setEmailNovo(e.target.value)} placeholder="nuevo@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500" />
                     {tipoHorario === "fijo" && (
                       <div className="grid grid-cols-2 gap-2">

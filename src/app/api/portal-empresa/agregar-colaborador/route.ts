@@ -5,9 +5,9 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 
 export async function POST(req: NextRequest) {
   try {
-    const { corporate_account_id, plan_key, nombre, email, dias, horario } = await req.json();
+    const { corporate_account_id, plan_key, nombre, email, dias, horario, idioma_curso } = await req.json();
 
-    if (!corporate_account_id || !plan_key || !nombre || !email) {
+    if (!corporate_account_id || !plan_key || !nombre || !email || !idioma_curso) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
     }
 
@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
         nombre,
         email,
         dias_semana: dias || null,
-        horario: horario || null
+        horario: horario || null,
+        idioma_curso
       }])
       .select("id")
       .single();
