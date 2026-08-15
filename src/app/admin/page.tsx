@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileText, Sparkles, Building2, Wallet, Users, GraduationCap, Receipt, CalendarClock } from 'lucide-react';
+import { FileText, Sparkles, Building2, Wallet, Users, GraduationCap, Receipt, CalendarClock, Tag } from 'lucide-react';
 import { CatalogoTab } from './tabs/CatalogoTab';
 import { CreadorTab } from './tabs/CreadorTab';
 import { EmpresasTab } from './tabs/EmpresasTab';
@@ -12,6 +12,7 @@ import { ProfesoresTab } from './tabs/ProfesoresTab';
 import { GastosTab } from './tabs/GastosTab';
 import { GeradorExerciciosTab } from './tabs/GeradorExerciciosTab';
 import { AgendaTab } from './tabs/AgendaTab';
+import { CuponesTab } from './tabs/CuponesTab';
 
 const ABAS = [
   { id: 'finanzas', label: 'Finanzas', icon: Wallet, componente: FinanzasTab },
@@ -22,6 +23,7 @@ const ABAS = [
   { id: 'creador', label: 'Gerador IA', icon: Sparkles, componente: GeradorExerciciosTab },
   { id: 'alunos', label: 'Alumnos', icon: Users, componente: AlunosTab },
   { id: 'profesores', label: 'Profesores', icon: GraduationCap, componente: ProfesoresTab },
+  { id: 'cupones', label: 'Cupones', icon: Tag, componente: CuponesTab },
 ];
 
 export default function AdminDashboard() {
