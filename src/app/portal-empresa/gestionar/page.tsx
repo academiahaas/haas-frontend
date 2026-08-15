@@ -126,7 +126,7 @@ export default function GestionarPlan() {
       simuladorPlano: "Plan simulator",
       escolhaTipo: "Choose the schedule type and how many people you want to enroll.",
       horarioFixo: "Fixed schedule",
-      horarioLivre: "Flexible schedule (Agenda)",
+      horarioLivre: "Flexible schedule (Calendar)",
       colaboradores: "Employees",
       desconto: "Discount",
       totalMensal: "Monthly total",
