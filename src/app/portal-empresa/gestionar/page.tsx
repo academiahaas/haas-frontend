@@ -642,7 +642,9 @@ export default function GestionarPlan() {
           ) : (
             <>
               {membrosAtuais.length === 0 ? (
-                <p className="text-xs text-slate-500 mb-3">{tG.nenhumColaborador}</p>
+                <div className="flex-1 min-h-0">
+                  <p className="text-xs text-slate-500 mb-3">{tG.nenhumColaborador}</p>
+                </div>
               ) : (
                 <div className="flex flex-col gap-1.5 mb-3 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                   {membrosAtuais.map((m: any, i: number) => (
