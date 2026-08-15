@@ -43,6 +43,150 @@ export default function PortalEmpresa() {
   const [mostrarDesempeno, setMostrarDesempeno] = useState(true);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [idioma, setIdioma] = useState<"PT" | "ES" | "EN">("ES");
+
+  const dict = {
+    PT: {
+      painelCorporativo: "Painel Corporativo",
+      sairSessao: "Sair da sessão",
+      colaboradores: "Colaboradores",
+      valorMensalAtual: "Valor mensal atual",
+      gerenciarPlano: "Gerenciar plano",
+      gerenciarPlanoDesc: "Simule, convide colaboradores e pague",
+      gruposHorarios: "Grupos e horários",
+      ocultar: "Ocultar",
+      mostrar: "Mostrar",
+      semGrupos: "Nenhum grupo cadastrado ainda.",
+      horarioNaoDefinido: "Horário não definido",
+      pessoa: "pessoa",
+      pessoas: "pessoas",
+      semMembros: "Sem membros",
+      desempenhoColaboradores: "Desempenho dos colaboradores",
+      semColaboradores: "Nenhum colaborador cadastrado ainda.",
+      nome: "Nome",
+      nivel: "Nível",
+      fala: "Fala",
+      escuta: "Escuta",
+      leitura: "Leitura",
+      escrita: "Escrita",
+      gramatica: "Gramática",
+      media: "Média",
+      frequencia: "Frequência",
+      carregandoPainel: "Carregando painel...",
+      convidarColaboradores: "Convidar colaboradores",
+      convidarDesc: "Insira os emails das pessoas que vão estudar. Vamos enviar um email de boas-vindas com o link pra fazer a prova de nivelamento.",
+      emailsLabel: "Emails (um por linha)",
+      previaEmail: "Prévia do email que eles vão receber:",
+      bemVindoTitulo: "Bem-vindo à Haas Language",
+      empresaInscreveu: "te inscreveu no nosso programa de idiomas.",
+      provaNivelamentoDesc: "Para começar, é necessário fazer uma breve prova de nivelamento. Isso nos permite te colocar no nível certo desde o primeiro dia.",
+      fazerProva: "Fazer prova de nivelamento",
+      enviando: "Enviando...",
+      aprovarEnviar: "Aprovar e enviar emails"
+    },
+    ES: {
+      painelCorporativo: "Panel Corporativo",
+      sairSessao: "Cerrar sesión",
+      colaboradores: "Colaboradores",
+      valorMensalAtual: "Valor mensual actual",
+      gerenciarPlano: "Gestionar plan",
+      gerenciarPlanoDesc: "Simula, invita colaboradores y paga",
+      gruposHorarios: "Grupos y horarios",
+      ocultar: "Ocultar",
+      mostrar: "Mostrar",
+      semGrupos: "No hay grupos registrados todavía.",
+      horarioNaoDefinido: "Horario no definido",
+      pessoa: "persona",
+      pessoas: "personas",
+      semMembros: "Sin miembros",
+      desempenhoColaboradores: "Desempeño de los colaboradores",
+      semColaboradores: "No hay colaboradores registrados todavía.",
+      nome: "Nombre",
+      nivel: "Nivel",
+      fala: "Habla",
+      escuta: "Escucha",
+      leitura: "Lectura",
+      escrita: "Escritura",
+      gramatica: "Gramática",
+      media: "Promedio",
+      frequencia: "Asistencia",
+      carregandoPainel: "Cargando panel...",
+      convidarColaboradores: "Invitar colaboradores",
+      convidarDesc: "Ingresa los correos de las personas que van a estudiar. Les enviaremos un correo de bienvenida con el enlace para hacer la prueba de nivelación.",
+      emailsLabel: "Correos electrónicos (uno por línea)",
+      previaEmail: "Vista previa del correo que van a recibir:",
+      bemVindoTitulo: "Bienvenido a Haas Language",
+      empresaInscreveu: "te ha inscrito en nuestro programa de idiomas.",
+      provaNivelamentoDesc: "Para comenzar, es necesario que realices una breve prueba de nivelación. Esto nos permite ubicarte en el nivel correcto desde el primer día.",
+      fazerProva: "Hacer prueba de nivelación",
+      enviando: "Enviando...",
+      aprovarEnviar: "Aprobar y enviar correos"
+    },
+    EN: {
+      painelCorporativo: "Corporate Panel",
+      sairSessao: "Log out",
+      colaboradores: "Employees",
+      valorMensalAtual: "Current monthly fee",
+      gerenciarPlano: "Manage plan",
+      gerenciarPlanoDesc: "Simulate, invite employees and pay",
+      gruposHorarios: "Groups and schedules",
+      ocultar: "Hide",
+      mostrar: "Show",
+      semGrupos: "No groups registered yet.",
+      horarioNaoDefinido: "Schedule not set",
+      pessoa: "person",
+      pessoas: "people",
+      semMembros: "No members",
+      desempenhoColaboradores: "Employee performance",
+      semColaboradores: "No employees registered yet.",
+      nome: "Name",
+      nivel: "Level",
+      fala: "Speaking",
+      escuta: "Listening",
+      leitura: "Reading",
+      escrita: "Writing",
+      gramatica: "Grammar",
+      media: "Average",
+      frequencia: "Attendance",
+      carregandoPainel: "Loading panel...",
+      convidarColaboradores: "Invite employees",
+      convidarDesc: "Enter the emails of the people who will study. We will send a welcome email with the link to take the placement test.",
+      emailsLabel: "Emails (one per line)",
+      previaEmail: "Preview of the email they will receive:",
+      bemVindoTitulo: "Welcome to Haas Language",
+      empresaInscreveu: "enrolled you in our language program.",
+      provaNivelamentoDesc: "To get started, you need to take a short placement test. This lets us place you at the right level from day one.",
+      fazerProva: "Take placement test",
+      enviando: "Sending...",
+      aprovarEnviar: "Approve and send emails"
+    }
+  };
+  const t = dict[idioma];
+
+  const traduzirDias = (texto: string) => {
+    if (!texto) return texto;
+    const mapa: Record<string, { PT: string; EN: string }> = {
+      lunes: { PT: "Segunda", EN: "Monday" },
+      martes: { PT: "Terça", EN: "Tuesday" },
+      miercoles: { PT: "Quarta", EN: "Wednesday" },
+      jueves: { PT: "Quinta", EN: "Thursday" },
+      viernes: { PT: "Sexta", EN: "Friday" },
+      sabado: { PT: "Sábado", EN: "Saturday" },
+      domingo: { PT: "Domingo", EN: "Sunday" },
+      y: { PT: "e", EN: "and" }
+    };
+    if (idioma === "ES") {
+      const mapaAcentos: Record<string, string> = { miercoles: "Miércoles", sabado: "Sábado" };
+      return texto.split(" ").map((p) => {
+        const chave = p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return mapaAcentos[chave] || p;
+      }).join(" ");
+    }
+    return texto.split(" ").map((p) => {
+      const chave = p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return mapa[chave] ? mapa[chave][idioma] : p;
+    }).join(" ");
+  };
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -203,7 +347,7 @@ export default function PortalEmpresa() {
     return (
       <div className="min-h-screen bg-[#030914] flex flex-col items-center justify-center gap-3 text-slate-400">
         <Loader2 className="animate-spin text-cyan-400" size={32} />
-        <p className="text-sm font-medium">Cargando panel...</p>
+        <p className="text-sm font-medium">{t.carregandoPainel}</p>
       </div>
     );
   }
@@ -232,12 +376,19 @@ export default function PortalEmpresa() {
           </div>
           <div>
             <h1 className="font-bold text-sm text-slate-100">{empresa?.company_name}</h1>
-            <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Panel Corporativo</span>
+            <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">{t.painelCorporativo}</span>
           </div>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition-colors">
-          <LogOut size={14} /> Cerrar sesion
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+            {(["PT", "ES", "EN"] as const).map((l) => (
+              <button key={l} onClick={() => setIdioma(l)} className={`text-[10px] font-bold px-2 py-1 rounded ${idioma === l ? "bg-cyan-500/20 text-cyan-400" : "text-slate-500"}`}>{l}</button>
+            ))}
+          </div>
+          <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition-colors">
+            <LogOut size={14} /> {t.sairSessao}
+          </button>
+        </div>
       </header>
 
       <main className="p-4 md:p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -250,7 +401,7 @@ export default function PortalEmpresa() {
                 <Users size={18} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Colaboradores</span>
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{t.colaboradores}</span>
                 <span className="text-lg font-extrabold text-slate-100">{funcionarios.length}</span>
               </div>
             </div>
@@ -259,7 +410,7 @@ export default function PortalEmpresa() {
                 <Building2 size={18} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Valor mensual actual</span>
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{t.valorMensalAtual}</span>
                 <span className="text-lg font-extrabold text-slate-100">{calcularValorMensalReal() > 0 ? `$${calcularValorMensalReal().toLocaleString("es-CO")}` : "-"}</span>
               </div>
             </div>
@@ -268,8 +419,8 @@ export default function PortalEmpresa() {
           <Link href="/portal-empresa/gestionar" className="block bg-gradient-to-r from-purple-500/10 to-fuchsia-500/10 border border-purple-500/30 hover:border-purple-500/50 rounded-xl p-4 shrink-0 transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-sm text-slate-100">Gestionar plan</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Simula, invita colaboradores y paga</p>
+                <p className="font-bold text-sm text-slate-100">{t.gerenciarPlano}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">{t.gerenciarPlanoDesc}</p>
               </div>
               <span className="text-purple-400 text-lg">&rarr;</span>
             </div>
@@ -277,23 +428,23 @@ export default function PortalEmpresa() {
 
           <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col flex-1 min-h-0">
             <div className="flex items-center justify-between shrink-0">
-              <h2 className="font-bold text-sm text-slate-200">Grupos y horarios</h2>
+              <h2 className="font-bold text-sm text-slate-200">{t.gruposHorarios}</h2>
               <button onClick={() => setMostrarGrupos(!mostrarGrupos)} className="text-[10px] bg-white/5 hover:bg-white/10 text-slate-400 px-2 py-1 rounded">
-                {mostrarGrupos ? "Ocultar" : "Mostrar"}
+                {mostrarGrupos ? t.ocultar : t.mostrar}
               </button>
             </div>
             {mostrarGrupos && (
               grupos.length === 0 ? (
-                <p className="text-xs text-slate-500 mt-2">No hay grupos registrados todavia.</p>
+                <p className="text-xs text-slate-500 mt-2">{t.semGrupos}</p>
               ) : (
                 <div className="flex flex-col gap-2 mt-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
                   {grupos.map((g) => (
                     <div key={g.id} className="bg-white/[0.02] border border-white/5 rounded-lg p-2.5 shrink-0">
                       <p className="text-sm font-bold text-slate-200">
-                        {g.dias_semana || g.frequencia || "Horario no definido"} {g.horario ? `- ${g.horario}` : ""}
+                        {traduzirDias(g.dias_semana || g.frequencia) || t.horarioNaoDefinido} {g.horario ? `- ${g.horario}` : ""}
                       </p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">{g.membros.length} {g.membros.length === 1 ? "persona" : "personas"}</p>
-                      <p className="text-[11px] text-cyan-400 mt-1">{g.membros.map((m: any) => m.name || m.email).join(", ") || "Sin miembros"}</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">{g.membros.length} {g.membros.length === 1 ? t.pessoa : t.pessoas}</p>
+                      <p className="text-[11px] text-cyan-400 mt-1">{g.membros.map((m: any) => m.name || m.email).join(", ") || t.semMembros}</p>
                     </div>
                   ))}
                 </div>
@@ -304,10 +455,10 @@ export default function PortalEmpresa() {
         </div>
         {etapaCompra === "emails" ? (
           <div className="bg-[#0a1424] border border-purple-500/30 rounded-xl p-6 flex flex-col min-h-0 overflow-y-auto scrollbar-hide">
-            <h2 className="font-bold text-xl text-slate-100 mb-2">Invitar colaboradores</h2>
-            <p className="text-sm text-slate-400 mb-6">Ingresa los correos de las personas que van a estudiar. Les enviaremos un correo de bienvenida con el enlace para hacer la prueba de nivelacion.</p>
+            <h2 className="font-bold text-xl text-slate-100 mb-2">{t.convidarColaboradores}</h2>
+            <p className="text-sm text-slate-400 mb-6">{t.convidarDesc}</p>
 
-            <label className="text-sm font-bold text-slate-300 mb-2">Correos electronicos (uno por linea)</label>
+            <label className="text-sm font-bold text-slate-300 mb-2">{t.emailsLabel}</label>
             <textarea
               rows={6}
               value={emailsColaboradores}
@@ -316,51 +467,51 @@ export default function PortalEmpresa() {
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-slate-200 placeholder-slate-500 mb-6"
             />
 
-            <p className="text-sm font-bold text-slate-300 mb-2">Vista previa del correo que van a recibir:</p>
+            <p className="text-sm font-bold text-slate-300 mb-2">{t.previaEmail}</p>
             <div className="bg-white rounded-xl p-6 mb-6 text-slate-900">
-              <p className="text-lg font-bold mb-3">Bienvenido a Haas Language</p>
+              <p className="text-lg font-bold mb-3">{t.bemVindoTitulo}</p>
               <p className="text-sm leading-relaxed mb-3">
-                <strong>{empresa?.company_name}</strong> te ha inscrito en nuestro programa de idiomas.
+                <strong>{empresa?.company_name}</strong> {t.empresaInscreveu}
               </p>
               <p className="text-sm leading-relaxed mb-4">
-                Para comenzar, es necesario que realices una breve prueba de nivelacion. Esto nos permite ubicarte en el nivel correcto desde el primer dia.
+                {t.provaNivelamentoDesc}
               </p>
               <div className="bg-cyan-500 text-slate-950 font-bold text-sm text-center py-3 rounded-lg">
-                Hacer prueba de nivelacion
+                {t.fazerProva}
               </div>
             </div>
 
             <button onClick={handleEnviarOnboarding} disabled={enviandoEmails} className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 disabled:opacity-50 text-white font-black py-3 rounded-xl text-sm uppercase tracking-wider transition-all">
-              {enviandoEmails ? "Enviando..." : "Aprobar y enviar correos"}
+              {enviandoEmails ? t.enviando : t.aprovarEnviar}
             </button>
             {emailsEnviadosMsg && <p className="text-sm text-emerald-400 mt-3 text-center">{emailsEnviadosMsg}</p>}
           </div>
         ) : (
         <div className="bg-[#0a1424] border border-white/10 rounded-xl p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between shrink-0">
-            <h2 className="font-bold text-sm text-slate-200">Desempeno de los colaboradores</h2>
+            <h2 className="font-bold text-sm text-slate-200">{t.desempenhoColaboradores}</h2>
             <button onClick={() => setMostrarDesempeno(!mostrarDesempeno)} className="text-[10px] bg-white/5 hover:bg-white/10 text-slate-400 px-2 py-1 rounded">
-              {mostrarDesempeno ? "Ocultar" : "Mostrar"}
+              {mostrarDesempeno ? t.ocultar : t.mostrar}
             </button>
           </div>
           {mostrarDesempeno && (funcionarios.length === 0 ? (
             <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl mt-2">
-              No hay colaboradores registrados todavia.
+              {t.semColaboradores}
             </div>
           ) : (
             <div className="overflow-auto mt-2 flex-1 min-h-0 scrollbar-hide">
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-left text-slate-500 uppercase text-[10px] border-b border-white/10 sticky top-0 bg-[#0a1424]">
-                    <th className="pb-2 pr-4">Nombre</th>
-                    <th className="pb-2 pr-4">Nivel</th>
-                    <th className="pb-2 pr-4">Habla</th>
-                    <th className="pb-2 pr-4">Escucha</th>
-                    <th className="pb-2 pr-4">Lectura</th>
-                    <th className="pb-2 pr-4">Escritura</th>
-                    <th className="pb-2 pr-4">Gramatica</th>
-                    <th className="pb-2 pr-4">Promedio</th>
-                    <th className="pb-2">Asistencia</th>
+                    <th className="pb-2 pr-4">{t.nome}</th>
+                    <th className="pb-2 pr-4">{t.nivel}</th>
+                    <th className="pb-2 pr-4">{t.fala}</th>
+                    <th className="pb-2 pr-4">{t.escuta}</th>
+                    <th className="pb-2 pr-4">{t.leitura}</th>
+                    <th className="pb-2 pr-4">{t.escrita}</th>
+                    <th className="pb-2 pr-4">{t.gramatica}</th>
+                    <th className="pb-2 pr-4">{t.media}</th>
+                    <th className="pb-2">{t.frequencia}</th>
                   </tr>
                 </thead>
                 <tbody>
