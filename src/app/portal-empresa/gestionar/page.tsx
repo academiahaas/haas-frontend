@@ -58,7 +58,17 @@ export default function GestionarPlan() {
   const [diasClase, setDiasClase] = useState("");
   const [horarioClase, setHorarioClase] = useState("");
   const [idiomaEmail, setIdiomaEmail] = useState("es");
-  const [idioma, setIdioma] = useState<"PT" | "ES" | "EN">("ES");
+  const [idioma, setIdiomaState] = useState<"PT" | "ES" | "EN">(() => {
+    if (typeof window !== "undefined") {
+      const salvo = localStorage.getItem("haas_corporate_idioma");
+      if (salvo === "PT" || salvo === "ES" || salvo === "EN") return salvo;
+    }
+    return "ES";
+  });
+  const setIdioma = (l: "PT" | "ES" | "EN") => {
+    setIdiomaState(l);
+    if (typeof window !== "undefined") localStorage.setItem("haas_corporate_idioma", l);
+  };
 
   const dictG = {
     PT: {
