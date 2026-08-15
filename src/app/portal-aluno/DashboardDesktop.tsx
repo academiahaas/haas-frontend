@@ -3,7 +3,7 @@ import BotaoEntrarAula from "./components/BotaoEntrarAula";
 import { useRouter } from 'next/navigation';
 import TelaTransicaoHibrida from './components/TelaTransicaoHibrida';
 
-import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarUnidadesModuloCentral, checkPendingFlagsCentral } from "../../services/centralService";
+import { buscarProgressoAlunoCentral, buscarInfoModuloContent, buscarInfoModuloPorId, buscarUnidadesModuloCentral, checkPendingFlagsCentral } from "../../services/centralService";
 import ModalCertificados from './components/ModalCertificados';
 import ModalProva from './components/ModalProva';
 import { ModalConclusao } from './components/ModalConclusao';
@@ -146,8 +146,8 @@ export default function DashboardDesktop({ alunoData }: any) {
           setModuloUserCentral(String(modNum).padStart(2, '0'));
           setNivelUserCentral(lvl);
 
-          // Busca título oficial em modules_content
-          const infoModulo = await buscarInfoModuloContent(lvl, modNum);
+          // Busca título oficial em modules_content (direto por ID, sem ambiguidade entre cursos)
+          const infoModulo = await buscarInfoModuloPorId(dados.current_module_id);
           if (infoModulo && infoModulo.module_title) {
             setNomeModulo(infoModulo.module_title);
           } else {
@@ -358,7 +358,7 @@ export default function DashboardDesktop({ alunoData }: any) {
             const modNum = dados.modulo_atual || 1;
             setModuloUserCentral(String(modNum).padStart(2, '0'));
             setNivelUserCentral(lvl);
-            const infoModulo = await buscarInfoModuloContent(lvl, modNum);
+            const infoModulo = await buscarInfoModuloPorId(dados.current_module_id);
             setNomeModulo(infoModulo?.module_title || ("Módulo " + String(modNum).padStart(2, '0')));
             const unidadesBanco = await buscarUnidadesModuloCentral(lvl, modNum);
             if (unidadesBanco && unidadesBanco.length > 0) {

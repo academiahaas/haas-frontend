@@ -428,6 +428,28 @@ export async function buscarInfoModuloContent(levelTag: string, moduleNumber: nu
   }
 }
 
+// Busca direta e sem ambiguidade, usando o ID exato do modulo do aluno (evita
+// pegar modulo de outro curso quando varios cursos compartilham o mesmo nivel/numero).
+export async function buscarInfoModuloPorId(moduleId: string) {
+  try {
+    if (!moduleId) return null;
+    const { data, error } = await supabase
+      .from("modules_content")
+      .select("module_title, pedagogical_objective, thematic_content")
+      .eq("id", moduleId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro na busca de modules_content por id:", error);
+      return null;
+    }
+    return data;
+  } catch (e) {
+    console.error("Exceção ao buscar modules_content por id:", e);
+    return null;
+  }
+}
+
 
 export async function buscarUnidadesModuloCentral(levelTag: string, moduleNumber: number | string) {
   try {
