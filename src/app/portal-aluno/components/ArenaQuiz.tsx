@@ -999,6 +999,7 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
 
   // NOVO MOTOR ULTRA VELOZ COM VOZ NATIVA E VALIDAÇÃO DE CRÉDITOS NO SUPABASE
   const perguntarAoMentor = async (e: any, audioBase64 = null, textoForcado = null) => {
+    console.log("=== PERGUNTAR AO MENTOR CHAMADO ===", new Date().toISOString(), "| textoForcado:", textoForcado, "| temAudioBase64:", !!audioBase64);
     if (abortControllerRef.current) abortControllerRef.current.abort();
     abortControllerRef.current = new AbortController();
     if (e) e.preventDefault();
@@ -1967,27 +1968,25 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
         const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
-        let indexBloco = 0;
-        const falarSequencial = async () => {
-          if (indexBloco >= blocos.length) return;
-          const textoBloco = blocos[indexBloco];
+        // Toca apenas o ultimo bloco (a pergunta, no idioma alvo que o aluno esta aprendendo),
+        // sem dividir em varios audios sequenciais - evita pausa longa entre blocos.
+        const textoParaFalar = blocos.length > 0 ? blocos.join(" ") : t;
+        const falarUnico = async () => {
           try {
             const res = await fetch("/api/ai/tts", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+              body: JSON.stringify({ text: textoParaFalar, voice: "nova" }),
             });
             if (!res.ok) throw new Error();
             const blob = await res.blob();
             const audio = new Audio(URL.createObjectURL(blob));
-            audio.onended = () => { indexBloco++; falarSequencial(); };
             await audio.play();
           } catch (e) {
-            indexBloco++;
-            falarSequencial();
+            console.error("Erro ao tocar audio da mentora:", e);
           }
         };
-        falarSequencial();
+        falarUnico();
       }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-purple-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
@@ -2027,27 +2026,23 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
-          let indexBloco = 0;
-          const falarSequencial = async () => {
-          if (indexBloco >= blocos.length) return;
-          const textoBloco = blocos[indexBloco];
+          const textoParaFalar = blocos.length > 0 ? blocos.join(" ") : t;
+          const falarUnico = async () => {
           try {
             const res = await fetch("/api/ai/tts", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+              body: JSON.stringify({ text: textoParaFalar, voice: "nova" }),
             });
             if (!res.ok) throw new Error();
             const blob = await res.blob();
             const audio = new Audio(URL.createObjectURL(blob));
-            audio.onended = () => { indexBloco++; falarSequencial(); };
             await audio.play();
           } catch (e) {
-            indexBloco++;
-            falarSequencial();
+            console.error("Erro ao tocar audio da mentora (botao oculto):", e);
           }
         };
-          falarSequencial();
+          falarUnico();
         }} className="hidden" title="Ouvir"></button>
       )}
       {msg.texto}
@@ -2146,27 +2141,23 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
         const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
         const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
-        let indexBloco = 0;
-        const falarSequencial = async () => {
-          if (indexBloco >= blocos.length) return;
-          const textoBloco = blocos[indexBloco];
+        const textoParaFalar = blocos.length > 0 ? blocos.join(" ") : t;
+        const falarUnico = async () => {
           try {
             const res = await fetch("/api/ai/tts", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+              body: JSON.stringify({ text: textoParaFalar, voice: "nova" }),
             });
             if (!res.ok) throw new Error();
             const blob = await res.blob();
             const audio = new Audio(URL.createObjectURL(blob));
-            audio.onended = () => { indexBloco++; falarSequencial(); };
             await audio.play();
           } catch (e) {
-            indexBloco++;
-            falarSequencial();
+            console.error("Erro ao tocar audio da mentora:", e);
           }
         };
-        falarSequencial();
+        falarUnico();
       }} className="w-8 h-8 rounded-full bg-purple-600 hover:bg-cyan-400 flex items-center justify-center text-white transition-colors cursor-pointer shadow-md shadow-purple-900/30" title="Ouvir mensagem">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5"><path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd"></path></svg>
       </button>
@@ -2206,27 +2197,23 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
           const langNativo = mapearLang(typeof idiomaNativoReal !== "undefined" ? idiomaNativoReal : "Portuguese");
           const langAlvo = mapearLang(typeof currentLang !== "undefined" ? currentLang : "Portuguese");
 
-          let indexBloco = 0;
-          const falarSequencial = async () => {
-          if (indexBloco >= blocos.length) return;
-          const textoBloco = blocos[indexBloco];
+          const textoParaFalar = blocos.length > 0 ? blocos.join(" ") : t;
+          const falarUnico = async () => {
           try {
             const res = await fetch("/api/ai/tts", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ text: textoBloco, voice: "nova" }),
+              body: JSON.stringify({ text: textoParaFalar, voice: "nova" }),
             });
             if (!res.ok) throw new Error();
             const blob = await res.blob();
             const audio = new Audio(URL.createObjectURL(blob));
-            audio.onended = () => { indexBloco++; falarSequencial(); };
             await audio.play();
           } catch (e) {
-            indexBloco++;
-            falarSequencial();
+            console.error("Erro ao tocar audio da mentora (botao oculto):", e);
           }
         };
-          falarSequencial();
+          falarUnico();
         }} className="hidden" title="Ouvir"></button>
       )}
       {msg.texto}
