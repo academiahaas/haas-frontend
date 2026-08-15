@@ -153,6 +153,18 @@ export default function GestionarPlan() {
     }
   };
   const tG = dictG[idioma];
+
+  const traduzirPlano = (planKey: string, labelOriginal: string) => {
+    const mapa: Record<string, { PT: string; ES: string; EN: string }> = {
+      "3x_semana": { PT: "3x por semana", ES: "3x por semana", EN: "3x a week" },
+      "5x_semana": { PT: "5x por semana", ES: "5x por semana", EN: "5x a week" },
+      "particular": { PT: "Aulas Particulares", ES: "Clases Particulares", EN: "Private Lessons" },
+      "3x_semana_flex": { PT: "3x semana - Horário livre", ES: "3x semana - Horario libre", EN: "3x week - Flexible schedule" },
+      "5x_semana_flex": { PT: "5x semana - Horário livre", ES: "5x semana - Horario libre", EN: "5x week - Flexible schedule" },
+      "particular_flex": { PT: "Particular - Horário livre", ES: "Particular - Horario libre", EN: "Private - Flexible schedule" }
+    };
+    return mapa[planKey] ? mapa[planKey][idioma] : labelOriginal;
+  };
   const [modalAberto, setModalAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [msgAccion, setMsgAccion] = useState("");
@@ -452,7 +464,7 @@ export default function GestionarPlan() {
             <div className="grid grid-cols-2 gap-2 mb-4">
               {planosFiltrados.map((p) => (
                 <button key={p.plan_key} onClick={() => handleEscolherPlano(p)} className={`text-left p-3 rounded-lg border transition-all ${simPlano?.plan_key === p.plan_key ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.02] border-white/10 hover:border-white/20"}`}>
-                  <p className="text-xs font-bold text-slate-200">{p.plan_label}</p>
+                  <p className="text-xs font-bold text-slate-200">{traduzirPlano(p.plan_key, p.plan_label)}</p>
                   <p className="text-sm font-black text-purple-400 mt-1">$ {Number(p.price).toLocaleString("es-CO")}</p>
                 </button>
               ))}
