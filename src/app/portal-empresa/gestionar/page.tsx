@@ -723,13 +723,13 @@ export default function GestionarPlan() {
       {modalAberto && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setModalAberto(false)}>
           <div className="bg-[#0a1424] border border-purple-500/30 rounded-2xl p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-black text-slate-100 mb-1">Revisar invitacion</h2>
-            <p className="text-xs text-slate-500 mb-4">Para: {emailNovo}</p>
+            <h2 className="text-lg font-black text-slate-100 mb-1">{idioma === "PT" ? "Revisar convite" : idioma === "EN" ? "Review invitation" : "Revisar invitación"}</h2>
+            <p className="text-xs text-slate-500 mb-4">{idioma === "PT" ? "Para" : idioma === "EN" ? "To" : "Para"}: {emailNovo}</p>
 
             <div className="flex gap-1.5 mb-4">
               {["es", "pt", "en"].map((l) => (
                 <button key={l} onClick={() => setIdiomaEmail(l)} className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all ${idiomaEmail === l ? "bg-purple-500/20 border-purple-500/50 text-purple-300" : "bg-white/5 border-white/10 text-slate-400"}`}>
-                  {l === "es" ? "Espanol" : l === "pt" ? "Portugues" : "English"}
+                  {l === "es" ? (idioma === "PT" ? "Espanhol" : idioma === "EN" ? "Spanish" : "Español") : l === "pt" ? (idioma === "PT" ? "Português" : idioma === "EN" ? "Portuguese" : "Portugués") : (idioma === "PT" ? "Inglês" : idioma === "EN" ? "English" : "Inglés")}
                 </button>
               ))}
             </div>
@@ -740,10 +740,10 @@ export default function GestionarPlan() {
 
             <div className="flex gap-2">
               <button onClick={() => setModalAberto(false)} className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all">
-                Cancelar
+                {idioma === "PT" ? "Cancelar" : idioma === "EN" ? "Cancel" : "Cancelar"}
               </button>
               <button onClick={handleConfirmarEnvio} disabled={enviando} className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 disabled:opacity-50 text-white font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all">
-                {enviando ? "Enviando..." : "Confirmar y enviar"}
+                {enviando ? (idioma === "PT" ? "Enviando..." : idioma === "EN" ? "Sending..." : "Enviando...") : (idioma === "PT" ? "Confirmar e enviar" : idioma === "EN" ? "Confirm and send" : "Confirmar y enviar")}
               </button>
             </div>
           </div>
