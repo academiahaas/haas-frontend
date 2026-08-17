@@ -1,0 +1,66 @@
+:root {
+  --bg-global: #FFFFFF;
+  --purple-dominant: #4F35E2;
+  --navy-deep: #1E3A8A;
+  --slate-body: #334155;
+  --teal-accent: #14C8B0;
+  --border-light: #CBD5E1;
+}
+
+body, .slide {
+  background-color: var(--bg-global) !important;
+  color: var(--slate-body);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Cabeçalho Fixo com a Logo Haas */
+.slide::before {
+  content: "";
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  width: 130px;
+  height: 45px;
+  background-image: url('https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/assignments/Design%20sem%20nome%20(4).png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right center;
+  z-index: 100;
+}
+
+/* Hierarquia Tipográfica */
+h1 {
+  color: var(--purple-dominant) !important;
+  font-weight: 800;
+  font-size: 2.2rem;
+}
+
+h2, h3 {
+  color: var(--navy-deep) !important;
+  font-weight: 700;
+}
+
+p, li {
+  color: var(--slate-body);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Elementos de Destaque e Cards */
+.card, .box {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: #FFFFFF;
+  padding: 1.5rem;
+}
+
+/* Accent (Máximo 5% de uso) */
+.badge, .tag, .bullet-accent {
+  color: var(--teal-accent);
+  border-left: 3px solid var(--teal-accent);
+}
+
+.highlight {
+  color: var(--purple-dominant);
+  font-weight: 600;
+}

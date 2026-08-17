@@ -82,18 +82,21 @@ export async function POST(req: NextRequest) {
       `Foque especialmente em reforcar: ${areasReforco}. ` +
       `Inclua exemplos praticos e um exercicio curto de pratica no final.`;
 
+    const templateEscolhido = "modelo27";
+
     const gerarFormato = async (formato: string) => {
       const resposta = await fetch("http://localhost:3009/api/v1/ppt/presentation/generate", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${process.env.PRESENTON_API_KEY}`,
+          "Authorization": `Bearer ${(process.env.PRESENTON_API_KEY || "").replace(/"/g, "")}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           content: conteudoPrompt,
           n_slides: 6,
           language: idiomaAula,
-          template: "general",
+          template: templateEscolhido,
+          theme: "haas",
           export_as: formato,
           include_title_slide: true
         })
