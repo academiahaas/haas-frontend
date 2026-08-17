@@ -459,6 +459,8 @@ export default function PortalProfessor() {
   const [erro, setErro] = useState("");
   const [fuso, setFuso] = useState<"colombia" | "brasilia">("colombia");
   const [idioma, setIdioma] = useState<IdiomaInterface>("es");
+  const [mesCalendario, setMesCalendario] = useState(new Date());
+  const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null);
 
   useEffect(() => {
     const fusoSalvo = localStorage.getItem("haas_professor_fuso");
@@ -721,6 +723,46 @@ export default function PortalProfessor() {
     return new Date(iso).toLocaleString("es-CO", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: zona }) + ` (${etiqueta})`;
   };
 
+  const chaveDia = (iso: string) => {
+    const zona = fuso === "colombia" ? "America/Bogota" : "America/Sao_Paulo";
+    const partes = new Intl.DateTimeFormat("en-CA", { timeZone: zona, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(iso));
+    const obj: any = {};
+    partes.forEach((p) => { obj[p.type] = p.value; });
+    return `${obj.year}-${obj.month}-${obj.day}`;
+  };
+
+  const aulasPorDia = React.useMemo(() => {
+    const mapa: Record<string, AulaSlot[]> = {};
+    aulas.forEach((a) => {
+      const chave = chaveDia(a.data_hora_inicio);
+      if (!mapa[chave]) mapa[chave] = [];
+      mapa[chave].push(a);
+    });
+    return mapa;
+  }, [aulas, fuso]);
+
+  const hojeChave = chaveDia(new Date().toISOString());
+  const diaAtivo = diaSelecionado || hojeChave;
+
+  const celulasCalendario = React.useMemo(() => {
+    const ano = mesCalendario.getFullYear();
+    const mes = mesCalendario.getMonth();
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const totalDias = new Date(ano, mes + 1, 0).getDate();
+    const celulas: { chave: string | null; numero: number | null }[] = [];
+    for (let i = 0; i < primeiroDiaSemana; i++) celulas.push({ chave: null, numero: null });
+    for (let d = 1; d <= totalDias; d++) {
+      const chave = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      celulas.push({ chave, numero: d });
+    }
+    return celulas;
+  }, [mesCalendario]);
+
+  const mesAnterior = () => setMesCalendario(new Date(mesCalendario.getFullYear(), mesCalendario.getMonth() - 1, 1));
+  const mesSeguinte = () => setMesCalendario(new Date(mesCalendario.getFullYear(), mesCalendario.getMonth() + 1, 1));
+  const nomeMes = mesCalendario.toLocaleDateString(idioma === "en" ? "en-US" : idioma === "pt" ? "pt-BR" : "es-CO", { month: "long", year: "numeric" });
+  const diasSemanaLabel = idioma === "en" ? ["S","M","T","W","T","F","S"] : idioma === "pt" ? ["D","S","T","Q","Q","S","S"] : ["D","L","M","M","J","V","S"];
+
   const notaMedia = avaliacoes.length > 0
     ? (avaliacoes.reduce((soma, a) => soma + a.rating_stars, 0) / avaliacoes.length).toFixed(1)
     : null;
@@ -923,60 +965,104 @@ export default function PortalProfessor() {
                   </div>
                 </div>
 
-                {aulas.length === 0 ? (
-                  <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
-                    {t.sinClases}
+                <div className="flex flex-col md:flex-row gap-6 flex-1 min-h-0">
+                  <div className="md:w-[320px] shrink-0 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <button onClick={mesAnterior} className="text-slate-400 hover:text-cyan-400 px-2 py-1 rounded-lg hover:bg-white/5 transition-all text-sm font-bold">{"‹"}</button>
+                      <span className="text-sm font-bold text-slate-200 capitalize">{nomeMes}</span>
+                      <button onClick={mesSeguinte} className="text-slate-400 hover:text-cyan-400 px-2 py-1 rounded-lg hover:bg-white/5 transition-all text-sm font-bold">{"›"}</button>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {diasSemanaLabel.map((d, i) => (
+                        <div key={i} className="text-center text-[10px] font-bold text-slate-600 py-1">{d}</div>
+                      ))}
+                      {celulasCalendario.map((cel, i) => {
+                        if (!cel.chave) return <div key={i} />;
+                        const aulasDoDia = aulasPorDia[cel.chave] || [];
+                        const temAula = aulasDoDia.length > 0;
+                        const temGrupo = aulasDoDia.some((a) => a.tipo_aula === "GRUPO");
+                        const temParticular = aulasDoDia.some((a) => a.tipo_aula === "PARTICULAR");
+                        const ehHoje = cel.chave === hojeChave;
+                        const selecionado = cel.chave === diaAtivo;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => setDiaSelecionado(cel.chave)}
+                            className={`relative aspect-square rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition-all border
+                              ${selecionado ? "bg-cyan-500 text-slate-950 border-cyan-500" : ehHoje ? "border-cyan-500/50 text-cyan-400" : "border-transparent text-slate-300 hover:bg-white/5"}`}
+                          >
+                            <span>{cel.numero}</span>
+                            {temAula && (
+                              <span className="flex gap-0.5">
+                                {temParticular && <span className={`h-1 w-1 rounded-full ${selecionado ? "bg-slate-950" : "bg-cyan-400"}`} />}
+                                {temGrupo && <span className={`h-1 w-1 rounded-full ${selecionado ? "bg-slate-950" : "bg-amber-400"}`} />}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="flex items-center gap-4 text-[10px] text-slate-500 pt-1">
+                      <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />{TRADUCAO_TIPO_AULA[idioma]["PARTICULAR"] || "Particular"}</span>
+                      <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" />{TRADUCAO_TIPO_AULA[idioma]["GRUPO"] || "Grupo"}</span>
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-hide">
-                    {aulas.map((aula) => (
-                      <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
-                        <div className="flex items-center gap-3">
-                          <Users size={16} className="text-cyan-400" />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-slate-200">{TRADUCAO_TIPO_AULA[idioma][aula.tipo_aula] || aula.tipo_aula} - {TRADUCAO_IDIOMA_AULA[idioma][aula.idioma] || aula.idioma}</span>
-                            <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
+
+                  <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto pr-1 scrollbar-hide">
+                    {(aulasPorDia[diaAtivo] || []).length === 0 ? (
+                      <div className="text-center py-12 text-sm text-slate-500 border border-dashed border-white/10 rounded-xl">
+                        {t.sinClases}
+                      </div>
+                    ) : (
+                      (aulasPorDia[diaAtivo] || []).map((aula) => (
+                        <div key={aula.id} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg p-4 hover:bg-white/[0.04] transition-colors">
+                          <div className="flex items-center gap-3">
+                            <Users size={16} className="text-cyan-400" />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-slate-200">{TRADUCAO_TIPO_AULA[idioma][aula.tipo_aula] || aula.tipo_aula} - {TRADUCAO_IDIOMA_AULA[idioma][aula.idioma] || aula.idioma}</span>
+                              <span className="text-xs text-slate-500 font-mono">{formatarHorario(aula.data_hora_inicio)}</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
-                          <div className="relative">
-                            <button onClick={() => setGavetaSlidesAberta(gavetaSlidesAberta === aula.id ? null : aula.id)} className="inline-flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
-                              {t.accederDiapositivas}
-                            </button>
-                            {gavetaSlidesAberta === aula.id && (
-                              <div className="absolute right-0 top-full mt-1 z-20 bg-[#0a1424] border border-white/10 rounded-lg p-2 flex flex-col gap-1.5 min-w-[140px] shadow-xl">
-                                {aula.slides_status !== "pronto" ? (
-                                  <span className="text-[10px] text-slate-500 px-2 py-1">
-                                    {idioma === "es" ? "Generando..." : idioma === "en" ? "Generating..." : "Gerando..."}
-                                  </span>
-                                ) : (
-                                  <>
-                                    {aula.slides_pdf_path && (
-                                      <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pdf_path)}`} className="text-xs text-slate-300 hover:text-rose-400 px-2 py-1.5 rounded transition-colors text-left">
-                                        PDF
-                                      </a>
-                                    )}
-                                    {aula.slides_pptx_path && (
-                                      <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pptx_path)}`} className="text-xs text-slate-300 hover:text-orange-400 px-2 py-1.5 rounded transition-colors text-left">
-                                        PowerPoint
-                                      </a>
-                                    )}
-                                  </>
-                                )}
-                              </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-slate-400">{aula.vagas_ocupadas}/{aula.vagas_maximas} {t.alumnos}</span>
+                            <div className="relative">
+                              <button onClick={() => setGavetaSlidesAberta(gavetaSlidesAberta === aula.id ? null : aula.id)} className="inline-flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
+                                {t.accederDiapositivas}
+                              </button>
+                              {gavetaSlidesAberta === aula.id && (
+                                <div className="absolute right-0 top-full mt-1 z-20 bg-[#0a1424] border border-white/10 rounded-lg p-2 flex flex-col gap-1.5 min-w-[140px] shadow-xl">
+                                  {aula.slides_status !== "pronto" ? (
+                                    <span className="text-[10px] text-slate-500 px-2 py-1">
+                                      {idioma === "es" ? "Generando..." : idioma === "en" ? "Generating..." : "Gerando..."}
+                                    </span>
+                                  ) : (
+                                    <>
+                                      {aula.slides_pdf_path && (
+                                        <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pdf_path)}`} className="text-xs text-slate-300 hover:text-rose-400 px-2 py-1.5 rounded transition-colors text-left">
+                                          PDF
+                                        </a>
+                                      )}
+                                      {aula.slides_pptx_path && (
+                                        <a href={`/api/ai/baixar-slides?path=${encodeURIComponent(aula.slides_pptx_path)}`} className="text-xs text-slate-300 hover:text-orange-400 px-2 py-1.5 rounded transition-colors text-left">
+                                          PowerPoint
+                                        </a>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            {professor?.meeting_link && (
+                              <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
+                                {t.entrarClase} <ExternalLink size={11} />
+                              </a>
                             )}
                           </div>
-                          {professor?.meeting_link && (
-                            <a href={professor.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold py-1.5 px-3 rounded-lg transition-all">
-                              {t.entrarClase} <ExternalLink size={11} />
-                            </a>
-                          )}
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
-                )}
+                </div>
               </section>
             </>
           )}
