@@ -6,13 +6,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "path obrigatorio" }, { status: 400 });
   }
 
-  const urlArquivo = `http://localhost:3009/app_data${caminho.replace("/app_data", "")}`;
-
-  const resposta = await fetch(urlArquivo, {
-    headers: {
-      "Authorization": `Bearer ${process.env.PRESENTON_API_KEY}`
-    }
-  });
+  const resposta = await fetch(caminho);
 
   if (!resposta.ok) {
     return NextResponse.json({ error: "Arquivo nao encontrado" }, { status: 404 });
