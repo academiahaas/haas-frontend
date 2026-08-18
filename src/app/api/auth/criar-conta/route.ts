@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
         <tr>
           <td style="padding:36px 32px 8px 32px;">
-            <p style="color:#0b1528; font-size:16px; line-height:1.6; margin:0 0 8px 0; font-weight:700;">¡Hola, \${nomeAluno}!</p>
+            <p style="color:#0b1528; font-size:16px; line-height:1.6; margin:0 0 8px 0; font-weight:700;">¡Hola, ${nomeAluno}!</p>
             <p style="color:#5a6478; font-size:14px; line-height:1.7; margin:0;">Ya diste el primer paso para dejar de traducir en tu cabeza y empezar a pensar &mdash; y hablar &mdash; en tu nuevo idioma de verdad. Nada de teoría aburrida: aquí se aprende hablando, desde el primer día.</p>
           </td>
         </tr>

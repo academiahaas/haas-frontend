@@ -4161,3 +4161,87 @@ Tipo 4 (easy) — meta 12, existentes 0, faltam 12
   Criados 12 rascunhos.
 Tipo 9 (hard) — meta 2, existentes 0, faltam 2
   Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 10 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 13 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 11 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 5 (easy) — meta 12, existentes 0, faltam 12
+  Gerando lote de 12...
+  Criados 12 rascunhos.
+Tipo 7 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 12 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+<anonymous_script>:1
+<html>
+^
+
+SyntaxError: Unexpected token '<', "<html>
+<h"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at parseJSONFromBytes (node:internal/deps/undici/undici:5880:19)
+    at successSteps (node:internal/deps/undici/undici:5861:27)
+    at fullyReadBody (node:internal/deps/undici/undici:4753:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async consumeBody (node:internal/deps/undici/undici:5870:7)
+    at async main (/var/www/haas-frontend-desk-mobile-oficial/automatizar-unidade.js:62:20)
+
+Node.js v20.20.2
+Unidade 3.4 — nível A2
+Tipo 1 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 2 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 3 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 4 (easy) — meta 12, existentes 0, faltam 12
+  Gerando lote de 12...
+  Criados 12 rascunhos.
+Tipo 9 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 10 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 13 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 11 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 5 (easy) — meta 12, existentes 0, faltam 12
+  Gerando lote de 12...
+  Criados 12 rascunhos.
+Tipo 7 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 12 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
+Tipo 8 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Tipo 6 (hard) — meta 2, existentes 0, faltam 2
+  Gerando lote de 2...
+  Criados 2 rascunhos.
+Geração concluída. Aprovando rascunhos pendentes...
+Concluído. 62 exercício(s) aprovado(s) na unidade 3.4.
+Unidade 4.2 — nível C1
+Tipo 1 (medium) — meta 9, existentes 0, faltam 9
+  Gerando lote de 9...
+  Criados 9 rascunhos.
+Tipo 2 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 3 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
