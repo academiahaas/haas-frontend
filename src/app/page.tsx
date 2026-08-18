@@ -577,8 +577,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
           <p>© {new Date().getFullYear()} HAAS Language. Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
-            <a href="/diagnostico" className="hover:text-white transition-colors">Términos de Servicio</a>
-            <a href="/diagnostico" className="hover:text-white transition-colors">Política de Privacidad</a>
+            <a href="/terminos" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Términos de Servicio</a>
+            <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Política de Privacidad</a>
           </div>
         </div>
       </footer>
