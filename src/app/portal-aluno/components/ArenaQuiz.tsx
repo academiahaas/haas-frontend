@@ -1676,9 +1676,10 @@ export default function ArenaQuiz({ isOpen, onClose, userId, idiomaAtivo, onAbri
                     <h2 className="text-xl font-black text-white tracking-tight leading-snug border-b border-white/10 pb-4">
                       {dadosLicaoEscrita.title} (Texto {textoSelecionadoId})
                     </h2>
-                    <div className="text-slate-300 text-sm leading-relaxed font-normal bg-white/[0.02] border border-white/[0.04] p-6 rounded-xl shadow-inner whitespace-pre-line">
-                      {dadosLicaoEscrita.body_content}
-                    </div>
+                    <div 
+                      className="text-slate-300 text-sm leading-relaxed font-normal bg-white/[0.02] border border-white/[0.04] p-6 rounded-xl shadow-inner [&>h3]:text-lg [&>h3]:font-bold [&>h3]:text-white [&>h3]:mb-3 [&>h3]:mt-5 [&>h4]:text-base [&>h4]:font-semibold [&>h4]:text-cyan-400 [&>h4]:mb-2 [&>h4]:mt-4 [&>p]:mb-4"
+                      dangerouslySetInnerHTML={{ __html: dadosLicaoEscrita.body_content }} 
+                    />
                   </div>
                 ) : (
                   <div className="flex-1 flex items-center justify-center text-slate-400 text-sm font-mono">
