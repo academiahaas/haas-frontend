@@ -3502,3 +3502,53 @@ Node.js v20.20.2
 Unidade 3.5 — nível C1
 Tipo 1 (medium) — meta 12, existentes 0, faltam 12
   Gerando lote de 12...
+  Criados 12 rascunhos.
+Tipo 2 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 3 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 4 (easy) — meta 24, existentes 0, faltam 24
+  Gerando lote de 20...
+  Criados 20 rascunhos.
+  Gerando lote de 4...
+  Criados 4 rascunhos.
+Tipo 9 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 10 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 13 (medium) — meta 12, existentes 0, faltam 12
+  Gerando lote de 12...
+  Criados 12 rascunhos.
+Tipo 11 (hard) — meta 3, existentes 0, faltam 3
+  Gerando lote de 3...
+  Criados 3 rascunhos.
+Tipo 5 (easy) — meta 24, existentes 0, faltam 24
+  Gerando lote de 20...
+  Criados 20 rascunhos.
+  Gerando lote de 4...
+  Criados 4 rascunhos.
+Tipo 7 (medium) — meta 12, existentes 0, faltam 12
+  Gerando lote de 12...
+<anonymous_script>:1
+<html>
+^
+
+SyntaxError: Unexpected token '<', "<html>
+<h"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at parseJSONFromBytes (node:internal/deps/undici/undici:5880:19)
+    at successSteps (node:internal/deps/undici/undici:5861:27)
+    at fullyReadBody (node:internal/deps/undici/undici:4753:9)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async consumeBody (node:internal/deps/undici/undici:5870:7)
+    at async main (/var/www/haas-frontend-desk-mobile-oficial/automatizar-unidade.js:62:20)
+
+Node.js v20.20.2
+Unidade 3.1 — nível A2
+Tipo 1 (medium) — meta 6, existentes 0, faltam 6
+  Gerando lote de 6...
+  Criados 6 rascunhos.
