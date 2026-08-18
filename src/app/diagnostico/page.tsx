@@ -544,6 +544,16 @@ function DiagnosticoContent() {
                   className="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 text-sm focus:border-indigo-500 outline-none"
                 />
 
+                <div className="text-xs sm:text-sm text-slate-400 text-center mt-6 mb-4 px-2 leading-relaxed">
+                  Al hacer clic en continuar, aceptas expresamente nuestros{" "}
+                  <a href="/terminos" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline font-medium">
+                    Términos de Servicio
+                  </a>{" "}
+                  y autorizas el tratamiento de tus datos según nuestra{" "}
+                  <a href="/privacidad" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline font-medium">
+                    Política de Privacidad
+                  </a>.
+                </div>
                 <button 
                   disabled={isSubmitting} onClick={handleCadastro}
                   className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/30 text-sm flex items-center justify-center gap-2 mt-2"
