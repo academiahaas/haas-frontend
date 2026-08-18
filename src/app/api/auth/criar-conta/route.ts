@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
         <tr>
           <td style="padding:8px 32px 40px 32px; text-align:center;">
-            <a href="https://campus.academiahaas.com" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; padding:16px 40px; border-radius:10px; text-decoration:none; font-weight:800; font-size:15px; display:inline-block; box-shadow:0 4px 14px rgba(2,132,199,0.35);">Comenzar mi primera lección →</a>
+            <a href="https://campus.academiahaas.com" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; padding:16px 40px; border-radius:10px; text-decoration:none; font-weight:800; font-size:15px; display:inline-block; box-shadow:0 4px 14px rgba(139,92,246,0.35);">Comenzar mi primera lección →</a>
           </td>
         </tr>
 
