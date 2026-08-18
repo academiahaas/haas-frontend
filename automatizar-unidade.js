@@ -60,7 +60,11 @@ async function main() {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       });
       const data = await resp.json();
-      if (data.erro) { console.error(`  Erro: ${data.erro}`); break; }
+      if (data.erro) {
+        console.error(`  Erro: ${data.erro} — aguardando e tentando de novo...`);
+        await esperar(INTERVALO_MS);
+        continue;
+      }
       console.log(`  Criados ${data.exercicios?.length || 0} rascunhos.`);
       faltam -= lote;
       await esperar(INTERVALO_MS);
