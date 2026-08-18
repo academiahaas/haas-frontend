@@ -683,23 +683,52 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
           const nomeAluno = dadosNome?.name || emailAluno.split("@")[0];
           const lang = idioma === "PT" ? "pt" : idioma === "EN" ? "en" : "es";
           const ehProvaOral = tipoAula === "prova_oral";
+
+          const montarCorpoEmailAgenda = (titulo: string, subtitulo: string, sticker: string, corpo: string, textoBotao: string, linkBotao: string): string => `
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f6; padding:40px 16px; font-family: Arial, Helvetica, sans-serif;">
+              <tr><td align="center">
+                <table role="presentation" width="580" cellpadding="0" cellspacing="0" style="max-width:580px; background:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 8px 32px rgba(11,21,40,0.12);">
+                  <tr><td style="background:linear-gradient(135deg,#0b1528,#0f2647); padding:40px 32px 32px 32px; text-align:center;">
+                    <img src="https://jdppxfokfhqjudwfwckd.supabase.co/storage/v1/object/public/haas-academy/assignments/Melhorar%20Logo%20(3).png" alt="Haas Academy" style="height:36px; margin-bottom:20px;" />
+                    <div style="font-size:38px; line-height:1; margin-bottom:12px;">${sticker}</div>
+                    <h1 style="color:#ffffff; font-size:22px; margin:0; font-weight:800;">${titulo}</h1>
+                    <p style="color:#9fb3d1; font-size:13px; margin:10px 0 0 0;">${subtitulo}</p>
+                  </td></tr>
+                  <tr><td style="padding:36px 32px 8px 32px;">
+                    <div style="color:#333; font-size:15px; line-height:1.6;">${corpo}</div>
+                  </td></tr>
+                  <tr><td style="padding:8px 32px 40px 32px; text-align:center;">
+                    <a href="${linkBotao}" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; padding:16px 40px; border-radius:10px; text-decoration:none; font-weight:800; font-size:15px; display:inline-block; box-shadow:0 4px 14px rgba(139,92,246,0.35);">${textoBotao} →</a>
+                  </td></tr>
+                  <tr><td style="background:#f5f8fc; padding:28px 32px 24px 32px;">
+                    <p style="color:#8a93a3; font-size:11px; line-height:1.6; margin:0; text-align:center;">Haas Language<br/>Instagram: <a href="https://www.instagram.com/haasidiomas/" style="color:#8b5cf6; text-decoration:none; font-weight:bold;">@haasidiomas</a></p>
+                  </td></tr>
+                </table>
+              </td></tr>
+            </table>
+          `;
+
+          const botoes = { pt: "Acessar Portal", es: "Acceder al Portal", en: "Go to Portal" };
+          const linkBotao = "https://campus.academiahaas.com/portal-aluno";
           const textos = ehProvaOral ? {
-            pt: { assunto: "Sua prova oral foi agendada!", titulo: "Prova Oral Agendada", corpo: `Olá, ${nomeAluno}! Sua prova oral foi agendada para ${selectedDate} às ${selectedHorario}. Chegue alguns minutos antes e boa sorte!` },
-            es: { assunto: "¡Tu prueba oral fue agendada!", titulo: "Prueba Oral Agendada", corpo: `¡Hola, ${nomeAluno}! Tu prueba oral fue agendada para el ${selectedDate} a las ${selectedHorario}. Llega unos minutos antes, ¡mucha suerte!` },
-            en: { assunto: "Your oral exam has been scheduled!", titulo: "Oral Exam Scheduled", corpo: `Hello, ${nomeAluno}! Your oral exam has been scheduled for ${selectedDate} at ${selectedHorario}. Arrive a few minutes early, good luck!` },
+            pt: { assunto: "Sua prova oral foi agendada!", titulo: "Prova Oral Agendada", subtitulo: "Prepare-se, sua avaliação está confirmada", corpo: `Olá, ${nomeAluno}! Sua prova oral foi agendada para o dia <strong>${selectedDate}</strong>, às <strong>${selectedHorario}</strong>. Chegue alguns minutos antes e boa sorte!` },
+            es: { assunto: "¡Tu prueba oral fue agendada!", titulo: "Prueba Oral Agendada", subtitulo: "Prepárate, tu evaluación está confirmada", corpo: `¡Hola, ${nomeAluno}! Tu prueba oral quedó agendada para el día <strong>${selectedDate}</strong>, a las <strong>${selectedHorario}</strong>. Llega unos minutos antes, ¡mucha suerte!` },
+            en: { assunto: "Your oral exam has been scheduled!", titulo: "Oral Exam Scheduled", subtitulo: "Get ready, your assessment is confirmed", corpo: `Hello, ${nomeAluno}! Your oral exam has been scheduled for <strong>${selectedDate}</strong> at <strong>${selectedHorario}</strong>. Arrive a few minutes early, good luck!` },
           } : {
-            pt: { assunto: "Sua aula foi agendada!", titulo: "Aula Agendada", corpo: `Olá, ${nomeAluno}! Sua aula foi agendada para ${selectedDate} às ${selectedHorario}. Não se esqueça de entrar no portal alguns minutos antes.` },
-            es: { assunto: "¡Tu clase fue agendada!", titulo: "Clase Agendada", corpo: `¡Hola, ${nomeAluno}! Tu clase fue agendada para el ${selectedDate} a las ${selectedHorario}. No olvides ingresar al portal unos minutos antes.` },
-            en: { assunto: "Your class has been scheduled!", titulo: "Class Scheduled", corpo: `Hello, ${nomeAluno}! Your class has been scheduled for ${selectedDate} at ${selectedHorario}. Don't forget to log into the portal a few minutes early.` },
+            pt: { assunto: "Sua aula foi agendada!", titulo: "Aula Agendada", subtitulo: "Confira os detalhes do seu próximo encontro", corpo: `Olá, ${nomeAluno}! Sua aula foi agendada para o dia <strong>${selectedDate}</strong>, às <strong>${selectedHorario}</strong>. Não se esqueça de entrar no portal alguns minutos antes do início.` },
+            es: { assunto: "¡Tu clase fue agendada!", titulo: "Clase Agendada", subtitulo: "Revisa los detalles de tu próximo encuentro", corpo: `¡Hola, ${nomeAluno}! Tu clase quedó agendada para el día <strong>${selectedDate}</strong>, a las <strong>${selectedHorario}</strong>. No olvides ingresar al portal unos minutos antes de que comience.` },
+            en: { assunto: "Your class has been scheduled!", titulo: "Class Scheduled", subtitulo: "Here are the details of your upcoming class", corpo: `Hello, ${nomeAluno}! Your class has been scheduled for <strong>${selectedDate}</strong> at <strong>${selectedHorario}</strong>. Don't forget to log into the portal a few minutes before it starts.` },
           };
           const t = textos[lang as "pt" | "es" | "en"];
+          const textoBotao = botoes[lang as "pt" | "es" | "en"];
+          const sticker = ehProvaOral ? "🎤" : "📅";
           fetch("/api/email/enviar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               destinatario: emailAluno,
               assunto: t.assunto,
-              corpoHtml: `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>${t.titulo}</h2><p>${t.corpo}</p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`,
+              corpoHtml: montarCorpoEmailAgenda(t.titulo, t.subtitulo, sticker, t.corpo, textoBotao, linkBotao),
             }),
           }).catch((e) => console.warn("Erro ao enviar e-mail de aula agendada:", e));
         }).catch((e) => console.warn("Erro ao buscar usuário para e-mail:", e));
