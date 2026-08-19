@@ -63,14 +63,18 @@ function envelopeComSticker(titulo: string, subtitulo: string, sticker: string, 
 export const templatesEmail = {
   boasVindas: (nome: string, l: Lang) => ({
     assunto: pick({ pt: "Bem-vindo(a) à Academia Haas!", es: "¡Bienvenido(a) a Academia Haas!", en: "Welcome to Academia Haas!" }, l),
-    corpoHtml: envelope(
+    corpoHtml: envelopeComSticker(
       pick({ pt: `Olá, ${nome}!`, es: `¡Hola, ${nome}!`, en: `Hello, ${nome}!` }, l),
+      pick({ pt: "Seu acesso já está liberado", es: "Tu acceso ya está habilitado", en: "Your access is already unlocked" }, l),
+      "🎉",
       pick(
         { pt: "Seja bem-vindo(a) à Academia Haas! Estamos muito felizes em ter você conosco. Acesse o portal e comece sua jornada de aprendizado agora mesmo.",
           es: "¡Bienvenido(a) a Academia Haas! Estamos muy felices de tenerte con nosotros. Accede al portal y comienza tu viaje de aprendizaje ahora mismo.",
           en: "Welcome to Academia Haas! We're thrilled to have you with us. Log in to the portal and start your learning journey right away." },
         l
-      )
+      ),
+      pick({ pt: "Acessar Portal", es: "Acceder al Portal", en: "Go to Portal" }, l),
+      "https://campus.academiahaas.com/portal-aluno"
     ),
   }),
 
