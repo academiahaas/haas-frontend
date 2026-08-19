@@ -174,14 +174,18 @@ export const templatesEmail = {
 
   pagamentoConfirmado: (nome: string, plano: string, l: Lang) => ({
     assunto: pick({ pt: "Pagamento confirmado!", es: "¡Pago confirmado!", en: "Payment confirmed!" }, l),
-    corpoHtml: envelope(
+    corpoHtml: envelopeComSticker(
       pick({ pt: "Pagamento Aprovado", es: "Pago Aprobado", en: "Payment Approved" }, l),
+      pick({ pt: "Seu acesso já está liberado", es: "Tu acceso ya está habilitado", en: "Your access is already unlocked" }, l),
+      "🧾",
       pick(
-        { pt: `Olá, ${nome}! Seu pagamento foi confirmado e seu plano ${plano} já está ativo. Bons estudos!`,
-          es: `¡Hola, ${nome}! Tu pago fue confirmado y tu plan ${plano} ya está activo. ¡Buenos estudios!`,
-          en: `Hello, ${nome}! Your payment has been confirmed and your ${plano} plan is now active. Happy studying!` },
+        { pt: `Olá, ${nome}! Seu pagamento foi confirmado e seu plano <strong>${plano}</strong> já está ativo. Bons estudos!`,
+          es: `¡Hola, ${nome}! Tu pago fue confirmado y tu plan <strong>${plano}</strong> ya está activo. ¡Buenos estudios!`,
+          en: `Hello, ${nome}! Your payment has been confirmed and your <strong>${plano}</strong> plan is now active. Happy studying!` },
         l
-      )
+      ),
+      pick({ pt: "Acessar Portal", es: "Acceder al Portal", en: "Go to Portal" }, l),
+      "https://campus.academiahaas.com/portal-aluno"
     ),
   }),
 };
