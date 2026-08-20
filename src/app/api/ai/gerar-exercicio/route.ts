@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const DEEPSEEK_MODEL = "deepseek-chat";
 const SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
@@ -258,22 +258,26 @@ async function gerarLoteExercicios(activityType: number, unidade: any, levelTag:
   const prompt = montarPrompt(activityType, quantidade, unidade, levelTag, idiomaAlvo, idiomaNativo, dificuldade);
 
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+    "https://api.deepseek.com/chat/completions",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 1.0,
+      }),
     }
   );
 
   if (!resp.ok) {
     const errText = await resp.text();
-    console.error(`Erro na API Gemini (${dificuldade}):`, errText);
+    console.error(`Erro na API DeepSeek (${dificuldade}):`, errText);
     throw new Error(`Falha ao gerar exercícios (${dificuldade}).`);
   }
 
   const data = await resp.json();
-  const textoResposta: string = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const textoResposta: string = data?.choices?.[0]?.message?.content || "";
   const limpo = textoResposta.replace(/```json/g, "").replace(/```/g, "").trim();
   const exercicios = JSON.parse(limpo);
 
@@ -318,7 +322,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ erro: "Máximo de 20 exercícios por vez." }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ erro: "Serviço de IA indisponível." }, { status: 503 });
     }

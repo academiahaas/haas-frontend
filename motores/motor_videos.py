@@ -87,6 +87,13 @@ def sb_patch(table, filtro, dados):
         return r.read().decode()
 
 
+def sb_post(table, dados):
+    req = urllib.request.Request(f"{SUPABASE_URL}/rest/v1/{table}", data=json.dumps(dados).encode(), headers=HEADERS, method="POST")
+    with urllib.request.urlopen(req, timeout=30) as r:
+        texto = r.read().decode()
+        return json.loads(texto) if texto else None
+
+
 def storage_upload(caminho, arquivo_local, content_type):
     with open(arquivo_local, "rb") as f:
         conteudo = f.read()
@@ -105,7 +112,7 @@ def deepseek(sistema, usuario):
         "model": "deepseek-v4-flash",
         "messages": [{"role": "system", "content": sistema}, {"role": "user", "content": usuario}],
         "response_format": {"type": "json_object"},
-        "max_tokens": 8000,
+        "max_tokens": 16000,
         "thinking": {"type": "disabled"},
     }).encode("utf-8")
     req = urllib.request.Request("https://api.deepseek.com/chat/completions", data=payload, headers={"Authorization": f"Bearer {DEEPSEEK_KEY}", "Content-Type": "application/json"}, method="POST")
@@ -135,11 +142,16 @@ Estrutura gramatical: {unidade['hidden_grammatical_structure'] or 'não especifi
     except json.JSONDecodeError:
         print("  AVISO: revisão quebrou o formato JSON, usando versão original sem revisão.")
 
+    unidade_label = f"Unidad {unidade['unit_number']}: {unidade['unit_title']}"
+    nivel_label = f"Portugués {unidade['level']}"
+
     roteiro_path = f"/tmp/roteiro_{unit_id[:8]}.json"
     with open(roteiro_path, "w") as f:
-        json.dump({"unit_id": unit_id, "unidade_label": f"Unidad {unidade['unit_number']}: {unidade['unit_title']}", "nivel_label": f"Portugués {unidade['level']}", "cenas": cenas}, f, ensure_ascii=False, indent=2)
+        json.dump({"unit_id": unit_id, "unidade_label": unidade_label, "nivel_label": nivel_label, "cenas": cenas}, f, ensure_ascii=False, indent=2)
 
-    print(f"\n{len(cenas)} cenas geradas. Salvo em: {roteiro_path}\n")
+    sb_post("roteiros_revisao", {"unit_id": unit_id, "unidade_label": unidade_label, "nivel_label": nivel_label, "cenas": cenas, "status": "pendente"})
+
+    print(f"\n{len(cenas)} cenas geradas. Salvo em: {roteiro_path} e enviado para revisao no Supabase (tabela roteiros_revisao)\n")
     print("=" * 60)
     for i, cena in enumerate(cenas):
         print(f"\n--- Cena {i} ({cena['tipo']}) — {cena.get('titulo','')} ---")
@@ -212,7 +224,7 @@ def gerar_video_unidade(unit_id):
     print("Renderizando vídeo...")
     saida_local = f"/tmp/video_{unit_id[:8]}.mp4"
     subprocess.run(
-        ["npx", "remotion", "render", "src/index.ts", "VideoGenerico", saida_local, f"--props={props_path}", "--timeout=120000", "--concurrency=1"],
+        ["npx", "remotion", "render", "src/index.ts", "VideoGenerico", saida_local, f"--props={props_path}", "--timeout=120000", "--concurrency=4", "--crf=28"],
         cwd=REMOTION_DIR, check=True,
     )
 

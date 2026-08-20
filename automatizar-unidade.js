@@ -41,7 +41,7 @@ async function main() {
     const metaNum = meta || 0;
 
     const { count } = await supabase.from('exercises').select('id', { count: 'exact', head: true })
-      .eq('unit', unidade.unit_number).eq('activity_type', tipo).eq('level', levelTag).eq('is_modelo_referencia', false);
+      .eq('unit_id', UNIT_ID).eq('activity_type', tipo).eq('level', levelTag).eq('is_modelo_referencia', false);
 
     let faltam = Math.max(0, metaNum - (count || 0));
     console.log(`Tipo ${tipo} (${tier}) — meta ${metaNum}, existentes ${count || 0}, faltam ${faltam}`);
