@@ -5,7 +5,7 @@ const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SE
 
 export async function POST(req: NextRequest) {
   try {
-    const { corporate_account_id, boss_email, amount } = await req.json();
+    const { corporate_account_id, boss_email, amount, group_id, quantidade_pessoas } = await req.json();
 
     if (!corporate_account_id || !boss_email || !amount) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from("corporate_payments")
-      .insert([{ corporate_account_id, boss_email, amount, status: "pending" }])
+      .insert([{ corporate_account_id, boss_email, amount, status: "pending", group_id: group_id || null, quantidade_pessoas: quantidade_pessoas || 1 }])
       .select("id")
       .single();
 
@@ -26,6 +26,20 @@ export async function POST(req: NextRequest) {
       .select("company_name")
       .eq("id", corporate_account_id)
       .maybeSingle();
+
+    try {
+      await fetch(`${req.nextUrl.origin}/api/email/enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinatario: boss_email,
+          assunto: "Pago registrado — Haas Academy",
+          corpoHtml: `<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;"><h2>Pago registrado</h2><p>Hemos registrado tu aviso de pago por <strong>$ ${Number(amount).toLocaleString("es-CO")} COP</strong>. El sistema verificará el valor recibido y activará tu plan automáticamente una vez confirmado. Te enviaremos otro correo cuando esto ocurra.</p><hr/><p style="color:#999;font-size:11px;">Haas Language</p></div>`
+        })
+      });
+    } catch (erroEmailChefe) {
+      console.error("Erro ao enviar email para o chefe:", erroEmailChefe);
+    }
 
     try {
       await fetch(`${req.nextUrl.origin}/api/email/enviar`, {

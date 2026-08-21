@@ -71,6 +71,18 @@ function PaginaPagamentoCorporativo() {
 
   const planKey = params.get('plan_key') || '';
   const pessoas = Number(params.get('pessoas') || '1');
+  const groupId = params.get('group_id') || '';
+
+  const [pessoasPagas, setPessoasPagas] = useState(0);
+
+  useEffect(() => {
+    const buscarPessoasPagas = async () => {
+      if (!groupId) return;
+      const { data } = await supabase.from('corporate_groups').select('pessoas_pagas').eq('id', groupId).maybeSingle();
+      setPessoasPagas(data?.pessoas_pagas || 0);
+    };
+    buscarPessoasPagas();
+  }, [groupId]);
 
   const [empresa, setEmpresa] = useState<any>(null);
   const [simPlano, setSimPlano] = useState<any>(null);
@@ -101,8 +113,9 @@ function PaginaPagamentoCorporativo() {
     return (hash % 95) + 1;
   };
 
+  const pessoasNovas = Math.max(0, pessoas - pessoasPagas);
   const desconto = simPlano ? Math.min(descontoConfig.desconto_maximo, (pessoas - 1) * descontoConfig.desconto_por_pessoa) : 0;
-  const subtotal = simPlano ? Number(simPlano.price) * pessoas : 0;
+  const subtotal = simPlano ? Number(simPlano.price) * pessoasNovas : 0;
   const total = subtotal * (1 - desconto / 100);
   const bossEmail = typeof window !== 'undefined' ? (localStorage.getItem('haas_corporate_email') || 'haas') : 'haas';
   const centavos = centavosUnicos(bossEmail);
@@ -119,7 +132,7 @@ function PaginaPagamentoCorporativo() {
       const res = await fetch('/api/portal-empresa/criar-cobranca', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ corporate_account_id: empresa.id, boss_email: email, amount: valorExacto }),
+        body: JSON.stringify({ corporate_account_id: empresa.id, boss_email: email, amount: valorExacto, group_id: groupId, quantidade_pessoas: pessoasNovas }),
       });
       const dados = await res.json();
       if (!res.ok) throw new Error(dados.error);
@@ -167,6 +180,16 @@ function PaginaPagamentoCorporativo() {
             <div className="flex justify-between text-sm">
               <span className="text-slate-300">{t.pessoas}</span>
               <span className="font-bold text-white">{pessoas}</span>
+            </div>
+            {pessoasPagas > 0 && (
+              <div className="flex justify-between text-[11px] text-emerald-400">
+                <span>{idioma === 'PT' ? 'Já pagos anteriormente' : idioma === 'EN' ? 'Already paid before' : 'Ya pagados antes'}</span>
+                <span>{pessoasPagas}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-[11px] text-cyan-400 font-bold">
+              <span>{idioma === 'PT' ? 'A pagar agora' : idioma === 'EN' ? 'To pay now' : 'A pagar ahora'}</span>
+              <span>{pessoasNovas}</span>
             </div>
             {desconto > 0 && (
               <div className="flex justify-between text-sm">

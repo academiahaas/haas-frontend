@@ -398,7 +398,7 @@ function GestionarPlanInterno() {
       setMostrarFormAgregar(false);
       setToastMsg(idioma === "PT" ? "✓ Convite enviado com sucesso" : idioma === "EN" ? "✓ Invitation sent successfully" : "✓ Invitación enviada con éxito");
       setTimeout(() => {
-        router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas + 1}`);
+        router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas + 1}&group_id=${grupoAtual?.id || ''}`);
       }, 1200);
     } catch (e: any) {
       setMsgAccion("Error: " + e.message);
@@ -619,7 +619,7 @@ function GestionarPlanInterno() {
                 {tG.verMaisDetalhes}
               </button>
               <button
-                onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas}`); } }}
+                onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas}&group_id=${grupoAtual?.id || ''}`); } }}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
               >
                 {emailNovo.trim() ? tG.continuar : tG.pagar}
