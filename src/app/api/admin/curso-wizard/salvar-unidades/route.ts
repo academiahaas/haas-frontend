@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
 
     const linhas = unidades.map((u: any) => ({
       module_content_id,
+      module_id: module_content_id,
       module_number,
       level,
       unit_number: u.unit_number,

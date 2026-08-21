@@ -465,7 +465,9 @@ export function GeradorExerciciosTab() {
         unit_id: unidade.id,
         pedagogical_objective: unidadeObjetivoGerado.pedagogical_objective,
         situational_content: unidadeObjetivoGerado.situational_content,
-        hidden_grammatical_structure: unidadeObjetivoGerado.hidden_grammatical_structure
+        hidden_grammatical_structure: unidadeObjetivoGerado.hidden_grammatical_structure,
+        practical_phonetic_focus: unidadeObjetivoGerado.practical_phonetic_focus,
+        skill_label: unidadeObjetivoGerado.skill_label
       });
       const atualizadas = [...unidadesAprovadasDoModulo];
       atualizadas[unidadeIndexAtual] = { ...unidade, ...unidadeObjetivoGerado };

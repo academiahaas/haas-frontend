@@ -17,10 +17,7 @@ async function chamarDeepseek(prompt: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { titulo_curso, level_tag, module_title, thematic_content, estimated_hours, unidades_ja_criadas, quantidade_unidades, feedback } = await req.json();
-
-    const qtd = quantidade_unidades || 5;
-    const horasPorUnidade = Math.round((estimated_hours / qtd) * 10) / 10;
+    const { titulo_curso, level_tag, module_title, thematic_content, estimated_hours, unidades_ja_criadas, feedback } = await req.json();
 
     const contextoAnterior = (unidades_ja_criadas || []).length > 0
       ? `Unidades ya creadas en modulos anteriores (NO repitas estos temas): ${(unidades_ja_criadas || []).map((u: any) => u.unit_title).join(", ")}.`
@@ -32,14 +29,15 @@ export async function POST(req: NextRequest) {
 Curso: "${titulo_curso}". Nivel: ${level_tag}. Modulo actual: "${module_title}". Contenido tematico: "${thematic_content}". Carga horaria del modulo: ${estimated_hours}h.
 ${contextoAnterior}${ajuste}
 
-Genera SOLO los nombres de ${qtd} unidades para este modulo, cada una con aproximadamente ${horasPorUnidade}h, cubriendo progresivamente el contenido del modulo, sin repetir temas de otras unidades ya creadas.
+CANTIDAD DE UNIDADES: no uses un numero fijo. Decide vos mismo cuantas unidades son necesarias (pueden ser 3, 6, 10, 15 o mas) para cubrir con profundidad TODO el contenido tematico de este modulo, respetando la carga horaria total de ${estimated_hours}h repartida de forma equilibrada entre ellas. Si el tema es amplio, crea mas unidades; si es acotado, crea menos. Nunca dejes contenido importante afuera solo por limitarte a pocas unidades.
 
 Genera SOLO un objeto JSON en espanol:
 {
   "unidades": [
-    { "unit_number": "1", "unit_title": "titulo de la unidad", "estimated_hours": ${horasPorUnidade} }
+    { "unit_number": "1", "unit_title": "titulo de la unidad", "estimated_hours": 0 }
   ]
 }
+La suma de "estimated_hours" de todas las unidades debe ser igual a ${estimated_hours}.
 NO incluyas objetivo pedagogico todavia.`;
 
     const resultado = await chamarDeepseek(prompt);

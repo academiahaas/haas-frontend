@@ -11,29 +11,29 @@ DEEPSEEK_KEY = "sk-e426fa20f2c64907bb550d7eccf1261f"
 
 HEADERS = {"apikey": SERVICE_KEY, "Authorization": f"Bearer {SERVICE_KEY}", "Content-Type": "application/json"}
 
-MASTER_PROMPT = """Você escreve o "Material de Apoio" (lição de leitura completa, tipo texto de estudo) das unidades do curso de português da Haas Language, baseado nos dados reais da unidade fornecidos.
+MASTER_PROMPT = """Escribes el "Material de Apoyo" (lección de lectura completa, tipo texto de estudio) de las unidades del curso de INGLÉS de Haas Language para hispanohablantes, basado en los datos reales de la unidad proporcionados.
 
-Escreva SEMPRE em PORTUGUÊS (é a língua sendo ensinada). Estilo acolhedor, claro, professor nativo, com começo, meio e fim — não um parágrafo solto.
+Escribe SIEMPRE en ESPAÑOL (es el idioma auxiliar del estudiante) — el idioma que se está enseñando es el INGLÉS. Los ejemplos y frases prácticas van en inglés, pero toda la explicación, contexto e instrucciones deben estar en español.
 
-ATENÇÃO: use EXATAMENTE as transformações fonéticas descritas no "Foco fonético/gramatical" fornecido — não invente nem troque por outra (Ex: CH sempre vira "SH", nunca "X" ou outra coisa).
+ATENCIÓN: usa EXACTAMENTE las transformaciones fonéticas/gramaticales descritas en el "Foco fonético/gramatical" proporcionado — no inventes ni cambies por otra.
 
-Termine SEMPRE com uma frase motivacional de encerramento. Se você tiver CERTEZA de uma expressão idiomática real do português que combine bem com incentivo/motivação (Ex: "devagar se vai ao longe", "água mole em pedra dura, tanto bate até que fura"), use ela nessa frase final, explicando rapidamente o que significa. Se não tiver certeza de nenhuma expressão real que combine, feche só com uma frase motivacional simples, sem forçar nenhuma expressão.
+Termina SIEMPRE con una frase motivacional de cierre, en español. Si tienes CERTEZA de una expresión idiomática real en español que combine con incentivo/motivación (Ej: "quien la sigue la consigue", "no hay mal que por bien no venga"), úsala explicando rápidamente qué significa. Si no tienes certeza de ninguna expresión real que combine, cierra solo con una frase motivacional simple, sin forzar ninguna expresión.
 
-FORMATO EXATO do body_content (respeite rigorosamente, use essas tags):
-<h3>Material de Apoio - Unidade {numero}</h3>
-<p>[parágrafo de introdução, acolhedor, contextualizando o tema da unidade, 2-3 frases]</p>
-<h4>Explicação</h4>
-<p>[parágrafo explicando o ponto fonético/gramatical principal, com 4 a 6 exemplos reais entre aspas, mais detalhado que antes]</p>
-<h4>Pratique</h4>
-<p>[2-3 frases ou mini-diálogo de exemplo prático usando o conteúdo da unidade, entre aspas]</p>
-<p>[frase final motivacional, com expressão idiomática real se houver certeza, ou frase simples de incentivo se não houver]</p>
+FORMATO EXACTO del body_content (respeta rigurosamente, usa esas etiquetas):
+<h3>Material de Apoyo - Unidad {numero}</h3>
+<p>[párrafo de introducción, acogedor, contextualizando el tema de la unidad, 2-3 frases, en español]</p>
+<h4>Explicación</h4>
+<p>[párrafo explicando el punto gramatical/fonético principal EN INGLÉS, con 4 a 6 ejemplos reales en inglés entre comillas, explicación en español]</p>
+<h4>Practica</h4>
+<p>[2-3 frases o mini-diálogo de ejemplo práctico en inglés usando el contenido de la unidad, entre comillas]</p>
+<p>[frase final motivacional en español, con expresión idiomática real si hay certeza, o frase simple de incentivo si no la hay]</p>
 
-Além do body_content, gere também:
-- "titulo": frase curta (5-10 palavras) descrevendo o tema ESPECÍFICO desta unidade em particular, em português, baseada no contexto situacional dado. NUNCA copie ou reaproveite frases de outras unidades — cada título é único e específico ao conteúdo real desta unidade.
-- "modulo_pt": nome temático do módulo inteiro, em português, no estilo "Alfabetização Fonética, Identidade e Boas-Vindas" (um nome bonito que resuma o bloco de unidades daquele módulo)
-- "unidade_pt": o nome da unidade em português (não em espanhol), no estilo "O Primeiro Impacto e as Vogais Fracas"
+Además del body_content, genera también:
+- "titulo": frase corta (5-10 palabras) describiendo el tema ESPECÍFICO de esta unidad, en español, basada en el contexto situacional dado. NUNCA copies frases de otras unidades.
+- "modulo_pt": nombre temático del módulo entero, en español, estilo "Alfabetización Fonética, Identidad y Bienvenida".
+- "unidade_pt": el nombre de la unidad en español, estilo "El Primer Impacto y las Vocales Débiles".
 
-Responda APENAS com JSON válido: {"titulo": "...", "modulo_pt": "...", "unidade_pt": "...", "body_content": "..."}"""
+Responde SOLO con JSON válido: {"titulo": "...", "modulo_pt": "...", "unidade_pt": "...", "body_content": "..."}"""
 
 
 def sb_get(path):

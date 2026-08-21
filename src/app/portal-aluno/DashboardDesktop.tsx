@@ -1426,7 +1426,7 @@ export default function DashboardDesktop({ alunoData }: any) {
               </div>
               
               {/* Card de Pagamento Premium Reativo */}
-              <div onClick={() => (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert('System Loading...')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-purple-500/30 hover:border-purple-300 w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
+              <div onClick={() => router.push('/portal-aluno/planos')} className="bg-gradient-to-br from-purple-600/20 via-cyan-400/10 to-transparent border border-purple-500/30 hover:border-purple-300 w-full h-full p-2 rounded-xl text-center flex flex-col justify-center items-center cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_12px_rgba(245,158,11,0.05)] group" title="Clique para abrir">
                 <span className="font-sans text-[9px] font-black tracking-wider text-cyan-400/90 block uppercase animate-pulse">{idioma === 'PT' ? 'PLANOS E CRÉDITOS' : idioma === 'ES' ? 'PLANES Y CRÉDITOS' : 'PLANS & CREDITS'}</span>
               </div>
             </div>

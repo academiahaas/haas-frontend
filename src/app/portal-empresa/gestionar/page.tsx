@@ -1,7 +1,8 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { Building2, Loader2, ArrowLeft, Shield } from "lucide-react";
 import { supabase } from "../../lib/supabase";
@@ -37,7 +38,8 @@ const TEMPLATES_EMAIL: Record<string, Record<string, { asunto: string; html: (p:
   }
 };
 
-export default function GestionarPlan() {
+function GestionarPlanInterno() {
+  const router = useRouter();
   const [empresa, setEmpresa] = useState<any>(null);
   const [planos, setPlanos] = useState<any[]>([]);
   const [grupos, setGrupos] = useState<any[]>([]);
@@ -87,6 +89,7 @@ export default function GestionarPlan() {
       semPagos: "Nenhum pagamento.",
       continuar: "Continuar",
       pagar: "Pagar",
+      verMaisDetalhes: "Ver mais detalhes",
       confirmarPago: "Confirmar pagamento",
       verOpcoes: "Ver opções de pagamento",
       cartaoCredito: "Cartão de Crédito / Débito",
@@ -131,6 +134,7 @@ export default function GestionarPlan() {
       semPagos: "Sin pagos.",
       continuar: "Continuar",
       pagar: "Pagar",
+      verMaisDetalhes: "Ver más detalles",
       confirmarPago: "Confirmar pago",
       verOpcoes: "Ver opciones de pago",
       cartaoCredito: "Tarjeta de Crédito / Débito",
@@ -175,6 +179,7 @@ export default function GestionarPlan() {
       semPagos: "No payments.",
       continuar: "Continue",
       pagar: "Pay",
+      verMaisDetalhes: "See more details",
       confirmarPago: "Confirm payment",
       verOpcoes: "View payment options",
       cartaoCredito: "Credit / Debit Card",
@@ -220,6 +225,14 @@ export default function GestionarPlan() {
   const [modalAberto, setModalAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [msgAccion, setMsgAccion] = useState("");
+  const [toastMsg, setToastMsg] = useState("");
+
+  useEffect(() => {
+    if (toastMsg) {
+      const timer = setTimeout(() => setToastMsg(""), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMsg]);
 
   const [mostrarPago, setMostrarPago] = useState(false);
   const [mostrarFormAgregar, setMostrarFormAgregar] = useState(false);
@@ -312,6 +325,18 @@ export default function GestionarPlan() {
     setSimPessoas(grupo?.membros.length || 0);
   };
 
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const planKeyUrl = searchParams.get("plan_key");
+    if (planKeyUrl && planos.length > 0) {
+      const p = planos.find((pl) => pl.plan_key === planKeyUrl);
+      if (p) {
+        setTipoHorario(p.tipo_horario);
+        handleEscolherPlano(p);
+      }
+    }
+  }, [searchParams, planos]);
+
   const handleAbrirModal = () => {
     if (!nomeNovo.trim() || !emailNovo.trim() || !emailNovo.includes("@")) {
       setMsgAccion("Completa el nombre y el correo antes de continuar.");
@@ -365,15 +390,16 @@ export default function GestionarPlan() {
       });
 
       setIdiomaCursoNovo("");
-      setMsgAccion(`${nomeNovo.trim()} fue agregado e invitado.`);
       setModalAberto(false);
       setNomeNovo("");
       setEmailNovo("");
       setDiasClase("");
       setHorarioClase("");
       setMostrarFormAgregar(false);
-      setMostrarPago(true);
-      setMostrarOpcoesPagamento(true);
+      setToastMsg(idioma === "PT" ? "✓ Convite enviado com sucesso" : idioma === "EN" ? "✓ Invitation sent successfully" : "✓ Invitación enviada con éxito");
+      setTimeout(() => {
+        router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas + 1}`);
+      }, 1200);
     } catch (e: any) {
       setMsgAccion("Error: " + e.message);
     } finally {
@@ -585,10 +611,16 @@ export default function GestionarPlan() {
           <div className="flex-1"></div>
 
           {simPlano && (
-            <div className="shrink-0" style={{ paddingBottom: "4px" }}>
+            <div className="shrink-0 flex gap-2" style={{ paddingBottom: "4px" }}>
               <button
-                onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { setMostrarPago(true); setMostrarOpcoesPagamento(true); } }}
-                className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
+                onClick={() => router.push(`/portal-empresa/planos?plan_key=${simPlano.plan_key}&pessoas=${simPessoas}`)}
+                className="flex-1 bg-white/5 hover:bg-white/10 border border-purple-500/30 text-purple-300 font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
+              >
+                {tG.verMaisDetalhes}
+              </button>
+              <button
+                onClick={() => { if (emailNovo.trim()) { handleAbrirModal(); } else { router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas}`); } }}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 hover:brightness-110 text-white font-black py-4 rounded-lg text-xs uppercase tracking-wider transition-all"
               >
                 {emailNovo.trim() ? tG.continuar : tG.pagar}
               </button>
@@ -677,7 +709,14 @@ export default function GestionarPlan() {
                     </button>
                   </div>
 
-                  {cobrancaMsg && <p className="text-[10px] text-slate-400 md:col-span-2">{cobrancaMsg}</p>}
+                  {cobrancaMsg && (
+                    <div className="md:col-span-2 flex flex-col gap-2 items-center pt-2">
+                      <p className="text-[10px] text-slate-400 text-center">{cobrancaMsg}</p>
+                      <a href="https://campus.academiahaas.com/portal-empresa" className="text-[10px] font-bold text-purple-300 hover:text-purple-200 uppercase tracking-wider transition-all">
+                        {idioma === "PT" ? "Voltar ao portal" : idioma === "EN" ? "Back to portal" : "Volver al portal"}
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -774,9 +813,14 @@ export default function GestionarPlan() {
 
       </main>
 
+      {toastMsg && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] bg-emerald-500 text-slate-950 font-bold text-xs px-5 py-3 rounded-xl shadow-2xl animate-fadeIn">
+          {toastMsg}
+        </div>
+      )}
       {modalAberto && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setModalAberto(false)}>
-          <div className="bg-[#0a1424] border border-purple-500/30 rounded-2xl p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-[#0a1424] border border-purple-500/30 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-lg font-black text-slate-100 mb-1">{idioma === "PT" ? "Revisar convite" : idioma === "EN" ? "Review invitation" : "Revisar invitación"}</h2>
             <p className="text-xs text-slate-500 mb-4">{idioma === "PT" ? "Para" : idioma === "EN" ? "To" : "Para"}: {emailNovo}</p>
 
@@ -805,5 +849,14 @@ export default function GestionarPlan() {
       )}
 
     </div>
+  );
+}
+
+
+export default function GestionarPlan() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0F1D]" />}>
+      <GestionarPlanInterno />
+    </Suspense>
   );
 }

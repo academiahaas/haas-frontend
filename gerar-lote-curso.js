@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 const { spawn } = require('child_process');
 const fs = require('fs');

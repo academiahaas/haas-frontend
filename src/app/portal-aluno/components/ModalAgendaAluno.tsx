@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from 'next/navigation';
 
 import { supabase } from "@/lib/supabase";
 
@@ -21,6 +22,7 @@ interface Aula {
 }
 
 export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"lista" | "agendar">("lista");
   const [isLembreteOpen, setIsLembreteOpen] = useState(false);
   const [isReglamentoOpen, setIsReglamentoOpen] = useState(false);
@@ -1202,7 +1204,7 @@ export default function ModalAgendaAluno({ isOpen, onClose, idioma, userId }: Pr
                   onClick={() => {
                     setIsAvisoOpen(false); // Apenas esconde o aviso preto
                     // Engrenagem idêntica do DashboardDesktop.tsx (Linha 653)
-                    (window as any).setIsPagamentoOpen ? (window as any).setIsPagamentoOpen(true) : alert("System Loading...");
+                    router.push("/portal-aluno/planos");
                   }} 
                   className="flex-1 py-2.5 bg-cyan-400 hover:bg-purple-600 text-black text-[11px] font-black uppercase rounded-xl font-mono transition-all cursor-pointer shadow-lg"
                 >{tipoAviso === "fora_combo" || tipoAviso === "zerado" || tipoAviso === "reposicao" ? (idioma === "EN" ? "BUY NOW" : idioma === "ES" ? "ADQUIRIR" : "COMPRAR AGORA") : t.btnSim}</button>

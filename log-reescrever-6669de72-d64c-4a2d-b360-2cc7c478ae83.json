@@ -1,0 +1,276 @@
+[
+  {
+    "moduleId": "4aad4603-d2b6-46fe-9045-ee31220999b7",
+    "moduleNumber": 1,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:07:48.666Z"
+  },
+  {
+    "moduleId": "5e2344ab-ae23-4298-8602-6c4ae9f460ea",
+    "moduleNumber": 2,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:08:03.235Z"
+  },
+  {
+    "moduleId": "6d48b24f-c457-401f-968e-be99d558f679",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:08:14.913Z"
+  },
+  {
+    "moduleId": "c8ca0f4f-5f5b-4dae-a7fd-d51357421500",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:08:27.128Z"
+  },
+  {
+    "moduleId": "3fa27f9a-e2bf-4cac-9a7e-ed527b15e85d",
+    "moduleNumber": 1,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:08:39.982Z"
+  },
+  {
+    "moduleId": "768e8420-c11e-481a-b1b9-60b9f5d20b8b",
+    "moduleNumber": 2,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:09:03.069Z"
+  },
+  {
+    "moduleId": "a5a4cf53-762a-4896-8306-710551b00396",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:09:16.748Z"
+  },
+  {
+    "moduleId": "31415605-3a96-4ccc-b040-78bb41b9b3b0",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:09:33.834Z"
+  },
+  {
+    "moduleId": "3abfb0eb-8e76-4e29-aac3-d2bf2848247a",
+    "moduleNumber": 1,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:09:47.529Z"
+  },
+  {
+    "moduleId": "92ce9279-5ab6-4321-bcb0-6b097ff7a2cd",
+    "moduleNumber": 2,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:09:57.416Z"
+  },
+  {
+    "moduleId": "4994edd9-ce8b-4637-8c57-91349452bc2a",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:10:12.232Z"
+  },
+  {
+    "moduleId": "ba14f017-f703-4bac-b65c-d81e9baac67a",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:10:32.913Z"
+  },
+  {
+    "moduleId": "32bafe19-fa01-4c2d-9c00-85265b2dbc5d",
+    "moduleNumber": 1,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:11:02.177Z"
+  },
+  {
+    "moduleId": "55d5e78a-e100-40ac-9b41-9a741bf25fbf",
+    "moduleNumber": 2,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:11:16.053Z"
+  },
+  {
+    "moduleId": "03544543-76ba-4150-822c-0d9aa73acf24",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:11:26.541Z"
+  },
+  {
+    "moduleId": "d3d20f54-658b-458e-9ade-c635c28884e3",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:11:45.699Z"
+  },
+  {
+    "moduleId": "bfe67475-bdba-450e-ae74-4a657a3f9aa4",
+    "moduleNumber": 1,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:11:56.899Z"
+  },
+  {
+    "moduleId": "64349f8d-77a1-4370-9728-315e6550901e",
+    "moduleNumber": 2,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:12:06.894Z"
+  },
+  {
+    "moduleId": "4a353c0f-ad58-4d8d-9c71-ce9ff928ccaf",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:12:34.451Z"
+  },
+  {
+    "moduleId": "dc19548f-e79f-4095-b5c1-fe14a330f6fc",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "/api/admin/curso-wizard/salvar-unidades: value too long for type character varying(50) ",
+    "timestamp": "2026-08-20T22:12:49.706Z"
+  },
+  {
+    "moduleId": "4aad4603-d2b6-46fe-9045-ee31220999b7",
+    "moduleNumber": 1,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:26:05.947Z"
+  },
+  {
+    "moduleId": "5e2344ab-ae23-4298-8602-6c4ae9f460ea",
+    "moduleNumber": 2,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:28:44.155Z"
+  },
+  {
+    "moduleId": "6d48b24f-c457-401f-968e-be99d558f679",
+    "moduleNumber": 3,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:32:00.237Z"
+  },
+  {
+    "moduleId": "c8ca0f4f-5f5b-4dae-a7fd-d51357421500",
+    "moduleNumber": 4,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:34:25.418Z"
+  },
+  {
+    "moduleId": "3fa27f9a-e2bf-4cac-9a7e-ed527b15e85d",
+    "moduleNumber": 1,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:36:32.576Z"
+  },
+  {
+    "moduleId": "768e8420-c11e-481a-b1b9-60b9f5d20b8b",
+    "moduleNumber": 2,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:39:24.238Z"
+  },
+  {
+    "moduleId": "a5a4cf53-762a-4896-8306-710551b00396",
+    "moduleNumber": 3,
+    "sucesso": false,
+    "erro": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "timestamp": "2026-08-20T22:39:41.057Z"
+  },
+  {
+    "moduleId": "31415605-3a96-4ccc-b040-78bb41b9b3b0",
+    "moduleNumber": 4,
+    "sucesso": false,
+    "erro": "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "timestamp": "2026-08-20T22:39:41.404Z"
+  },
+  {
+    "moduleId": "a5a4cf53-762a-4896-8306-710551b00396",
+    "moduleNumber": 3,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:43:09.038Z"
+  },
+  {
+    "moduleId": "31415605-3a96-4ccc-b040-78bb41b9b3b0",
+    "moduleNumber": 4,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:45:49.233Z"
+  },
+  {
+    "moduleId": "3abfb0eb-8e76-4e29-aac3-d2bf2848247a",
+    "moduleNumber": 1,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:49:51.069Z"
+  },
+  {
+    "moduleId": "92ce9279-5ab6-4321-bcb0-6b097ff7a2cd",
+    "moduleNumber": 2,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:54:12.065Z"
+  },
+  {
+    "moduleId": "4994edd9-ce8b-4637-8c57-91349452bc2a",
+    "moduleNumber": 3,
+    "sucesso": true,
+    "timestamp": "2026-08-20T22:56:50.445Z"
+  },
+  {
+    "moduleId": "ba14f017-f703-4bac-b65c-d81e9baac67a",
+    "moduleNumber": 4,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:01:37.301Z"
+  },
+  {
+    "moduleId": "32bafe19-fa01-4c2d-9c00-85265b2dbc5d",
+    "moduleNumber": 1,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:04:56.543Z"
+  },
+  {
+    "moduleId": "55d5e78a-e100-40ac-9b41-9a741bf25fbf",
+    "moduleNumber": 2,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:09:26.018Z"
+  },
+  {
+    "moduleId": "03544543-76ba-4150-822c-0d9aa73acf24",
+    "moduleNumber": 3,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:13:04.006Z"
+  },
+  {
+    "moduleId": "d3d20f54-658b-458e-9ade-c635c28884e3",
+    "moduleNumber": 4,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:17:21.186Z"
+  },
+  {
+    "moduleId": "bfe67475-bdba-450e-ae74-4a657a3f9aa4",
+    "moduleNumber": 1,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:22:08.486Z"
+  },
+  {
+    "moduleId": "64349f8d-77a1-4370-9728-315e6550901e",
+    "moduleNumber": 2,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:26:32.155Z"
+  },
+  {
+    "moduleId": "4a353c0f-ad58-4d8d-9c71-ce9ff928ccaf",
+    "moduleNumber": 3,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:29:20.570Z"
+  },
+  {
+    "moduleId": "dc19548f-e79f-4095-b5c1-fe14a330f6fc",
+    "moduleNumber": 4,
+    "sucesso": true,
+    "timestamp": "2026-08-20T23:33:37.419Z"
+  }
+]
