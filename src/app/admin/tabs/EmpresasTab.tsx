@@ -78,6 +78,11 @@ export function EmpresasTab() {
     }
   };
 
+
+  const handleToggleAtiva = async (id: string, statusAtual: boolean) => {
+    const { error } = await supabase.from('corporate_accounts').update({ active: !statusAtual }).eq('id', id);
+    if (!error) carregarEmpresas();
+  };
   const abrirColaboradores = async (empresa) => {
     setModalColaboradoresAberto(empresa);
     setBuscaAluno('');
@@ -188,9 +193,17 @@ export function EmpresasTab() {
                   <p className="text-xs text-slate-400">{empresa.boss_email}</p>
                   <span className="inline-block mt-1 px-2 py-0.5 bg-cyan-500/10 text-cyan-400 text-[10px] font-bold rounded uppercase">{empresa.plan_category}</span>
                 </div>
-                <button onClick={() => handleExcluirEmpresa(empresa.id, empresa.company_name)} className="text-rose-400/70 hover:text-rose-400">
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleToggleAtiva(empresa.id, empresa.active !== false)}
+                    className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border transition-all ${empresa.active === false ? "bg-slate-700/30 border-slate-600 text-slate-400" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"}`}
+                  >
+                    {empresa.active === false ? "Inativa" : "Ativa"}
+                  </button>
+                  <button onClick={() => handleExcluirEmpresa(empresa.id, empresa.company_name)} className="text-rose-400/70 hover:text-rose-400">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               <button onClick={() => abrirColaboradores(empresa)} className="mt-2 flex items-center justify-center gap-1.5 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold rounded-lg border border-white/10">
                 <Users size={14} /> Gerenciar Colaboradores

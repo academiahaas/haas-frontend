@@ -21,6 +21,33 @@ interface Funcionario {
 }
 
 export default function PortalEmpresa() {
+  const [modalPresenca, setModalPresenca] = useState<{ userId: string; nome: string } | null>(null);
+  const [diasPresenca, setDiasPresenca] = useState<any[]>([]);
+  const [carregandoPresenca, setCarregandoPresenca] = useState(false);
+
+  const abrirPresenca = async (userId: string, nome: string) => {
+    setModalPresenca({ userId, nome });
+    setCarregandoPresenca(true);
+    const { data: matriculas } = await supabase
+      .from("aula_matriculas")
+      .select("aula_id, aulas_disponiveis!inner(data_hora_fim)")
+      .eq("user_id", userId)
+      .lt("aulas_disponiveis.data_hora_fim", new Date().toISOString())
+      .order("aulas_disponiveis(data_hora_fim)", { ascending: false })
+      .limit(60);
+    const { data: avaliacoes } = await supabase
+      .from("class_evaluations")
+      .select("aula_id, presente")
+      .eq("user_id", userId);
+    const mapaPresenca = new Map((avaliacoes || []).map((a: any) => [a.aula_id, a.presente]));
+    const lista = (matriculas || []).map((m: any) => ({
+      data: m.aulas_disponiveis?.data_hora_fim,
+      presente: mapaPresenca.has(m.aula_id) ? mapaPresenca.get(m.aula_id) : null,
+    }));
+    setDiasPresenca(lista);
+    setCarregandoPresenca(false);
+  };
+
   const [empresa, setEmpresa] = useState<{ id: string; company_name: string } | null>(null);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [grupos, setGrupos] = useState<any[]>([]);
@@ -527,7 +554,12 @@ export default function PortalEmpresa() {
                 <tbody>
                   {funcionarios.map((f) => (
                     <tr key={f.id} className="border-b border-white/5">
-                      <td className="py-2 pr-4 font-semibold text-slate-200">{f.name || f.email}</td>
+                      <td className="py-2 pr-4 font-semibold text-slate-200">
+                        <div className="flex items-center gap-1.5">
+                          <span>{f.name || f.email}</span>
+                          <button onClick={() => abrirPresenca(f.id, f.name || f.email)} className="text-cyan-400 hover:text-cyan-300 text-xs" title="Ver presença">📅</button>
+                        </div>
+                      </td>
                       <td className="py-2 pr-4 text-slate-400">{f.current_level || "-"}</td>
                       <td className="py-2 pr-4 text-slate-400">{f.score_fala !== null && f.score_fala !== undefined ? `${f.score_fala}%` : "-"}</td>
                       <td className="py-2 pr-4 text-slate-400">{f.score_escuta !== null && f.score_escuta !== undefined ? `${f.score_escuta}%` : "-"}</td>
@@ -546,6 +578,35 @@ export default function PortalEmpresa() {
         )}
 
       </main>
+      {modalPresenca && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setModalPresenca(null)}>
+          <div className="bg-[#0a1424] border border-cyan-500/30 rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-sm font-black text-slate-100 mb-4">{modalPresenca.nome}</h2>
+            {carregandoPresenca ? (
+              <p className="text-xs text-slate-500">Cargando...</p>
+            ) : diasPresenca.length === 0 ? (
+              <p className="text-xs text-slate-500">Aún no hay clases registradas.</p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {diasPresenca.map((d, i) => {
+                  const data = d.data ? new Date(d.data) : null;
+                  const cor = d.presente === true ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : d.presente === false ? "bg-rose-500/15 border-rose-500/40 text-rose-400" : "bg-slate-700/20 border-slate-600/40 text-slate-400";
+                  const texto = d.presente === true ? "Presente" : d.presente === false ? "Ausente" : "Sin registro";
+                  return (
+                    <div key={i} className={`flex items-center justify-between px-3 py-2 rounded-lg border ${cor}`}>
+                      <span className="text-xs text-slate-300">{data ? data.toLocaleDateString("es-CO") : "-"}</span>
+                      <span className="text-[10px] font-bold">{texto}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <button onClick={() => setModalPresenca(null)} className="w-full mt-4 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition-all">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

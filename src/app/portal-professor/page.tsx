@@ -244,6 +244,24 @@ function TarjetaEvaluacionPequena({ pendente, professorId, idioma, onCompletado 
       onCompletado(pendente.aula_id, pendente.user_id);
     }, 450);
   };
+  const marcarAusente = async () => {
+    setSaliendo(true);
+    await supabase.from("class_evaluations").upsert([{
+      aula_id: pendente.aula_id,
+      user_id: pendente.user_id,
+      teacher_id: professorId,
+      score_fala: 0,
+      score_escuta: 0,
+      score_leitura: 0,
+      score_escrita: 0,
+      score_gramatica: 0,
+      comment: "",
+      presente: false
+    }], { onConflict: "aula_id,user_id" });
+    setTimeout(() => {
+      onCompletado(pendente.aula_id, pendente.user_id);
+    }, 450);
+  };
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -281,6 +299,12 @@ function TarjetaEvaluacionPequena({ pendente, professorId, idioma, onCompletado 
         <EstrelasInput valor={notas.escrita} onChange={(v) => setNotas({ ...notas, escrita: v })} />
       </div>
       <p className="text-[8px] text-slate-600">*{idioma === "es" ? "solo si se trabajo en clase" : idioma === "en" ? "only if practiced in class" : "so se foi trabalhado na aula"}</p>
+      <button
+        onClick={marcarAusente}
+        className="w-full mt-1 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 transition-all"
+      >
+        {idioma === "es" ? "Marcar ausente" : idioma === "en" ? "Mark absent" : "Marcar ausente"}
+      </button>
     </div>
   );
 }

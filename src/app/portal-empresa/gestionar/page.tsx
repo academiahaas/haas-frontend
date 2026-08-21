@@ -236,6 +236,37 @@ function GestionarPlanInterno() {
 
   const [mostrarPago, setMostrarPago] = useState(false);
   const [mostrarFormAgregar, setMostrarFormAgregar] = useState(false);
+  const [filaColaboradores, setFilaColaboradores] = useState<any[]>([]);
+  const [indiceFila, setIndiceFila] = useState(0);
+
+  const adicionarMaisAlguem = () => {
+    if (!nomeNovo.trim() || !emailNovo.trim() || !emailNovo.includes("@") || !idiomaCursoNovo) return;
+    if (tipoHorario === "fijo") {
+      const diasReq = simPlano?.plan_key === "3x_semana" ? 3 : simPlano?.plan_key === "5x_semana" ? 5 : 0;
+      if (diasReq > 0 && diasSelecionados.length !== diasReq) return;
+      if (!horarioClase) return;
+    }
+    const novaPessoa = {
+      nome: nomeNovo.trim(),
+      email: emailNovo.trim(),
+      idiomaCurso: idiomaCursoNovo,
+      dias: tipoHorario === "fijo" ? diasClase : null,
+      horario: tipoHorario === "fijo" ? horarioClase : null,
+    };
+    setFilaColaboradores((prev) => [...prev, novaPessoa]);
+    setIndiceFila(filaColaboradores.length);
+    setNomeNovo("");
+    setEmailNovo("");
+    setIdiomaCursoNovo("");
+    setDiasSelecionados([]);
+    setDiasClase("");
+    setHorarioClase("");
+  };
+
+  const removerDaFila = (idx: number) => {
+    setFilaColaboradores((prev) => prev.filter((_, i) => i !== idx));
+    setIndiceFila((prev) => Math.max(0, Math.min(prev, filaColaboradores.length - 2)));
+  };
   const [mostrarOpcoesPagamento, setMostrarOpcoesPagamento] = useState(false);
   const [criandoCobranca, setCriandoCobranca] = useState(false);
   const [cobrancaMsg, setCobrancaMsg] = useState("");
@@ -277,7 +308,7 @@ function GestionarPlanInterno() {
 
       const { data: gruposReais } = await supabase.from("corporate_groups").select("id, plan_key").eq("corporate_account_id", corporateId);
       if (gruposReais) {
-        const { data: funcionarios } = await supabase.from("users").select("id, name, email, corporate_group_id").eq("corporate_account_id", corporateId);
+        const { data: funcionarios } = await supabase.from("users").select("id, name, email, corporate_group_id, corporate_next_due_date, corporate_payment_status").eq("corporate_account_id", corporateId);
         setGrupos(gruposReais.map((g: any) => ({ ...g, membros: (funcionarios || []).filter((f: any) => f.corporate_group_id === g.id) })));
       }
 
@@ -365,30 +396,43 @@ function GestionarPlanInterno() {
     setEnviando(true);
     setMsgAccion("");
     try {
-      const resCadastro = await fetch("/api/portal-empresa/agregar-colaborador", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          corporate_account_id: empresa.id,
-          plan_key: simPlano.plan_key,
-          nombre: nomeNovo.trim(),
-          idioma_curso: idiomaCursoNovo,
-          email: emailNovo.trim(),
-          dias: tipoHorario === "fijo" ? diasClase : null,
-          horario: tipoHorario === "fijo" ? horarioClase : null
-        })
-      });
-      const dadosCadastro = await resCadastro.json();
-      if (!resCadastro.ok) throw new Error(dadosCadastro.error);
+      const pessoaAtual = {
+        nome: nomeNovo.trim(),
+        email: emailNovo.trim(),
+        idiomaCurso: idiomaCursoNovo,
+        dias: tipoHorario === "fijo" ? diasClase : null,
+        horario: tipoHorario === "fijo" ? horarioClase : null,
+      };
+      const todosParaEnviar = [...filaColaboradores, pessoaAtual];
 
-      const template = TEMPLATES_EMAIL[tipoHorario][idiomaEmail];
-      const html = template.html({ empresa: empresa?.company_name, dias: diasClase || "-", horario: horarioClase || "-", link: "https://academiahaas.com/diagnostico" });
-      await fetch("/api/email/enviar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ destinatario: emailNovo.trim(), assunto: template.asunto, corpoHtml: html })
-      });
+      for (const pessoa of todosParaEnviar) {
+        const resCadastro = await fetch("/api/portal-empresa/agregar-colaborador", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            corporate_account_id: empresa.id,
+            plan_key: simPlano.plan_key,
+            nombre: pessoa.nome,
+            idioma_curso: pessoa.idiomaCurso,
+            email: pessoa.email,
+            dias: pessoa.dias,
+            horario: pessoa.horario
+          })
+        });
+        const dadosCadastro = await resCadastro.json();
+        if (!resCadastro.ok) throw new Error(pessoa.nome + ": " + dadosCadastro.error);
+        const template = TEMPLATES_EMAIL[tipoHorario][idiomaEmail];
+        const html = template.html({ empresa: empresa?.company_name, dias: pessoa.dias || "-", horario: pessoa.horario || "-", link: "https://academiahaas.com/diagnostico" });
+        await fetch("/api/email/enviar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ destinatario: pessoa.email, assunto: template.asunto, corpoHtml: html })
+        });
+      }
 
+      const totalEnviados = todosParaEnviar.length;
+      setFilaColaboradores([]);
+      setIndiceFila(0);
       setIdiomaCursoNovo("");
       setModalAberto(false);
       setNomeNovo("");
@@ -396,15 +440,42 @@ function GestionarPlanInterno() {
       setDiasClase("");
       setHorarioClase("");
       setMostrarFormAgregar(false);
-      setToastMsg(idioma === "PT" ? "✓ Convite enviado com sucesso" : idioma === "EN" ? "✓ Invitation sent successfully" : "✓ Invitación enviada con éxito");
+      setToastMsg(idioma === "PT" ? ("✓ " + totalEnviados + " convite(s) enviado(s) com sucesso") : idioma === "EN" ? ("✓ " + totalEnviados + " invitation(s) sent successfully") : ("✓ " + totalEnviados + " invitación(es) enviada(s) con éxito"));
       setTimeout(() => {
-        router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas + 1}&group_id=${grupoAtual?.id || ''}`);
+        router.push(`/portal-empresa/pagamento?plan_key=${simPlano.plan_key}&pessoas=${simPessoas + totalEnviados}&group_id=${grupoAtual?.id || ''}`);
       }, 1200);
     } catch (e: any) {
       setMsgAccion("Error: " + e.message);
     } finally {
       setEnviando(false);
     }
+  };
+
+  const [modalPresenca, setModalPresenca] = useState<{ userId: string; nome: string } | null>(null);
+  const [diasPresenca, setDiasPresenca] = useState<any[]>([]);
+  const [carregandoPresenca, setCarregandoPresenca] = useState(false);
+
+  const abrirPresenca = async (userId: string, nome: string) => {
+    setModalPresenca({ userId, nome });
+    setCarregandoPresenca(true);
+    const { data: matriculas } = await supabase
+      .from("aula_matriculas")
+      .select("aula_id, aulas_disponiveis!inner(data_hora_fim)")
+      .eq("user_id", userId)
+      .lt("aulas_disponiveis.data_hora_fim", new Date().toISOString())
+      .order("aulas_disponiveis(data_hora_fim)", { ascending: false })
+      .limit(60);
+    const { data: avaliacoes } = await supabase
+      .from("class_evaluations")
+      .select("aula_id, presente")
+      .eq("user_id", userId);
+    const mapaPresenca = new Map((avaliacoes || []).map((a: any) => [a.aula_id, a.presente]));
+    const lista = (matriculas || []).map((m: any) => ({
+      data: m.aulas_disponiveis?.data_hora_fim,
+      presente: mapaPresenca.has(m.aula_id) ? mapaPresenca.get(m.aula_id) : null,
+    }));
+    setDiasPresenca(lista);
+    setCarregandoPresenca(false);
   };
 
   const handleRemoverColaborador = async (email: string) => {
@@ -738,12 +809,31 @@ function GestionarPlanInterno() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5 mb-3 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-                  {membrosAtuais.map((m: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 shrink-0">
-                      <span className="text-xs text-slate-300">{m.name || m.email}</span>
-                      <button onClick={() => handleRemoverColaborador(m.email)} disabled={enviando} className="text-rose-400 hover:text-rose-300 text-xs font-bold disabled:opacity-40">✕</button>
-                    </div>
-                  ))}
+                  {membrosAtuais.map((m: any, i: number) => {
+                    const hoje = new Date(); hoje.setHours(0,0,0,0);
+                    const dataVenc = m.corporate_next_due_date ? new Date(m.corporate_next_due_date + "T00:00:00") : null;
+                    const pago = m.corporate_payment_status === "paid";
+                    const corSelo = !dataVenc
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
+                      : pago
+                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                      : dataVenc < hoje
+                      ? "bg-rose-500/15 border-rose-500/40 text-rose-400"
+                      : "bg-amber-500/15 border-amber-500/40 text-amber-400";
+                    const textoSelo = !dataVenc
+                      ? (idioma === "PT" ? "Pendente" : idioma === "EN" ? "Pending" : "Pendiente")
+                      : dataVenc.toLocaleDateString(idioma === "EN" ? "en-US" : idioma === "PT" ? "pt-BR" : "es-CO");
+                    return (
+                      <div key={i} className="flex items-center justify-between bg-white/[0.02] border border-white/5 rounded-lg px-3 py-2 shrink-0 gap-2">
+                        <span className="text-xs text-slate-300 truncate">{m.name || m.email}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`text-[9px] font-bold px-2 py-1 rounded-md border ${corSelo}`}>{textoSelo}</span>
+                          <button onClick={() => abrirPresenca(m.id, m.name || m.email)} className="text-cyan-400 hover:text-cyan-300 text-xs" title="Ver presença">📅</button>
+                          <button onClick={() => handleRemoverColaborador(m.email)} disabled={enviando} className="text-rose-400 hover:text-rose-300 text-xs font-bold disabled:opacity-40">✕</button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -800,9 +890,46 @@ function GestionarPlanInterno() {
                         </select>
                       </div>
                     )}
-                    <button onClick={handleAbrirModal} className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold py-2 rounded-lg text-xs transition-all">
-                      {tG.revisarEnviar}
-                    </button>
+                    {(() => {
+                      const metaQuantidade = Math.max(0, simPessoas - membrosAtuais.length);
+                      return (
+                        <>
+                          <div className="text-[9px] text-slate-500 px-1">
+                            {idioma === "PT" ? `Você pode adicionar ${metaQuantidade} pessoa(s) nova(s), de acordo com o total escolhido no simulador.` : idioma === "EN" ? `You can add ${metaQuantidade} new person/people, based on the total chosen in the simulator.` : `Puedes agregar ${metaQuantidade} persona(s) nueva(s), según el total elegido en el simulador.`}
+                          </div>
+                          {filaColaboradores.length > 0 && (
+                            <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                              <button onClick={() => setIndiceFila((p) => Math.max(0, p - 1))} disabled={indiceFila === 0} className="text-slate-400 hover:text-white disabled:opacity-30 text-xs">◀</button>
+                              <div className="flex-1 text-center">
+                                <span className="text-[10px] text-slate-300 font-bold">{filaColaboradores[indiceFila]?.nome}</span>
+                                <span className="text-[9px] text-slate-500 block">{filaColaboradores[indiceFila]?.email}</span>
+                              </div>
+                              <button onClick={() => setIndiceFila((p) => Math.min(filaColaboradores.length - 1, p + 1))} disabled={indiceFila >= filaColaboradores.length - 1} className="text-slate-400 hover:text-white disabled:opacity-30 text-xs">▶</button>
+                            </div>
+                          )}
+                          {metaQuantidade > 0 && (
+                            <div className="flex items-center justify-between text-[9px] text-slate-500 px-1">
+                              <span>{filaColaboradores.length + 1} / {metaQuantidade} {idioma === "PT" ? "adicionados" : idioma === "EN" ? "added" : "agregados"}</span>
+                              {filaColaboradores.length > 0 && (
+                                <button onClick={() => removerDaFila(indiceFila)} className="text-rose-400 hover:text-rose-300 font-bold">
+                                  {idioma === "PT" ? "Remover atual" : idioma === "EN" ? "Remove current" : "Eliminar actual"}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {metaQuantidade > 0 && filaColaboradores.length + 1 < metaQuantidade && (
+                            <button onClick={adicionarMaisAlguem} className="w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold py-2 rounded-lg text-xs transition-all">
+                              {idioma === "PT" ? "+ Adicionar mais alguém" : idioma === "EN" ? "+ Add another person" : "+ Agregar otra persona"}
+                            </button>
+                          )}
+                          {metaQuantidade > 0 && (
+                            <button onClick={handleAbrirModal} className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold py-2 rounded-lg text-xs transition-all">
+                              {tG.revisarEnviar}
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
                 {msgAccion && <p className="text-[11px] text-slate-400 mt-2">{msgAccion}</p>}
@@ -816,6 +943,39 @@ function GestionarPlanInterno() {
       {toastMsg && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] bg-emerald-500 text-slate-950 font-bold text-xs px-5 py-3 rounded-xl shadow-2xl animate-fadeIn">
           {toastMsg}
+        </div>
+      )}
+      {modalPresenca && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setModalPresenca(null)}>
+          <div className="bg-[#0a1424] border border-cyan-500/30 rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto scrollbar-hide" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-sm font-black text-slate-100 mb-4">{modalPresenca.nome}</h2>
+            {carregandoPresenca ? (
+              <p className="text-xs text-slate-500">
+                {idioma === "PT" ? "Carregando..." : idioma === "EN" ? "Loading..." : "Cargando..."}
+              </p>
+            ) : diasPresenca.length === 0 ? (
+              <p className="text-xs text-slate-500">
+                {idioma === "PT" ? "Nenhuma aula registrada ainda." : idioma === "EN" ? "No classes recorded yet." : "Aún no hay clases registradas."}
+              </p>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {diasPresenca.map((d, i) => {
+                  const data = d.data ? new Date(d.data) : null;
+                  const cor = d.presente === true ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400" : d.presente === false ? "bg-rose-500/15 border-rose-500/40 text-rose-400" : "bg-slate-700/20 border-slate-600/40 text-slate-400";
+                  const texto = d.presente === true ? (idioma === "PT" ? "Presente" : idioma === "EN" ? "Present" : "Presente") : d.presente === false ? (idioma === "PT" ? "Ausente" : idioma === "EN" ? "Absent" : "Ausente") : (idioma === "PT" ? "Sem registro" : idioma === "EN" ? "Not recorded" : "Sin registro");
+                  return (
+                    <div key={i} className={`flex items-center justify-between px-3 py-2 rounded-lg border ${cor}`}>
+                      <span className="text-xs text-slate-300">{data ? data.toLocaleDateString(idioma === "EN" ? "en-US" : idioma === "PT" ? "pt-BR" : "es-CO") : "-"}</span>
+                      <span className="text-[10px] font-bold">{texto}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <button onClick={() => setModalPresenca(null)} className="w-full mt-4 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition-all">
+              {idioma === "PT" ? "Fechar" : idioma === "EN" ? "Close" : "Cerrar"}
+            </button>
+          </div>
         </div>
       )}
       {modalAberto && (
