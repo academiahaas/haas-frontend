@@ -4,7 +4,7 @@ import time
 import urllib.request
 
 SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co"
-SERVICE_KEY = "sb_secret_PngpeWMeQNFg1OcKpl0xOw_ZVZ8PMVz"
+SERVICE_KEY = "sb_secret__WlrywaYeIcg2xnvFTGyyw_xbys1jtK"
 HEADERS = {"apikey": SERVICE_KEY, "Authorization": f"Bearer {SERVICE_KEY}"}
 
 def sb_get(path):

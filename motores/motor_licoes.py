@@ -6,7 +6,7 @@ sys.path.insert(0, '/tmp')
 from revisor import revisar_e_corrigir
 
 SUPABASE_URL = "https://jdppxfokfhqjudwfwckd.supabase.co"
-SERVICE_KEY = "sb_secret_PngpeWMeQNFg1OcKpl0xOw_ZVZ8PMVz"
+SERVICE_KEY = "sb_secret__WlrywaYeIcg2xnvFTGyyw_xbys1jtK"
 DEEPSEEK_KEY = "sk-e426fa20f2c64907bb550d7eccf1261f"
 
 HEADERS = {"apikey": SERVICE_KEY, "Authorization": f"Bearer {SERVICE_KEY}", "Content-Type": "application/json"}
